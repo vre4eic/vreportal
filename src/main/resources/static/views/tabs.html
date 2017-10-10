@@ -1,0 +1,21 @@
+<div ng-cloak >
+	
+	<md-content class="md-padding"> 
+	<!-- md-selected="currentTab" -->
+		<md-tabs md-dynamic-height 
+				 md-border-bottom
+				 md-autoselect
+				 md-selected="currentTab">
+			<md-tab ng-repeat="tab in tabs" 
+					class="full-size"
+					id="{{tab.index}}" 
+					label="{{tab.title}}" 
+					ui-sref="{{tab.state}}"
+					md-on-select="switchTab($index)">
+					<div ui-view="{{tab.view}}" style="min-height:700px"></div>
+			</md-tab>
+		</md-tabs>
+		<!--<div class="slide" ui-view></div>-->
+	</md-content>
+	
+</div>

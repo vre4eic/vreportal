@@ -1,0 +1,290 @@
+<div class="section" style="padding: 20px;">
+	
+	<div class="row">
+		<div class="column inside" style="width:100%">
+			
+			<md-toolbar class="md-primary">
+				<div class="md-toolbar-tools">
+					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();" 
+							   class="md-fab md-mini hideLeft" 
+							   aria-label="Show VRE's menu"
+							   ng-hide="hiddenTreeMenuTogglerButton">
+			            <md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
+			        </md-button>
+					<h2 class="md-flex" flex>{{headingTitle}}</h2>
+					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
+			            <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon>
+			        </md-button>
+				</div>
+			</md-toolbar>
+			
+			<md-sidenav class="md-sidenav-right" 
+					md-component-id="rightInfo"
+                	md-disable-backdrop 
+                	md-whiteframe="4"
+                	style="margin-top:94px;">
+
+				<md-toolbar class="md-accent">
+					<div class="md-toolbar-tools">
+						<md-button class="md-icon-button" aria-label="Hide Help" ng-click="toggleInfo()">
+	          				<md-icon md-font-icon="fa fa-chevron-circle-right" style="font-size:24px"></md-icon>
+	        			</md-button>
+						
+						<h2 class="md-flex">Information</h2>
+						<span flex></span>
+						<md-icon md-font-icon="fa fa-info" style="font-size:32px;"></md-icon>
+					</div>
+				</md-toolbar>
+	
+				<md-content layout-margin>
+					<p>
+						<div ng-include="'views/info/queryInfo.html'"></div>
+					</p>
+						
+					<md-button ng-click="toggleInfo()" class="md-accent">
+						Close this Sidenav
+					</md-button>
+				</md-content>
+	
+			</md-sidenav>
+			
+			<md-content flex layout-padding style="overflow:visible;" layout="column">
+				
+				<form ng-submit="$event.preventDefault()" name="searchForm">
+				
+				<!-- Breadcrumb -->
+				<!--
+				<ul id="breadcrumb"> 
+					<li ng-repeat="item in breadcrumbItems">
+						<a href="" ng-if="$first" ng-click="goToHomeView()">
+							<span class="fa fa-home"></span>
+						</a>
+						<a href="" ng-if="!$first" ng-click="testBreadcrumb(headingTitle)">
+							<span class="{{item.icon}}"></span> 
+							{{item.label}}
+						</a>
+					</li>
+				</ul>
+				
+				-->
+				
+				
+				<span layout="row">
+			        
+			        <!--
+			        <section layout="column">
+		
+						<md-input-container class="md-block" style="width:200px;margin-bottom:-20px;">
+							<label>Search VREs</label>
+							<input ng-model="treeVre">
+						</md-input-container>
+						
+		  				<div ivh-treeview="stuff"
+		  					 ivh-treeview-filter="treeVre"
+		  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
+		  					 ivh-treeview-on-cb-change="otherAwesomeCallback(ivhNode, ivhIsSelected, ivhTree)">
+							<script type="text/ng-template">
+								<span ivh-treeview-toggle>
+									<span ivh-treeview-twistie></span>
+								</span>
+								<md-box></md-box>
+								<span class="ivh-treeview-node-label" ivh-treeview-toggle>
+									{{trvw.label(node)}}
+								</span>
+								<div ivh-treeview-children></div>
+      						</script>
+					    
+						</div>
+					
+					</section>
+			        -->
+			        
+			        
+			        <!-- Side tree -->
+					<md-sidenav class="md-sidenav-left" 
+							md-component-id="treeMenu"
+		                	md-disable-backdrop 
+		                	md-whiteframe="3">
+		
+							<md-toolbar class="md-accent">
+								<div class="md-toolbar-tools">
+									<md-button class="md-icon-button" aria-label="Hide Help" ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();">
+				          				<md-icon md-font-icon="fa fa-chevron-circle-left" style="font-size:24px"></md-icon>
+				        			</md-button>
+									
+									<h2 class="md-flex">VREs</h2>
+									<span flex></span>
+									<md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
+								</div>
+							</md-toolbar>
+			
+							<md-content layout-margin>
+								
+								<section layout="column">
+					
+									<md-input-container class="md-block" style="width:200px;margin-bottom:-20px;">
+										<label>Search VREs</label>
+										<input ng-model="treeVre">
+									</md-input-container>
+									
+					  				<div ivh-treeview="stuff"
+					  					 ivh-treeview-filter="treeVre"
+					  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
+					  					 ivh-treeview-on-cb-change="otherAwesomeCallback(ivhNode, ivhIsSelected, ivhTree)">
+										<script type="text/ng-template">
+											<span ivh-treeview-toggle>
+												<span ivh-treeview-twistie></span>
+											</span>
+											<md-box></md-box>
+											<span class="ivh-treeview-node-label" ivh-treeview-toggle>
+												{{trvw.label(node)}}
+											</span>
+											<div ivh-treeview-children></div>
+      									</script>
+								    
+									</div>
+								
+								</section>
+									
+								<md-button ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();" class="md-accent">
+									Hide this Sidenav
+								</md-button>
+							</md-content>
+			
+					</md-sidenav>
+					
+					<section layout-align="center top" layout="row" layout-sm="column" layout-align="center center"> <!-- start for top -->
+						
+						<div layout="column" 
+							 style="height:320px; 
+							 		width:255px;
+							 		margin:18px 5px; 
+							 		padding:5px; 
+							 		border: 1px solid #ccc; 
+							 		border-radius: 5px;" 
+							 layout-wrap">
+							<!-- width:255px; -->
+							
+							<md-toolbar class="md-primary">
+								<div class="md-toolbar-tools" layout-align="start center">
+									<h2>Searching for...</h2>
+								</div>
+							</md-toolbar>
+									
+							<md-content layout-padding layout-xs style="height: 180px;">
+							
+								<md-input-container class="md-block shrinked">
+									<label>Select Target Entity</label>
+									<md-select ng-model="selectedTargetEntity" 
+											   ng-change="loadThesaurus(selectedTargetEntity, -1)"
+											   name="targetEntityInput" 
+											   required 
+											   md-no-asterisk="false">
+										<md-option ng-repeat="entity in targetEntities" ng-value="entity" >
+											{{entity.name}}
+										</md-option>
+									</md-select>
+								</md-input-container>
+								
+								<!--
+								<md-input-container class="md-block" flex-gt-sm>
+									<label>Search for keyword</label>
+									<input name="clientName" ng-model="searchTargetKeywords">
+									<div ng-messages="targetEntityInput.$error">
+										<div ng-message="required">This is required.</div>
+									</div>
+								</md-input-container>
+								-->
+																
+								<md-chips ng-model="targetChips" 
+										  md-removable="true" 
+										  class="shrinked" 
+										  md-enable-chip-edit="true"
+										  style="padding:0;">
+									<md-autocomplete flex layout-xs md-input-name="targetEntityInput"
+													 class="shrinked"
+													 md-no-cache="true" 
+													 md-dropdown-items="5" 
+													 md-selected-item="selectedTargetRecomentation" 
+													 md-search-text="searchText"
+													 md-selected-item-change="selectedItemChange(item, -1)"
+													 md-items="item in querySearch(searchText, -1)"
+													 md-item-text="item.name"
+													 md-min-length="2"
+													 ng-disabled="selectedTargetEntity.name==''"
+													 placeholder="Search for keyword"
+													 style="font-size:14px;">
+													 <!-- class="shrinked autocomplete-with-icon" -->
+	         										 <!-- md-floating-label="Search for keyword" -->
+										<span md-highlight-text="searchText">{{item.name}}</span>
+									    <md-not-found>
+											No terms matching "{{searchText}}" were found.
+								        </md-not-found>
+									</md-autocomplete>
+									
+									<md-chip-template>
+							        	<span style="font-size:14px;">
+											{{$chip.name}}
+										</span>
+									</md-chip-template>
+								</md-chips>
+								
+								<!-- 
+								Autocomplete with chip:
+								https://codepen.io/Rishii/pen/mPqazv
+								
+								 -->
+							</md-content>
+									
+						</div>
+						
+						<!-- 
+						<div ng-repeat="rowModel in wholeRowModels track by $index" 
+							 style="padding:18px 0" 
+							 ng-init="outerIndex=$index">
+							<row-template/>
+						</div>
+						-->
+						
+						
+						<md-list flex>
+							<md-list-item ng-repeat="rowModel in rowModelList track by $index" 
+										  ng-init="outerIndex=$index" 
+										  style="padding:10px 0" 
+										  class="showListItem">
+								<div layout="column" ng-include="'../views/rowTemplate.html'" onload="parent=$parent"></div>
+								<!--
+								<row-template/>
+								-->
+							</md-list-item>
+						</md-list>
+					
+					</section>
+										
+				</span>
+				
+				<span layout="row">
+					<span flex></span>
+					<md-button class="md-raised md-primary">
+						<md-icon md-font-icon="fa fa-search" style="font-size:18px"></md-icon>
+						Search
+					</md-button>
+					
+				</span>
+				
+				<!--
+				<button ng-click="selectHats()">
+					Select Hats
+			    </button>
+			    <button ng-click="deselectGel()">
+					Deselect Gel ink
+			    </button>
+				-->
+				
+			</form>
+			</md-content>
+		</div>
+		
+	</div>
+
+</div>

@@ -1,0 +1,188 @@
+<div class="section" style="padding: 20px;">
+	
+	<div class="row">
+		<div class="column inside" style="width:100%">
+			
+			<md-toolbar class="md-primary">
+				<div class="md-toolbar-tools">
+					<h2 class="md-flex" flex>{{headingTitle}}</h2>
+					<md-button ng-click="toggleInfo()" class="md-fab md-mini" aria-label="Show Help">
+			            <md-icon md-svg-src="images/information-variant.svg"></md-icon>
+			        </md-button>
+				</div>
+			</md-toolbar>
+			
+			<md-content flex layout-padding>
+			
+				<form id="queryForm" class="ng-valid ng-dirty" role="form" ng-submit="submitAsyncQueryJSON()">
+				
+					<div id="tags-box">
+						<div class="form-group">
+							
+							<div layout-padding>
+								<p>
+									Please select one of the <code style="color:#106CC8;background: rgba(0,0,0,0.065);">use cases</code> below to execute the respective <code style="color:#106CC8;background: rgba(0,0,0,0.065);">query</code>.
+								</p>
+							</div>
+							
+							<div uib-alert ng-repeat="alert in alerts"
+								 ng-class="'alert-' + (alert.type || 'warning')" 
+								 class='fadeAlert'
+								 close="alerts.splice($index, 1);">
+								{{alert.msg}}
+							</div>
+							
+							<div layout="row" layout-padding>
+								
+								<md-content>
+									<md-list flex>
+										<md-subheader class="md-no-sticky">{{advancedQueries.length}} Queries</md-subheader>
+										<md-list-item class="md-3-line" 
+													  ng-repeat="item in advancedQueries" 
+													  ng-click="runAdvancedQuery(item)">
+											<img src="{{item.icon}}" style="padding-right:15px;" width="48"/>
+											<div class="md-list-item-text" layout="column" flex>
+												<h3>{{item.title}}</h3>
+												<p>{{item.description}}</p>
+												<!--<p>{{item.notes}}</p>-->
+											</div>
+											<md-divider ></md-divider>
+										</md-list-item>
+									</md-list>
+								</md-content>
+							</div>
+							
+						</div>
+					</div>
+					
+				</form>
+			</md-content>
+		</div>
+		
+		<md-sidenav class="md-sidenav-right" 
+					md-component-id="rightInfo"
+                	md-disable-backdrop 
+                	md-whiteframe="4"
+                	style="margin-top:30px;">
+
+			<md-toolbar class="md-accent">
+				<div class="md-toolbar-tools">
+					<md-button class="md-icon-button" aria-label="Hide Help" ng-click="toggleInfo()">
+          				<md-icon md-svg-src="images/chevron-right.svg" style="color: white;"></md-icon>
+        			</md-button>
+					
+					<h2 class="md-flex">Information</h2>
+					<span flex></span>
+					<md-icon md-font-icon="mdi mdi-information-outline" style="font-size:25px;"></md-icon>
+				</div>
+			</md-toolbar>
+
+			<md-content layout-margin>
+				<p>
+					<div ng-include="'views/info/queryInfo.html'"></div>
+				</p>
+					
+				<md-button ng-click="toggleInfo()" class="md-accent">
+					Close this Sidenav
+				</md-button>
+			</md-content>
+
+		</md-sidenav>
+		
+	</div>
+
+
+
+	<!-- Results Table -->
+	<div ng-show="lastEndPointForm.totalItems>0" class="row">
+		<md-toolbar class="md-primary">
+			<div class="md-toolbar-tools">
+				<h2 class="md-flex">Data Results</h2>
+			</div>
+		</md-toolbar>
+		<div id="table_results">
+			<table class="table table-striped table-condensed table-hover scrollTable">
+				<thead>
+					<!--
+					<tr class="ng-scope">
+						<th ng-repeat="head in lastEndPointForm.result.head.vars">{{head}}</th>
+					</tr>
+					-->
+					<tr ng-repeat="item in endpointResult.results|limitTo:1" class="ng-scope">
+						<th ng-repeat="(key,val) in item" class="ng-binding">
+							{{key}} 
+						</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<td colspan="3">
+							<div class="text-center">
+								<ul uib-pagination items-per-page="itemsPerPage"
+									total-items="totalItems" 
+									ng-model="currentPage"
+									max-size="maxSize" 
+									class="pagination-sm" 
+									boundary-links="true"
+									force-ellipses="true" 
+									ng-change="pageChanged()">
+								</ul>
+
+							</div>
+						</td>
+					<tr>
+					<tr>
+						<td colspan="4">
+							<div class="text-right">
+								Number of Results: <b>{{lastEndPointForm.totalItems}}</b>
+							</div>
+						</td>
+					</tr>
+				</tfoot>
+				<tbody style="height: 150px;">
+					<tr ng-repeat="item in endpointResult.results" class="ng-scope">
+						<td ng-repeat="column in item" class="ng-binding">
+							<!--
+							<span>
+								<a ng-if="column.type==='uri'" ng-href="{{column.value}}" target="_blank">
+									{{column.value}}
+								</a>
+							</span>
+							-->
+							
+							<span ng-if="column.link === true">
+								<a ng-href="{{column.uri}}" target="_blank">
+									{{column.name}}
+								</a>
+							</span>
+							
+							<span>
+								<a ng-if="column.link === undefined && column.type==='uri'" ng-href="{{column.value}}" target="_blank">
+									{{column.value}}
+								</a>
+							</span>
+							
+							<span ng-if="column.link === undefined && column.type!=='uri'">
+								{{column.value}}
+							</span>
+							
+							<!--
+							<span ng-if="column.type!=='uri'">
+								{{column.value}}
+							</span>
+							-->
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+	
+	<div ng-show="lastEndPointForm.totalItems==0" class="row">
+		<div style="margin-top: -40px;padding-left: 40px;">
+			<h4>No entries were found</h4>
+		</div>
+	</div>
+
+</div>

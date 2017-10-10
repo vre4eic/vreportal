@@ -1,0 +1,604 @@
+/************** tags-input CSS*******************/
+
+tags-input .tags .tag-item {
+    
+background-color: #5bc0de !important;
+border-color: #42bd41 !important;
+color: #fff !important;
+background: #72d572 !important;   
+  margin: 2px;
+  padding: 0 5px;
+  display: inline-block;
+  float: left;
+  font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  height: 26px;
+  line-height: 25px;
+  //border: 1px solid #acacac;
+  //background: linear-gradient(to bottom, #f0f9ff 0%, #cbebff 47%, #a1dbff 100%);
+  border-radius: 3px;
+}
+tags-input .tags .tag-item.selected {
+  background: #ff4081 !important;
+}
+
+/*tags-input {
+  display: block;
+}
+tags-input *, tags-input *:before, tags-input *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+tags-input .host {
+  position: relative;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  height: 100%;
+}
+tags-input .host:active {
+  outline: none;
+}
+
+tags-input .tags {
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
+  padding: 1px;
+  overflow: hidden;
+  word-wrap: break-word;
+  cursor: text;
+  background-color: #fff;
+  border: 1px solid darkgray;
+  box-shadow: 1px 1px 1px 0 lightgray inset;
+  height: 100%;
+}
+tags-input .tags.focused {
+  outline: none;
+  -webkit-box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
+  -moz-box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
+  box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
+}
+tags-input .tags .tag-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+*/
+
+/*tags-input .tags .tag-item .remove-button {
+  margin: 0 0 0 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  vertical-align: middle;
+  font: bold 16px Arial, sans-serif;
+  color: #585858;
+}
+tags-input .tags .tag-item .remove-button:active {
+  color: #ff0000;
+}
+tags-input .tags .input {
+  border: 0;
+  outline: none;
+  margin: 2px;
+  padding: 0;
+  padding-left: 5px;
+  float: left;
+  height: 26px;
+  font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+tags-input .tags .input.invalid-tag {
+  color: #ff0000;
+}
+tags-input .tags .input::-ms-clear {
+  display: none;
+}
+tags-input.ng-invalid .tags {
+  -webkit-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
+  -moz-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
+  box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
+}
+tags-input[disabled] .host:focus {
+  outline: none;
+}
+tags-input[disabled] .tags {
+  background-color: #eee;
+  cursor: default;
+}
+tags-input[disabled] .tags .tag-item {
+  opacity: 0.65;
+  background: -webkit-linear-gradient(top, #f0f9ff 0%, rgba(203, 235, 255, 0.75) 47%, rgba(161, 219, 255, 0.62) 100%);
+  background: linear-gradient(to bottom, #f0f9ff 0%, rgba(203, 235, 255, 0.75) 47%, rgba(161, 219, 255, 0.62) 100%);
+}
+tags-input[disabled] .tags .tag-item .remove-button {
+  cursor: default;
+}
+tags-input[disabled] .tags .tag-item .remove-button:active {
+  color: #585858;
+}
+tags-input[disabled] .tags .input {
+  background-color: #eee;
+  cursor: default;
+}
+
+tags-input .autocomplete {
+  margin-top: 5px;
+  position: absolute;
+  padding: 5px 0;
+  z-index: 999;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+tags-input .autocomplete .suggestion-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  max-height: 280px;
+  overflow-y: auto;
+  position: relative;
+}
+tags-input .autocomplete .suggestion-item {
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  background-color: #fff;
+}
+tags-input .autocomplete .suggestion-item.selected {
+  color: #fff;
+  background-color: #0097cf;
+}
+tags-input .autocomplete .suggestion-item.selected em {
+  color: #fff;
+  background-color: #0097cf;
+}
+tags-input .autocomplete .suggestion-item em {
+  font: normal bold 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #000;
+  background-color: #fff;
+}
+
+
+/*******************user defined css **********************/
+.radioclass{
+ font-weight: normal;   
+}
+
+.inside
+{
+ display: inline-block;
+ /*margin: 17px 0px 0px -7px;*/ 
+ vertical-align: top;
+}
+.row {
+    display: table;
+    width: 100%; /*Optional*/
+    table-layout: fixed; /*Optional*/
+    border-spacing: 10px; /*Optional*/
+}
+.column {
+    display: table-cell;
+}
+
+.justified
+{
+text-align: justify;
+text-justify: inter-word;
+}
+
+/* Creating new alert types for bootstrap*/
+.alert-success-funky {
+    background-color: #B2FF59;
+    border-color: #345d04;
+    color: #345d04;
+}
+.alert-warning-funky {
+    background-color: #FFB74D;
+    border-color: #fffafc;
+    color: #fffafc;
+}
+
+.alert-danger-funky {
+    background-color: #EF9A9A;
+    border-color: #870000;
+    color: #870000;
+}
+
+.slim {
+	line-height: normal !important;
+	margin: 0 !important;
+	min-height: 0 !important;
+}
+
+/*
+NEW
+*/
+
+.card-media { /* not used */
+  	background-color: #999999;
+}
+
+/* Overwriting check for ViewTree */
+div.md-icon:after {
+	display: block !important;
+	/*background-color: blue;*/
+}
+
+/* Mockups */
+
+.card {
+  background: #fff;
+  border-radius: 2px;
+  display: inline-block;
+  height: 275px;
+  padding:5px;
+  margin:10px;
+  position: relative;
+}
+
+/*
+.card-3 {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+*/
+
+/* Remove md-container error space below */
+md-input-container .md-errors-spacer {
+    display: none;
+}
+
+/* Remove after space by using "shrinked" custom class */
+md-input-container.md-block.shrinked:after {
+    display: none;
+}
+
+/* remove after space by using "shrinked" custom class */
+md-input-container.shrinked md-chips-wrap.md-chips.md-readonly.md-removable:after {
+	display: block;
+}
+
+/* Remove line below the chip by using "shrinked" custom class*/
+md-input-container.shrinked md-chips-wrap.md-chips.md-readonly.md-removable {
+	box-shadow: none;
+}
+
+/* Custom color for chips */
+md-chips.colorful md-chip {
+	/*background:#ff4081;*/
+	/*background: rgba(255, 64, 129, 0.56);*/
+	background: rgba(0, 200, 83, 0.61);
+}
+
+/* remove after space by using "shrinked" custom class */
+md-chips.shrinked md-chips-wrap.md-chips:after {
+	display: block;
+}
+
+/* remove after space by using "shrinked" custom class */
+md-chips.shrinked md-chips-wrap.md-chips {
+	overflow: auto;
+	max-height: 100px;
+	margin-left:8px;
+	max-width:210px;
+}
+
+md-chips.shrinked-alterned md-chips-wrap.md-chips:after {
+	display: block;
+}
+
+md-chips.shrinked-alterned md-chips-wrap.md-chips {
+	max-width:210px;
+}
+
+md-chips.shrinked-selected-instance md-chips-wrap.md-chips:after {
+	display: block;
+}
+
+md-chips.shrinked-selected-instance md-chips-wrap.md-chips {
+	max-width:210px;
+	padding:0;
+}
+
+md-input-container.md-block.shrinked {
+	margin-bottom:0;
+}
+
+/* Remove after space by using "shrinked" custom class */
+md-input-container.shrinked._md-datepicker-floating-label:after {
+    display: none;
+}
+
+.autocomplete-with-icon md-autocomplete-wrap:after {
+  font-family: "FontAwesome";
+  content: "\f002";
+  line-height: 1;
+  font-size: 16px;
+  font-weight: normal;
+  color: rgba(0,0,0,0.54);
+  padding: 8px 10px 10px 8px;
+}
+
+md-autocomplete.shrinked input.ng-scope {
+	width:150px;
+}
+
+
+/* Moving tooltip closer by using "closerTooltip" custom class*/
+.closerTooltip16.md-tooltip {
+	margin-top: 0px !important;
+    margin-left: 16px !important;
+}
+
+/* Custom button colors */
+.green-button.md-button.md-fab {
+	background-color: #00c853;
+}
+.green-button.md-button.md-fab:not([disabled]):hover {
+	background-color: #009624;
+	color: white;
+}
+.green-button.md-button.md-fab[disabled] {
+  color : rgb(187, 187, 187);
+  background-color: rgba(230, 230, 229, 0.96);
+}
+
+.teal-button.md-button.md-fab {
+	background-color: #009688;
+}
+.green-button.md-button.md-fab:not([disabled]):hover {
+	background-color: #00796B;
+	color: white;
+}
+.green-button.md-button.md-fab[disabled] {
+  color : rgb(187, 187, 187);
+  background-color: rgba(230, 230, 229, 0.96);
+}
+
+
+/* Hide - Show */
+
+/* when hiding the thing */
+
+.hideLeft.ng-hide-add { 
+  -webkit-animation:0.5s lightSpeedOut ease; 
+  animation:0.5s lightSpeedOut ease; 
+}
+
+/* when showing the thing */
+.flipShow.ng-hide-remove      { 
+  -webkit-animation:0.5s flipInX ease; 
+  animation:0.5s flipInX ease; 
+}
+
+/* ANIMATIONS (FROM ANIMATE.CSS) */
+
+/* flip in */
+@-webkit-keyframes flipInX {
+  0% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    -webkit-transition-timing-function: ease-in;
+    transition-timing-function: ease-in;
+    opacity: 0;
+  }
+
+  40% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    -webkit-transition-timing-function: ease-in;
+    transition-timing-function: ease-in;
+  }
+
+  60% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
+  }
+
+  80% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+  }
+
+  100% {
+    -webkit-transform: perspective(400px);
+    transform: perspective(400px);
+  }
+}
+
+@keyframes flipInX {
+  0% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    -ms-transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, 90deg);
+    -webkit-transition-timing-function: ease-in;
+    transition-timing-function: ease-in;
+    opacity: 0;
+  }
+
+  40% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    -ms-transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, -20deg);
+    -webkit-transition-timing-function: ease-in;
+    transition-timing-function: ease-in;
+  }
+
+  60% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    -ms-transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, 10deg);
+    opacity: 1;
+  }
+
+  80% {
+    -webkit-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+    -ms-transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+    transform: perspective(400px) rotate3d(1, 0, 0, -5deg);
+  }
+
+  100% {
+    -webkit-transform: perspective(400px);
+    -ms-transform: perspective(400px);
+    transform: perspective(400px);
+  }
+}
+
+/* light speed out */
+@-webkit-keyframes lightSpeedOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);
+    transform: translate3d(100%, 0, 0) skewX(30deg);
+    opacity: 0;
+  }
+}
+
+@keyframes lightSpeedOut {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    -webkit-transform: translate3d(100%, 0, 0) skewX(30deg);
+    -ms-transform: translate3d(100%, 0, 0) skewX(30deg);
+    transform: translate3d(100%, 0, 0) skewX(30deg);
+    opacity: 0;
+  }
+}
+
+/*  */
+.showListItem {
+}
+.showListItem.ng-enter {
+    opacity: 0;
+    transition: all 1.2s ease;
+}
+.showListItem.ng-enter-active {
+    opacity: 1;
+}
+
+.showListItem.ng-leave {
+    opacity: 1;
+    transition: all 1s ease;
+}
+.showListItem.ng-leave-active {
+    opacity: 0;
+}
+
+/* Fade in/out when inserting or removing a row*/
+.animate-show,
+.animate-hide {
+	-webkit-transition:all linear 1s;
+	-moz-transition:all linear 1s;
+	-ms-transition:all linear 1s;
+	-o-transition:all linear 1s;
+	transition:all linear 1s;
+}
+
+.animate-show.ng-hide-remove,
+.animate-hide.ng-hide-add.ng-hide-add-active {
+	opacity: 0;
+	display: block !important;
+}
+
+.animate-hide.ng-hide-add,
+.animate-show.ng-hide-remove.ng-hide-remove-active {
+	opacity: 1;
+	display: block !important;
+	transition: all 0.8s ease;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+.animate-cross-fade {
+    animation-name: cross-fade;
+    animation-duration: 4s;
+    animation-iteration-count: 1;
+    animation-delay: 2s;
+}
+
+@keyframes cross-fade {
+    0% {font-size:100%; opacity:1;}
+    50% {font-size:0; opacity:0;}
+    100% {font-size:100%;opacity:1;}
+}
+*/
+/* Animation when hiding search results of related entity */ 
+
+.transformWidth {
+	-webkit-transition: width 1s ease; 
+	-moz-transition: width 1s ease; 
+	-ms-transition: width 1s ease; 
+  	-o-transition: width 1s ease; 
+	transition: width 1s ease;
+}
+
+/* changes width */
+.transformWidth.ng-hide  {
+  width: 0px;
+}
+
+/* Initial size */
+.searchResultsRelatedEntityInit{
+	height:290px; 
+	width:220px;
+}
+
+/* Changes opacity */
+.transformWidth.ng-hide-remove,
+.transformWidth.ng-hide-add.ng-hide-add-active {
+	opacity: 0;
+}
+
+.transformWidth.ng-hide-add,
+.transformWidth.ng-hide-remove.ng-hide-remove-active {
+	opacity: 1;
+	-webkit-transition: width 1s ease; 
+	-moz-transition: width 1s ease; 
+	-ms-transition: width 1s ease; 
+  	-o-transition: width 1s ease; 
+	transition: all 1s ease;
+}
+
+/* Look and feel disabled or enabled for whole div */
+
+.disabled-style {
+	opacity: 0.5;
+	pointer-events: none;
+	> * {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+}
+
+.enabled-style {
+	opacity: 1;
+	pointer-events: auto;
+	> * {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+    

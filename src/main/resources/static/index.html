@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="app" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="app" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="app" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en">
+	<!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<!-- <base href="/index.html">-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>VRE4EIC Triple Store Services UI</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/css/custom.css">
+		<link rel="stylesheet" href="//cdn.materialdesignicons.com/1.7.22/css/materialdesignicons.min.css">
+	</head>
+	
+	<body ng-app="app"> <!-- style="background-color:rgb(250, 250, 250)" -->
+		<div id="popupContainer">
+			<md-toolbar class="md-hue-2" style="background-color:rgb(250, 250, 250)">
+				<div class="md-toolbar-tools row" ng-controller="beforeLoginCtrl" layout-padding>
+					<img src="/images/logo-vre4eic-modern-pink.png" alt="VRE4EIC" width="256" style="padding-right:10px;">
+					<span style="padding-left:20px;color:black;font-size:30px;" flex>Metadata Portal</span>
+					<!--
+					<span style="padding-left:20px;color:black;font-size:20px;" flex">
+						{{userProfile.name}}
+					</span>
+					-->
+					<md-menu>
+						<md-button ng-click="openTopMenu($mdMenu, $event)" md-no-ink class="md-primary">
+            				{{userProfile.name}}
+            			</md-button>
+						<md-menu-content width="4">
+							<md-menu-item>
+								<md-button>
+									<md-icon md-font-icon="fa fa-user" md-menu-align-target></md-icon>
+									My Profile
+								</md-button>
+							</md-menu-item>
+							<md-menu-item>
+								<md-button>
+									<md-icon md-font-icon="fa fa-heart"></md-icon>
+									My Favorites
+								</md-button>
+				        	</md-menu-item>
+				        	<md-menu-divider></md-menu-divider>
+				        	<md-menu-item>
+				        		<md-button md-no-ink 
+										   class="md-warn" 
+										   ng-click="logout()" 
+										   ng-show="sessionAuthenticatedStatus()">
+									<md-icon md-font-icon="fa fa-sign-out"></md-icon>
+									Logout
+								</md-button>
+				        	</md-menu-item>
+						</md-menu-content>
+				    </md-menu>
+				</div>
+			</md-toolbar>
+		</div>
+		
+		<!--<div ng-include="'views/tabs.html'"></div>-->
+		
+		<!--<div ng-view></div>-->
+		<div ui-view></div>
+		
+		<link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.css">
+		<!--<link rel="stylesheet" href="/webjars/codemirror/5.25.0/lib/codemirror.css">-->
+		<link rel="stylesheet" type="text/css" href="/webjars/ng-tags-input/3.1.1/build/ng-tags-input.min.css">
+		
+		<!-- Dropzone -->
+		<link rel="stylesheet" type="text/css" href="/webjars/dropzone/4.3.0/min/basic.min.css">
+		<link rel="stylesheet" type="text/css" href="/webjars/dropzone/4.3.0/min/dropzone.min.css">
+		<link rel="stylesheet" type="text/css" href="webjars/angular-material/1.1.5/angular-material.css">
+		
+		<!-- TreeView -->
+		<!--
+		<link rel='stylesheet prefetch' href='/webjars/angular-ivh-treeview/1.0.4/dist/ivh-treeview.min.css'>
+		<link rel='stylesheet prefetch' href='/webjars/angular-ivh-treeview/1.0.4/dist/ivh-treeview-theme-basic.css'>
+		-->
+		
+		<link rel='stylesheet prefetch' href='/js/libs/angular-ivh-treeview-1.1.0/ivh-treeview.css'>
+		<link rel='stylesheet prefetch' href='/js/libs/angular-ivh-treeview-1.1.0/ivh-treeview-theme-basic.css'>
+		
+		<!--
+		<link rel='stylesheet prefetch' href='http://rawgit.com/iVantage/angular-ivh-treeview/master/dist/ivh-treeview.css'>
+		<link rel='stylesheet prefetch' href='http://rawgit.com/iVantage/angular-ivh-treeview/master/dist/ivh-treeview-theme-basic.css'>
+		-->
+		<!-- Breadcrumb -->
+		<link rel="stylesheet" type="text/css" href="webjars/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="/css/beadcrumb.css">
+		
+		<!-- Maps -->
+		<link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
+		<!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+		<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+		<script src="https://openlayers.org/en/v4.1.1/build/ol.js"></script>
+		<style>
+		  .ol-dragbox {
+		    background-color: rgba(255,255,255,0.4);
+		    border-color: rgba(100,150,0,1);
+		  }
+		</style>
+		<!-- next two lines -->
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		
+		<script src="/webjars/angularjs/1.6.4/angular.js"></script>
+		<script src="/webjars/angular-ui-router/1.0.3/release/angular-ui-router.min.js"></script>
+		<script src="/webjars/angularjs/1.6.4/angular-resource.min.js"></script>
+		<script src="/webjars/angularjs/1.6.4/angular-route.js"></script>
+		<script src="/webjars/angularjs/1.6.4/angular-animate.min.js"></script>
+		<script src="/webjars/angularjs/1.6.4/angular-aria.min.js"></script>
+	  	<script src="/webjars/angularjs/1.6.4/angular-messages.min.js"></script>
+	  	<script src="/webjars/angularjs/1.6.4/angular-cookies.min.js"></script>
+	  	<script src="/webjars/angularjs/1.6.4/angular-sanitize.min.js"></script>
+	  	<script src="/webjars/ngstorage/0.3.11/ngStorage.js"></script>
+		<script src="/webjars/angular-ui-bootstrap/2.1.3/dist/ui-bootstrap-tpls.js"></script>
+		<script src="/webjars/angular-ui-codemirror/0.3.0/ui-codemirror.min.js"></script>
+		<script src="/webjars/angular-material/1.1.5/angular-material.min.js"></script>
+		<!--<script src="https://cdn.gitcdn.xyz/cdn/angular/bower-material/v1.1.3/angular-material.js"></script>-->
+		
+		<!-- Treeview -->
+		<script src='/js/libs/angular-ivh-treeview-1.1.0/ivh-treeview.min.js'></script>
+		<!--<script src='/webjars/angular-ivh-treeview/1.0.4/dist/ivh-treeview.min.js'></script>-->
+		<!--<script src='http://rawgit.com/iVantage/angular-ivh-treeview/master/dist/ivh-treeview.js'></script>-->
+	   		
+		<!--
+	    <script src="http://tombatossals.github.io/angular-openlayers-directive/bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+	    <script src="http://tombatossals.github.io/angular-openlayers-directive/dist/angular-openlayers-directive.js"></script>
+		-->
+		<script src="/js/libs/ng-tags-input.js"></script>
+	    <script src="/js/app.js"></script>
+		<script src="/js/controller.js"></script>
+		<script src="/js/welcomeController.js"></script>
+		<script src="/js/navigationController.js"></script>
+		<script src="/js/securityController.js"></script>
+		<script src="/js/securityServices.js"></script>
+		<script src="/js/modalService.js"></script>
+		<script src="/js/queryServices.js"></script>
+		<script src="js/fileAppDirectives.js"></script>
+		
+		
+		<!-- Load Dropzone JS -->
+	    <script src="/webjars/dropzone/4.3.0/min/dropzone.min.js"></script>
+		
+		<!-- Treeview Directive -->
+		<script src="js/treeViewDirective.js"></script>
+				
+	</body>
+</html>
+<!-- 
+Icons:
+https://materialdesignicons.com/icon/information
+-->
