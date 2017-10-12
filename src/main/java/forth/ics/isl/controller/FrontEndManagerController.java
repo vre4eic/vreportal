@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.json.simple.JSONArray;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Controller;
@@ -32,6 +33,13 @@ import forth.ics.isl.triplestore.RestClient;
 public class FrontEndManagerController {
 	
 	private H2Service h2Service;
+	@Value("${h2.service.url}")
+	private String h2ServiceUrl;
+	
+	@Value("${h2.service.username}")
+	private String h2ServiceUsername;
+	@Value("${h2.service.password}")
+	private String h2ServicePassword;
 	
 	@PostConstruct
     public void init() throws IOException {
@@ -63,7 +71,7 @@ public class FrontEndManagerController {
 		return endPointDataPage;
 		*/
     	
-    	JSONArray arr = h2Service.retrieveAllentities();
+    	JSONArray arr = h2Service.retrieveAllentities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
     	
     	return arr;
 	}

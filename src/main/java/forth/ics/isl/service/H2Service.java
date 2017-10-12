@@ -40,8 +40,9 @@ public class H2Service {
 	/**
      * Initiates connection with the H2 database
      */
-	private static void initConn() throws SQLException {
-		connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+	private static void initConn(String URL, String username, String password) throws SQLException {
+		//connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+		connection = DriverManager.getConnection(URL, username, password);
     	statement = connection.createStatement();
     }
 	
@@ -57,13 +58,13 @@ public class H2Service {
         }
     }
 	
-    public static JSONArray retrieveAllentities() {
+    public static JSONArray retrieveAllentities(String URL, String username, String password) {
     	
         JSONArray results = new JSONArray();
         
         try {
         	
-        	initConn(); // Initiates connection to H2
+        	initConn(URL, username, password); // Initiates connection to H2
             ResultSet entities = statement.executeQuery("select * from entity");
             
             while (entities.next()) {
@@ -89,22 +90,4 @@ public class H2Service {
         return results;
     }
 
-    public static void main(String[] args) throws IOException {
-        String filename = "entities/Person";
-
-        System.out.println(retrieveAllentities());
-
-//        String path = new EntitiesManager().getFilePath(filename);
-//        System.out.println();
-//        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-//        File file = new File(URLDecoder.decode(path, "UTF-8"));
-//        System.out.println("File Found : " + file.exists());
-//        String content = new String(Files.readAllBytes(file.toPath()));
-//        System.out.println(content);
-//        String line;
-//        while ((line = reader.readLine()) != null) {
-//            System.out.println(line);
-//        }
-//        reader.close();
-    }
 }
