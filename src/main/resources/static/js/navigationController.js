@@ -82,16 +82,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 		id: 'vre',
 		label: 'VREs',
 		children: [
-			{label: 'ekt-data'},
-			{label: 'rcuk-data'},
-			{label: 'epos-data'},
+			{label: 'ekt-data', value: 'ekt-data'},
+			{label: 'rcuk-data', value: 'rcuk-data'},
+			{label: 'epos-data', value: 'epos-data'}
 		]
 	},{
 		id: 'ri',
 		label: 'RIs',
 		children: [
-			{label: 'fris-data'},
-			{label: 'envri-data'}
+			{label: 'fris-data', value: 'fris-data'},
+			{label: 'envri-data', value: 'envri-data'}
 		]
 	}]
 	/*
@@ -138,6 +138,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 		// Do soemthing with node or tree based on isSelected
 		//alert("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
 		console.log("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
+		console.log(angular.toJson($scope.stuff));
 		
 		//console.log("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + node.selected);
 	}
@@ -202,7 +203,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
         	queryModel: {
         		format: 'application/json',
     			query: 'PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n' +
-    				   'select distinct ?persName ?Service from <http://ekt-data>\n' + 
+    				   'select distinct ?persName ?Service @#$%FROM%$#@\n' + 
     				   'where {' +
     					  '?pers a <http://eurocris.org/ontology/cerif#Person>. ' + 
     					  '?pers rdfs:label ?persName. ' + 
@@ -465,8 +466,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     	*/
     	
     	// Determine what searchText is before executing query
-
-    	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@',rowModel.relatedEntitySearchText);
+    	
+    	//relatedChips
+    	/*
+    	var querySearchText = '';
+    	
+    	angular.forEach(list, function(value, key) {
+    		//if()
+    		//exists = 
+    		$log.info('value: ' + value);
+    	});
+    	*/
+    	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@', rowModel.relatedEntitySearchText);
+    	updatedQuery = updatedQuery.replace('@#$%FROM%$#@','from <http://rcuk-data> from <http://fris-data>');
     	var updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
     	updatedQueryModel.query = updatedQuery;
     	
@@ -664,6 +676,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     		
     	return containedElement;
     }
+	
+	$scope.test = function() {
+
+		queryService.getAllEntities().then(function (response) {
+			console.log(angular.toJson(response));
+			}, function (error) {
+				$scope.message = 'There was a network error. Try again later.';
+				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+					data : error
+				}));
+			});
+	}
 	
 	
 	/*

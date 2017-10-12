@@ -71,35 +71,6 @@
 				
 				<span layout="row">
 			        
-			        <!--
-			        <section layout="column">
-		
-						<md-input-container class="md-block" style="width:200px;margin-bottom:-20px;">
-							<label>Search VREs</label>
-							<input ng-model="treeVre">
-						</md-input-container>
-						
-		  				<div ivh-treeview="stuff"
-		  					 ivh-treeview-filter="treeVre"
-		  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
-		  					 ivh-treeview-on-cb-change="otherAwesomeCallback(ivhNode, ivhIsSelected, ivhTree)">
-							<script type="text/ng-template">
-								<span ivh-treeview-toggle>
-									<span ivh-treeview-twistie></span>
-								</span>
-								<md-box></md-box>
-								<span class="ivh-treeview-node-label" ivh-treeview-toggle>
-									{{trvw.label(node)}}
-								</span>
-								<div ivh-treeview-children></div>
-      						</script>
-					    
-						</div>
-					
-					</section>
-			        -->
-			        
-			        
 			        <!-- Side tree -->
 					<md-sidenav class="md-sidenav-left" 
 							md-component-id="treeMenu"
@@ -108,7 +79,8 @@
 		
 							<md-toolbar class="md-accent">
 								<div class="md-toolbar-tools">
-									<md-button class="md-icon-button" aria-label="Hide Help" ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();">
+									<md-button class="md-icon-button" aria-label="Hide Help" 
+											   ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();">
 				          				<md-icon md-font-icon="fa fa-chevron-circle-left" style="font-size:24px"></md-icon>
 				        			</md-button>
 									
@@ -120,17 +92,18 @@
 			
 							<md-content layout-margin>
 								
+								<md-input-container class="md-block" style="width:200px;">
+									<label>Search VREs</label>
+									<input ng-model="treeVre">
+								</md-input-container>
+								
 								<section layout="column">
 					
-									<md-input-container class="md-block" style="width:200px;margin-bottom:-20px;">
-										<label>Search VREs</label>
-										<input ng-model="treeVre">
-									</md-input-container>
-									
-					  				<div ivh-treeview="stuff"
+					  				<div ivh-treeview="stuff" class="checkbox"
 					  					 ivh-treeview-filter="treeVre"
 					  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
 					  					 ivh-treeview-on-cb-change="otherAwesomeCallback(ivhNode, ivhIsSelected, ivhTree)">
+					  					 <!--
 										<script type="text/ng-template">
 											<span ivh-treeview-toggle>
 												<span ivh-treeview-twistie></span>
@@ -141,7 +114,7 @@
 											</span>
 											<div ivh-treeview-children></div>
       									</script>
-								    
+								    	-->
 									</div>
 								
 								</section>

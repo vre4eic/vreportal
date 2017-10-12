@@ -28,6 +28,20 @@ angular.module('app.mainServices', [])
 			});
 
 		},
+		getAllEntities : function() {
+			return $http({
+				'url' : '/get_all_entities',
+				'method' : 'GET',
+				'headers' : {
+					'Content-Type' : 'application/json'
+				},
+				'params' : ''
+			}).then(function (success){
+				return success;
+			},function (error) {
+				//error code
+			});
+		},
 		getQueryResults : function(queryModel, token) {
 
 			return $http({

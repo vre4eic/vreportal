@@ -302,7 +302,7 @@
 	         						<md-button layout-align="end end" 
 	         								   class="md-icon-button" 
 	         								   aria-label="Map" 
-	         								   ng-click="showRelatedResultsDialog($event, rowModel)"
+	         								   ng-click="test()"
 	         								   style="padding:0; padding-top: 5px;">
 							            <md-tooltip md-direction="top" md-delay="1500">
 						            		Restrict search geographically hrough the map
@@ -367,12 +367,20 @@
 				 style="padding-top:12px;" 
 				 ng-cloak>
 				 <!-- ng-class="rowModel.activeStyle" -->
-				<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
-						   aria-label="Add Filter on Related Entity"
-						   ng-click="addFilterOnRelated(rowModel)"
-						   ng-disabled="rowModel.selectedRelatedEntity == null">
-	            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
-	        	</md-button>
+				<div flex>
+					<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
+							   aria-label="Add Filter on Related Entity"
+							   ng-click="addFilterOnRelated(rowModel)"
+							   ng-disabled="rowModel.selectedRelatedEntity == null">
+		            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
+		        	</md-button>
+		        	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" md-delay="1000" md-direction="top">
+						Select some related entity first
+					</md-tooltip>
+					<md-tooltip ng-show="rowModel.selectedRelatedEntity != null" md-delay="1000" md-direction="top">
+						Add a filter on entity {{rowModel.selectedRelatedEntity.name}}
+					</md-tooltip>
+	        	</div>
 			</div>
 			<!--
 			<md-divider></md-divider>

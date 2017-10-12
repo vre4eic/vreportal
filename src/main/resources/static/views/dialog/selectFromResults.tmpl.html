@@ -34,7 +34,7 @@ thead, tbody tr {
 	        </md-button>
 		</div>
 	</md-toolbar>
-	<div>
+	<div ng-show="relatedEntityResults.results.bindings.length > 0">
 		<table class="table table-striped table-condensed table-hover scrollTable">
 			<thead>
 				<tr ng-repeat="item in relatedEntityResults.results.bindings|limitTo:1" class="ng-scope">
@@ -108,5 +108,13 @@ thead, tbody tr {
 				</tr>
 			</tbody>
 		</table>
+	</div>
+	<div ng-show="relatedEntityResults.results.bindings.length < 1" 
+		 style="color:rgb(63,81,181); 
+		 		font-size:20px;
+		 		text-align: center;
+    			width: 100%;
+    			margin-top:20%;">
+		No entries were found
 	</div>
 </div>
