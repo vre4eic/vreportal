@@ -52,16 +52,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 	
 	// Used to inform user that error has occured
 	$scope.showErrorAlert = function(title, msg) {
-	    $mdDialog.show(
-	      $mdDialog.alert()
-	        .parent(angular.element(document.querySelector('#popupContainer')))
-	        .clickOutsideToClose(true)
-	        .title(title)
-	        .textContent(msg)
-	        .ariaLabel('Alert Dialog')
-	        .ok('OK')
-	    )};
+		$mdDialog.show(
+			$mdDialog.alert()
+				.parent(angular.element(document.querySelector('#popupContainer')))
+				.clickOutsideToClose(true)
+				.title(title)
+				.textContent(msg)
+				.ariaLabel('Alert Dialog')
+				.ok('OK')
+		)
+	};
 	
+	
+	
+		    
 	// Toggles SidePanel
 	$scope.toggleInfo = buildToggler('rightInfo');
 	$scope.toggleTreeMenu = buildToggler('treeMenu');
@@ -197,6 +201,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     $scope.relatedEntityQuerySearchText = '';
 	
 	// All entities used in the row model
+    /*
 	$scope.allEntities = [{
 		name: 'Persons', 
 			thesaurus: 'thesaurus/persons-firstAndLastNames.json', 
@@ -232,7 +237,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 			name: 'Resources', 
 			thesaurus: 'thesaurus/resources.json'
 		}];
-		
+	*/
+    
 	// Relations used in the row model
 	$scope.relations = [{
 			name: 'is related'
@@ -249,9 +255,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 		}
 	];
 	
+	$scope.allEntities = [];
+	
 	// Target entity
 	$scope.selectedTargetEntity = {name: '', thesaurus: ''};
-	$scope.targetEntities = angular.copy($scope.allEntities);
+	$scope.targetEntities = $scope.allEntities;//angular.copy($scope.allEntities);
 	$scope.searchTargetKeywords = '';
 	$scope.targetThesaurus = {};
 	$scope.selectedTargetRecomentation = null;
@@ -272,7 +280,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 			untilInputName: ''
 		},
 		selectedRelatedEntity: null,//{name: '', thesaurus: '', queryModel: ''},
-		relatedEntities: angular.copy($scope.allEntities),
+		relatedEntities: $scope.allEntities,//angular.copy($scope.allEntities),
 		searchRelatedKeywords: '',
 		allRelatedSearchResultsIsSelected: false,
 		allRelatedEntitiesSelectedList: [{name: 'All Instances Selected'}],
@@ -293,6 +301,26 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 		rowModel.allRelatedSearchResultsIsSelected = false;
 		$scope.handleSelectAllRelatedSearchResults(rowModel);
 	}
+	
+	// Initializing All available entities
+	function initAllEntities() {
+		queryService.getAllEntities().then(function (response) {
+			//console.log(angular.toJson(response));
+			$scope.allEntities = response.data;
+			$scope.targetEntities = response.data;
+			$scope.initEmptyRowModel.relatedEntities = response.data;
+			$scope.rowModelList[0].relatedEntities = response.data;
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		}).finally(function(){
+			//$scope.$apply();
+		});
+	}
+	
+	initAllEntities();
 	
 	// Initializing empty row model (new instance)
 	function initRowModels() {
@@ -678,7 +706,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     }
 	
 	$scope.test = function() {
-
+/*
 		queryService.getAllEntities().then(function (response) {
 			console.log(angular.toJson(response));
 			}, function (error) {
@@ -687,6 +715,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 					data : error
 				}));
 			});
+			*/
 	}
 	
 	
