@@ -302,7 +302,7 @@
 	         						<md-button layout-align="end end" 
 	         								   class="md-icon-button" 
 	         								   aria-label="Map" 
-	         								   ng-click="test()"
+	         								   ng-click="showMapForRelatedResultsDialog($event, rowModel)"
 	         								   style="padding:0; padding-top: 5px;">
 							            <md-tooltip md-direction="top" md-delay="1500">
 						            		Restrict search geographically hrough the map
@@ -329,9 +329,10 @@
 					</md-toolbar>
 					
 					<md-list class="md-dense" style="margin-top:5px;overflow: auto;" flex>
+						
 						<md-list-item class="md-2-line md-long-text" 
+									  ng-class="item.animateToRemove"
 									  ng-repeat="item in rowModel.selectedRelatedInstanceList">
-									  <!-- ng-click="selectRelatedEntityFromResults(rowModel, $index)" -->
 							<div class="md-list-item-text">
 								<span ng-repeat="(key,val) in item" class="ng-binding">
 									<span ng-if="key != 'isChecked' && key != 'uri'">
@@ -350,10 +351,10 @@
 								</md-icon>
 							</div>
 							
-							
-							
+							<md-divider></md-divider>
 							
 						</md-list-item>
+						
 					</md-list>
 				</div>
 				

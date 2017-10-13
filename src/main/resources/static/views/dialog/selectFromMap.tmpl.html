@@ -1,0 +1,53 @@
+<md-dialog  style="width:100%; max-height:626px;">
+	<md-dialog-content>
+		<div layout-padding>
+			<p>
+				Please hold down <code>Ctrl + left mouse click</code> while selecting some area on the map.
+			</p>
+		</div>
+		
+		<div uib-alert ng-repeat="alert in alerts"
+			 ng-class="'alert-' + (alert.type || 'warning')" 
+			 class='fadeAlert'
+			 close="alerts.splice($index, 1);">
+			{{alert.msg}}
+		</div>
+			
+		<style>
+			.map:-moz-full-screen {
+				height: 100%;
+			}
+			.map:-webkit-full-screen {
+				height: 100%;
+			}
+			.map:-ms-fullscreen {
+				height: 100%;
+			}
+			.map:fullscreen {
+				height: 100%;
+			}
+			
+			.ol-dragbox {
+				background-color: rgba(255,255,255,0.4);
+				border-color: rgba(100,150,0,1);
+			}
+		   
+			/* Overwritting CSS to provide scrollable pop-overflow */
+			.popover-content {
+				max-height: 200px;
+				overflow-y: auto;
+			}
+		</style>
+		
+		<div id="popup" style="width:300px;"></div>
+		<div id="map" class="map">
+			<div id="popup"></div>
+		</div>
+		<div layout-padding>
+			<div style="display: inline-block; font-style:italic;">Coordinates of mouse position (display projection used is <code style="color:#106CC8;background: rgba(0,0,0,0.065);">'EPSG:4326'</code>): </div>
+			<div style="display: inline-block; font-style:italic;" id="mouse-position" flex></div>
+		</div>
+		<div id="info"></div>
+	</md-dialog-content>
+</md-dialog>
+	

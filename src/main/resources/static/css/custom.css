@@ -545,6 +545,45 @@ md-autocomplete.shrinked input.ng-scope {
     100% {font-size:100%;opacity:1;}
 }
 */
+
+
+
+
+
+
+
+
+
+
+md-list-item.removed-item {
+    animation: removed-item-animation 1s cubic-bezier(0.55, -0.04, 0.91, 0.94) forwards;
+    /*transform origin is moved to the bottom left corner*/
+    transform-origin: 0% 100%;
+}
+ 
+@keyframes removed-item-animation {
+    0% {
+        opacity: 1;
+        transform: rotateZ(0);
+}
+ 
+    100% {
+        opacity: 0;
+        transform: translateY(600px) rotateZ(90deg);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /* Animation when hiding search results of related entity */ 
 
 .transformWidth {

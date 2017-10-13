@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', 
-                                  function($state, $scope, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -489,27 +489,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     	// Trying with promise - Start
     	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
     	
-    	/*
-    	relatedEntitySearchText
-		allRelatedSearchResultsIsSelected
-		relatedChips
-		selectedRelatedInstanceList
-    	*/
-    	
-    	// Determine what searchText is before executing query
-    	
-    	//relatedChips
-    	
+    	// The search text to feed the query
     	var querySearchText = '';
     	
     	angular.forEach(rowModel.relatedChips, function(value, key) {
     		querySearchText = querySearchText + ' ' + value.name;
     	});
     	
-    	if($scope.relatedEntitySearchText != null && rowModel.relatedEntitySearchText != '') {
+    	if(rowModel.relatedEntitySearchText != null && rowModel.relatedEntitySearchText != '') {
     		querySearchText = querySearchText + ' ' + rowModel.relatedEntitySearchText;
     	}
     	
+    	// Feeding the query with the respective search text
     	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@', querySearchText);
     	updatedQuery = updatedQuery.replace('@#$%FROM%$#@','from <http://rcuk-data> from <http://fris-data>');
     	var updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
@@ -541,11 +532,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
 					
 					modalInstance.close();
-					
-					// Trying with dummy data directly from here - To be changed after promise is functional
-			    	// Before showing the dialog, the results must me copied in the model
-			    	// In the final version this list must pre-check items that match with the list of selected
-			    	//rowModel.relatedEntityResults = angular.copy($scope.relatedEntityResults1);
 					
 					// Used for capturing the current row and thus knowing where to put selected items
 			    	$scope.currRowModel = rowModel;
@@ -613,7 +599,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 	$scope.pageChanged = function() {
 		//getData();
 	};
-    
+    	
 	// adding or removing selected items from the searched results of the related entity
 	// to the list of selected related items
 	$scope.changeSelectedRelatedItem = function(item) {
@@ -638,6 +624,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 	
 	$scope.removeSelectedRelatedItem = function(rowModel, itemIndex) {
 		$log.info('itemIndex: ' + itemIndex);
+		
+		// Delay
+		// This is nice but has issues, thus in comment
+		// I am applying ng-scope = animateToRemove
+		// So if I drop this completely then remove it from the html as well
+		/*
+        $timeout( function() {
+        	//item.animateToRemove = 'removed-item';
+        	rowModel.selectedRelatedInstanceList[itemIndex].animateToRemove = 'removed-item';
+        });
+        */
+		
+        rowModel.selectedRelatedInstanceList[itemIndex].animateToRemove = 'removed-item';
 		rowModel.selectedRelatedInstanceList.splice(itemIndex, 1);
 		// Hide related entity search results' panel if there are no items to show
 		if(rowModel.selectedRelatedInstanceList.length < 1) {
@@ -710,17 +709,693 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     	return containedElement;
     }
 	
-	$scope.test = function() {
-/*
-		queryService.getAllEntities().then(function (response) {
-			console.log(angular.toJson(response));
-			}, function (error) {
+
+	
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+		
+	$scope.showMapForRelatedResultsDialog = function(ev, rowModel) {
+		
+		// Used for capturing the current row and thus knowing where to put selected items
+    	$scope.currRowModel = rowModel;
+    	$mdDialog.show({
+    		//scope: $scope,
+    		templateUrl: 'views/dialog/selectFromMap.tmpl.html', 
+    		parent: angular.element(document.body),
+    		targetEvent: ev,
+    		clickOutsideToClose:true,
+    		//onComplete: loadMapForRelatedEntity(),
+    		onComplete:function(){
+    				loadMapForRelatedEntity();
+    		},
+    		fullscreen: true,
+    		preserveScope: true,
+    		fullscreen: false // Only for -xs, -sm breakpoints.
+    	})
+    	.then(function(answer) {
+    		console.log("OK");
+    	}, function() {
+    		$scope.status = 'You cancelled the dialog.';
+    	}).finally(function() {
+    		console.log("OK");
+    	});
+	}
+
+	function loadMapForRelatedEntity() {
+		
+		// Starting with map in related entity
+					
+		$scope.pins = [{ 
+		    	type:"Product", 
+		    	selectedImg: "../images/Map-Marker-Marker-Inside-Pink-icon.png", 
+		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Pink-icon.png"
+			},{ 
+		    	type:"Equipment", 
+		    	selectedImg: "../images/Map-Marker-Marker-Inside-Chartreuse-icon.png", 
+		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Chartreuse-icon.png"
+			},{ 
+		    	type:"Facility", 
+		    	selectedImg: "../images/Map-Marker-Marker-Inside-Azure-icon.png", 
+		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Azure-icon.png"
+			}]
+		
+		
+		var mousePositionControl = new ol.control.MousePosition({
+	        coordinateFormat: ol.coordinate.createStringXY(4),
+	        projection: 'EPSG:4326',// 3857 //4326
+	        // comment the following two lines to have the mouse position
+	        // be placed within the map.
+	        className: 'custom-mouse-position',
+	        target: document.getElementById('mouse-position'),
+	        undefinedHTML: '&nbsp;'
+		});
+		
+		
+		var logoElement = document.createElement('a');
+		logoElement.href = 'https://www.vre4eic.eu/';
+		logoElement.target = '_blank';
+	    
+	    var logoImageElement = document.createElement('img');
+	    logoImageElement.src = 'https://www.vre4eic.eu/images/logo-vre4eic-modern.svg';
+	    logoImageElement.style.fontSize = '200%';
+	    
+	    logoElement.appendChild(logoImageElement);
+	    
+	    var explainPinsElement = document.createElement('span');
+	    
+	    // Content of attribution (displayed along with the logo)
+	    angular.forEach($scope.pins, function (pin) {
+	    	var pinLabelElement = document.createElement('span');
+	    	pinLabelElement.style.fontSize = '200%';
+	    	pinLabelElement.innerHTML = pin.type + ':';
+	        var pinImgElement = document.createElement('img');
+	        pinImgElement.src = pin.unselectedImg;
+	        pinImgElement.style.fontSize = '200%';
+	        
+	        explainPinsElement.appendChild(pinLabelElement);
+	        explainPinsElement.appendChild(pinImgElement);
+	       
+	    });
+	    
+	    
+		
+	    var attribution = new ol.Attribution({
+	        html: explainPinsElement.innerHTML
+	      });
+	        
+	    $scope.map = new ol.Map({
+			controls: ol.control.defaults({
+				attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
+		            collapsible: true,
+		            tipLabel: 'Information regarding the pins on the map'
+				})
+			})
+		    .extend([mousePositionControl]),
+		    //.extend([new ol.control.FullScreen()]),
+	        layers: [
+	          new ol.layer.Tile({
+	            source: new ol.source.OSM({attributions: [attribution]})
+	          })//,
+	          //vectorlayer
+	        ],
+	        target: 'map',
+	        view: new ol.View({
+	        	center: [1000000, 4912205], // Default is [0, 0]
+	        	zoom: 5, //Default is 2
+	        	minZoom: 2,
+	        	maxZoom: 19
+	        }),					// To hide logo use:
+	        logo: logoElement 	//document.createElement('span')
+		});      
+	      
+		// a DragBox interaction used to select features by drawing boxes
+	    $scope.dragBox = new ol.interaction.DragBox({
+			condition: ol.events.condition.platformModifierKeyOnly
+		});
+	
+		$scope.map.addInteraction($scope.dragBox);
+	      
+		$scope.coordinates = [];
+		$scope.coordinatesRegion = {};
+	      
+		$scope.infoBox = document.getElementById('info');
+	
+		$scope.dragBox.on('boxend', function() {
+			// Holding all 5 coordinates in a string and transform them to the appropriate projection
+			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+			//alert (coordinateStr);
+			convertCoordinatesToJson(coordinateStr);
+	    	  
+			// required for immediate update 
+			$scope.$apply();
+		});
+	    
+		// Coordinates are shown as (latitude, longitude) pairs and not the opposite 
+		// which is the usual way of presenting them.
+		//
+		// Coordinates are delivered circular like shown below. The first pair is the 
+		// same as the last (fifth) pair due to polygon and not rectangular.
+		//	
+		// [[[0,1],[2,3],[4,5],[6,7],[8,9]]]
+		//
+		// (8,9)
+		// (0,1)		(6,7)
+		//		---------
+		//		|		|
+		//		|		|
+		//		---------
+		// (2,3)		(4,5)
+		//	
+	      
+		function convertCoordinatesToJson(coordinateStr) {
+			var thebox = coordinateStr.toString().split(",");
+			// Using parseFloat in order to convert the strings to floats
+			// and been able to apply comparisons
+			var latitude1 = parseFloat(thebox[0]);
+			var longitude1 = parseFloat(thebox[1]);
+			var latitude2 = parseFloat(thebox[2]);
+			var longitude2 = parseFloat(thebox[3]);
+			var latitude3 = parseFloat(thebox[4]);
+			var longitude3 = parseFloat(thebox[5]);
+			var latitude4 = parseFloat(thebox[6]);
+			var longitude4 = parseFloat(thebox[7]);
+			var latitude5 = parseFloat(thebox[8]);	// This is the same as latitude1
+			var longitude5 = parseFloat(thebox[9]); // This is the same as longitude1
+	    	    
+			$scope.coordinates = [
+			    {longitude1: longitude1, latitude1: latitude1},
+	    	    {longitude2: longitude2, latitude2: latitude2},
+	    	    {longitude3: longitude3, latitude3: latitude3},
+	        	{longitude4: longitude4, latitude4: latitude4},
+	        	{longitude5: longitude5, latitude5: latitude5},
+	    	];
+	    	
+			// Because there are many ways (4 different ways) of drawing the rectangle 
+			// (i.e. top-left to bottom-right or bottom-left to top-right), we have to 
+			// determine nort-south and west-east according to which one is greatest or smallest
+			
+			// Determining north and south
+			var north;
+			var south;
+			
+			if(longitude1 > longitude2) {
+				north = longitude1;
+				south = longitude2;
+			}
+			else {
+				north = longitude2;
+				south = longitude1;
+			}
+			
+			// Determining west and east
+			var west;
+			var east;
+			
+			if(latitude1 < latitude4) {
+				west = latitude1;
+				east = latitude4;
+			}
+			else {
+				west = latitude4;
+				east = latitude1;
+			}
+			
+			//$scope.coordinatesRegion = {north: latitude1, south: latitude2, west: longitude1, east: longitude4}
+			$scope.coordinatesRegion = {north: north, south: south, west: west, east: east}
+			console.log(longitude1 + ", " + latitude1 + ", " + longitude2 + ", " + latitude2 + ", " + longitude3 + ", " + latitude3 + ", " + longitude4 + ", " + latitude4 + ", " + longitude5 + ", " + latitude5);
+			console.log("north: " + north + ", south: " + south + ", west: " + west + ", east: " + east);
+			
+			// Calling the service
+			$scope.retrieveGeoData();
+			
+	      }
+	      
+	      // clear selection when drawing a new box and when clicking on the map
+	      $scope.dragBox.on('boxstart', function() {
+	    	  $scope.infoBox.innerHTML = '&nbsp;';
+	      });
+	      
+	      $scope.map.on('click', function() {
+	        $scope.infoBox.innerHTML = '&nbsp;';
+	      });
+	
+	      //$scope.vectorLayers = [];
+	      
+	      // Displaying on map
+	      function handleGeoResultsForMap(geoResults) {
+	    	  
+	    	  if($scope.map.getLayers().getLength() > 1) {
+	    		  
+				  // Removing with inverse order all layers apart from that one with index 0 (this is the map) 
+	    		  for (i = $scope.map.getLayers().getLength(); i > 0; i--) {
+	    			  $scope.map.removeLayer($scope.map.getLayers().item(i));
+	    		  }
+			  }
+	    	  
+	    	  // Unselected Pink Icon
+	    	  $scope.iconStylePinkUnselected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Outside-Pink-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	  // Selected Pink Icon
+	    	  $scope.iconStylePinkSelected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Inside-Pink-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	// Unselected Green Icon
+	    	  $scope.iconStyleGreenUnselected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Outside-Chartreuse-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	  // Selected Green Icon
+	    	  $scope.iconStyleGreenSelected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Inside-Chartreuse-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	  // Unselected Blue Icon
+	    	  $scope.iconStyleBlueUnselected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Outside-Azure-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	  // Selected Blue Icon
+	    	  $scope.iconStyleBlueSelected = new ol.style.Style({
+	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    	          anchor: [0.3, 1],
+	    	          offset: [22, 0],
+	    	          size: [128, 128],
+	    	          src: '../images/Map-Marker-Marker-Inside-Azure-icon.png',
+	    	          scale: 0.3
+	    		  }))
+	    	  });
+	    	  
+	    	  var polyFeatures = [];	// Array to hold the polygons
+	    	  var pointFeatures = [];	// Array to hold the points
+	    	  
+	    	  // Style for the polygons to be used for presenting the region
+	    	  
+	    	  var areaStyle = new ol.style.Style({
+		          stroke: new ol.style.Stroke({
+		              color: 'blue',
+		              width: 1
+		          }),
+		          fill: new ol.style.Fill({
+		        	  color: 'rgba(0, 0, 255, 0.1)'
+		          })
+		      });
+	    	  
+	    	  for (i = 0; i < geoResults.length; i++) {
+	    		  
+	    		  // Polygon Feature (rectangular)
+	    		  var polyFeature = new ol.Feature({
+	        		  geometry: new ol.geom.Polygon([
+	        		  	[
+	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)],
+	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].south.value)],
+	        		       [parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].south.value)],
+	        		       [parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].north.value)],
+	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)]
+	        		    ]
+	    		      ])
+	        	  });
+	    		  
+	    		  
+	    		  polyFeature.setStyle(areaStyle);
+	    		  polyFeatures.push(polyFeature); // Adding into Array
+	    		  
+	    		  // Handling nulls in pointFeature property by using logic and wrappers
+	    		  var responsibleWrapper = '';
+	    		  if(geoResults[i].Responsible == null) {
+	    			  responsibleWrapper = "--";
+	    		  }
+	    		  else {
+	    			  if(geoResults[i].Responsible.value == null) {
+	    				  responsibleWrapper = "--";
+	        		  }
+	    			  else {
+	    				  responsibleWrapper = geoResults[i].Responsible.value;
+	    			  }
+	    		  }
+	    		  
+	    		  var serviceWrapper = '';
+	    		  if(geoResults[i].Service == null) {
+	    			  serviceWrapper = "--";
+	    		  }
+	    		  else {
+	    			  if(geoResults[i].Service.value == null) {
+	    				  serviceWrapper = "--";
+	        		  }
+	    			  else {
+	    				  serviceWrapper = geoResults[i].Service.value;
+	    			  }
+	    		  }
+	    		  
+	    		  var nameWrapper = '';
+	    		  var uriWrapper = '';
+	    		  if(geoResults[i].resource == null) {
+	    			  nameWrapper = "--";
+	    			  uriWrapper = "--";
+	    		  }
+	    		  else {
+	    			  if(geoResults[i].resource.value == null) {
+	        			  nameWrapper = "--";
+	        			  uriWrapper = "--";
+	        		  }
+	    			  else {
+	    				  uriWrapper = geoResults[i].resource.value.split(splitStr)[0];
+	    				  nameWrapper = geoResults[i].resource.value.split(splitStr)[1];
+	    			  }
+	    		  }
+	    		  
+	    		  var typeWrapper = '';
+	    		  if(geoResults[i].type == null) {
+	    			  typeWrapper = "--";
+	    		  }
+	    		  else {
+	    			  if(geoResults[i].type.value == null) {
+	    				  typeWrapper = "--";
+	        		  }
+	    			  else {
+	    				  typeWrapper = geoResults[i].type.value;
+	    			  }
+	    		  }
+	    		  
+	    		  // Point Feature (with marker icon)
+	    		  // Since we have rectangular this point is the center of the polygon
+	        	  var pointFeature = new ol.Feature({
+	        	      geometry: polyFeature.getGeometry().getInteriorPoint(),
+	        	      featureType: 'marker',
+	        	      name: '<a href="' + uriWrapper + '" target="_blank">' + nameWrapper + '</a>',
+	        	      type: typeWrapper,
+	        	      //description: descrWrapper,
+	        	      responsible: responsibleWrapper,
+	        	      service: serviceWrapper
+	        	  });
+	        	  
+	        	  // Change  coordinate systems to display on the map
+	        	  polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+	        	  pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+	        	  
+	        	  if(geoResults[i].type == null) {
+	        		  pointFeature.setStyle($scope.iconStylePinkUnselected);
+	    		  }
+	    		  else {
+	    			  if(geoResults[i].type.value == null) {
+	    				  pointFeature.setStyle($scope.iconStylePinkUnselected);
+	        		  }
+	    			  else if(geoResults[i].type.value == 'Product') {
+	    				  pointFeature.setStyle($scope.iconStylePinkUnselected);
+	    			  }
+	    			  else if(geoResults[i].type.value == 'Equipment') {
+	    				  pointFeature.setStyle($scope.iconStyleGreenUnselected);
+	    			  }
+	    			  else if(geoResults[i].type.value == 'Facility') {
+	    				  pointFeature.setStyle($scope.iconStyleBlueUnselected);
+	    			  }
+	    		  }
+	        	          	  
+	        	  pointFeatures.push(pointFeature); // Adding into Array
+	        	          	          	  
+	    	  }
+	    	  
+	    	  //A vector layer to hold the features
+	    	  var polyVectorLayer = new ol.layer.Vector({
+	    		  name: 'polyVectorLayer',
+	    	      source: new ol.source.Vector({
+	    	          features: polyFeatures
+	    	      })
+	    	  });
+	    	  
+	    	  $scope.map.addLayer(polyVectorLayer);	// Adding Layer with all the polygons
+	    	  
+	    	  //A vector layer to hold the features
+	    	  var pointVectorLayer = new ol.layer.Vector({
+	    		  name: 'pointVectorLayer',
+	    	      source: new ol.source.Vector({
+	    	          features: pointFeatures
+	    	      })
+	    	  });
+	    	  
+	    	  $scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
+	    	  
+	    	  // Trying with animation but...
+	    	  /*
+	    	  pointVectorLayer.animateFeature (pointFeatures[0], [	
+	  				new ol.featureAnimation["Drop"]({
+	  					speed: 0.8,
+	  					duration: 760,
+	  					side: false
+	  				}),
+	  				new ol.featureAnimation["Bounce"]({
+	  					speed: 0.8,
+	  					duration: 760,
+	  					side: false
+	  				})
+	  		  ]);
+	    	  */
+	    	  
+	    	  /*
+	    	  for (i = 0; i < vectorLayers.getLength(); i++) {
+	    		  map.addLayer(vectorLayers[i]);
+	    	  }
+	    	  */    	 
+	      }
+	      
+	      var popoverElement = document.getElementById('popup');
+	
+	      var popup = new ol.Overlay({
+	          element: popoverElement,
+	          positioning: 'bottom-center',
+	          stopEvent: true, // If false popover's click and wheel events won't work 
+	          offset: [0, -50]
+	        });
+	      
+	      $scope.map.addOverlay(popup);
+	      
+	      // Handling on click of point-marker
+	      $scope.map.on('click', function(evt) {
+	    	  
+	    	  $scope.map.getLayers().forEach(function(layer) {
+	    		  // Only for points
+	    		  if (layer.get('name') == 'pointVectorLayer') {
+	    			  layer.getSource().getFeatures().forEach(function(feature) {
+	    				  
+	    	    		  if(feature.get('type') == 'Product') {
+	    	    			  feature.setStyle($scope.iconStylePinkUnselected);
+		    			  }
+		    			  else if(feature.get('type') == 'Equipment') {
+		    				  feature.setStyle($scope.iconStyleGreenUnselected);
+		    			  }
+		    			  else if(feature.get('type') == 'Facility') {
+		    				  feature.setStyle($scope.iconStyleBlueUnselected);
+		    			  }
+		    			  else {//if(feature.get('type') == '--') {
+	    					  feature.setStyle($scope.iconStylePinkUnselected);
+	    	    		  }
+	    	    		  
+	    			  });
+	    		  }
+	    		  
+	    		  //$scope.$apply();
+			  });
+	    	  
+	    	  // Displaying popup
+	    	  var element = popup.getElement();
+	
+	    	  var feature = $scope.map.forEachFeatureAtPixel(evt.pixel,
+	    	      function(feature) {
+	    	        return feature;
+	    	      });
+	    	  if(feature != undefined) {
+	    	  
+	    		  if (feature.get('featureType') == 'marker') {
+	    		      		  
+		    		  // Setting new marker-icon (that looks different) for the clicked marker
+					  if(feature.get('type') == 'Product') {
+						  feature.setStyle($scope.iconStylePinkSelected);
+					  }
+					  else if(feature.get('type') == 'Equipment') {
+						  feature.setStyle($scope.iconStyleGreenSelected);
+					  }
+					  else if(feature.get('type') == 'Facility') {
+						  feature.setStyle($scope.iconStyleBlueSelected);
+					  }
+					  else {//if(feature.get('type') == '--') {
+						  feature.setStyle($scope.iconStylePinkSelected);
+		    		  }
+	    		  
+		    	      $(element).popover('destroy');
+		    	      var coordinates = feature.getGeometry().getCoordinates();
+		    	      popup.setPosition(coordinates);
+		    	      // the keys are quoted to prevent renaming in ADVANCED mode.
+		    	      $(element).popover({
+		    	          'placement': 'top',
+		    	          'animation': false,
+		    	          'html': true,
+		    	          'title': '<b>' + feature.get('type') + '</b>',
+		    	          'content': feature.get('name') + " by " + feature.get('service') + "</br></br><span style=\"text-decoration: underline;\">Responsible:</span> <i>" + feature.get('responsible') + "</i>"
+		    	      });
+		    	      $(element).popover('show');
+		    	  } else {
+		    		  $(element).popover('destroy');
+		    	      popup.setPosition(undefined);
+		    	  }
+	    	  
+	    	  } else {
+	    		  $(element).popover('destroy');
+	    		  popup.setPosition(undefined);
+	    	  }
+	      });
+	      
+	      // change mouse cursor when over marker
+	      var target = $scope.map.getTarget();
+	      var jTarget = typeof target === "string" ? $("#" + target) : $(target);
+	      // change mouse cursor when over marker
+	      $($scope.map.getViewport()).on('mousemove', function (e) {
+	          var pixel = $scope.map.getEventPixel(e.originalEvent);
+	          var hit = $scope.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
+	        	  // Only for points
+	        	  if (layer.get('name') == 'pointVectorLayer') {
+	        		  return true;
+	        	  }
+	          });
+	          if (hit) {
+	              jTarget.css("cursor", "pointer");
+	          } else {
+	              jTarget.css("cursor", "");
+	          }
+	      });
+	      
+	      $scope.retrieveGeoData = function() {
+	  		var queryModel = {
+	              north : $scope.coordinatesRegion.north,
+	              south : $scope.coordinatesRegion.south,
+	              west : $scope.coordinatesRegion.west,
+	              east : $scope.coordinatesRegion.east,
+	              itemsPerPage : $scope.itemsPerPage
+	  		};
+	  		
+			// Modal
+			var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+			 
+			queryService.getGeoQueryResults(queryModel, $scope.credentials.token)
+			.then(function (response){
+				
+				$scope.statusRequestInfo = response.statusRequestInfo;
+				
+				// Close alerts
+				$scope.alerts.splice(0);
+				
+				// Checking the response from blazegraph
+				if(response.statusRequestCode == '200') {
+					//console.log("queryModel: " + queryModel.north + ", " + queryModel.south + ", " + queryModel.west + ", " + queryModel.east);
+					//console.log("200 - getGeoQueryResults: " + response.result.results);
+					$scope.lastEndPointForm = response;
+					$scope.endpointResult = response.result;
+					$scope.totalItems = response.totalItems;
+					$scope.currentPage = 1;
+					$scope.alerts.push({type: 'success-funky', msg: 'Searching completed successfully'});
+					
+					// handling results
+					handleGeoResultsForMap(response.result.results);
+				}
+				else if(response.statusRequestCode == '400') {
+					$scope.alerts.push({type: 'danger-funky', msg: response.statusRequestInfo});
+				}
+				else if(response.statusRequestCode == '401') {				
+					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
+				}
+				else {
+					$scope.alerts.push({type: 'danger-funky', msg: response.statusRequestInfo});
+				}
+				
+				modalInstance.close();
+			},function (error){
 				$scope.message = 'There was a network error. Try again later.';
 				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 					data : error
 				}));
+				modalInstance.close();
 			});
-			*/
+	  			
+	  		// Submit stuff Ends here
+	  		
+	  	}
+		
+	
 	}
 	
 	
