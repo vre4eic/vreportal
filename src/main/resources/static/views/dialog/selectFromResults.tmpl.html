@@ -49,7 +49,7 @@ thead, tbody tr {
 					</th>
 					<th ng-repeat="(key,val) in item" 
 						class="ng-binding" 
-						ng-if="key != 'isChecked'"
+						ng-if="key != 'isChecked' && key != 'uri'"
 						style="vertical-align:middle; padding:0;">
 							{{key}} 
 					</th>
@@ -101,7 +101,7 @@ thead, tbody tr {
 						 ng-model="rowModelListselectedRelatedEntityResultList"-->
 					<td ng-repeat="(key,val) in item" 
 						class="ng-binding" 
-						ng-if="key != 'isChecked'" 
+						ng-if="key != 'isChecked' && key != 'uri'"
 						style="vertical-align:middle; padding:0;">
 						{{val.value}}
 					</td>

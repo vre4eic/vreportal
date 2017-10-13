@@ -59,7 +59,7 @@ app.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $htt
     	.warnPalette('orange') 	// specify warn color
 	
 	$urlRouterProvider
-		.otherwise('/tabs/query');
+		.otherwise('/welcome');
 	
 	$stateProvider
 		.state('login', {

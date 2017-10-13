@@ -333,15 +333,21 @@
 									  ng-repeat="item in rowModel.selectedRelatedInstanceList">
 									  <!-- ng-click="selectRelatedEntityFromResults(rowModel, $index)" -->
 							<div class="md-list-item-text">
-								<p ng-repeat="(key,val) in item" class="ng-binding">
-									<span ng-if="key != 'isChecked'">
-										{{val.value}}
+								<span ng-repeat="(key,val) in item" class="ng-binding">
+									<span ng-if="key != 'isChecked' && key != 'uri'">
+										<h3 ng-if="$first">
+											{{val.value}}
+										</h3>
+										<p ng-if="!$first" style="font-style: italic;">
+											{{val.value}}
+										</p>
 									</span>
-								</p>
+								</span>
 								<md-icon class="md-secondary" 
 										 ng-click="removeSelectedRelatedItem(rowModel, $index)" 
 										 aria-label="Chat" 
-										 md-font-icon="fa fa-times" style="font-size:24px;"></md-icon>
+										 md-font-icon="fa fa-times" style="font-size:24px;">
+								</md-icon>
 							</div>
 							
 							

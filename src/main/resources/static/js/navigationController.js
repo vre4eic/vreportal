@@ -11,6 +11,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
 	// Calling service to get the user's credentials (token, userId)
 	function initCredentials() {
 		$scope.credentials = authenticationService.getCredentials();
+		if($scope.credentials == undefined) {
+			$state.go('login', {});
+		}
 	}
 	
 	initCredentials();
@@ -496,16 +499,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$parse', '$sessionStorage
     	// Determine what searchText is before executing query
     	
     	//relatedChips
-    	/*
+    	
     	var querySearchText = '';
     	
-    	angular.forEach(list, function(value, key) {
-    		//if()
-    		//exists = 
-    		$log.info('value: ' + value);
+    	angular.forEach(rowModel.relatedChips, function(value, key) {
+    		querySearchText = querySearchText + ' ' + value.name;
     	});
-    	*/
-    	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@', rowModel.relatedEntitySearchText);
+    	
+    	if($scope.relatedEntitySearchText != null && rowModel.relatedEntitySearchText != '') {
+    		querySearchText = querySearchText + ' ' + rowModel.relatedEntitySearchText;
+    	}
+    	
+    	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@', querySearchText);
     	updatedQuery = updatedQuery.replace('@#$%FROM%$#@','from <http://rcuk-data> from <http://fris-data>');
     	var updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
     	updatedQueryModel.query = updatedQuery;

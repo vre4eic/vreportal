@@ -106,9 +106,9 @@ public class H2Manager {
 
     private void insertEntities() throws SQLException {
         insertEntity("Person",
-                "thesaurus/Person",
+                "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?pers as ?uri) ?persName ?Service @#$%FROM%$#@\n"
+                + "select distinct ?persName ?Service (?pers as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?pers cerif:is_source_of ?FLES.  \n"
                 + "?FLES cerif:has_destination ?Ser.  \n"
@@ -122,9 +122,9 @@ public class H2Manager {
                 + "}  ORDER BY desc(?score) ?pers",
                 false);
         insertEntity("Project",
-                "thesaurus/Project",
+                "thesaurus/project-acronyms.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?proj as ?uri) (?projectTitle as ?title) ?projectAcronym ?Service @#$%FROM%$#@ \n"
+                + "select distinct (?projectTitle as ?title) ?projectAcronym ?Service (?proj as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?proj cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -142,9 +142,9 @@ public class H2Manager {
                 + "} ORDER BY desc(?score)",
                 false);
         insertEntity("Publication",
-                "thesaurus/Publication",
+                "thesaurus/publications-titles.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?pub as ?uri) (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service @#$%FROM%$#@ \n"
+                + "select distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service (?pub as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?pub cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -159,9 +159,9 @@ public class H2Manager {
                 + "}ORDER BY desc(?score)",
                 false);
         insertEntity("OrganisationUnit",
-                "thesaurus/OrganisationUnit",
+                "thesaurus/organizationUnits-acronyms.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?org as ?uri) (?orgName as ?name) (?orgAcronym as ?acronym) ?Service @#$%FROM%$#@ \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"

@@ -3,7 +3,7 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', '$mdSidenav', function($state, $scope, $sessionStorage, $mdSidenav) {
+app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authenticationService', '$mdSidenav', function($state, $scope, $sessionStorage, authenticationService, $mdSidenav) {
 //app.controller("welcomeCtrl", ['$transitions', '$state', '$scope', '$sessionStorage', function($transitions, $state, $scope, $sessionStorage) {
 	/*
 	// Using session to fix the browser refresh page issue
@@ -15,6 +15,49 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', '$mdSidena
 	*/
 	
 	$scope.headingTitle = "Home";
+	
+	// Calling service to get the user's credentials (token, userId)
+	function initCredentials() {
+		$scope.credentials = authenticationService.getCredentials();
+		if($scope.credentials == undefined) {
+			$state.go('login', {});
+		}
+	}
+	
+	initCredentials();
+	
+	function checkAuthorization() {
+		
+	}
+	checkAuthorization();
+	
+	// Used to inform user that his token is no longer valid and will be logged out
+	$scope.showLogoutAlert = function() {
+	    $mdDialog.show(
+	      $mdDialog.alert()
+	        .parent(angular.element(document.querySelector('#popupContainer')))
+	        .clickOutsideToClose(true)
+	        .title('Attention Please')
+	        .textContent('Either your session has been expired or you are no longer authorized to continue.')
+	        .ariaLabel('Alert Dialog Demo')
+	        .ok('OK')
+	    ).finally(function() { 
+	    	$state.go('login', {});
+	    });
+	};
+	
+	// Used to inform user that error has occured
+	$scope.showErrorAlert = function(title, msg) {
+		$mdDialog.show(
+			$mdDialog.alert()
+				.parent(angular.element(document.querySelector('#popupContainer')))
+				.clickOutsideToClose(true)
+				.title(title)
+				.textContent(msg)
+				.ariaLabel('Alert Dialog')
+				.ok('OK')
+		)
+	};
 	
 	$scope.cards = [{ 
 	 	   index:"0", 
