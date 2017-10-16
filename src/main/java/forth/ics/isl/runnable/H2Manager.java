@@ -88,7 +88,7 @@ public class H2Manager {
         return statement.executeUpdate("CREATE TABLE entity ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "name varchar(20), \n"
-                + "query VARCHAR(1000), \n"
+                + "query clob, \n"
                 + "thesaurus varchar(50), \n"
                 + "geospatial boolean, \n"
                 + "PRIMARY KEY (`id`)\n"
@@ -178,7 +178,7 @@ public class H2Manager {
         insertEntity("Product",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT (concat(str(?object), '#@#', str(?name)) as ?resource)  ?type ?Responsible ?Service ?east ?west ?north ?south\n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Product.\n"
@@ -215,7 +215,7 @@ public class H2Manager {
         insertEntity("Equipment",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT (concat(str(?object), '#@#', str(?name)) as ?resource)  ?type ?Responsible ?Service ?east ?west ?north ?south\n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Equipment.\n"
@@ -252,7 +252,7 @@ public class H2Manager {
         insertEntity("Facility",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT (concat(str(?object), '#@#', str(?name)) as ?resource)  ?type ?Responsible ?Service ?east ?west ?north ?south\n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Facility.\n"
@@ -307,7 +307,7 @@ public class H2Manager {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         H2Manager h2 = new H2Manager();
-//        h2.init();
+        h2.init();
 
         ResultSet results = h2.fetchEntities();
         while (results.next()) {
