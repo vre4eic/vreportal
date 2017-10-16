@@ -20,24 +20,22 @@ import org.springframework.beans.factory.annotation.Value;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * A client for our Custom Restful Web service for the triple store  
- * 
+ * A client for our Custom Restful Web service for the triple store
+ *
  * @author Vangelis Kritsotakis
  *
  */
-
 public class RestClient {
-		
-	private String serviceUrl;
-	private String namespace;
-	
-	
-	public RestClient(String serviceUrl, String namespace) throws IOException {
+
+    private String serviceUrl;
+    private String namespace;
+
+    public RestClient(String serviceUrl, String namespace) throws IOException {
         this.serviceUrl = serviceUrl;
         this.namespace = namespace;
     }
-	
-	/**
+
+    /**
      * Imports an RDF like file on the server using post synchronously
      *
      * @param file A String holding the path of the file, the contents of which
@@ -50,12 +48,11 @@ public class RestClient {
     public Response importFile(String content, String format, String namespace, String namedGraph, String authorizationToken)
             throws ClientProtocolException, IOException {
         String restURL = serviceUrl + "/import/namespace/" + namespace;
-        
+
         // Taking into account nameSpace in the construction of the URL
         if (namespace != null) {
             restURL = serviceUrl + "/import/namespace/" + namespace;
-        } 
-        else {
+        } else {
             restURL = serviceUrl + "/import";
         }
         // Taking into account nameGraph in the construction of the URL
@@ -63,18 +60,17 @@ public class RestClient {
             restURL = restURL + "?graph=" + namedGraph;
         }
         System.out.println("restURL: " + restURL);
-        
+
         String mimeType = format;
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(restURL).queryParam("namegraph", namedGraph);
         System.out.println("authorizationToken NEW: " + authorizationToken);
         Response response = webTarget.request()
-        		.header(HttpHeaders.AUTHORIZATION, authorizationToken)
-        		.post(Entity.entity(content, mimeType));
+                .header(HttpHeaders.AUTHORIZATION, authorizationToken)
+                .post(Entity.entity(content, mimeType));
         return response;
     }
-	
-	
+
     /**
      * Imports an RDF-like file on the server
      *
@@ -85,18 +81,18 @@ public class RestClient {
      * @return The output of the query
      */
     public Response executeSparqlQuery(String queryStr, String namespace, String format, String authorizationToken) throws UnsupportedEncodingException {
-    	
-    	Client client = ClientBuilder.newClient();
+
+        Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(serviceUrl + "/query/namespace/" + namespace)
-        		.queryParam("format", format)
+                .queryParam("format", format)
                 .queryParam("query", URLEncoder.encode(queryStr, "UTF-8").replaceAll("\\+", "%20"));
-        
+
         //System.out.println("HttpHeaders.AUTHORIZATION: " + authorizationToken);
         Invocation.Builder invocationBuilder = webTarget.request().header(HttpHeaders.AUTHORIZATION, authorizationToken);
-        
+
         Response response = invocationBuilder.get();
-    	
+
         return response;
     }
-    
+
 }

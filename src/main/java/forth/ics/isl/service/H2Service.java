@@ -62,7 +62,6 @@ public class H2Service {
     public static JSONArray retrieveAllentities(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
-
             initConn(URL, username, password); // Initiates connection to H2
             ResultSet entities = statement.executeQuery("select * from entity");
             while (entities.next()) {
