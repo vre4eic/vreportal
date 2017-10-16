@@ -330,9 +330,11 @@
 					
 					<md-list class="md-dense" style="margin-top:5px;overflow: auto;" flex>
 						
-						<md-list-item class="md-2-line md-long-text" 
-									  ng-class="item.animateToRemove"
+						<!-- animate-show animate-hide -->
+						<md-list-item class="md-2-line md-long-text slide-fade showListItem" 
+									  ng-show="item != null"
 									  ng-repeat="item in rowModel.selectedRelatedInstanceList">
+									  <!-- ng-class="item.animateToRemove" -->
 							<div class="md-list-item-text">
 								<span ng-repeat="(key,val) in item" class="ng-binding">
 									<span ng-if="key != 'isChecked' && key != 'uri'">

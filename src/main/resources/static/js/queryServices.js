@@ -11,6 +11,21 @@ angular.module('app.mainServices', [])
 	var splitStr = '#@#';
 	
 	return {
+		searchEntityResults : function() {
+			return $http({
+				'url' : '/search_entity_results',
+				'method' : 'GET',
+				'headers' : {
+					'Content-Type' : 'application/json'
+				},
+				'params' : ''
+			}).then(function (success){
+				return success;
+			},function (error) {
+				//error code
+			});
+		},
+		/*
 		getEntityQueryResults : function(serviceModel, queryModel, token) {
 
 			return $http({
@@ -28,6 +43,7 @@ angular.module('app.mainServices', [])
 			});
 
 		},
+		*/
 		getAllEntities : function() {
 			return $http({
 				'url' : '/get_all_entities',
