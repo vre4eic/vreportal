@@ -175,6 +175,23 @@ public class H2Manager {
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score)",
                 false);
+        insertEntity("Product",
+                "",
+                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "where {\n"
+                + "?org cerif:is_source_of ?FLES.\n"
+                + "?FLES cerif:has_destination ?Ser.\n"
+                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "?orgName bds:search \"@#$%TERM%$#@\".\n"
+                + "?orgName bds:matchAllTerms \"true\".\n"
+                + "?orgName bds:relevance ?score.\n"
+                + "}ORDER BY desc(?score)",
+                false);
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -196,7 +213,7 @@ public class H2Manager {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         H2Manager h2 = new H2Manager();
-        h2.init();
+//        h2.init();
 
         ResultSet results = h2.fetchEntities();
         while (results.next()) {
