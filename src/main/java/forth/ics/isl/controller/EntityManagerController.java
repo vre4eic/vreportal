@@ -79,9 +79,7 @@ public class EntityManagerController {
     public @ResponseBody
     JSONArray searchEntityResults(@RequestParam Map<String, String> requestParams) {//, Model model) {
         System.out.println("Works");
-        
-        
-        
+
         /*
     	int page = new Integer(requestParams.get("page")).intValue();
     	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
