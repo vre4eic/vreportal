@@ -614,77 +614,95 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
     	}
     	
-    	// Executing Query
-    	queryService.searchEntityResults($scope.serviceModel, searchEntityModel, $scope.credentials.token)
-		.then(function (response) {
-			
-			if(response.status == -1) {
-				$scope.message = 'There was a network error. Try again later.';
-				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
-			}
-			
-			else {
-				// Checking the response from blazegraph
-				if(response.status == '200') {
-					
-					$scope.relatedEntityResults = response.data;
-					
-					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
-						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
-							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
-						}
-			    	}
-					
-					if($scope.relatedEntityResults.results != undefined)
-		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
-					
-					modalInstance.close();
-					
-					// Used for capturing the current row and thus knowing where to put selected items
-			    	$scope.currRowModel = rowModel;
-			    	$mdDialog.show({
-			    		scope: $scope,
-			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
-			    		parent: angular.element(document.body),
-			    		targetEvent: ev,
-			    		//clickOutsideToClose:true,
-			    		preserveScope: true,
-			    		fullscreen: false // Only for -xs, -sm breakpoints.
-			    	})
-			    	.then(function(answer) {
-			    		$scope.status = 'You are OK';
-			    	}, function() {
-			    		$scope.status = 'You cancelled the dialog.';
-			    	});
-				}
-				else if(response.status == '400') {
-					$log.info(response.status);
-					modalInstance.close();
-				}
-				else if(response.status == '401') {
-					$log.info(response.status);
-					modalInstance.close();
-					$scope.showLogoutAlert();
-					authenticationService.clearCredentials();
-				}
-				else {
-					$log.info(response.status);
-					modalInstance.close();
-				}
-			
-			} // else close
-			
-		
-		}, function (error) {
+    	// Computing Query
+    	
+    	var updatedQuery = '';
+    	var updatedQueryModel = '';
+    	
+    	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (response) {
+    		updatedQuery = response.data.query;
+    		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
+        	updatedQueryModel.query = updatedQuery;
+    		
+    		// New promise
+    		// Executing Query
+    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
+    		.then(function (response) {
+        		
+    			if(response.status == -1) {
+    				$scope.message = 'There was a network error. Try again later.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    				modalInstance.close();
+    			}
+    			
+    			else {
+    				// Checking the response from blazegraph
+    				if(response.status == '200') {
+    					
+    					$scope.relatedEntityResults = response.data;
+    					
+    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
+    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
+    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
+    						}
+    			    	}
+    					
+    					if($scope.relatedEntityResults.results != undefined)
+    		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
+    					
+    					modalInstance.close();
+    					
+    					// Used for capturing the current row and thus knowing where to put selected items
+    			    	$scope.currRowModel = rowModel;
+    			    	$mdDialog.show({
+    			    		scope: $scope,
+    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
+    			    		parent: angular.element(document.body),
+    			    		targetEvent: ev,
+    			    		//clickOutsideToClose:true,
+    			    		preserveScope: true,
+    			    		fullscreen: false // Only for -xs, -sm breakpoints.
+    			    	})
+    			    	.then(function(answer) {
+    			    		$scope.status = 'You are OK';
+    			    	}, function() {
+    			    		$scope.status = 'You cancelled the dialog.';
+    			    	});
+    				}
+    				else if(response.status == '400') {
+    					$log.info(response.status);
+    					modalInstance.close();
+    				}
+    				else if(response.status == '401') {
+    					$log.info(response.status);
+    					modalInstance.close();
+    					$scope.showLogoutAlert();
+    					authenticationService.clearCredentials();
+    				}
+    				else {
+    					$log.info(response.status);
+    					modalInstance.close();
+    				}
+    			
+    			} // else close
+    			
+    		
+    		}, function (error) {
+    			$scope.message = 'There was a network error. Try again later.';
+    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+    				data : error
+    			}));
+    			modalInstance.close();
+    		});
+        	// Tring with promise - End
+    		
+    	}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
 			modalInstance.close();
 		});
-    	// Tring with promise - End
-    	
     	
 	};
     

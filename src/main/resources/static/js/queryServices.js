@@ -11,21 +11,22 @@ angular.module('app.mainServices', [])
 	var splitStr = '#@#';
 	
 	return {
-		searchEntityResults : function() {
+		computeRelatedEntityQuery : function(searchEntityModel, token) {
 			return $http({
-				'url' : '/search_entity_results',
-				'method' : 'GET',
-				'headers' : {
-					'Content-Type' : 'application/json'
+				'url' : '/compute_related_entity_query',
+				'method' : 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
 				},
-				'params' : ''
+				'data' : searchEntityModel
 			}).then(function (success){
 				return success;
 			},function (error) {
 				//error code
 			});
 		},
-		/*
+		
 		getEntityQueryResults : function(serviceModel, queryModel, token) {
 
 			return $http({
@@ -43,7 +44,7 @@ angular.module('app.mainServices', [])
 			});
 
 		},
-		*/
+		
 		getAllEntities : function() {
 			return $http({
 				'url' : '/get_all_entities',
