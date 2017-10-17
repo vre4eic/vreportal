@@ -59,11 +59,61 @@ public class H2Service {
         }
     }
 
+    public static JSONObject retrieveEntity(String url, String username, String password, String entity) {
+        JSONObject entityJSON = new JSONObject();
+        try {
+            initConn(url, username, password); // Initiates connection to H2
+            ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
+            while (entities.next()) {
+                entityJSON.put("name", entities.getString("name"));
+                entityJSON.put("thesaurus", entities.getString("thesaurus"));
+                JSONObject queryModel = new JSONObject();
+                entityJSON.put("queryModel", queryModel);
+                queryModel.put("format", "application/json");
+                queryModel.put("query", entities.getString("query"));
+                entityJSON.put("geospatial", entities.getString("geospatial"));
+            }
+            entities.close();
+            terminateConn(); // Terminates connection to H2
+        } catch (SQLException ex) {
+            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return entityJSON;
+    }
+
     public static JSONArray retrieveAllentities(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
             initConn(URL, username, password); // Initiates connection to H2
             ResultSet entities = statement.executeQuery("select * from entity");
+            while (entities.next()) {
+                JSONObject entity = new JSONObject();
+                entity.put("name", entities.getString("name"));
+                entity.put("thesaurus", entities.getString("thesaurus"));
+
+                JSONObject queryModel = new JSONObject();
+                entity.put("queryModel", queryModel);
+                queryModel.put("format", "application/json");
+                queryModel.put("query", entities.getString("query"));
+                entity.put("geospatial", entities.getString("geospatial"));
+
+                results.add(entity);
+            }
+
+            entities.close();
+            terminateConn(); // Terminates connection to H2
+
+        } catch (SQLException ex) {
+            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return results;
+    }
+
+    public static JSONArray retrieveAllnamedgraphs(String URL, String username, String password) {
+        JSONArray results = new JSONArray();
+        try {
+            initConn(URL, username, password); // Initiates connection to H2
+            ResultSet entities = statement.executeQuery("select * from namegraph");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
                 entity.put("name", entities.getString("name"));

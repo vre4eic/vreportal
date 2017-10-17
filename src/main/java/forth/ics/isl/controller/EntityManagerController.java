@@ -48,6 +48,9 @@ public class EntityManagerController {
     private String h2ServicePassword;
     private RestClient restClient;
 
+    @Value("${service.url}")
+    private String serviceUrl;
+
     @PostConstruct
     public void init() throws IOException {
         h2Service = new H2Service();
@@ -63,7 +66,7 @@ public class EntityManagerController {
      */
     @RequestMapping(value = "/get_all_entities", method = RequestMethod.GET, produces = {"application/json"})
     public @ResponseBody
-    JSONArray loadDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
+    JSONArray loadEntitiesDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
         System.out.println("Works");
 
         /*
@@ -82,42 +85,80 @@ public class EntityManagerController {
 
         return arr;
     }
-    	
+
+    @RequestMapping(value = "/get_entities", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONArray loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+        System.out.println("Works");
+        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+
+        /*
+    	int page = new Integer(requestParams.get("page")).intValue();
+    	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
+
+    	// The EndPointForm for the page
+    	EndPointDataPage endPointDataPage = new EndPointDataPage();
+    	endPointDataPage.setPage(page);
+    	endPointDataPage.setTotalItems(currQueryResult.get("results").get("bindings").size());
+    	endPointDataPage.setResult(getDataOfPageForCurrentEndPointForm(page, itemsPerPage));
+    	    	
+		return endPointDataPage;
+         */
+        JSONArray arr = h2Service.retrieveAllentities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+
+        return arr;
+    }
+
+    @RequestMapping(value = "/get_all_namedgraphs", method = RequestMethod.GET, produces = {"application/json"})
+    public @ResponseBody
+    JSONArray loadNGraphsDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
+        System.out.println("Works");
+
+        /*
+    	int page = new Integer(requestParams.get("page")).intValue();
+    	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
+
+    	// The EndPointForm for the page
+    	EndPointDataPage endPointDataPage = new EndPointDataPage();
+    	endPointDataPage.setPage(page);
+    	endPointDataPage.setTotalItems(currQueryResult.get("results").get("bindings").size());
+    	endPointDataPage.setResult(getDataOfPageForCurrentEndPointForm(page, itemsPerPage));
+    	    	
+		return endPointDataPage;
+         */
+        JSONArray arr = h2Service.retrieveAllnamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+
+        return arr;
+    }
+
     /**
-     * Web Service that accepts two parameters and returns a dynamically constructed query 
-     * for the related entity search
+     * Web Service that accepts two parameters and returns a dynamically
+     * constructed query for the related entity search
      *
      * @param authorizationToken A string holding the authorization token
-     * @param requestParams A Json object holding the search-text and the from section of the query
+     * @param requestParams A Json object holding the search-text and the from
+     * section of the query
      * @return An EndPointDataPage object that holds the items of the passed
      * page.
      */
-    @RequestMapping(value = "/compute_related_entity_query", method = RequestMethod.POST, produces = {"application/json"}) 
-    public @ResponseBody JSONObject searchEntityResults(@RequestHeader(value="Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+    @RequestMapping(value = "/related_entity_query", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject searchEntityQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+        System.out.println("running executequery_json...");
+        System.out.println("relatedEntity:" + requestParams.get("entity"));
+        System.out.println("searchText:" + requestParams.get("searchText"));
+        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+        // without authorization at the moment
+//        System.out.println("authorizationToken: " + authorizationToken);
+        String entity = (String) requestParams.get("entity");
+        String fromClause = (String) requestParams.get("fromSearch");
+        String searchClause = (String) requestParams.get("searchText");
+        JSONObject entityData = H2Service.retrieveEntity(serviceUrl, serviceUrl, h2ServicePassword, entity);
+        String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
+        query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
 
-    	System.out.println("running executequery_json...");
-		System.out.println("searchText:" + requestParams.get("searchText"));
-		System.out.println("fromSearch:" + requestParams.get("fromSearch"));
-		System.out.println("authorizationToken: " + authorizationToken);
-
-        String queryToExecute = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
-				              + "select distinct ?persName ?Service (?pers as ?uri) " + requestParams.get("fromSearch") + "\n"
-				              + "where {\n"
-				              + "?pers cerif:is_source_of ?FLES.  \n"
-				              + "?FLES cerif:has_destination ?Ser.  \n"
-				              + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-				              + "?Ser cerif:has_acronym ?Service.\n"
-				              + "?pers a cerif:Person.  \n"
-				              + "?pers rdfs:label ?persName. \n"
-				              + "?persName bds:search '" + requestParams.get("searchText") + "'.  \n"
-				              + "?persName bds:matchAllTerms \"true\".  \n"
-				              + "?persName bds:relevance ?score. \n"
-				              + "}  ORDER BY desc(?score) ?pers limit 100";
-        
         JSONObject responseJsonObject = new JSONObject();
-        responseJsonObject.put("query", queryToExecute);
-        		
-        
+        responseJsonObject.put("query", query);
         return responseJsonObject;
     }
 

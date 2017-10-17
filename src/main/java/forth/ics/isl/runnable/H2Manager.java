@@ -104,6 +104,7 @@ public class H2Manager {
         }
     }
 
+    //to do: na elegxoume an tha einai matchAllTerms i oxi
     private void insertEntities() throws SQLException {
         insertEntity("Person",
                 "thesaurus/persons-firstAndLastNames.json",
