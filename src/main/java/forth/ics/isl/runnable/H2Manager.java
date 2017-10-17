@@ -5,6 +5,7 @@
  */
 package forth.ics.isl.runnable;
 
+import forth.ics.isl.service.H2Service;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -310,11 +311,13 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
         h2.init();
 
-        ResultSet results = h2.fetchEntities();
-        while (results.next()) {
-            System.out.println(results.getString(2));
-        }
+//        ResultSet results = h2.fetchEntities();
+//        while (results.next()) {
+//            System.out.println(results.getString(2));
+//        }
 
+        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
+        
         h2.terminate();
     }
 

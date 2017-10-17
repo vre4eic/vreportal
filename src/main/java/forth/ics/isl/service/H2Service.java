@@ -116,15 +116,37 @@ public class H2Service {
             ResultSet namedGraphs = statement.executeQuery("select g.uri, g.name, c.id, c.name from \n"
                     + "namedgraph g, namedgraph_category c where g.category = c.id");
             while (namedGraphs.next()) {
-
-                JSONObject category = new JSONObject();
-
-//                results.add(entity);
+                String gUri = namedGraphs.getString(1);
+                String gName = namedGraphs.getString(2);
+                int cID = namedGraphs.getInt(3);
+                String cName = namedGraphs.getString(4);
+                boolean found = false;
+                for (int i = 0; i < results.size(); i++) {
+                    JSONObject category = (JSONObject) results.get(i);
+                    if (cID == (int)category.get("id")) {
+                        found = true;
+                        JSONArray children = (JSONArray) category.get("children");
+                        JSONObject child = new JSONObject();
+                        child.put("label", gName);
+                        child.put("value", gUri);
+                        children.add(child);
+                    }
+                }
+                if (!found) {
+                    JSONObject category = new JSONObject();
+                    category.put("id", cID);
+                    category.put("label", cName);
+                    JSONArray children = new JSONArray();
+                    category.put("children", children);
+                    JSONObject child = new JSONObject();
+                    child.put("label", gName);
+                    child.put("value", gUri);
+                    children.add(child);
+                    results.add(category);
+                }
             }
-
             namedGraphs.close();
             terminateConn(); // Terminates connection to H2
-
         } catch (SQLException ex) {
             Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
         }
