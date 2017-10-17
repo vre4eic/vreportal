@@ -77,6 +77,22 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 		},
+		
+		getAllNamegraphs : function() {
+			return $http({
+				'url' : '/get_all_namedgraphs',
+				'method' : 'GET',
+				'headers' : {
+					'Content-Type' : 'application/json'
+				},
+				'params' : ''
+			}).then(function (success){
+				return success;
+			},function (error) {
+				//error code
+			});
+		},
+		
 		getQueryResults : function(queryModel, token) {
 
 			return $http({

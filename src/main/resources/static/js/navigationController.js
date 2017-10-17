@@ -103,6 +103,59 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			{label: 'envri-data', value: 'envri-data', selected: true}
 		]
 	}];
+	
+	$scope.queryFrom = '';
+	
+	function constructQueryForm(namegraphs) {
+		$scope.queryFrom = '';
+		angular.forEach(namegraphs, function(parentValue, parentKey) {
+			angular.forEach(parentValue.children, function(childValue, childKey) {
+				if(childValue.selected) {
+					$scope.queryFrom = $scope.queryFrom + 'from <' + childValue.value + '> ';
+				}
+			})
+		});
+		
+		// In case of none selected, use some fictional namegraph,
+		// such that searching in the whole namespace is avoided
+		if($scope.queryFrom == '') {
+			$scope.queryFrom = $scope.queryFrom + 'from <http://none> ';
+		}
+	}
+	
+	function makeAllNamegraphsSelected(namegraphs) {
+		angular.forEach(namegraphs, function(parentValue, parentKey) {
+			parentValue.selected = true;
+			angular.forEach(parentValue.children, function(childValue, childKey) {
+				childValue.selected = true;
+			})
+		});
+		return namegraphs;
+	}
+	
+	// Initializing All available entities
+	function initAllNamegraphs() {
+		queryService.getAllNamegraphs().then(function (response) {
+			//console.log(angular.toJson(response));
+			
+			$scope.namegraphs = makeAllNamegraphsSelected(response.data);
+			// Initialising the queryFrom string
+			constructQueryForm(response.data);
+			console.log('$scope.queryFrom: ' + $scope.queryFrom);
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		}).finally(function(){
+			//$scope.$apply();
+		});
+	}
+	
+	initAllNamegraphs();
+	
+	
+	
 	/*
 	$scope.namegraphs = [{
 			id: 'hats',
@@ -142,24 +195,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Do something with node or tree
 		//alert("awesomeCallback");
 	};
-	
-	$scope.queryFrom = '';
-	
+		
 	$scope.namegraphTreeCallback = function(node, isSelected, tree) {
 		//console.log("namegraphTreeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
 		//console.log(angular.toJson($scope.namegraphs));
 		
 		//console.log("namegraphTreeCallback: \nlabel: " + node.label + "\nselected: " + node.selected);
 		
-		var queryFrom = '';
-		
-		angular.forEach($scope.namegraphs, function(parentValue, parentKey) {
-			angular.forEach(parentValue.children, function(childValue, childKey) {
-				if(childValue.selected) {
-					$scope.queryFrom = $scope.queryFrom + 'from ' + childValue.value + ' ';
-				}
-			})
-		});
+		constructQueryForm($scope.namegraphs);
 		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
 		
 	}
@@ -167,7 +210,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.selectHats = function() {
 	    // Selecting by node id
 	    ivhTreeviewMgr.select($scope.namegraphs, 'hats');
-	    //scope.$apply();
 	};
 	
 	$scope.deselectGel = function() {
@@ -369,7 +411,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	
 	$scope.selectRelatedEntityFromResults = function(rowModel, index) {
-		//////rowModel.selectedRelatedEntityResult = rowModel.relatedEntityResults[index];
 		rowModel.selectedRelatedInstanceList = [{name: rowModel.relatedEntityResults[index].name}];
 	};
 	
@@ -389,26 +430,39 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Thesaurus	
 	
 	$scope.loadThesaurus = function(entity, outerIndex) {
-		return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
-        	//$log.info('$scope.targetThesaurus ' + JSON.stringify($scope.targetThesaurus));
-        	// Case Target
-        	if(outerIndex == -1) {
-        		$scope.targetThesaurus = response.data;
+		if(!(entity.thesaurus == "" || entity.thesaurus == null)) {
+			return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
+	        	//$log.info('$scope.targetThesaurus ' + JSON.stringify($scope.targetThesaurus));
+	        	// Case Target
+	        	if(outerIndex == -1) {
+	        		$scope.targetThesaurus = response.data;
+	        	}
+	        	// Case Related Entity
+	        	else { //if(entityCase == 'related')
+	        		$scope.thesaurus = response.data;
+	        	}
+	        });
+		}
+		else {
+			if(outerIndex == -1) {
+        		$scope.targetThesaurus = "";
         	}
         	// Case Related Entity
         	else { //if(entityCase == 'related')
-        		$scope.thesaurus = response.data;
+        		$scope.thesaurus = "";
         	}
-        });
+		}
     };
 	
     $scope.querySearch = function(query, outerIndex) {
-    	var results = null;
+    	var results = [];
     	if(outerIndex == -1) {
-    		results = query ? $scope.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetThesaurus;
+    		if($scope.targetThesaurus != '')
+    			results = query ? $scope.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetThesaurus;
     	}
     	else { //if(entityCase == 'related')
-    		results = query ? $scope.thesaurus.filter( createFilterFor(query) ) : $scope.thesaurus;
+    		if($scope.thesaurus != '')
+    			results = query ? $scope.thesaurus.filter( createFilterFor(query) ) : $scope.thesaurus;
     	}
         return results;
     }
@@ -455,8 +509,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	var searchEntityModel = {
     		entity: rowModel.selectedRelatedEntity.name,
     		searchText: querySearchText,
-    		//fromSearch: $scope.queryFrom
-    		fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
+    		fromSearch: $scope.queryFrom
+    		//fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
     	}
     	
     	// Getting the query from back-end - Promise
@@ -464,22 +518,25 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	var updatedQueryModel = '';
     	var updatedQueryModelPerPage = '';
     	
-    	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (response) {
+    	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
 
     		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
-        	updatedQueryModel.query = response.data.query;
+        	updatedQueryModel.query = queryResponse.data.query;
     		
     		// Calling Service to get the count wrt to the query - Promise
     		queryService.getEntityQueryResultsCount($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
-    		.then(function (response) {
+    		.then(function (queryCountResponse) {
     			
     			// Holding total number of results
-    			$scope.relatedEntityResultsCount = response.data.results.bindings[0].count.value;
+    			$scope.relatedEntityResultsCount = queryCountResponse.data.results.bindings[0].count.value;
     			console.log('$scope.relatedEntityResultsCount: ' + $scope.relatedEntityResultsCount);
     			
     			// Change query such that only the first 10 are returned
     			updatedQueryModelPerPage = Object.assign(updatedQueryModel);
-    			updatedQueryModelPerPage.query = updatedQueryModelPerPage.query + ' limit ' + $scope.itemsPerPage + ' offset ' + $scope.currentPage-1
+    			/////// After the line below, the updatedQueryModelPerPage.query becomes NA 
+    			var queryPerPage = "";//angular.copy(updatedQueryModelPerPage.query);
+    			queryPerPage = angular.copy(updatedQueryModelPerPage.query) + ' limit ' + $scope.itemsPerPage.toString() + ' offset ' + ($scope.currentPage-1).toString();
+    			updatedQueryModelPerPage.query = queryPerPage;
     			
 	    		// Calling service to executing Query - Promise
 	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
@@ -503,8 +560,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    						}
 	    			    	}
 	    					
-	    					if($scope.relatedEntityResults.results != undefined)
-	    		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
+	    					//if($scope.relatedEntityResults.results != undefined)
+	    		    		//	$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
 	    					
 	    					modalInstance.close();
 	    					
@@ -1360,7 +1417,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					//console.log("200 - getGeoQueryResults: " + response.result.results);
 					$scope.lastEndPointForm = response;
 					$scope.endpointResult = response.result;
-					$scope.totalItems = response.totalItems;
+					//$scope.totalItems = response.totalItems;
 					$scope.currentPage = 1;
 					$scope.alerts.push({type: 'success-funky', msg: 'Searching completed successfully'});
 					
