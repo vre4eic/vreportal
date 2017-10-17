@@ -66,5 +66,6 @@ public class QueryGenService {
             }
         }
         System.out.println(resultEntitiesJSON.toJSONString());
+        
     }
 }
