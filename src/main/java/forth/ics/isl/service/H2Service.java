@@ -123,7 +123,7 @@ public class H2Service {
                 boolean found = false;
                 for (int i = 0; i < results.size(); i++) {
                     JSONObject category = (JSONObject) results.get(i);
-                    if (cID == (int)category.get("id")) {
+                    if (cID == (int) category.get("id")) {
                         found = true;
                         JSONArray children = (JSONArray) category.get("children");
                         JSONObject child = new JSONObject();
