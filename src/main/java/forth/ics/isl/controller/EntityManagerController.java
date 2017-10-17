@@ -126,7 +126,7 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = h2Service.retrieveAllNamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = H2Service.retrieveAllNamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
 
         return arr;
     }

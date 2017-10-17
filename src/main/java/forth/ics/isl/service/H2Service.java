@@ -81,7 +81,7 @@ public class H2Service {
         return entityJSON;
     }
 
-    public JSONArray retrieveAllEntities(String URL, String username, String password) {
+    public static JSONArray retrieveAllEntities(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
             initConn(URL, username, password); // Initiates connection to H2
@@ -109,7 +109,7 @@ public class H2Service {
         return results;
     }
 
-    public JSONArray retrieveAllNamedgraphs(String URL, String username, String password) {
+    public static JSONArray retrieveAllNamedgraphs(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
             initConn(URL, username, password); // Initiates connection to H2
