@@ -57,6 +57,10 @@ public class H2Manager {
                 + " values ('" + name + "','" + query + "','" + thesaurus + "'," + geospatial + ")");
     }
 
+    public int updateEntityGeospatial(String entityName, String columnName, boolean columnValue) throws SQLException {
+        return statement.executeUpdate("update entity set geospatial = " + columnValue + " where name = '" + entityName + "'");
+    }
+
     public int createTableNamedgraph() throws SQLException {
         return statement.executeUpdate("CREATE TABLE namedgraph ( \n"
                 + "uri varchar(20) not null, \n"
@@ -315,9 +319,8 @@ public class H2Manager {
 //        while (results.next()) {
 //            System.out.println(results.getString(2));
 //        }
-
-        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
-        
+//        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
+        System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
         h2.terminate();
     }
 

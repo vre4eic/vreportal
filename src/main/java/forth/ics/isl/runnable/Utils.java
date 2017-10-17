@@ -14,13 +14,13 @@ import java.io.IOException;
  */
 public class Utils {
 
-    public static boolean hasGeospatialNature(String entity, String graphs) throws IOException {
+    public static boolean geoEntityQuery(String entity, String graphsClause) throws IOException {
         String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT ?name  ?east ?west ?north ?south \n"
-                + "@#$%FROM%$#@ \n"
+                + graphsClause + " \n"
                 + "WHERE {\n"
-                + "?object a cerif:Person.\n"
-                + "?object cerif:has_name ?name.\n"
+                + "?object a cerif:" + entity + ".\n"
+                + "optional {\n"
                 + "?object cerif:is_source_of ?FLE1.\n"
                 + "?FLE1 cerif:has_destination ?PA.\n"
                 + "?PA cerif:is_source_of ?FLE2.\n"
@@ -29,14 +29,18 @@ public class Utils {
                 + "?GBB cerif:has_westBoundaryLongitude ?west.\n"
                 + "?GBB cerif:has_northBoundaryLatitude ?north.\n"
                 + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
+                + "}"
                 + "} limit 1";
-
+        System.out.println(query);
         String endpoint = "http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
-        RestClient client = new RestClient(endpoint, namespace);
-        client.executeSparqlQuery(query, namespace, "application/json", endpoint);
+//        RestClient client = new RestClient(endpoint, namespace);
+//        client.executeSparqlQuery(query, namespace, "application/json", endpoint);
         return false;
     }
 
+    public static void main(String[] args) throws IOException {
+        geoEntityQuery("Person", "from <http://ekt-data> from <http://rcuk-data>");
+    }
 }

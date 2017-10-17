@@ -1,11 +1,9 @@
 package forth.ics.isl.controller;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -20,14 +18,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import forth.ics.isl.data.model.EndPointDataPage;
-import forth.ics.isl.data.model.EndPointForm;
-import forth.ics.isl.data.model.InputTagRequest;
 import forth.ics.isl.service.H2Service;
+import static forth.ics.isl.service.H2Service.retrieveAllEntities;
+import static forth.ics.isl.service.QueryGenService.geoEntityQuery;
 import forth.ics.isl.triplestore.RestClient;
+import java.sql.SQLException;
+import java.util.List;
+import javax.ws.rs.core.Response;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * The back-end controller for the H2 Service
@@ -50,9 +49,11 @@ public class EntityManagerController {
 
     @Value("${service.url}")
     private String serviceUrl;
+    @Value("${triplestore.namespace}")
+    private String namespace;
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() throws IOException, SQLException {
         h2Service = new H2Service();
     }
 
@@ -81,39 +82,43 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = h2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
 
         return arr;
     }
 
     @RequestMapping(value = "/get_entities", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONArray loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+    JSONArray loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         System.out.println("Works");
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
-
-        /*
-    	int page = new Integer(requestParams.get("page")).intValue();
-    	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
-
-    	// The EndPointForm for the page
-    	EndPointDataPage endPointDataPage = new EndPointDataPage();
-    	endPointDataPage.setPage(page);
-    	endPointDataPage.setTotalItems(currQueryResult.get("results").get("bindings").size());
-    	endPointDataPage.setResult(getDataOfPageForCurrentEndPointForm(page, itemsPerPage));
-    	    	
-		return endPointDataPage;
-         */
-        JSONArray arr = H2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
-
-        return arr;
+        String fromClause = (String) requestParams.get("fromSearch");
+        JSONArray initEntitiesJSON = H2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray resultEntitiesJSON = new JSONArray();
+        String endpoint = serviceUrl;
+        JSONParser parser = new JSONParser();
+        for (int i = 0; i < initEntitiesJSON.size(); i++) {
+            JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
+            String query = geoEntityQuery((String) entityJSON.get("name"), fromClause);
+            RestClient client = new RestClient(endpoint, namespace);
+            Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
+            JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
+            JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
+            if (!bindings.isEmpty()) {
+                JSONObject resultSetJSON = (JSONObject) bindings.get(0);
+                if (resultSetJSON.containsKey("east")) { //there exists spatial info 
+                    entityJSON.put("geospatial", true);
+                }
+                resultEntitiesJSON.add(entityJSON);
+            }
+        }
+        return resultEntitiesJSON;
     }
 
     @RequestMapping(value = "/get_all_namedgraphs", method = RequestMethod.GET, produces = {"application/json"})
     public @ResponseBody
     JSONArray loadNGraphsDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
         System.out.println("Works");
-
         /*
     	int page = new Integer(requestParams.get("page")).intValue();
     	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();

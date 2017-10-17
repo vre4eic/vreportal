@@ -6,14 +6,13 @@
 package forth.ics.isl.service;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
@@ -81,6 +80,22 @@ public class H2Service {
         return entityJSON;
     }
 
+    public static List<String> retrieveAllEntityNames(String URL, String username, String password) {
+        List<String> entities = new ArrayList<>();
+        try {
+            initConn(URL, username, password); // Initiates connection to H2
+            ResultSet result = statement.executeQuery("select name from entity");
+            while (result.next()) {
+                entities.add(result.getString("name"));
+            }
+            result.close();
+            terminateConn(); // Terminates connection to H2
+        } catch (SQLException ex) {
+            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return entities;
+    }
+
     public static JSONArray retrieveAllEntities(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
@@ -99,7 +114,6 @@ public class H2Service {
 
                 results.add(entity);
             }
-
             entities.close();
             terminateConn(); // Terminates connection to H2
 

@@ -81,7 +81,6 @@ public class RestClient {
      * @return The output of the query
      */
     public Response executeSparqlQuery(String queryStr, String namespace, String format, String authorizationToken) throws UnsupportedEncodingException {
-
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(serviceUrl + "/query/namespace/" + namespace)
                 .queryParam("format", format)
@@ -89,9 +88,8 @@ public class RestClient {
 
         //System.out.println("HttpHeaders.AUTHORIZATION: " + authorizationToken);
         Invocation.Builder invocationBuilder = webTarget.request().header(HttpHeaders.AUTHORIZATION, authorizationToken);
-
         Response response = invocationBuilder.get();
-
+        client.close();
         return response;
     }
 
