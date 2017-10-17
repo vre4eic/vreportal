@@ -614,18 +614,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
     	}
     	
-    	// Computing Query
+    	// Computing Query - Promise
     	
-    	var updatedQuery = '';
     	var updatedQueryModel = '';
     	
     	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (response) {
-    		updatedQuery = response.data.query;
+
     		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
-        	updatedQueryModel.query = updatedQuery;
+        	updatedQueryModel.query = response.data.query;
     		
     		// New promise
-    		// Executing Query
+    		// Executing Query - Promise
     		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
     		.then(function (response) {
         		

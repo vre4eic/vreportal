@@ -83,10 +83,15 @@ public class EntityManagerController {
         return arr;
     }
     	
-    /*
-    @RequestMapping(value = "/search_entity_results", method = RequestMethod.GET, produces = {"application/json"})
-    public @ResponseBody JSONArray searchEntityResults(@RequestParam Map<String, String> requestParams) {
-    */
+    /**
+     * Web Service that accepts two parameters and returns a dynamically constructed query 
+     * for the related entity search
+     *
+     * @param authorizationToken A string holding the authorization token
+     * @param requestParams A Json object holding the search-text and the from section of the query
+     * @return An EndPointDataPage object that holds the items of the passed
+     * page.
+     */
     @RequestMapping(value = "/compute_related_entity_query", method = RequestMethod.POST, produces = {"application/json"}) 
     public @ResponseBody JSONObject searchEntityResults(@RequestHeader(value="Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
 
@@ -104,7 +109,7 @@ public class EntityManagerController {
 				              + "?Ser cerif:has_acronym ?Service.\n"
 				              + "?pers a cerif:Person.  \n"
 				              + "?pers rdfs:label ?persName. \n"
-				              + "?persName bds:search " + requestParams.get("searchText") + ".  \n"
+				              + "?persName bds:search '" + requestParams.get("searchText") + "'.  \n"
 				              + "?persName bds:matchAllTerms \"true\".  \n"
 				              + "?persName bds:relevance ?score. \n"
 				              + "}  ORDER BY desc(?score) ?pers limit 100";
