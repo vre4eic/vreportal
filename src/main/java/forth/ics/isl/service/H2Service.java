@@ -81,7 +81,7 @@ public class H2Service {
         return entityJSON;
     }
 
-    public static JSONArray retrieveAllentities(String URL, String username, String password) {
+    public JSONArray retrieveAllEntities(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
             initConn(URL, username, password); // Initiates connection to H2
@@ -109,26 +109,20 @@ public class H2Service {
         return results;
     }
 
-    public static JSONArray retrieveAllnamedgraphs(String URL, String username, String password) {
+    public JSONArray retrieveAllNamedgraphs(String URL, String username, String password) {
         JSONArray results = new JSONArray();
         try {
             initConn(URL, username, password); // Initiates connection to H2
-            ResultSet entities = statement.executeQuery("select * from namegraph");
-            while (entities.next()) {
-                JSONObject entity = new JSONObject();
-                entity.put("name", entities.getString("name"));
-                entity.put("thesaurus", entities.getString("thesaurus"));
+            ResultSet namedGraphs = statement.executeQuery("select g.uri, g.name, c.id, c.name from \n"
+                    + "namedgraph g, namedgraph_category c where g.category = c.id");
+            while (namedGraphs.next()) {
 
-                JSONObject queryModel = new JSONObject();
-                entity.put("queryModel", queryModel);
-                queryModel.put("format", "application/json");
-                queryModel.put("query", entities.getString("query"));
-                entity.put("geospatial", entities.getString("geospatial"));
+                JSONObject category = new JSONObject();
 
-                results.add(entity);
+//                results.add(entity);
             }
 
-            entities.close();
+            namedGraphs.close();
             terminateConn(); // Terminates connection to H2
 
         } catch (SQLException ex) {

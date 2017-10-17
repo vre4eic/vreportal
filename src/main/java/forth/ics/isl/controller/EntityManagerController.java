@@ -81,7 +81,7 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = h2Service.retrieveAllentities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = h2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
 
         return arr;
     }
@@ -104,7 +104,7 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = h2Service.retrieveAllentities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = H2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
 
         return arr;
     }
@@ -126,7 +126,7 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = h2Service.retrieveAllnamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = h2Service.retrieveAllNamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
 
         return arr;
     }
@@ -153,7 +153,7 @@ public class EntityManagerController {
         String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
-        JSONObject entityData = H2Service.retrieveEntity(serviceUrl, serviceUrl, h2ServicePassword, entity);
+        JSONObject entityData = H2Service.retrieveEntity(h2ServiceUrl, h2ServiceUsername, h2ServicePassword, entity);
         String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
         query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
 
