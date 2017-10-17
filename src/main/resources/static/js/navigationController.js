@@ -85,24 +85,26 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.hiddenTreeMenuTogglerButton = boolean;
 	}
 	
-	$scope.stuff = [{
+	$scope.namegraphs = [{
 		id: 'vre',
 		label: 'VREs',
+		selected: true,
 		children: [
-			{label: 'ekt-data', value: 'ekt-data'},
-			{label: 'rcuk-data', value: 'rcuk-data'},
-			{label: 'epos-data', value: 'epos-data'}
+			{label: 'ekt-data', value: 'ekt-data', selected: true},
+			{label: 'rcuk-data', value: 'rcuk-data', selected: true},
+			{label: 'epos-data', value: 'epos-data', selected: true}
 		]
 	},{
 		id: 'ri',
 		label: 'RIs',
+		selected: true,
 		children: [
-			{label: 'fris-data', value: 'fris-data'},
-			{label: 'envri-data', value: 'envri-data'}
+			{label: 'fris-data', value: 'fris-data', selected: true},
+			{label: 'envri-data', value: 'envri-data', selected: true}
 		]
-	}]
+	}];
 	/*
-	$scope.stuff = [{
+	$scope.namegraphs = [{
 			id: 'hats',
 			label: 'Hats',
 			children: [
@@ -140,25 +142,37 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Do something with node or tree
 		//alert("awesomeCallback");
 	};
-
-	$scope.otherAwesomeCallback = function(node, isSelected, tree) {
-		// Do soemthing with node or tree based on isSelected
-		//alert("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
-		console.log("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
-		console.log(angular.toJson($scope.stuff));
+	
+	$scope.queryFrom = '';
+	
+	$scope.namegraphTreeCallback = function(node, isSelected, tree) {
+		//console.log("namegraphTreeCallback: \nlabel: " + node.label + "\nselected: " + isSelected);
+		//console.log(angular.toJson($scope.namegraphs));
 		
-		//console.log("otherAwesomeCallback: \nlabel: " + node.label + "\nselected: " + node.selected);
+		//console.log("namegraphTreeCallback: \nlabel: " + node.label + "\nselected: " + node.selected);
+		
+		var queryFrom = '';
+		
+		angular.forEach($scope.namegraphs, function(parentValue, parentKey) {
+			angular.forEach(parentValue.children, function(childValue, childKey) {
+				if(childValue.selected) {
+					$scope.queryFrom = $scope.queryFrom + 'from ' + childValue.value + ' ';
+				}
+			})
+		});
+		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
+		
 	}
 	
 	$scope.selectHats = function() {
 	    // Selecting by node id
-	    ivhTreeviewMgr.select($scope.stuff, 'hats');
+	    ivhTreeviewMgr.select($scope.namegraphs, 'hats');
 	    //scope.$apply();
 	};
 	
 	$scope.deselectGel = function() {
 	    // deselect by node reference
-	    ivhTreeviewMgr.deselect($scope.stuff, $scope.stuff[1].children[1]);
+	    ivhTreeviewMgr.deselect($scope.namegraphs, $scope.namegraphs[1].children[1]);
 	};
 	
 	$scope.testBreadcrumb = function(str) {
@@ -204,43 +218,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     $scope.relatedEntityQuerySearchText = '';
 	
 	// All entities used in the row model
-    /*
-	$scope.allEntities = [{
-		name: 'Persons', 
-			thesaurus: 'thesaurus/persons-firstAndLastNames.json', 
-        	queryModel: {
-        		format: 'application/json',
-    			query: 'PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n' +
-    				   'select distinct ?persName ?Service @#$%FROM%$#@\n' + 
-    				   'where {' +
-    					  '?pers a <http://eurocris.org/ontology/cerif#Person>. ' + 
-    					  '?pers rdfs:label ?persName. ' + 
-    					  '?pers cerif:is_source_of ?FLES. ' + 
-    					  '?FLES cerif:has_destination ?Ser. ' + 
-    					  '?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>. ' + 
-    					  '?Ser cerif:has_acronym ?Service.?pers a <http://eurocris.org/ontology/cerif#Person>. ' + 
-    					  '?pers rdfs:label ?persName. ' + 
-    					  '?persName bds:search \'' + '@#$%TERM%$#@' + '\'. ' + 
-    					  '?persName bds:matchAllTerms \'true\'. ' + 
-    					  '?persName bds:relevance ?score. ' + 
-    					'} ' + 
-    					'ORDER BY desc(?score) ?pers ' + 
-    					'limit 100'
-        		}
-		}, {
-			name: 'Projects', 
-			thesaurus: 'thesaurus/project-acronyms.json'
-		}, {
-			name: 'Publications', 
-			thesaurus: 'thesaurus/publications-titles.json'
-		}, {
-			name: 'Organization Units', 
-			thesaurus: 'thesaurus/organizationUnits-acronyms.json'
-		}, {
-			name: 'Resources', 
-			thesaurus: 'thesaurus/resources.json'
-		}];
-	*/
     
 	// Relations used in the row model
 	$scope.relations = [{
@@ -455,141 +432,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		namespace: 'vre4eic'
 	}
 	
-    /*
-	$scope.queryModel = {
-		format: 'application/json',
-		query: 'PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n' +
-			   'select distinct ?persName ?Service from <http://ekt-data>' + 
-			   'where {' +
-				  '?pers a <http://eurocris.org/ontology/cerif#Person>. ' + 
-				  '?pers rdfs:label ?persName. ' + 
-				  '?pers cerif:is_source_of ?FLES. ' + 
-				  '?FLES cerif:has_destination ?Ser. ' + 
-				  '?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>. ' + 
-				  '?Ser cerif:has_acronym ?Service.?pers a <http://eurocris.org/ontology/cerif#Person>. ' + 
-				  '?pers rdfs:label ?persName. ' + 
-				  '?persName bds:search \'' + relatedEntityQuerySearchText + '\'. ' + 
-				  '?persName bds:matchAllTerms \'true\'. ' + 
-				  '?persName bds:relevance ?score. ' + 
-				'} ' + 
-				'ORDER BY desc(?score) ?pers ' + 
-				'limit 100'
-	}
-    */
-    /*
-    function updateRelatedEntityQueryModel(queryModel, searchText) {
-    	var model = $parse(queryModel.query.relatedEntityQuerySearchText);
-    	model.assign($scope, searchText);
-    	return queryModel;
-	}
-    */ //Remove $parse from controller
-    
-    // Old method
-    /*
-    $scope.showRelatedResultsDialog = function(ev, rowModel) {
-    	
-    	// Trying with promise - Start
-    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
-    	
-    	// The search text to feed the query
-    	var querySearchText = '';
-    	
-    	angular.forEach(rowModel.relatedChips, function(value, key) {
-    		querySearchText = querySearchText + ' ' + value.name;
-    	});
-    	
-    	if(rowModel.relatedEntitySearchText != null && rowModel.relatedEntitySearchText != '') {
-    		querySearchText = querySearchText + ' ' + rowModel.relatedEntitySearchText;
-    	}
-    	
-    	// Feeding the query with the respective search text
-    	var updatedQuery = angular.copy(rowModel.selectedRelatedEntity.queryModel.query).replace('@#$%TERM%$#@', querySearchText);
-    	updatedQuery = updatedQuery.replace('@#$%FROM%$#@','from <http://rcuk-data> from <http://fris-data>');
-    	var updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
-    	updatedQueryModel.query = updatedQuery;
-    	
-    	// Executing Query
-    	queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
-		.then(function (response) {
-			
-			if(response.status == -1) {
-				$scope.message = 'There was a network error. Try again later.';
-				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
-			}
-			
-			else {
-				// Checking the response from blazegraph
-				if(response.status == '200') {
-					
-					$scope.relatedEntityResults = response.data;
-					
-					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
-						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
-							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
-						}
-			    	}
-					
-					if($scope.relatedEntityResults.results != undefined)
-		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
-					
-					modalInstance.close();
-					
-					// Used for capturing the current row and thus knowing where to put selected items
-			    	$scope.currRowModel = rowModel;
-			    	$mdDialog.show({
-			    		scope: $scope,
-			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
-			    		parent: angular.element(document.body),
-			    		targetEvent: ev,
-			    		//clickOutsideToClose:true,
-			    		preserveScope: true,
-			    		fullscreen: false // Only for -xs, -sm breakpoints.
-			    	})
-			    	.then(function(answer) {
-			    		$scope.status = 'You are OK';
-			    	}, function() {
-			    		$scope.status = 'You cancelled the dialog.';
-			    	});
-				}
-				else if(response.status == '400') {
-					$log.info(response.status);
-					modalInstance.close();
-				}
-				else if(response.status == '401') {
-					$log.info(response.status);
-					modalInstance.close();
-					$scope.showLogoutAlert();
-					authenticationService.clearCredentials();
-				}
-				else {
-					$log.info(response.status);
-					modalInstance.close();
-				}
-			
-			} // else close
-			
-		
-		}, function (error) {
-			$scope.message = 'There was a network error. Try again later.';
-			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-				data : error
-			}));
-			modalInstance.close();
-		});
-    	// Tring with promise - End
-    	
-    	
-	};
-	*/
-	
-    
-    
-    
-    
-    
-    
-    
+    $scope.relatedEntityResultsCount = 0;
     
     $scope.showRelatedResultsDialog = function(ev, rowModel) {
     	
@@ -610,82 +453,105 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	// Feeding the query with the respective search text
     	
     	var searchEntityModel = {
+    		entity: rowModel.selectedRelatedEntity.name,
     		searchText: querySearchText,
+    		//fromSearch: $scope.queryFrom
     		fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
     	}
     	
-    	// Computing Query - Promise
+    	// Getting the query from back-end - Promise
     	
     	var updatedQueryModel = '';
+    	var updatedQueryModelPerPage = '';
     	
     	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (response) {
 
     		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
         	updatedQueryModel.query = response.data.query;
     		
-    		// New promise
-    		// Executing Query - Promise
-    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
+    		// Calling Service to get the count wrt to the query - Promise
+    		queryService.getEntityQueryResultsCount($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
     		.then(function (response) {
-        		
-    			if(response.status == -1) {
-    				$scope.message = 'There was a network error. Try again later.';
-    				$scope.showErrorAlert('Error', $scope.message);
-    				modalInstance.close();
-    			}
     			
-    			else {
-    				// Checking the response from blazegraph
-    				if(response.status == '200') {
-    					
-    					$scope.relatedEntityResults = response.data;
-    					
-    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
-    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
-    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
-    						}
-    			    	}
-    					
-    					if($scope.relatedEntityResults.results != undefined)
-    		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
-    					
-    					modalInstance.close();
-    					
-    					// Used for capturing the current row and thus knowing where to put selected items
-    			    	$scope.currRowModel = rowModel;
-    			    	$mdDialog.show({
-    			    		scope: $scope,
-    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
-    			    		parent: angular.element(document.body),
-    			    		targetEvent: ev,
-    			    		//clickOutsideToClose:true,
-    			    		preserveScope: true,
-    			    		fullscreen: false // Only for -xs, -sm breakpoints.
-    			    	})
-    			    	.then(function(answer) {
-    			    		$scope.status = 'You are OK';
-    			    	}, function() {
-    			    		$scope.status = 'You cancelled the dialog.';
-    			    	});
-    				}
-    				else if(response.status == '400') {
-    					$log.info(response.status);
-    					modalInstance.close();
-    				}
-    				else if(response.status == '401') {
-    					$log.info(response.status);
-    					modalInstance.close();
-    					$scope.showLogoutAlert();
-    					authenticationService.clearCredentials();
-    				}
-    				else {
-    					$log.info(response.status);
-    					modalInstance.close();
-    				}
+    			// Holding total number of results
+    			$scope.relatedEntityResultsCount = response.data.results.bindings[0].count.value;
+    			console.log('$scope.relatedEntityResultsCount: ' + $scope.relatedEntityResultsCount);
     			
-    			} // else close
+    			// Change query such that only the first 10 are returned
+    			updatedQueryModelPerPage = Object.assign(updatedQueryModel);
+    			updatedQueryModelPerPage.query = updatedQueryModelPerPage.query + ' limit ' + $scope.itemsPerPage + ' offset ' + $scope.currentPage-1
     			
-    		
+	    		// Calling service to executing Query - Promise
+	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
+	    		.then(function (response) {
+	        		
+	    			if(response.status == -1) {
+	    				$scope.message = 'There was a network error. Try again later.';
+	    				$scope.showErrorAlert('Error', $scope.message);
+	    				modalInstance.close();
+	    			}
+	    			
+	    			else {
+	    				// Checking the response from blazegraph
+	    				if(response.status == '200') {
+	    					
+	    					$scope.relatedEntityResults = response.data;
+	    					
+	    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
+	    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
+	    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
+	    						}
+	    			    	}
+	    					
+	    					if($scope.relatedEntityResults.results != undefined)
+	    		    			$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
+	    					
+	    					modalInstance.close();
+	    					
+	    					// Used for capturing the current row and thus knowing where to put selected items
+	    			    	$scope.currRowModel = rowModel;
+	    			    	$mdDialog.show({
+	    			    		scope: $scope,
+	    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
+	    			    		parent: angular.element(document.body),
+	    			    		targetEvent: ev,
+	    			    		//clickOutsideToClose:true,
+	    			    		preserveScope: true,
+	    			    		fullscreen: false // Only for -xs, -sm breakpoints.
+	    			    	})
+	    			    	.then(function(answer) {
+	    			    		$scope.status = 'You are OK';
+	    			    	}, function() {
+	    			    		$scope.status = 'You cancelled the dialog.';
+	    			    	});
+	    				}
+	    				else if(response.status == '400') {
+	    					$log.info(response.status);
+	    					modalInstance.close();
+	    				}
+	    				else if(response.status == '401') {
+	    					$log.info(response.status);
+	    					modalInstance.close();
+	    					$scope.showLogoutAlert();
+	    					authenticationService.clearCredentials();
+	    				}
+	    				else {
+	    					$log.info(response.status);
+	    					modalInstance.close();
+	    				}
+	    			
+	    			} // else close
+	    			
+	    		
+	    		}, function (error) {
+	    			$scope.message = 'There was a network error. Try again later.';
+	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+	    				data : error
+	    			}));
+	    			modalInstance.close();
+	    		});
+	        	// Execute query promise - End
+	    		
     		}, function (error) {
     			$scope.message = 'There was a network error. Try again later.';
     			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
@@ -693,7 +559,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			}));
     			modalInstance.close();
     		});
-        	// Tring with promise - End
+    		// Count query promise - End
     		
     	}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
@@ -702,7 +568,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}));
 			modalInstance.close();
 		});
-    	
+    	// Construct query promise - End
 	};
     
     
@@ -1399,7 +1265,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    			  });
 	    		  }
 	    		  
-	    		  //$scope.$apply();
 			  });
 	    	  
 	    	  // Displaying popup
@@ -1522,7 +1387,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				modalInstance.close();
 			});
 	  			
-	  		// Submit stuff Ends here
+	  		// Submit namegraphs Ends here
 	  		
 	  	}
 		

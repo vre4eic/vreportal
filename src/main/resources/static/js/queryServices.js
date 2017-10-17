@@ -13,7 +13,7 @@ angular.module('app.mainServices', [])
 	return {
 		computeRelatedEntityQuery : function(searchEntityModel, token) {
 			return $http({
-				'url' : '/compute_related_entity_query',
+				'url' : '/related_entity_query',
 				'method' : 'POST',
 				'headers': {
 					'Content-Type' : 'application/json',
@@ -25,6 +25,24 @@ angular.module('app.mainServices', [])
 			},function (error) {
 				//error code
 			});
+		},
+		
+		getEntityQueryResultsCount : function(serviceModel, queryModel, token) {
+
+			return $http({
+				'url': serviceModel.url + '/query/count/namespace/' + serviceModel.namespace,
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': queryModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+
 		},
 		
 		getEntityQueryResults : function(serviceModel, queryModel, token) {
