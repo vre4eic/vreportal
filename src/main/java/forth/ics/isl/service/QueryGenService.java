@@ -7,6 +7,9 @@ package forth.ics.isl.service;
 
 import forth.ics.isl.triplestore.RestClient;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -41,12 +44,19 @@ public class QueryGenService {
         return query;
     }
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException, ParseException, SQLException {
 //        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         String forClause = "from <http://ekt-data> from <http://rcuk-data> ";
-        JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
+        //JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
+        
+        Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+        DBService dbService = new DBService();
+        dbService.setStatement(connection.createStatement());
+        dbService.setJdbcTemplateUsed(false);
+        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
+        
         JSONArray resultEntitiesJSON = new JSONArray();
-        String authorizationToken = "ab520869-61c2-4d36-ace7-81ba24c38713";
+        String authorizationToken = "0597db88-1831-463a-ad72-a5eb96749e69";
         String endpoint = "http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
         JSONParser parser = new JSONParser();

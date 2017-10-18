@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import forth.ics.isl.service.H2Service;
-import static forth.ics.isl.service.H2Service.retrieveAllEntities;
+import forth.ics.isl.service.DBService;
+import static forth.ics.isl.service.DBService.retrieveAllEntities;
 import static forth.ics.isl.service.QueryGenService.geoEntityQuery;
 import forth.ics.isl.triplestore.RestClient;
 import java.sql.SQLException;
@@ -29,17 +30,13 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- * The back-end controller for the H2 Service
+ * The back-end controller for the Database Service
  *
  * @author Vangelis Kritsotakis
  */
 @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Controller
 public class EntityManagerController {
-
-    private H2Service h2Service;
-    @Value("${h2.service.url}")
-    private String h2ServiceUrl;
 
     @Value("${h2.service.username}")
     private String h2ServiceUsername;
@@ -51,10 +48,13 @@ public class EntityManagerController {
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
-
+    
+    @Autowired
+    private DBService dbService;
+    
     @PostConstruct
     public void init() throws IOException, SQLException {
-        h2Service = new H2Service();
+    	dbService = new DBService();
     }
 
     /**
@@ -82,8 +82,9 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
-
+        //JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = dbService.retrieveAllEntities();
+        
         return arr;
     }
 
@@ -93,7 +94,7 @@ public class EntityManagerController {
         System.out.println("Works");
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         String fromClause = (String) requestParams.get("fromSearch");
-        JSONArray initEntitiesJSON = H2Service.retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
         JSONArray resultEntitiesJSON = new JSONArray();
         String endpoint = serviceUrl;
         JSONParser parser = new JSONParser();
@@ -131,7 +132,7 @@ public class EntityManagerController {
     	    	
 		return endPointDataPage;
          */
-        JSONArray arr = H2Service.retrieveAllNamedgraphs(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+        JSONArray arr = DBService.retrieveAllNamedgraphs();
 
         return arr;
     }
@@ -158,7 +159,7 @@ public class EntityManagerController {
         String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
-        JSONObject entityData = H2Service.retrieveEntity(h2ServiceUrl, h2ServiceUsername, h2ServicePassword, entity);
+        JSONObject entityData = DBService.retrieveEntity(entity);
         String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
         query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
 

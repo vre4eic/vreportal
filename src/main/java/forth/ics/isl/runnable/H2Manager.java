@@ -5,7 +5,7 @@
  */
 package forth.ics.isl.runnable;
 
-import forth.ics.isl.service.H2Service;
+import forth.ics.isl.service.DBService;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -19,7 +19,7 @@ import java.sql.Statement;
 public class H2Manager {
 
     Statement statement;
-    Connection connection;
+    static Connection connection;
 
     public H2Manager() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
@@ -320,7 +320,13 @@ public class H2Manager {
 //            System.out.println(results.getString(2));
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
-        System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
+        //System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
+        
+        DBService dbService = new DBService();
+        dbService.setStatement(connection.createStatement());
+        dbService.setJdbcTemplateUsed(false);
+        
+        System.out.println(dbService.retrieveAllEntityNames());
         h2.terminate();
     }
 

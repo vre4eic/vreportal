@@ -15,21 +15,71 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Repository;
 
 /**
- * The back-end service used for applying the required communication with H2
+ * The back-end service used for applying the required communication with the database
  * database
  *
  * @author rousakis
  * @author Vangelis Kritsotakis
  */
-public class H2Service {
 
-    private static Statement statement;
-    private static Connection connection;
-
+@Repository
+public class DBService {
+	
+	@Autowired
+    private static JdbcTemplate jdbcTemplate;
+	
+	private static DataSource dataSource;
+	
+	@Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+	
+	private static Statement statement;
+	
+	public static Statement getStatement() {
+		return statement;
+	}
+	public static void setStatement(Statement statement) {
+		DBService.statement = statement;
+	}
+	
+	static boolean jdbcTemplateUsed;// = true;
+	
+	public static boolean isJdbcTemplateUsed() {
+		return jdbcTemplateUsed;
+	}
+	public static void setJdbcTemplateUsed(boolean jdbcTemplateUsed) {
+		DBService.jdbcTemplateUsed = jdbcTemplateUsed;
+	}
+	
+	@PostConstruct
+	public void init(){
+		System.out.println("@PostConstruct - DBService");
+		setJdbcTemplateUsed(true);
+	}
+	
+	public static Statement initStatement() throws CannotGetJdbcConnectionException, SQLException {
+		if(jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
+			return DataSourceUtils.getConnection(jdbcTemplate.getDataSource()).createStatement();
+		
+		else
+			return statement;
+	}
+	
     private String getFilePath(String fileName) {
         //Get file from resources folder
         ClassLoader classLoader = getClass().getClassLoader();
@@ -37,32 +87,11 @@ public class H2Service {
         return file.getAbsolutePath();
     }
 
-    /**
-     * Initiates connection with the H2 database
-     */
-    private static void initConn(String URL, String username, String password) throws SQLException {
-        //connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        connection = DriverManager.getConnection(URL, username, password);
-        statement = connection.createStatement();
-    }
-
-    /**
-     * Terminates connection with the H2 database
-     */
-    private static void terminateConn() throws SQLException {
-        if (statement != null && !statement.isClosed()) {
-            statement.close();
-        }
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
-    }
-
-    public static JSONObject retrieveEntity(String url, String username, String password, String entity) {
+    public static JSONObject retrieveEntity(String entity) {
         JSONObject entityJSON = new JSONObject();
         try {
-            initConn(url, username, password); // Initiates connection to H2
-            ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
+        	//initStatement();
+            ResultSet entities = initStatement().executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
                 entityJSON.put("name", entities.getString("name"));
                 entityJSON.put("thesaurus", entities.getString("thesaurus"));
@@ -73,34 +102,34 @@ public class H2Service {
                 entityJSON.put("geospatial", entities.getString("geospatial"));
             }
             entities.close();
-            terminateConn(); // Terminates connection to H2
+            //statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return entityJSON;
     }
 
-    public static List<String> retrieveAllEntityNames(String URL, String username, String password) {
+    public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
-            initConn(URL, username, password); // Initiates connection to H2
-            ResultSet result = statement.executeQuery("select name from entity");
+        	//initStatement();
+            ResultSet result = initStatement().executeQuery("select name from entity");
             while (result.next()) {
                 entities.add(result.getString("name"));
             }
             result.close();
-            terminateConn(); // Terminates connection to H2
+            //statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return entities;
     }
 
-    public static JSONArray retrieveAllEntities(String URL, String username, String password) {
+    public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
-            initConn(URL, username, password); // Initiates connection to H2
-            ResultSet entities = statement.executeQuery("select * from entity");
+        	//initStatement();
+            ResultSet entities = initStatement().executeQuery("select * from entity");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
                 entity.put("name", entities.getString("name"));
@@ -115,19 +144,19 @@ public class H2Service {
                 results.add(entity);
             }
             entities.close();
-            terminateConn(); // Terminates connection to H2
+            //statement.close();
 
         } catch (SQLException ex) {
-            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return results;
     }
 
-    public static JSONArray retrieveAllNamedgraphs(String URL, String username, String password) {
+    public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
-            initConn(URL, username, password); // Initiates connection to H2
-            ResultSet namedGraphs = statement.executeQuery("select g.uri, g.name, c.id, c.name from \n"
+        	//initStatement();
+            ResultSet namedGraphs = initStatement().executeQuery("select g.uri, g.name, c.id, c.name from \n"
                     + "namedgraph g, namedgraph_category c where g.category = c.id");
             while (namedGraphs.next()) {
                 String gUri = namedGraphs.getString(1);
@@ -160,9 +189,9 @@ public class H2Service {
                 }
             }
             namedGraphs.close();
-            terminateConn(); // Terminates connection to H2
+            //statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(H2Service.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return results;
     }
