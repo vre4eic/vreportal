@@ -48,15 +48,15 @@ public class DBService {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 	
-	private static Statement statement;
+	private static Connection connection;
 	
-	public static Statement getStatement() {
-		return statement;
+	public static Connection getConnection() {
+		return connection;
 	}
-	public static void setStatement(Statement statement) {
-		DBService.statement = statement;
+	public static void setConnection(Connection connection) {
+		DBService.connection = connection;
 	}
-	
+
 	static boolean jdbcTemplateUsed;// = true;
 	
 	public static boolean isJdbcTemplateUsed() {
@@ -72,12 +72,12 @@ public class DBService {
 		setJdbcTemplateUsed(true);
 	}
 	
-	public static Statement initStatement() throws CannotGetJdbcConnectionException, SQLException {
+	public static Connection initConnection() throws CannotGetJdbcConnectionException, SQLException {
 		if(jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
-			return DataSourceUtils.getConnection(jdbcTemplate.getDataSource()).createStatement();
+			return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
 		
 		else
-			return statement;
+			return connection;
 	}
 	
     private String getFilePath(String fileName) {
@@ -91,7 +91,9 @@ public class DBService {
         JSONObject entityJSON = new JSONObject();
         try {
         	//initStatement();
-            ResultSet entities = initStatement().executeQuery("select * from entity where name = '" + entity + "'");
+        	Connection conn = initConnection();
+        	Statement statement = conn.createStatement();
+            ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
                 entityJSON.put("name", entities.getString("name"));
                 entityJSON.put("thesaurus", entities.getString("thesaurus"));
@@ -102,7 +104,8 @@ public class DBService {
                 entityJSON.put("geospatial", entities.getString("geospatial"));
             }
             entities.close();
-            //statement.close();
+            statement.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -112,13 +115,15 @@ public class DBService {
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
-        	//initStatement();
-            ResultSet result = initStatement().executeQuery("select name from entity");
+        	Connection conn = initConnection();
+        	Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("select name from entity");
             while (result.next()) {
                 entities.add(result.getString("name"));
             }
             result.close();
-            //statement.close();
+            statement.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -128,8 +133,9 @@ public class DBService {
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
-        	//initStatement();
-            ResultSet entities = initStatement().executeQuery("select * from entity");
+        	Connection conn = initConnection();
+        	Statement statement = conn.createStatement();
+            ResultSet entities = statement.executeQuery("select * from entity");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
                 entity.put("name", entities.getString("name"));
@@ -144,7 +150,8 @@ public class DBService {
                 results.add(entity);
             }
             entities.close();
-            //statement.close();
+            statement.close();
+            conn.close();
 
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
@@ -155,8 +162,9 @@ public class DBService {
     public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
-        	//initStatement();
-            ResultSet namedGraphs = initStatement().executeQuery("select g.uri, g.name, c.id, c.name from \n"
+        	Connection conn = initConnection();
+        	Statement statement = conn.createStatement();
+            ResultSet namedGraphs = statement.executeQuery("select g.uri, g.name, c.id, c.name from \n"
                     + "namedgraph g, namedgraph_category c where g.category = c.id");
             while (namedGraphs.next()) {
                 String gUri = namedGraphs.getString(1);
@@ -189,7 +197,8 @@ public class DBService {
                 }
             }
             namedGraphs.close();
-            //statement.close();
+            statement.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }

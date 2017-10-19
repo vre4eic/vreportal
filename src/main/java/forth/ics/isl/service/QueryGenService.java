@@ -51,7 +51,7 @@ public class QueryGenService {
         
         Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
         DBService dbService = new DBService();
-        dbService.setStatement(connection.createStatement());
+        dbService.setConnection(connection);
         dbService.setJdbcTemplateUsed(false);
         JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
         

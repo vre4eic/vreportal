@@ -323,7 +323,7 @@ public class H2Manager {
         //System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
         
         DBService dbService = new DBService();
-        dbService.setStatement(connection.createStatement());
+        dbService.setConnection(connection);
         dbService.setJdbcTemplateUsed(false);
         
         System.out.println(dbService.retrieveAllEntityNames());
