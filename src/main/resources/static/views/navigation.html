@@ -149,7 +149,6 @@
 								<md-input-container class="md-block shrinked">
 									<label>Select Target Entity</label>
 									<md-select ng-model="selectedTargetEntity" 
-											   ng-change="loadThesaurus(selectedTargetEntity, -1)"
 											   name="targetEntityInput" 
 											   required 
 											   md-no-asterisk="false">
@@ -186,6 +185,7 @@
 													 md-min-length="2"
 													 ng-disabled="selectedTargetEntity.name==''"
 													 placeholder="Search for keyword"
+													 ng-focus="loadThesaurus(selectedTargetEntity, -1)"
 													 style="font-size:14px;">
 													 <!-- class="shrinked autocomplete-with-icon" -->
 	         										 <!-- md-floating-label="Search for keyword" -->

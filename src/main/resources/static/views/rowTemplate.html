@@ -209,8 +209,8 @@
 						<md-input-container class="md-block shrinked">
 							<label>Select Related Entity</label>
 							<md-select ng-model="rowModel.selectedRelatedEntity" 
-									   name="relatedEntityInput" 
-									   md-on-close="keepInitselectedRelatedEntity(rowModel)"
+									   name="relatedEntityInput"
+									   selected="rowModel.selectedRelatedEntity" 
 									   md-no-asterisk="false">
 								<md-option ng-repeat="entity in rowModel.relatedEntities" ng-value="entity" >
 									{{entity.name}}

@@ -46,7 +46,6 @@ angular.module('app.mainServices', [])
 		},
 		
 		getEntityQueryResults : function(serviceModel, queryModel, token) {
-
 			return $http({
 				'url': serviceModel.url + '/query/namespace/' + serviceModel.namespace,
 				'method': 'POST',
@@ -60,7 +59,22 @@ angular.module('app.mainServices', [])
 			},function (error) {
 				return error;
 			});
-
+		},
+		
+		getEntities : function(queryFrom, token) {
+			return $http({
+				'url': '/get_entities',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': {fromSearch: queryFrom}
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
 		},
 		
 		getAllEntities : function() {

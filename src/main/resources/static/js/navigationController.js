@@ -23,7 +23,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	checkAuthorization();
 	
-	var modalOptions = {
+	var modalDefaultOptions = {
 		headerText: 'Loading Please Wait...',
 		bodyText: 'Your query is under process...'
 	};
@@ -205,6 +205,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		constructQueryForm($scope.namegraphs);
 		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
 		
+		updateAvailableEntities($scope.queryFrom);
+		
+		
 	}
 	
 	$scope.selectHats = function() {
@@ -220,6 +223,78 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.testBreadcrumb = function(str) {
 	    alert(str);
 	};
+	
+	// Retrieving all available entities
+	function updateAvailableEntities(queryFrom) {
+		var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Updating available options...'
+		};
+		
+		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		
+		queryService.getEntities(queryFrom, $scope.credentials.token)
+		.then(function (response) {
+			console.log('getEntities:');
+			console.log(response.data);
+			
+			if(response.status == -1) {
+				$scope.message = 'There was a network error. Try again later.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			
+			else {
+				// Checking the response status
+				if(response.status == '200') {
+					// Update allEntities list
+					$scope.allEntities = response.data;
+					// Update targetEntities List and retain selection if still available
+					$scope.targetEntities = response.data;
+					angular.forEach($scope.targetEntities, function(entity, key) {
+						if($scope.selectedTargetEntity.name == entity.name)
+							$scope.selectedTargetEntity = entity;
+					});
+					// Update available entities for the EmptyRowModel to be used for now on
+					$scope.initEmptyRowModel.relatedEntities = response.data;
+					// Update all related entity lists that have already been defined
+					recursivelyUpdateEntityListsOfRowModelList($scope.rowModelList, response.data);
+					// That's it!
+					modalInstance.close();
+				}
+				else {
+					$log.info(response.status);
+					modalInstance.close();
+				}
+			
+			} // else close
+			
+		
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			modalInstance.close();
+		});
+	}
+	
+	// Method used to recursively update the available entities in 
+	// the RowModelList tree
+	function recursivelyUpdateEntityListsOfRowModelList(rowModelList, entityList) {
+		
+		angular.forEach(rowModelList, function(rowModel, rowModelKey) {
+			// Updating available related entities in rowModel
+			rowModel.relatedEntities = entityList;
+			// Iterating the new list in order to retain the selected one if still available
+			angular.forEach(rowModel.relatedEntities, function(entity, key) {
+				if(rowModel.selectedRelatedEntity.name == entity.name)
+					rowModel.selectedRelatedEntity = entity;
+			});
+			
+			recursivelyUpdateEntityListsOfRowModelList(rowModel.rowModelList, entityList);
+		});
+	}
 	
 	$scope.breadcrumbItems = 
 		[{
@@ -454,6 +529,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
     };
 	
+    // Used in autocomplete recommendations
     $scope.querySearch = function(query, outerIndex) {
     	var results = [];
     	if(outerIndex == -1) {
@@ -491,6 +567,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     $scope.showRelatedResultsDialog = function(ev, rowModel) {
     	
     	// Trying with promise - Start
+    	
+    	var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Search process undergoing...'
+		};
     	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
     	
     	// The search text to feed the query
@@ -1401,7 +1482,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	  		};
 	  		
 			// Modal
-			var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+	  		var modalOptions = {
+  				headerText: 'Loading Please Wait...',
+  				bodyText: 'Search process undergoing...'
+  			};
+			var modalInstance = modalService.showModal(modalDefaults, modalDefaultOptions);
 			 
 			queryService.getGeoQueryResults(queryModel, $scope.credentials.token)
 			.then(function (response){
