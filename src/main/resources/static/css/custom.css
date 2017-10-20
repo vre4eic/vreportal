@@ -798,3 +798,9 @@ input[type="checkbox"] {
 }
 
 /* --- material-like checkbox Style - End --- */
+
+/* Style for ng-Santize used for htmlContent on dialogs */
+.blueCodeStyle {
+	color:#106CC8; 
+	background:rgba(0,0,0,0.065);
+}

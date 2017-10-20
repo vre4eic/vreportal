@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -260,6 +260,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 					modalInstance.close();
 					
+					// Conflicts
 					if(!report.targetAvailability.available || !report.relatedAvailability.available) {
 						
 						var msg = 'There are currently selected entities that are no longer available.';
@@ -267,36 +268,36 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						// Case - Both target and related entities are unavailable
 						if(!report.targetAvailability.available && !report.relatedAvailability.available) {
 							// Target
-							msg = 'The selected target entity <code>\'' + 
+							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
 							  $scope.selectedTargetEntity.name + 
-							  '\'</code> is no longer avaialbe and shoold be re-selected.'
+							  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
 							
 							// Related
 							// More than one related entities are unavailable
 							if(report.relatedAvailability.unavailableEntityList.length > 1) {
-								msg = msg + '<br/>Furthermore, the folowing selected related entities are no longer ' + 
-									  'available as well and should be re-selected:<br/> ';
+								msg = msg + '<br/>Furthermore, the folowing selected <code class="blueCodeStyle">related</code> ' + 
+									  'entities are not available anymore and and should be re-selected as well:<br/> ';
 								
 								for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
 									msg = msg + '<br/><code><i>' + '\'' + 
 										  report.relatedAvailability.unavailableEntityList[i].name + 
-										  '\'</i></code>;';
+										  '\';</i></code>';
 								}
 							}
 							
 							// Only one related entity is unavailable
 							else {
-								msg = msg + '<br/>Similar, the selected related entity <code>\'' + 
+								msg = msg + '<br/>Similar, the selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
 									  report.relatedAvailability.unavailableEntityList[0].name + 
-									  '\'</code> is also not avaialbe anymore and shoold be re-selected.'
+									  '\'</i></code> is also not avaialbe anymore and shoold be re-selected.'
 							}
 						}
 						
 						// Case - Only target entity is unavailable
 						else if(!report.targetAvailability.available) {
-							msg = 'The selected target entity <code>\'' + 
+							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
 								  $scope.selectedTargetEntity.name + 
-								  '\'</code> is no longer avaialbe and shoold be re-selected.'
+								  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
 						}
 						
 						// Case - Only related entity is unavailable
@@ -304,21 +305,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							
 							// More than one related entities are unavailable
 							if(report.relatedAvailability.unavailableEntityList.length > 1) {
-								msg = 'The folowing selected related entities are no longer ' + 
+								msg = 'The folowing selected <code class="blueCodeStyle">related</code> entities are no longer ' + 
 									  'available and should be re-selected:<br/> ';
 								
 								for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
 									msg = msg + '<br/><code><i>\'' + 
 										  report.relatedAvailability.unavailableEntityList[i].name + 
-										  '\'</i></code>;';
+										  '\';</i></code>';
 								}
 							}
 							
 							// Only one related entity is unavailable
 							else {
-								msg = 'The selected related entity <code>\'' + 
-									  report.relatedAvailability.unavailableEntityList[0] + 
-									  '\'</code> is no longer avaialbe and shoold be re-selected.'
+								msg = 'The selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
+									  report.relatedAvailability.unavailableEntityList[0].name + 
+									  '\'<i></code> is no longer avaialbe and shoold be re-selected.'
 							}
 							
 						}
@@ -327,23 +328,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						
 						showConfirmDialogForUnavailableEntities(ev, msg, response.data)
 					}
-					/*
-						// Update targetEntities List and retain selection if still available
-						$scope.targetEntities = response.data;
-						angular.forEach(response.data, function(entity, key) {
-							if($scope.selectedTargetEntity.name == entity.name) {
-								$scope.selectedTargetEntity = entity;
-								console.log('targetEntities changed');
-							}
-						});
-						// Update all related entity lists that have already been defined
-						recursivelyUpdateEntityListsOfRowModelList($scope.rowModelList, response.data);
-						
-						// Update allEntities list
-						$scope.allEntities = response.data;
-						// Update available entities for the EmptyRowModel to be used for now on
-						$scope.initEmptyRowModel.relatedEntities = response.data;
-					*/
+					
+					// No conflicts
+					else {
+						loadNewEntityLists(response.data); // Apply the change
+					}
 				}
 				else {
 					$log.info(response.status);
@@ -369,14 +358,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		angular.forEach(rowModelList, function(rowModel, rowModelKey) {
 			// Updating available related entities in rowModel
 			rowModel.relatedEntities = entityList;
-			// Iterating the new list in order to retain the selected one if still available
-			angular.forEach(entityList, function(entity, key) {
-				if(rowModel.selectedRelatedEntity != null && 
-				   rowModel.selectedRelatedEntity.name != null && 
-				   rowModel.selectedRelatedEntity.name == entity.name)
-					rowModel.selectedRelatedEntity = entity;
-			});
 			
+			// Iterating the new list in order to retain the selected one if still available
+			if(rowModel.selectedRelatedEntity != null) {
+				angular.forEach(entityList, function(entity, key) {
+					if(rowModel.selectedRelatedEntity.name == entity.name)
+						rowModel.selectedRelatedEntity = entity;
+				});
+			}
 			recursivelyUpdateEntityListsOfRowModelList(rowModel.rowModelList, entityList);
 		});
 	}
@@ -387,14 +376,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	function recursivelyCheckEntityAvailabilityInRowModelList(rowModelList, entityList) {
 		var isAvailable = false;
 		for(var i=0; i<rowModelList.length; i++) {
-			// Iterating the new list in order to check availability
-			for(var j=0; j<entityList.length; j++) {
-				if(rowModelList[i].selectedRelatedEntity != null && 
-				   rowModelList[i].selectedRelatedEntity.name != null &&
-				   rowModelList[i].selectedRelatedEntity.name == entityList[j].name) {
-					isAvailable = true;
-					break;
-				}				
+			
+			// First we check if the selected is null
+			if(rowModelList[i].selectedRelatedEntity != null) {
+				// Iterating the new list in order to check availability
+				for(var j=0; j<entityList.length; j++) {
+					if(rowModelList[i].selectedRelatedEntity.name == entityList[j].name) {
+						isAvailable = true;
+						break;
+					}				
+				}
+			}
+			// When not selected, then it is available
+			else {
+				isAvailable = true;
 			}
 			
 			if(isAvailable == false) {
@@ -417,11 +412,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		var selectedTargetEntityIsAvailable = false;
 		var selectedRelatedEntitiesAreAvailable = false;
 		
-		for(var i=0; i<newEntityList.length; i++) {
-			if($scope.selectedTargetEntity.name == newEntityList[i].name) {
-				selectedTargetEntityIsAvailable = true;
-			    break;
+		// Checking if there is any selected target entity
+		if($scope.selectedTargetEntity != null) {
+			for(var i=0; i<newEntityList.length; i++) {
+				if($scope.selectedTargetEntity.name == newEntityList[i].name) {
+					selectedTargetEntityIsAvailable = true;
+				    break;
+				}
 			}
+		}
+		
+		// Always consider available the target entity if no yet selected
+		else {
+			selectedTargetEntityIsAvailable = true;
 		}
 		
 		selectedRelatedEntitiesAreAvailable = 
@@ -452,26 +455,45 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		.cancel('Cancel');
 
 	    $mdDialog.show(confirm).then(function() {
-	    	// Update targetEntities List and retain selection if still available
-			$scope.targetEntities = entityList;
-			angular.forEach(entityList, function(entity, key) {
-				if($scope.selectedTargetEntity.name == entity.name) {
-					$scope.selectedTargetEntity = entity;
-					console.log('targetEntities changed');
-				}
-			});
-			// Update all related entity lists that have already been defined
-			recursivelyUpdateEntityListsOfRowModelList($scope.rowModelList, entityList);
-			// Update allEntities list
-			$scope.allEntities = entityList;
-			// Update available entities for the EmptyRowModel to be used for now on
-			$scope.initEmptyRowModel.relatedEntities = entityList;
+	    	loadNewEntityLists(entityList); // Apply the change
 	    }, function() {
 	    	console.log('targetEntities remained untouched');
 	    	//$scope.confirmEntityUnavailability = false;
 	    	// Just close the dialog and re check the last unchecked VRE
 	    });
 	};
+	
+	// Changes all the available entity list with new one
+	function loadNewEntityLists(entityList) {
+		// Update targetEntities List and retain selection if still available
+		$scope.targetEntities = entityList;
+		
+		// Retain the selection if there is one and is 
+		// still available in the new list
+		if($scope.selectedTargetEntity != null) {
+			angular.forEach(entityList, function(entity, key) {
+				if($scope.selectedTargetEntity.name == entity.name) {
+					$scope.selectedTargetEntity = entity;
+					console.log('targetEntities changed');
+				}
+			});
+		}
+		// Update all related entity lists that have already been defined
+		recursivelyUpdateEntityListsOfRowModelList($scope.rowModelList, entityList);
+		// Update allEntities list
+		$scope.allEntities = entityList;
+		// Update available entities for the EmptyRowModel to be used for now on
+		$scope.initEmptyRowModel.relatedEntities = entityList;
+		
+		// Display msg
+		$mdToast.show(
+			$mdToast.simple()
+	        .textContent('All available entity lists have been modified.')
+	        .position('top right')
+	        .parent(angular.element('#mainContent'))
+	        .hideDelay(3000)
+	    );
+	}//textContent
 	
 	$scope.breadcrumbItems = 
 		[{
@@ -532,7 +554,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.allEntities = [];
 	
 	// Target entity
-	$scope.selectedTargetEntity = {name: '', thesaurus: ''};
+	$scope.selectedTargetEntity = null;
 	$scope.targetEntities = $scope.allEntities;//angular.copy($scope.allEntities);
 	$scope.searchTargetKeywords = '';
 	$scope.targetThesaurus = {};
