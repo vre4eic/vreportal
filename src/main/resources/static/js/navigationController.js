@@ -205,7 +205,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		constructQueryForm($scope.namegraphs);
 		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
 		
-		updateAvailableEntities(ev, $scope.queryFrom);
+		updateAvailableEntities(ev, $scope.queryFrom, node);
 		
 		
 	}
@@ -225,7 +225,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	};
 	
 	// Retrieving all available entities
-	function updateAvailableEntities(ev, queryFrom) {
+	function updateAvailableEntities(ev, queryFrom, checkboxNode) {
 		var modalOptions = {
 			headerText: 'Loading Please Wait...',
 			bodyText: 'Updating available options...'
@@ -326,7 +326,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 
 						msg = msg + '</br></br>Do you want to proceed?'
 						
-						showConfirmDialogForUnavailableEntities(ev, msg, response.data)
+						showConfirmDialogForUnavailableEntities(ev, msg, response.data, checkboxNode)
 					}
 					
 					// No conflicts
@@ -337,6 +337,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				else {
 					$log.info(response.status);
 					modalInstance.close();
+					$scope.showLogoutAlert();
 				}
 			
 			} // else close
@@ -445,7 +446,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Shows confirm dialog whether to change the list of entities.
 	// Only displayed when some of the currently selected entities are no
 	// available in the new list of entities
-	function showConfirmDialogForUnavailableEntities(ev, messageContent, entityList) {
+	function showConfirmDialogForUnavailableEntities(ev, messageContent, entityList, checkboxNode) {
 		var confirm = $mdDialog.confirm()
 		.title('Important Message')
 		.htmlContent(messageContent)
@@ -457,9 +458,26 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    $mdDialog.show(confirm).then(function() {
 	    	loadNewEntityLists(entityList); // Apply the change
 	    }, function() {
-	    	console.log('targetEntities remained untouched');
-	    	//$scope.confirmEntityUnavailability = false;
-	    	// Just close the dialog and re check the last unchecked VRE
+	    	// Un-check or check the last selected/de-selected VRE checkbox
+	    	/*
+	    	if(checkboxNode.selected)
+	    		ivhTreeviewMgr.deselect($scope.namegraphs, checkboxNode.id);
+	    	else
+	    		ivhTreeviewMgr.select($scope.namegraphs, checkboxNode.id);
+	    	*/
+	    	if(checkboxNode.selected) {
+		    	checkboxNode.selected = false;
+		    	angular.forEach(checkboxNode.children, function(child, key) {
+		    		child.selected = false;
+		    	});
+	    	}
+	    	else {
+	    		checkboxNode.selected = true;
+		    	angular.forEach(checkboxNode.children, function(child, key) {
+		    		child.selected = true;
+		    	});
+	    	}
+	    	console.log("TODO: append IDs to the namegraph children such that ivhTreeviewMgr is used for unchecking in case of canseling applied change")
 	    });
 	};
 	
@@ -676,7 +694,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 		//rowModel.rowModelList[outerIndex].activeStyle = 'enabledStyle';
 		rowModel.rowModelList[rowModel.rowModelList.length-1].id = autoincrementedRowModelId;
-		$log.info(JSON.stringify($scope.rowModelList));
 	}
 	
 	// SpeedDialModes
@@ -1043,7 +1060,23 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	return containedElement;
     }
 	
+	// Used when entering a new chip
+	$scope.transformChip = function(chip) {
+		// If it is an object, it's already a known chip
+		if (angular.isObject(chip)) {
+			return chip;
+		}
 
+		// Otherwise, create a new one
+		return {
+			//id: 'new',
+			name: chip
+		}
+	}
+	
+	$scope.applySearch = function() {
+		$log.info(angular.toJson($scope.rowModelList));
+	};
 	
 		
 	
