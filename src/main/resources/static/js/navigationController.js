@@ -1136,7 +1136,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		clickOutsideToClose:true,
     		//onComplete: loadMapForRelatedEntity(),
     		onComplete:function(){
-    				loadMapForRelatedEntity();
+    				loadMapForRelatedEntity(rowModel);
     		},
     		fullscreen: true,
     		preserveScope: true,
@@ -1151,7 +1151,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	});
 	}
 
-	function loadMapForRelatedEntity() {
+	function loadMapForRelatedEntity(rowModel) {
 		
 		// Starting with map in related entity
 					
@@ -1501,8 +1501,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        			  uriWrapper = "--";
 	        		  }
 	    			  else {
-	    				  uriWrapper = geoResults[i].resource.value.split(splitStr)[0];
-	    				  nameWrapper = geoResults[i].resource.value.split(splitStr)[1];
+	    				  uriWrapper = geoResults[i].resource.value.split('#@#')[0];
+	    				  nameWrapper = geoResults[i].resource.value.split('#@#')[1];
 	    			  }
 	    		  }
 	    		  
@@ -1576,28 +1576,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	  });
 	    	  
 	    	  $scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
-	    	  
-	    	  // Trying with animation but...
-	    	  /*
-	    	  pointVectorLayer.animateFeature (pointFeatures[0], [	
-	  				new ol.featureAnimation["Drop"]({
-	  					speed: 0.8,
-	  					duration: 760,
-	  					side: false
-	  				}),
-	  				new ol.featureAnimation["Bounce"]({
-	  					speed: 0.8,
-	  					duration: 760,
-	  					side: false
-	  				})
-	  		  ]);
-	    	  */
-	    	  
-	    	  /*
-	    	  for (i = 0; i < vectorLayers.getLength(); i++) {
-	    		  map.addLayer(vectorLayers[i]);
-	    	  }
-	    	  */    	 
+	    	  	 
 	      }
 	      
 	      var popoverElement = document.getElementById('popup');
@@ -1704,29 +1683,123 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	          }
 	      });
 	      
+	      // This is no longer needed - If I've changed the service
 	      $scope.retrieveGeoData = function() {
-	  		var queryModel = {
+	  		/*
+	    	  var queryModel = {
 	              north : $scope.coordinatesRegion.north,
 	              south : $scope.coordinatesRegion.south,
 	              west : $scope.coordinatesRegion.west,
 	              east : $scope.coordinatesRegion.east,
 	              itemsPerPage : $scope.itemsPerPage
 	  		};
-	  		
+	  		*/
 			// Modal
 	  		var modalOptions = {
   				headerText: 'Loading Please Wait...',
   				bodyText: 'Search process undergoing...'
   			};
 			var modalInstance = modalService.showModal(modalDefaults, modalDefaultOptions);
-			 
+			
+			// Some dynamically defined preparation
+			
+			// The search text to feed the query
+	    	var querySearchText = '';
+	    	
+	    	angular.forEach(rowModel.relatedChips, function(value, key) {
+	    		querySearchText = querySearchText + ' ' + value.name;
+	    	});
+	    	
+	    	if(rowModel.relatedEntitySearchText != null && rowModel.relatedEntitySearchText != '') {
+	    		querySearchText = querySearchText + ' ' + rowModel.relatedEntitySearchText;
+	    	}
+	    	
+			var searchEntityModel = {
+	    		entity: rowModel.selectedRelatedEntity.name,
+	    		searchText: querySearchText,
+	    		fromSearch: $scope.queryFrom,
+	    		north : $scope.coordinatesRegion.north,
+	            south : $scope.coordinatesRegion.south,
+	            west : $scope.coordinatesRegion.west,
+	            east : $scope.coordinatesRegion.east
+	    	}
+			
+			var updatedQueryModel = '';
+			
+			queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
+				console.log('queryResponse:');
+				console.log(queryResponse);
+				updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
+	        	updatedQueryModel.query = queryResponse.data.query;
+				console.log('Geospatial Query:');
+				console.log(updatedQueryModel);
+				
+	    		// Calling service to executing Query - Promise
+	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
+	    		.then(function (response) {
+			        		
+    			if(response.status == -1) {
+    				$scope.message = 'There was a network error. Try again later.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    				modalInstance.close();
+    			}
+			    			
+    			else {
+    				// Checking the response from blazegraph
+    				if(response.status == '200') {
+    					
+    					//$scope.relatedEntityResults = response.data; //left over
+    					
+    					// handling results
+    					handleGeoResultsForMap(response.data.result.results);
+    					modalInstance.close();
+    					
+    					
+    				}
+    				else if(response.status == '400') {
+    					$log.info(response.status);
+    					modalInstance.close();
+    				}
+    				else if(response.status == '401') {
+    					$log.info(response.status);
+    					modalInstance.close();
+    					$scope.showLogoutAlert();
+    					authenticationService.clearCredentials();
+    				}
+    				else {
+    					$log.info(response.status);
+    					modalInstance.close();
+    				}
+    			
+    			} // else close
+			    			
+			    		
+	    		}, function (error) {
+	    			$scope.message = 'There was a network error. Try again later.';
+	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+	    				data : error
+	    			}));
+	    			modalInstance.close();
+	    		});
+	        	// Execute query promise - End
+				
+			}
+			, function (error) {
+				$scope.message = 'There was a network error. Try again later.';
+				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+					data : error
+				}));
+				modalInstance.close();
+			});
+			
+			/*
 			queryService.getGeoQueryResults(queryModel, $scope.credentials.token)
 			.then(function (response){
 				
 				$scope.statusRequestInfo = response.statusRequestInfo;
 				
 				// Close alerts
-				$scope.alerts.splice(0);
+				//$scope.alerts.splice(0);
 				
 				// Checking the response from blazegraph
 				if(response.statusRequestCode == '200') {
@@ -1736,7 +1809,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					$scope.endpointResult = response.result;
 					//$scope.totalItems = response.totalItems;
 					$scope.currentPage = 1;
-					$scope.alerts.push({type: 'success-funky', msg: 'Searching completed successfully'});
+					//$scope.alerts.push({type: 'success-funky', msg: 'Searching completed successfully'});
 					
 					// handling results
 					handleGeoResultsForMap(response.result.results);
@@ -1760,8 +1833,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}));
 				modalInstance.close();
 			});
-	  			
-	  		// Submit namegraphs Ends here
+	  		*/	
+	  		
 	  		
 	  	}
 		
