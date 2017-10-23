@@ -147,8 +147,9 @@ public class DBService {
                 entity.put("queryModel", queryModel);
                 queryModel.put("format", "application/json");
                 queryModel.put("query", entities.getString("query"));
+                queryModel.put("geo_query", entities.getString("geo_query"));
+                queryModel.put("text_geo_query", entities.getString("text_geo_query"));
                 entity.put("geospatial", entities.getString("geospatial"));
-
                 results.add(entity);
             }
             entities.close();

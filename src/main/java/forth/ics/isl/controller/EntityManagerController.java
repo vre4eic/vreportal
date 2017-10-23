@@ -157,31 +157,75 @@ public class EntityManagerController {
 //        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         // without authorization at the moment
 //        System.out.println("authorizationToken: " + authorizationToken);
-        String entity = (String) requestParams.get("entity");
+//        String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
-        String northClause = "" + requestParams.get("north");
-        String southClause = "" + requestParams.get("south");
-        String eastClause = "" + requestParams.get("east");
-        String westClause = "" + requestParams.get("west");
-        String query = (String) requestParams.get("query");
-        Boolean geospatial = (Boolean) requestParams.get("geospatial");
+//        String northClause = "" + requestParams.get("north");
+//        String southClause = "" + requestParams.get("south");
+//        String eastClause = "" + requestParams.get("east");
+//        String westClause = "" + requestParams.get("west");
+
+//        Boolean geospatial = (Boolean) requestParams.get("geospatial");
+        if (requestParams.get("query") != null) {
+            String query = (String) requestParams.get("query");
+            query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
+            JSONObject responseJsonObject = new JSONObject();
+            responseJsonObject.put("query", query);
+            return responseJsonObject;
+        } else if (requestParams.get("geo_query") != null) {
+            if (searchClause == null) {
+                String geoQuery = (String) requestParams.get("geo_query");
+                String northClause = "" + requestParams.get("north");
+                String southClause = "" + requestParams.get("south");
+                String eastClause = "" + requestParams.get("east");
+                String westClause = "" + requestParams.get("west");
+                geoQuery = geoQuery.replace("@#$%FROM%$#@", fromClause).replace("@#$%NORTH%$#@", northClause).
+                        replace("@#$%SOUTH%$#@", southClause).
+                        replace("@#$%EAST%$#@", eastClause).
+                        replace("@#$%WEST%$#@", westClause);
+                JSONObject responseJsonObject = new JSONObject();
+                responseJsonObject.put("query", geoQuery);
+                return responseJsonObject;
+            } else if (requestParams.get("text_geo_query") != null) {
+                String textGeoQuery = (String) requestParams.get("text_geo_query");
+                String northClause = "" + requestParams.get("north");
+                String southClause = "" + requestParams.get("south");
+                String eastClause = "" + requestParams.get("east");
+                String westClause = "" + requestParams.get("west");
+                textGeoQuery = textGeoQuery.replace("@#$%FROM%$#@", fromClause).
+                        replace("@#$%TERM%$#@", searchClause).
+                        replace("@#$%NORTH%$#@", northClause).
+                        replace("@#$%SOUTH%$#@", southClause).
+                        replace("@#$%EAST%$#@", eastClause).
+                        replace("@#$%WEST%$#@", westClause);
+                JSONObject responseJsonObject = new JSONObject();
+                responseJsonObject.put("query", textGeoQuery);
+                return responseJsonObject;
+            } else {
+                JSONObject responseJsonObject = new JSONObject();
+                responseJsonObject.put("query", null);
+                return responseJsonObject;
+            }
+        } else {
+            JSONObject responseJsonObject = new JSONObject();
+            responseJsonObject.put("query", null);
+            return responseJsonObject;
+        }
 
 //        JSONObject entityData = DBService.retrieveEntity(entity);
 //        Boolean geospatial = (Boolean) entityData.get("geospatial");
 //        String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
-        query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
-        if (geospatial && northClause != null) {
-            query = query.replace("@#$%NORTH%$#@", northClause).
-                    replace("@#$%SOUTH%$#@", southClause).
-                    replace("@#$%EAST%$#@", eastClause).
-                    replace("@#$%WEST%$#@", westClause);
-        }
-        query = query.replace("@#$%FROM%$#@", fromClause);
-
-        JSONObject responseJsonObject = new JSONObject();
-        responseJsonObject.put("query", query);
-        return responseJsonObject;
+//        query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
+//        if (geospatial && northClause != null) {
+//            query = query.replace("@#$%NORTH%$#@", northClause).
+//                    replace("@#$%SOUTH%$#@", southClause).
+//                    replace("@#$%EAST%$#@", eastClause).
+//                    replace("@#$%WEST%$#@", westClause);
+//        }
+//        query = query.replace("@#$%FROM%$#@", fromClause);
+//        JSONObject responseJsonObject = new JSONObject();
+//        responseJsonObject.put("query", query);
+//        return responseJsonObject;
     }
 
 }
