@@ -24,12 +24,12 @@ import org.json.simple.parser.ParseException;
  */
 public class QueryGenService {
 
-    public static String geoEntityQuery(String entity, String graphsClause) {
+    public static String geoEntityQuery(String entityUri, String graphsClause) {
         String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT ?object ?east ?west ?north ?south \n"
                 + graphsClause + " \n"
                 + "WHERE {\n"
-                + "?object a cerif:" + entity + ".\n"
+                + "?object a <" + entityUri + ">.\n"
                 + "optional {\n"
                 + "?object cerif:is_source_of ?FLE1.\n"
                 + "?FLE1 cerif:has_destination ?PA.\n"
@@ -48,13 +48,13 @@ public class QueryGenService {
 //        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
         String forClause = "from <http://ekt-data> from <http://rcuk-data> ";
         //JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
-        
+
         Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
         DBService dbService = new DBService();
         dbService.setConnection(connection);
         dbService.setJdbcTemplateUsed(false);
         JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
-        
+
         JSONArray resultEntitiesJSON = new JSONArray();
         String authorizationToken = "0597db88-1831-463a-ad72-a5eb96749e69";
         String endpoint = "http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT";
@@ -76,6 +76,6 @@ public class QueryGenService {
             }
         }
         System.out.println(resultEntitiesJSON.toJSONString());
-        
+
     }
 }

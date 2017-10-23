@@ -28,58 +28,60 @@ import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 /**
- * The back-end service used for applying the required communication with the database
- * database
+ * The back-end service used for applying the required communication with the
+ * database database
  *
  * @author rousakis
  * @author Vangelis Kritsotakis
  */
-
 @Repository
 public class DBService {
-	
-	@Autowired
+
+    @Autowired
     private static JdbcTemplate jdbcTemplate;
-	
-	private static DataSource dataSource;
-	
-	@Autowired
+
+    private static DataSource dataSource;
+
+    @Autowired
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-	
-	private static Connection connection;
-	
-	public static Connection getConnection() {
-		return connection;
-	}
-	public static void setConnection(Connection connection) {
-		DBService.connection = connection;
-	}
 
-	static boolean jdbcTemplateUsed;// = true;
-	
-	public static boolean isJdbcTemplateUsed() {
-		return jdbcTemplateUsed;
-	}
-	public static void setJdbcTemplateUsed(boolean jdbcTemplateUsed) {
-		DBService.jdbcTemplateUsed = jdbcTemplateUsed;
-	}
-	
-	@PostConstruct
-	public void init(){
-		System.out.println("@PostConstruct - DBService");
-		setJdbcTemplateUsed(true);
-	}
-	
-	public static Connection initConnection() throws CannotGetJdbcConnectionException, SQLException {
-		if(jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
-			return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
-		
-		else
-			return connection;
-	}
-	
+    private static Connection connection;
+
+    public static Connection getConnection() {
+        return connection;
+    }
+
+    public static void setConnection(Connection connection) {
+        DBService.connection = connection;
+    }
+
+    static boolean jdbcTemplateUsed;// = true;
+
+    public static boolean isJdbcTemplateUsed() {
+        return jdbcTemplateUsed;
+    }
+
+    public static void setJdbcTemplateUsed(boolean jdbcTemplateUsed) {
+        DBService.jdbcTemplateUsed = jdbcTemplateUsed;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("@PostConstruct - DBService");
+        setJdbcTemplateUsed(true);
+    }
+
+    public static Connection initConnection() throws CannotGetJdbcConnectionException, SQLException {
+        if (jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
+        {
+            return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
+        } else {
+            return connection;
+        }
+    }
+
     private String getFilePath(String fileName) {
         //Get file from resources folder
         ClassLoader classLoader = getClass().getClassLoader();
@@ -90,9 +92,9 @@ public class DBService {
     public static JSONObject retrieveEntity(String entity) {
         JSONObject entityJSON = new JSONObject();
         try {
-        	//initStatement();
-        	Connection conn = initConnection();
-        	Statement statement = conn.createStatement();
+            //initStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
                 entityJSON.put("name", entities.getString("name"));
@@ -115,8 +117,8 @@ public class DBService {
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
-        	Connection conn = initConnection();
-        	Statement statement = conn.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("select name from entity");
             while (result.next()) {
                 entities.add(result.getString("name"));
@@ -133,14 +135,14 @@ public class DBService {
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
-        	Connection conn = initConnection();
-        	Statement statement = conn.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
                 entity.put("name", entities.getString("name"));
                 entity.put("thesaurus", entities.getString("thesaurus"));
-
+                entity.put("uri", entities.getString("uri"));
                 JSONObject queryModel = new JSONObject();
                 entity.put("queryModel", queryModel);
                 queryModel.put("format", "application/json");
@@ -162,8 +164,8 @@ public class DBService {
     public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
-        	Connection conn = initConnection();
-        	Statement statement = conn.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet namedGraphs = statement.executeQuery("select g.uri, g.name, c.id, c.name from \n"
                     + "namedgraph g, namedgraph_category c where g.category = c.id");
             while (namedGraphs.next()) {

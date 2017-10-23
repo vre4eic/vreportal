@@ -32,12 +32,15 @@ public class H2Manager {
         deleteTable("namedgraph_category");
         deleteTable("namedgraph");
         deleteTable("entity");
+        deleteTable("relation");
         createTableCategory();
         createTableNamedgraph();
         createTableEntity();
+        createTableRelation();
         insertEntities();
         insertNamedgraphCategories();
         insertNamedgraphs();
+        insertRelations();
     }
 
     public int deleteTable(String tableName) throws SQLException {
@@ -52,9 +55,14 @@ public class H2Manager {
         return statement.executeUpdate("insert into namedgraph_category (`name`,`description`) values ('" + name + "', '')");
     }
 
-    public int insertEntity(String name, String thesaurus, String query, boolean geospatial) throws SQLException {
-        return statement.executeUpdate("insert into entity(`name`, `query`, `thesaurus`, `geospatial`)"
-                + " values ('" + name + "','" + query + "','" + thesaurus + "'," + geospatial + ")");
+    public int insertEntity(String name, String uri, String thesaurus, String query, boolean geospatial) throws SQLException {
+        return statement.executeUpdate("insert into entity(`name`, `uri`, `query`, `thesaurus`, `geospatial`)"
+                + " values ('" + name + "','" + uri + "','" + query + "','" + thesaurus + "'," + geospatial + ")");
+    }
+
+    public int insertRelation(String name, String uri, String query) throws SQLException {
+        return statement.executeUpdate("insert into relation(`name`, `uri`, `query`)"
+                + " values ('" + name + "','" + uri + "','" + query + "')");
     }
 
     public int updateEntityGeospatial(String entityName, String columnName, boolean columnValue) throws SQLException {
@@ -92,10 +100,21 @@ public class H2Manager {
     public int createTableEntity() throws SQLException {
         return statement.executeUpdate("CREATE TABLE entity ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
-                + "name varchar(20), \n"
+                + "uri clob, \n"
+                + "name varchar(30), \n"
                 + "query clob, \n"
                 + "thesaurus varchar(50), \n"
                 + "geospatial boolean, \n"
+                + "PRIMARY KEY (`id`)\n"
+                + ");");
+    }
+
+    private int createTableRelation() throws SQLException {
+        return statement.executeUpdate("CREATE TABLE relation ( \n"
+                + "id int NOT NULL AUTO_INCREMENT, \n"
+                + "uri clob, \n"
+                + "name varchar(30), \n"
+                + "query clob, \n"
                 + "PRIMARY KEY (`id`)\n"
                 + ");");
     }
@@ -112,6 +131,7 @@ public class H2Manager {
     //to do: na elegxoume an tha einai matchAllTerms i oxi
     private void insertEntities() throws SQLException {
         insertEntity("Person",
+                "http://eurocris.org/ontology/cerif#Person",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct ?persName ?Service (?pers as ?uri) @#$%FROM%$#@\n"
@@ -128,6 +148,7 @@ public class H2Manager {
                 + "}  ORDER BY desc(?score) ?pers",
                 false);
         insertEntity("Project",
+                "http://eurocris.org/ontology/cerif#Project",
                 "thesaurus/project-acronyms.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?projectTitle as ?title) ?projectAcronym ?Service (?proj as ?uri) @#$%FROM%$#@ \n"
@@ -148,6 +169,7 @@ public class H2Manager {
                 + "} ORDER BY desc(?score)",
                 false);
         insertEntity("Publication",
+                "http://eurocris.org/ontology/cerif#Publication",
                 "thesaurus/publications-titles.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service (?pub as ?uri) @#$%FROM%$#@ \n"
@@ -165,6 +187,7 @@ public class H2Manager {
                 + "}ORDER BY desc(?score)",
                 false);
         insertEntity("OrganisationUnit",
+                "http://eurocris.org/ontology/cerif#OrganisationUnit",
                 "thesaurus/organizationUnits-acronyms.json",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
@@ -182,6 +205,7 @@ public class H2Manager {
                 + "}ORDER BY desc(?score)",
                 false);
         insertEntity("Product",
+                "http://eurocris.org/ontology/cerif#Product",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
@@ -219,6 +243,7 @@ public class H2Manager {
                 + "}",
                 false);
         insertEntity("Equipment",
+                "http://eurocris.org/ontology/cerif#Equipment",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
@@ -256,6 +281,7 @@ public class H2Manager {
                 + "}",
                 false);
         insertEntity("Facility",
+                "http://eurocris.org/ontology/cerif#Facility",
                 "",
                 "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
@@ -294,6 +320,27 @@ public class H2Manager {
                 false);
     }
 
+    private void insertRelations() throws SQLException {
+        insertRelation("has member",
+                "http://eurocris.org/ontology/cerif#Project-Person",
+                "");
+        insertRelation("participated in",
+                "http://eurocris.org/ontology/cerif#Person-Project",
+                "");
+        insertRelation("is member of",
+                "http://eurocris.org/ontology/cerif#Person-OrganizationUnit",
+                "");
+        insertRelation("has member",
+                "http://eurocris.org/ontology/cerif#OrganizationUnit-Person",
+                "");
+        insertRelation("is author of",
+                "http://eurocris.org/ontology/cerif#Person-Publication",
+                "");
+        insertRelation("has author",
+                "http://eurocris.org/ontology/cerif#Publication-Person",
+                "");
+    }
+
     private void insertNamedgraphCategories() throws SQLException {
         insertNamedGraphCategory("VREs");
         insertNamedGraphCategory("RIs");
@@ -321,11 +368,10 @@ public class H2Manager {
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
         //System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
-        
         DBService dbService = new DBService();
         dbService.setConnection(connection);
         dbService.setJdbcTemplateUsed(false);
-        
+
         System.out.println(dbService.retrieveAllEntityNames());
         h2.terminate();
     }

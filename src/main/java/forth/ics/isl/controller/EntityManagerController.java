@@ -48,13 +48,13 @@ public class EntityManagerController {
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
-    
+
     @Autowired
     private DBService dbService;
-    
+
     @PostConstruct
     public void init() throws IOException, SQLException {
-    	dbService = new DBService();
+        dbService = new DBService();
     }
 
     /**
@@ -84,7 +84,7 @@ public class EntityManagerController {
          */
         //JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
         JSONArray arr = dbService.retrieveAllEntities();
-        
+
         return arr;
     }
 
@@ -100,7 +100,7 @@ public class EntityManagerController {
         JSONParser parser = new JSONParser();
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
-            String query = geoEntityQuery((String) entityJSON.get("name"), fromClause);
+            String query = geoEntityQuery((String) entityJSON.get("uri"), fromClause);
             RestClient client = new RestClient(endpoint, namespace);
             Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
@@ -154,14 +154,28 @@ public class EntityManagerController {
         System.out.println("relatedEntity:" + requestParams.get("entity"));
         System.out.println("searchText:" + requestParams.get("searchText"));
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+//        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         // without authorization at the moment
 //        System.out.println("authorizationToken: " + authorizationToken);
         String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
+        String northClause = (String) requestParams.get("north");
+        String southClause = (String) requestParams.get("south");
+        String eastClause = (String) requestParams.get("east");
+        String westClause = (String) requestParams.get("west");
+
         JSONObject entityData = DBService.retrieveEntity(entity);
         String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
         query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
+        if ((boolean) entityData.get("geospatial") && northClause != null) {
+            query = query.replace("@#$%NORTH%$#@", northClause).
+                    replace("@#$%SOUTH%$#@", southClause).
+                    replace("@#$%EAST%$#@", eastClause).
+                    replace("@#$%WEST%$#@", westClause);
+        }
+
+        query = query.replace("@#$%FROM%$#@", fromClause);
 
         JSONObject responseJsonObject = new JSONObject();
         responseJsonObject.put("query", query);
