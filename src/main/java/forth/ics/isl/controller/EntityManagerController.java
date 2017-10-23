@@ -160,10 +160,10 @@ public class EntityManagerController {
         String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
-        String northClause = (String) requestParams.get("north");
-        String southClause = (String) requestParams.get("south");
-        String eastClause = (String) requestParams.get("east");
-        String westClause = (String) requestParams.get("west");
+        String northClause = "" + requestParams.get("north");
+        String southClause = "" + requestParams.get("south");
+        String eastClause = "" + requestParams.get("east");
+        String westClause = "" + requestParams.get("west");
 
         JSONObject entityData = DBService.retrieveEntity(entity);
         String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
