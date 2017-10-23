@@ -805,6 +805,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	
     	var searchEntityModel = {
     		entity: rowModel.selectedRelatedEntity.name,
+    		query: rowModel.selectedRelatedEntity.queryModel.query,
+    		geospatial: rowModel.selectedRelatedEntity.geospatial,
     		searchText: querySearchText,
     		fromSearch: $scope.queryFrom
     		//fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
@@ -1715,7 +1717,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	}
 	    	
 			var searchEntityModel = {
-	    		entity: rowModel.selectedRelatedEntity.name,
+				entity: rowModel.selectedRelatedEntity.name,
+				geo_query: rowModel.selectedRelatedEntity.queryModel.geo_query,
+				text_geo_query: rowModel.selectedRelatedEntity.queryModel.text_geo_query,
+		    	geospatial: rowModel.selectedRelatedEntity.geospatial,
 	    		searchText: querySearchText,
 	    		fromSearch: $scope.queryFrom,
 	    		north : $scope.coordinatesRegion.north,
@@ -1735,7 +1740,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				console.log(updatedQueryModel);
 				
 	    		// Calling service to executing Query - Promise
-	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
+	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
 	    		.then(function (response) {
 			        		
     			if(response.status == -1) {
@@ -1751,7 +1756,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     					//$scope.relatedEntityResults = response.data; //left over
     					
     					// handling results
-    					handleGeoResultsForMap(response.data.result.results);
+    					handleGeoResultsForMap(response.data.results.bindings);
     					modalInstance.close();
     					
     					
