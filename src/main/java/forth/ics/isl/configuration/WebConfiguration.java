@@ -15,4 +15,9 @@ public class WebConfiguration {
     }
     // Use:
     // http://localhost:8080/console
+    // To enable remote access edit the file .h2.server.properties 
+    // by changing property 'webAllowOthers' from false to true
+    // The file .h2.server.properties is located in the home folder 
+    // of the user that executed the jar (i.e. widows machine example
+    // 'C:\Users\vkrits') (respectively for unix)
 }
