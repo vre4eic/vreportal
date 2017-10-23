@@ -164,17 +164,19 @@ public class EntityManagerController {
         String southClause = "" + requestParams.get("south");
         String eastClause = "" + requestParams.get("east");
         String westClause = "" + requestParams.get("west");
+        String query = (String) requestParams.get("query");
+        Boolean geospatial = (Boolean) requestParams.get("geospatial");
 
-        JSONObject entityData = DBService.retrieveEntity(entity);
-        String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
+//        JSONObject entityData = DBService.retrieveEntity(entity);
+//        Boolean geospatial = (Boolean) entityData.get("geospatial");
+//        String query = (String) ((JSONObject) entityData.get("queryModel")).get("query");
         query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
-        if ((boolean) entityData.get("geospatial") && northClause != null) {
+        if (geospatial && northClause != null) {
             query = query.replace("@#$%NORTH%$#@", northClause).
                     replace("@#$%SOUTH%$#@", southClause).
                     replace("@#$%EAST%$#@", eastClause).
                     replace("@#$%WEST%$#@", westClause);
         }
-
         query = query.replace("@#$%FROM%$#@", fromClause);
 
         JSONObject responseJsonObject = new JSONObject();

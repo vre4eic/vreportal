@@ -103,7 +103,7 @@ public class DBService {
                 entityJSON.put("queryModel", queryModel);
                 queryModel.put("format", "application/json");
                 queryModel.put("query", entities.getString("query"));
-                entityJSON.put("geospatial", entities.getString("geospatial"));
+                entityJSON.put("geospatial", entities.getBoolean("geospatial"));
             }
             entities.close();
             statement.close();
