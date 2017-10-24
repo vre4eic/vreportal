@@ -173,7 +173,7 @@ public class EntityManagerController {
             responseJsonObject.put("query", query);
             return responseJsonObject;
         } else if (requestParams.get("geo_query") != null) {
-            if (searchClause == null) {
+            if (searchClause == null || searchClause.equals("")) {
                 String geoQuery = (String) requestParams.get("geo_query");
                 String northClause = "" + requestParams.get("north");
                 String southClause = "" + requestParams.get("south");
