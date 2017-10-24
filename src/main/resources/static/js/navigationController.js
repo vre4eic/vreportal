@@ -821,6 +821,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 
     		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
         	updatedQueryModel.query = queryResponse.data.query;
+    		delete updatedQueryModel.geo_query;
+    		delete updatedQueryModel.text_geo_query;
     		
     		// Calling Service to get the count wrt to the query - Promise
     		queryService.getEntityQueryResultsCount($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
@@ -1736,6 +1738,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				console.log(queryResponse);
 				updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
 	        	updatedQueryModel.query = queryResponse.data.query;
+				delete updatedQueryModel.geo_query;
+	    		delete updatedQueryModel.text_geo_query;
 				console.log('Geospatial Query:');
 				console.log(updatedQueryModel);
 				
