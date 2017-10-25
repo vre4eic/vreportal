@@ -1175,8 +1175,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		
 		var mousePositionControl = new ol.control.MousePosition({
-	        coordinateFormat: ol.coordinate.createStringXY(4),
-	        projection: 'EPSG:4326',// 3857 //4326
+			coordinateFormat: ol.coordinate.createStringXY(4),
+			projection: 'EPSG:4326',// 3857 //4326
 	        // comment the following two lines to have the mouse position
 	        // be placed within the map.
 	        className: 'custom-mouse-position',
@@ -1227,10 +1227,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    .extend([mousePositionControl]),
 		    //.extend([new ol.control.FullScreen()]),
 	        layers: [
-	          new ol.layer.Tile({
-	            source: new ol.source.OSM({attributions: [attribution]})
-	          })//,
-	          //vectorlayer
+				new ol.layer.Tile({
+					source: new ol.source.OSM({attributions: [attribution]})
+				})
 	        ],
 	        target: 'map',
 	        view: new ol.View({
@@ -1261,7 +1260,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			convertCoordinatesToJson(coordinateStr);
 	    	  
 			// required for immediate update 
-			$scope.$apply();
+			//$scope.$apply();
 		});
 	    
 		// Coordinates are shown as (latitude, longitude) pairs and not the opposite 
@@ -1282,6 +1281,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//	
 	      
 		function convertCoordinatesToJson(coordinateStr) {
+			
 			var thebox = coordinateStr.toString().split(",");
 			// Using parseFloat in order to convert the strings to floats
 			// and been able to apply comparisons
@@ -1342,362 +1342,411 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Calling the service
 			$scope.retrieveGeoData();
 			
-	      }
-	      
-	      // clear selection when drawing a new box and when clicking on the map
-	      $scope.dragBox.on('boxstart', function() {
-	    	  $scope.infoBox.innerHTML = '&nbsp;';
-	      });
-	      
-	      $scope.map.on('click', function() {
-	        $scope.infoBox.innerHTML = '&nbsp;';
-	      });
-	
-	      //$scope.vectorLayers = [];
-	      
-	      // Displaying on map
-	      function handleGeoResultsForMap(geoResults) {
+		}
+	    /*
+		var polyFeatures = [];	// Array to hold the polygons
+    	var pointFeatures = [];	// Array to hold the points
+    	*/
+		// Initializing
+		var polyFeatures = new ol.Collection();	// Array to hold the polygons
+    	var pointFeatures = new ol.Collection();	// Array to hold the points
+		
+    	var polyVectorLayer = new ol.layer.Vector();
+    	var pointVectorLayer = new ol.layer.Vector();
+    	var select = new ol.interaction.Select();
+    	var popoverElement = document.getElementById('popup');
+		var element = null; // The Popup Element
+		
+		// clear selection when drawing a new box and when clicking on the map
+		$scope.dragBox.on('boxstart', function() {
+			//$scope.infoBox.innerHTML = '&nbsp;';
+			polyFeatures.clear();
+			pointFeatures.clear();
+			select.getFeatures().clear();
+		});
+	    /*
+		$scope.map.on('click', function() {
+			$scope.infoBox.innerHTML = '&nbsp;';
+		});
+		*/
+		// Displaying on map
+		function handleGeoResultsForMap(geoResults) {
 	    	  
-	    	  if($scope.map.getLayers().getLength() > 1) {
-	    		  
-				  // Removing with inverse order all layers apart from that one with index 0 (this is the map) 
-	    		  for (i = $scope.map.getLayers().getLength(); i > 0; i--) {
-	    			  $scope.map.removeLayer($scope.map.getLayers().item(i));
-	    		  }
-			  }
+			if($scope.map.getLayers().getLength() > 1) {
+		    		  
+				// Removing with inverse order all layers apart from that one with index 0 (this is the map) 
+				for (i = $scope.map.getLayers().getLength(); i > 0; i--) {
+		    		$scope.map.removeLayer($scope.map.getLayers().item(i));
+		    	}
+			}
 	    	  
-	    	  // Unselected Pink Icon
-	    	  $scope.iconStylePinkUnselected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Outside-Pink-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+			// Unselected Pink Icon
+	    	var iconStylePinkUnselected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Outside-Pink-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
 	    	  
-	    	  // Selected Pink Icon
-	    	  $scope.iconStylePinkSelected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Inside-Pink-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+	    	// Selected Pink Icon
+	    	var iconStylePinkSelected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Inside-Pink-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
 	    	  
 	    	// Unselected Green Icon
-	    	  $scope.iconStyleGreenUnselected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Outside-Chartreuse-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+	    	var iconStyleGreenUnselected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Outside-Chartreuse-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
 	    	  
-	    	  // Selected Green Icon
-	    	  $scope.iconStyleGreenSelected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Inside-Chartreuse-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+	    	// Selected Green Icon
+	    	var iconStyleGreenSelected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Inside-Chartreuse-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
 	    	  
-	    	  // Unselected Blue Icon
-	    	  $scope.iconStyleBlueUnselected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Outside-Azure-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+	    	// Unselected Blue Icon
+	    	var iconStyleBlueUnselected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Outside-Azure-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
 	    	  
-	    	  // Selected Blue Icon
-	    	  $scope.iconStyleBlueSelected = new ol.style.Style({
-	    		  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-	    	          anchor: [0.3, 1],
-	    	          offset: [22, 0],
-	    	          size: [128, 128],
-	    	          src: '../images/Map-Marker-Marker-Inside-Azure-icon.png',
-	    	          scale: 0.3
-	    		  }))
-	    	  });
+	    	// Selected Blue Icon
+	    	var iconStyleBlueSelected = new ol.style.Style({
+	    		image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+	    			anchor: [0.3, 1],
+	    			offset: [22, 0],
+	    			size: [128, 128],
+	    			src: '../images/Map-Marker-Marker-Inside-Azure-icon.png',
+	    			scale: 0.3
+	    		}))
+	    	});
+	    	
+	    	/*
+	    	var polyFeatures = [];	// Array to hold the polygons
+	    	var pointFeatures = [];	// Array to hold the points
+			*/
+	    	
+	    	// Style for the polygons to be used for presenting the region
 	    	  
-	    	  var polyFeatures = [];	// Array to hold the polygons
-	    	  var pointFeatures = [];	// Array to hold the points
-	    	  
-	    	  // Style for the polygons to be used for presenting the region
-	    	  
-	    	  var areaStyle = new ol.style.Style({
-		          stroke: new ol.style.Stroke({
-		              color: 'blue',
-		              width: 1
-		          }),
-		          fill: new ol.style.Fill({
-		        	  color: 'rgba(0, 0, 255, 0.1)'
-		          })
-		      });
-	    	  
-	    	  for (i = 0; i < geoResults.length; i++) {
-	    		  
-	    		  // Polygon Feature (rectangular)
-	    		  var polyFeature = new ol.Feature({
-	        		  geometry: new ol.geom.Polygon([
-	        		  	[
-	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)],
-	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].south.value)],
-	        		       [parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].south.value)],
-	        		       [parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].north.value)],
-	        		       [parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)]
-	        		    ]
-	    		      ])
-	        	  });
-	    		  
-	    		  
-	    		  polyFeature.setStyle(areaStyle);
-	    		  polyFeatures.push(polyFeature); // Adding into Array
-	    		  
-	    		  // Handling nulls in pointFeature property by using logic and wrappers
-	    		  var responsibleWrapper = '';
-	    		  if(geoResults[i].Responsible == null) {
-	    			  responsibleWrapper = "--";
-	    		  }
-	    		  else {
-	    			  if(geoResults[i].Responsible.value == null) {
-	    				  responsibleWrapper = "--";
-	        		  }
-	    			  else {
-	    				  responsibleWrapper = geoResults[i].Responsible.value;
-	    			  }
-	    		  }
-	    		  
-	    		  var serviceWrapper = '';
-	    		  if(geoResults[i].Service == null) {
-	    			  serviceWrapper = "--";
-	    		  }
-	    		  else {
-	    			  if(geoResults[i].Service.value == null) {
-	    				  serviceWrapper = "--";
-	        		  }
-	    			  else {
-	    				  serviceWrapper = geoResults[i].Service.value;
-	    			  }
-	    		  }
-	    		  
-	    		  var nameWrapper = '';
-	    		  var uriWrapper = '';
-	    		  if(geoResults[i].resource == null) {
-	    			  nameWrapper = "--";
-	    			  uriWrapper = "--";
-	    		  }
-	    		  else {
-	    			  if(geoResults[i].resource.value == null) {
-	        			  nameWrapper = "--";
-	        			  uriWrapper = "--";
-	        		  }
-	    			  else {
-	    				  uriWrapper = geoResults[i].resource.value.split('#@#')[0];
-	    				  nameWrapper = geoResults[i].resource.value.split('#@#')[1];
-	    			  }
-	    		  }
-	    		  
-	    		  var typeWrapper = '';
-	    		  if(geoResults[i].type == null) {
-	    			  typeWrapper = "--";
-	    		  }
-	    		  else {
-	    			  if(geoResults[i].type.value == null) {
-	    				  typeWrapper = "--";
-	        		  }
-	    			  else {
-	    				  typeWrapper = geoResults[i].type.value;
-	    			  }
-	    		  }
-	    		  
-	    		  // Point Feature (with marker icon)
-	    		  // Since we have rectangular this point is the center of the polygon
-	        	  var pointFeature = new ol.Feature({
-	        	      geometry: polyFeature.getGeometry().getInteriorPoint(),
-	        	      featureType: 'marker',
-	        	      name: '<a href="' + uriWrapper + '" target="_blank">' + nameWrapper + '</a>',
-	        	      type: typeWrapper,
-	        	      //description: descrWrapper,
-	        	      responsible: responsibleWrapper,
-	        	      service: serviceWrapper
-	        	  });
+	    	var areaStyle = new ol.style.Style({
+	    		stroke: new ol.style.Stroke({
+	    			color: 'blue',
+	    			width: 1
+	    		}),
+	    		fill: new ol.style.Fill({
+	    			color: 'rgba(0, 0, 255, 0.1)'
+	    		})
+	    	});
+	    
+	    	for (i = 0; i < geoResults.length; i++) {
+		    		  
+	    		// Polygon Feature (rectangular)
+	    		var polyFeature = new ol.Feature({
+	    			geometry: new ol.geom.Polygon([
+						[
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)],
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].south.value)],
+						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].south.value)],
+						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].north.value)],
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)]
+						]
+					])
+	    		});
+		    		  
+		    		  
+	    		polyFeature.setStyle(areaStyle);
+	    		polyFeatures.push(polyFeature); // Adding into Array
+		    		  
+	    		// Handling nulls in pointFeature property by using logic and wrappers
+	    		var responsibleWrapper = '';
+	    		if(geoResults[i].Responsible == null) {
+	    			responsibleWrapper = "--";
+	    		}
+	    		else {
+	    			if(geoResults[i].Responsible.value == null) {
+	    				responsibleWrapper = "--";
+	    			}
+	    			else {
+	    				responsibleWrapper = geoResults[i].Responsible.value;
+	    			}
+	    		}
+		    		  
+	    		var serviceWrapper = '';
+    			if(geoResults[i].Service == null) {
+    				serviceWrapper = "--";
+    			}
+    			else {
+    				if(geoResults[i].Service.value == null) {
+    					serviceWrapper = "--";
+    				}
+    				else {
+    					serviceWrapper = geoResults[i].Service.value;
+    				}
+    			}
+		    		  
+    			var nameWrapper = '';
+    			if(geoResults[i].name == null) {
+    				nameWrapper = "--";
+    			}
+    			else {
+    				if(geoResults[i].name.value == null) {
+    					nameWrapper = "--";
+    				}
+    				else {
+    					nameWrapper = geoResults[i].name.value;
+    				}
+    			}
+		    		  
+    			var uriWrapper = '';
+    			if(geoResults[i].uri == null) {
+    				uriWrapper = "--";
+    			}
+    			else {
+    				if(geoResults[i].uri.value == null) {
+    					uriWrapper = "--";
+    				}
+    				else {
+    					uriWrapper = geoResults[i].uri.value;
+    				}
+    			}
+		    		  	    		  
+    			// Point Feature (with marker icon)
+    			// Since we have rectangular this point is the center of the polygon
+    			var pointFeature = new ol.Feature({
+    				geometry: polyFeature.getGeometry().getInteriorPoint(),
+    				featureType: 'marker',
+    				name: '<a href="' + uriWrapper + '" target="_blank">' + nameWrapper + '</a>',
+    				responsible: responsibleWrapper,
+    				service: serviceWrapper
+    			});
+		        	  
+    			// Change  coordinate systems to display on the map
+    			polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+    			pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
 	        	  
-	        	  // Change  coordinate systems to display on the map
-	        	  polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-	        	  pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-	        	  
-	        	  if(geoResults[i].type == null) {
-	        		  pointFeature.setStyle($scope.iconStylePinkUnselected);
-	    		  }
-	    		  else {
-	    			  if(geoResults[i].type.value == null) {
-	    				  pointFeature.setStyle($scope.iconStylePinkUnselected);
-	        		  }
-	    			  else if(geoResults[i].type.value == 'Product') {
-	    				  pointFeature.setStyle($scope.iconStylePinkUnselected);
-	    			  }
-	    			  else if(geoResults[i].type.value == 'Equipment') {
-	    				  pointFeature.setStyle($scope.iconStyleGreenUnselected);
-	    			  }
-	    			  else if(geoResults[i].type.value == 'Facility') {
-	    				  pointFeature.setStyle($scope.iconStyleBlueUnselected);
-	    			  }
-	    		  }
+    			// Setting unselected style
+    			//pointFeature.setStyle(iconStylePinkUnselected);
 	        	          	  
-	        	  pointFeatures.push(pointFeature); // Adding into Array
+    			pointFeatures.push(pointFeature); // Adding into Array
 	        	          	          	  
-	    	  }
+    		} // loop ends
+	    	
+	    	// A vector layer holding the polygon features
+			polyVectorLayer = new ol.layer.Vector({
+				name: 'polyVectorLayer',
+				source: new ol.source.Vector({
+					features: polyFeatures
+				})
+			});
 	    	  
-	    	  //A vector layer to hold the features
-	    	  var polyVectorLayer = new ol.layer.Vector({
-	    		  name: 'polyVectorLayer',
-	    	      source: new ol.source.Vector({
-	    	          features: polyFeatures
-	    	      })
-	    	  });
+			$scope.map.addLayer(polyVectorLayer);	// Adding Layer with all the polygons
 	    	  
-	    	  $scope.map.addLayer(polyVectorLayer);	// Adding Layer with all the polygons
+			// A vector layer holding the point features
+			pointVectorLayer = new ol.layer.Vector({
+				name: 'pointVectorLayer',
+				source: new ol.source.Vector({
+					features: pointFeatures
+				}),
+				style: iconStylePinkUnselected
+			});
 	    	  
-	    	  //A vector layer to hold the features
-	    	  var pointVectorLayer = new ol.layer.Vector({
-	    		  name: 'pointVectorLayer',
-	    	      source: new ol.source.Vector({
-	    	          features: pointFeatures
-	    	      })
-	    	  });
-	    	  
-	    	  $scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
-	    	  	 
-	      }
-	      
-	      var popoverElement = document.getElementById('popup');
-	
-	      var popup = new ol.Overlay({
-	          element: popoverElement,
-	          positioning: 'bottom-center',
-	          stopEvent: true, // If false popover's click and wheel events won't work 
-	          offset: [0, -50]
-	        });
-	      
-	      $scope.map.addOverlay(popup);
-	      
-	      // Handling on click of point-marker
-	      $scope.map.on('click', function(evt) {
-	    	  
-	    	  $scope.map.getLayers().forEach(function(layer) {
-	    		  // Only for points
-	    		  if (layer.get('name') == 'pointVectorLayer') {
-	    			  layer.getSource().getFeatures().forEach(function(feature) {
-	    				  
-	    	    		  if(feature.get('type') == 'Product') {
-	    	    			  feature.setStyle($scope.iconStylePinkUnselected);
-		    			  }
-		    			  else if(feature.get('type') == 'Equipment') {
-		    				  feature.setStyle($scope.iconStyleGreenUnselected);
-		    			  }
-		    			  else if(feature.get('type') == 'Facility') {
-		    				  feature.setStyle($scope.iconStyleBlueUnselected);
-		    			  }
-		    			  else {//if(feature.get('type') == '--') {
-	    					  feature.setStyle($scope.iconStylePinkUnselected);
-	    	    		  }
-	    	    		  
-	    			  });
-	    		  }
-	    		  
-			  });
-	    	  
-	    	  // Displaying popup
-	    	  var element = popup.getElement();
-	
-	    	  var feature = $scope.map.forEachFeatureAtPixel(evt.pixel,
-	    	      function(feature) {
-	    	        return feature;
-	    	      });
-	    	  if(feature != undefined) {
-	    	  
-	    		  if (feature.get('featureType') == 'marker') {
-	    		      		  
-		    		  // Setting new marker-icon (that looks different) for the clicked marker
-					  if(feature.get('type') == 'Product') {
-						  feature.setStyle($scope.iconStylePinkSelected);
-					  }
-					  else if(feature.get('type') == 'Equipment') {
-						  feature.setStyle($scope.iconStyleGreenSelected);
-					  }
-					  else if(feature.get('type') == 'Facility') {
-						  feature.setStyle($scope.iconStyleBlueSelected);
-					  }
-					  else {//if(feature.get('type') == '--') {
-						  feature.setStyle($scope.iconStylePinkSelected);
-		    		  }
-	    		  
-		    	      $(element).popover('destroy');
-		    	      var coordinates = feature.getGeometry().getCoordinates();
-		    	      popup.setPosition(coordinates);
-		    	      // the keys are quoted to prevent renaming in ADVANCED mode.
-		    	      $(element).popover({
-		    	          'placement': 'top',
-		    	          'animation': false,
-		    	          'html': true,
-		    	          'title': '<b>' + feature.get('type') + '</b>',
-		    	          'content': feature.get('name') + " by " + feature.get('service') + "</br></br><span style=\"text-decoration: underline;\">Responsible:</span> <i>" + feature.get('responsible') + "</i>"
-		    	      });
-		    	      $(element).popover('show');
-		    	  } else {
-		    		  $(element).popover('destroy');
-		    	      popup.setPosition(undefined);
-		    	  }
-	    	  
-	    	  } else {
-	    		  $(element).popover('destroy');
-	    		  popup.setPosition(undefined);
-	    	  }
-	      });
-	      
-	      // change mouse cursor when over marker
-	      var target = $scope.map.getTarget();
-	      var jTarget = typeof target === "string" ? $("#" + target) : $(target);
-	      // change mouse cursor when over marker
-	      $($scope.map.getViewport()).on('mousemove', function (e) {
-	          var pixel = $scope.map.getEventPixel(e.originalEvent);
-	          var hit = $scope.map.forEachFeatureAtPixel(pixel, function (feature, layer) {
-	        	  // Only for points
-	        	  if (layer.get('name') == 'pointVectorLayer') {
-	        		  return true;
-	        	  }
-	          });
-	          if (hit) {
-	              jTarget.css("cursor", "pointer");
-	          } else {
-	              jTarget.css("cursor", "");
-	          }
-	      });
-	      
-	      // This is no longer needed - If I've changed the service
-	      $scope.retrieveGeoData = function() {
-	  		/*
-	    	  var queryModel = {
-	              north : $scope.coordinatesRegion.north,
-	              south : $scope.coordinatesRegion.south,
-	              west : $scope.coordinatesRegion.west,
-	              east : $scope.coordinatesRegion.east,
-	              itemsPerPage : $scope.itemsPerPage
-	  		};
-	  		*/
+			$scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
+	    	
+			// Pop-up preparation			
+			var popup = new ol.Overlay({
+				element: popoverElement,
+				positioning: 'bottom-center',
+				stopEvent: true, // If false popover's click and wheel events won't work 
+				offset: [0, -50]
+			});
+			
+			$scope.map.addOverlay(popup);
+			
+			// The Popup Element
+			element = popup.getElement();
+			
+			// Selecting pins
+			
+			select = new ol.interaction.Select({
+				layers: [pointVectorLayer],
+				style: iconStyleGreenSelected,
+				addCondition: ol.events.condition.always
+		    });
+			
+			$scope.map.addInteraction(select);
+			
+			// On Select
+			select.on('select', function(evt) {
+				console.log(evt);
+				/*
+			  	vectorSource.forEachFeatureIntersectingExtent(extent, function(feature) {
+          			selectedFeatures.push(feature);
+        		});
+			  	*/
+			  
+			});
+			
+			// Hovering
+			
+			var hoverInteraction = new ol.interaction.Select({
+			    condition: ol.events.condition.pointerMove,
+			    layers: [pointVectorLayer],  //Setting layers to be hovered
+			    style: iconStyleGreenUnselected
+			});
+			
+			$scope.map.addInteraction(hoverInteraction);
+			
+			// Used for changing cursor type
+			var target = $scope.map.getTarget();
+			var jTarget = typeof target === "string" ? $("#" + target) : $(target);
+			
+			// Used for not rendering it on every pixel when already displayed
+			var isDisplayed = false;
+			
+			//var oldFeature = null;
+			var oldFeature = new ol.Feature();
+			
+			// On Hover
+			$scope.map.on('pointermove', function(e) {
+				
+				// Changing mouse cursor when over pointFeature
+				var pixel = $scope.map.getEventPixel(e.originalEvent);
+				var hit = $scope.map.hasFeatureAtPixel(pixel);
+				if (hit) {
+					jTarget.css("cursor", "pointer");
+				} else {
+					jTarget.css("cursor", "");
+				}
+				
+				// Only return marker Features (not polygons) or null
+				var feature = $scope.map.forEachFeatureAtPixel(pixel, function(newFeature) {
+					if (newFeature.get('featureType') == 'marker') {
+						// Don't redisplay if the new feature 
+						// is the same as the previous one
+						if(oldFeature != null) {
+							if(oldFeature.get('name') == newFeature.get('name'))
+								isDisplayed = true;
+							else
+								isDisplayed = false;
+						}
+						else
+							isDisplayed = false;
+						
+						return newFeature;
+					}
+					else {
+						isDisplayed = true;
+						return null;
+					}
+				});
+				
+				// Holding a copy of the feature to compare it with the new one in the future 
+				// and decide whether to display the popup or not. The actual usage is in the 
+				// cases where the pins are stick together with out gap. If there is gap, it 
+				// is detected and the isDisplayed flag becomes false, but if it dosn't exist 
+				// I'm using the comparison of the old & new features.
+				//oldFeature = $.extend( {}, feature);
+				//oldFeature = angular.copy(feature);
+				oldFeature = feature;
+				
+				if(feature != null) { // Thus it is a marker
+					
+					if(!isDisplayed) {
+						
+						var coordinates = feature.getGeometry().getCoordinates();
+						popup.setPosition(coordinates);
+						
+						// Popup Element
+						//var element = popup.getElement();
+						
+						if($(element) != null) {
+						
+							$(element).attr('data-placement', 'top');
+							$(element).attr('data-original-title', '<b>' + 'Info' + '</b>');
+							$(element).attr('data-animation', true );
+							$(element).attr('data-content', feature.get('name') + " by " + feature.get('service') + "</br></br><span style=\"text-decoration: underline;\">Responsible:</span> <i>" + feature.get('responsible') + "</i>");
+							$(element).attr('data-html', true);
+							$(element).popover();
+						
+							$(element).popover('show');
+						}
+							
+					}
+				}
+				
+				else {
+					//$(element).popover('destroy');
+				}
+				
+			});
+			
+			
+			
+		}
+		
+		// Clicking anywhere on the map 
+		// Tthis is different than selecting a feature (used above)
+		$scope.map.on('click', function(evt) {
+			console.log(evt);
+			
+			// Determine whether anything but a pin is clicked
+			
+			var feature = $scope.map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+				return feature;
+			});
+			
+			// When a rectangle is clicked then destroy popup
+			if(feature != undefined) {
+				if (feature.get('featureType') != 'marker') {
+					if($(element) != null)
+						$(element).popover('destroy');
+				}
+			}
+			// When the map (not any pin) is clicked then destroy popup
+			else {
+				if($(element) != null)
+					$(element).popover('destroy');
+			}
+			
+		});
+		
+
+		// This is no longer needed - If I've changed the service
+		$scope.retrieveGeoData = function() {
+			/*
+			var queryModel = {
+				north : $scope.coordinatesRegion.north,
+				south : $scope.coordinatesRegion.south,
+				west : $scope.coordinatesRegion.west,
+				east : $scope.coordinatesRegion.east,
+				itemsPerPage : $scope.itemsPerPage
+			};
+			*/
 			// Modal
 	  		var modalOptions = {
   				headerText: 'Loading Please Wait...',
@@ -1792,62 +1841,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    		});
 	        	// Execute query promise - End
 				
-			}
-			, function (error) {
+			},
+			function (error) {
 				$scope.message = 'There was a network error. Try again later.';
 				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 					data : error
 				}));
 				modalInstance.close();
 			});
-			
-			/*
-			queryService.getGeoQueryResults(queryModel, $scope.credentials.token)
-			.then(function (response){
-				
-				$scope.statusRequestInfo = response.statusRequestInfo;
-				
-				// Close alerts
-				//$scope.alerts.splice(0);
-				
-				// Checking the response from blazegraph
-				if(response.statusRequestCode == '200') {
-					//console.log("queryModel: " + queryModel.north + ", " + queryModel.south + ", " + queryModel.west + ", " + queryModel.east);
-					//console.log("200 - getGeoQueryResults: " + response.result.results);
-					$scope.lastEndPointForm = response;
-					$scope.endpointResult = response.result;
-					//$scope.totalItems = response.totalItems;
-					$scope.currentPage = 1;
-					//$scope.alerts.push({type: 'success-funky', msg: 'Searching completed successfully'});
-					
-					// handling results
-					handleGeoResultsForMap(response.result.results);
-				}
-				else if(response.statusRequestCode == '400') {
-					$scope.alerts.push({type: 'danger-funky', msg: response.statusRequestInfo});
-				}
-				else if(response.statusRequestCode == '401') {				
-					$scope.showLogoutAlert();
-					authenticationService.clearCredentials();
-				}
-				else {
-					$scope.alerts.push({type: 'danger-funky', msg: response.statusRequestInfo});
-				}
-				
-				modalInstance.close();
-			},function (error){
-				$scope.message = 'There was a network error. Try again later.';
-				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-					data : error
-				}));
-				modalInstance.close();
-			});
-	  		*/	
-	  		
 	  		
 	  	}
 		
-	
 	}
 	
 	
