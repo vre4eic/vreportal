@@ -270,8 +270,11 @@ public class DBService {
     }
 
     public static void createRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+        h2.deleteTable("relation");
+        h2.createTableRelation();
         DBService dbService = new DBService();
-        DBService.setConnection(h2.getConnection());
+        Connection conn = initConnection();
+        DBService.setConnection(conn);
         dbService.setJdbcTemplateUsed(false);
         JSONArray entities = DBService.retrieveAllEntities();
         h2.terminate();
@@ -281,10 +284,10 @@ public class DBService {
         dbService.setJdbcTemplateUsed(false);
         List<String> uris = DBService.retrieveAllNamedgraphUris();
         h2.terminate();
-////
+        ////////
         h2 = new H2Manager();
         RestClient client = new RestClient(endpoint, namespace);
-/////////
+        ////////
         for (String graphURI : uris) {
             for (int i = 0; i < entities.size(); i++) {
                 JSONObject targetEntity = (JSONObject) entities.get(i);

@@ -47,7 +47,7 @@ public class H2Manager {
         insertEntities();
         insertNamedgraphCategories();
         insertNamedgraphs();
-//        insertRelations();
+
     }
 
     public int deleteTable(String tableName) throws SQLException {
@@ -118,7 +118,7 @@ public class H2Manager {
                 + ");");
     }
 
-    private int createTableRelation() throws SQLException {
+    public int createTableRelation() throws SQLException {
         return statement.executeUpdate("CREATE TABLE relation ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "uri clob, \n"
@@ -223,8 +223,47 @@ public class H2Manager {
                 + "?orgName bds:matchAllTerms \"true\".\n"
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score)",
-                "",
-                "",
+                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "where {\n"
+                + "?org cerif:is_source_of ?FLES.\n"
+                + "?FLES cerif:has_destination ?Ser.\n"
+                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?FLE1 cerif:has_destination ?PA.\n"
+                + "?PA cerif:is_source_of ?FLE2.\n"
+                + "?FLE2 cerif:has_destination ?GBB.\n"
+                + "?GBB cerif:has_eastBoundaryLongitude ?east.\n"
+                + "?GBB cerif:has_westBoundaryLongitude ?west.\n"
+                + "?GBB cerif:has_northBoundaryLatitude ?north.\n"
+                + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
+                + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
+                + "}",
+                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "where {\n"
+                + "?org cerif:is_source_of ?FLES.\n"
+                + "?FLES cerif:has_destination ?Ser.\n"
+                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?FLE1 cerif:has_destination ?PA.\n"
+                + "?PA cerif:is_source_of ?FLE2.\n"
+                + "?FLE2 cerif:has_destination ?GBB.\n"
+                + "?GBB cerif:has_eastBoundaryLongitude ?east.\n"
+                + "?GBB cerif:has_westBoundaryLongitude ?west.\n"
+                + "?GBB cerif:has_northBoundaryLatitude ?north.\n"
+                + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
+                + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
+                + "?orgName bds:search \"@#$%TERM%$#@\".\n"
+                + "?orgName bds:matchAllTerms \"true\".\n"
+                + "?orgName bds:relevance ?score.\n"
+                + "}ORDER BY desc(?score)",
                 false);
         insertEntity("Product",
                 "http://eurocris.org/ontology/cerif#Product",
@@ -540,9 +579,10 @@ public class H2Manager {
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
 //      System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
-        String authorizationToken = "5e9ff4c1-8319-4ac0-841e-dfa0c25ab549";
+        String authorizationToken = "ca14d12c-280a-41ee-b189-5ea133c6d68d";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
+
         DBService.createRelationsTable(h2, authorizationToken, endpoint, namespace);
     }
 
