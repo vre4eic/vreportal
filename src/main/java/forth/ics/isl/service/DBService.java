@@ -5,13 +5,19 @@
  */
 package forth.ics.isl.service;
 
+import forth.ics.isl.runnable.H2Manager;
+import forth.ics.isl.triplestore.RestClient;
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,7 +45,6 @@ public class DBService {
 
     @Autowired
     private static JdbcTemplate jdbcTemplate;
-
     private static DataSource dataSource;
 
     @Autowired
@@ -89,14 +94,18 @@ public class DBService {
         return file.getAbsolutePath();
     }
 
-    public static JSONObject retrieveEntity(String entity) {
+    public static JSONObject retrieveEntityFromName(String entity) {
         JSONObject entityJSON = new JSONObject();
         try {
             //initStatement();
-            Connection conn = initConnection();
-            Statement statement = conn.createStatement();
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
+                entityJSON.put("id", entities.getInt("id"));
+                entityJSON.put("uri", entities.getString("uri"));
                 entityJSON.put("name", entities.getString("name"));
                 entityJSON.put("thesaurus", entities.getString("thesaurus"));
                 JSONObject queryModel = new JSONObject();
@@ -107,7 +116,36 @@ public class DBService {
             }
             entities.close();
             statement.close();
-            conn.close();
+            connection.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return entityJSON;
+    }
+
+    public static JSONObject retrieveEntityFromURI(String uri) {
+        JSONObject entityJSON = new JSONObject();
+        try {
+            //initStatement();
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
+            ResultSet entities = statement.executeQuery("select * from entity where uri = '" + uri + "'");
+            while (entities.next()) {
+                entityJSON.put("id", entities.getInt("id"));
+                entityJSON.put("uri", entities.getString("uri"));
+                entityJSON.put("name", entities.getString("name"));
+                entityJSON.put("thesaurus", entities.getString("thesaurus"));
+                JSONObject queryModel = new JSONObject();
+                entityJSON.put("queryModel", queryModel);
+                queryModel.put("format", "application/json");
+                queryModel.put("query", entities.getString("query"));
+                entityJSON.put("geospatial", entities.getBoolean("geospatial"));
+            }
+            entities.close();
+            statement.close();
+            connection.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -117,15 +155,17 @@ public class DBService {
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
-            Connection conn = initConnection();
-            Statement statement = conn.createStatement();
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
             ResultSet result = statement.executeQuery("select name from entity");
             while (result.next()) {
                 entities.add(result.getString("name"));
             }
             result.close();
             statement.close();
-            conn.close();
+            connection.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -135,11 +175,14 @@ public class DBService {
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
-            Connection conn = initConnection();
-            Statement statement = conn.createStatement();
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
+                entity.put("id", entities.getInt("id"));
                 entity.put("name", entities.getString("name"));
                 entity.put("thesaurus", entities.getString("thesaurus"));
                 entity.put("uri", entities.getString("uri"));
@@ -154,12 +197,30 @@ public class DBService {
             }
             entities.close();
             statement.close();
-            conn.close();
+            connection.close();
 
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return results;
+    }
+
+    public static List<String> retrieveAllNamedgraphUris() {
+        List<String> uris = new ArrayList<>();
+        try {
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("select uri from namedgraph");
+            while (result.next()) {
+                uris.add(result.getString("uri"));
+            }
+            result.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return uris;
     }
 
     public static JSONArray retrieveAllNamedgraphs() {
@@ -208,4 +269,139 @@ public class DBService {
         return results;
     }
 
+    public static void createRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+        DBService dbService = new DBService();
+        DBService.setConnection(h2.getConnection());
+        dbService.setJdbcTemplateUsed(false);
+        JSONArray entities = DBService.retrieveAllEntities();
+        h2.terminate();
+        h2 = new H2Manager();
+        dbService = new DBService();
+        dbService.setConnection(h2.getConnection());
+        dbService.setJdbcTemplateUsed(false);
+        List<String> uris = DBService.retrieveAllNamedgraphUris();
+        h2.terminate();
+////
+        h2 = new H2Manager();
+        RestClient client = new RestClient(endpoint, namespace);
+/////////
+        for (String graphURI : uris) {
+            for (int i = 0; i < entities.size(); i++) {
+                JSONObject targetEntity = (JSONObject) entities.get(i);
+                String targetEntityURI = (String) targetEntity.get("uri");
+                int targetEntityID = (int) targetEntity.get("id");
+                int cnt = 0;
+                for (int j = 0; j < entities.size(); j++) {
+                    if (j == i) {
+                        continue;
+                    }
+                    StringBuilder sparqlQuery = new StringBuilder();
+                    JSONObject relatedEntity = (JSONObject) entities.get(j);
+                    String relatedEntityURI = (String) relatedEntity.get("uri");
+                    int relatedEntityID = (int) relatedEntity.get("id");
+                    sparqlQuery.append("select distinct ?relation from <" + graphURI + "> where {\n").
+                            append("?target_inst a <" + targetEntityURI + ">.\n").
+                            append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
+                            append("}");
+                    String response = client.executeSparqlQuery(sparqlQuery.toString(), namespace, "text/csv", authorizationToken).readEntity(String.class);
+                    String[] data = response.split("\\n");
+                    for (int k = 1; k < data.length; k++) {
+                        String relationUri = data[k];
+                        String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
+                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphURI);
+                    }
+                }
+            }
+        }
+        h2.terminate();
+    }
+
+    public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName) {
+        JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
+        JSONArray entities = DBService.retrieveAllEntities();
+        HashMap<Integer, JSONObject> entitiesMap = new HashMap<>();
+        for (int i = 0; i < entities.size(); i++) {
+            JSONObject entity = (JSONObject) entities.get(i);
+            entitiesMap.put((int) entity.get("id"), entity);
+        }
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " and (");
+            int cnt = 0;
+            for (String graph : graphs) {
+                query.append("graph = '" + graph + "'");
+                cnt++;
+                if (cnt < graphs.size()) {
+                    query.append(" or ");
+                }
+            }
+            query.append(")");
+            ResultSet relations = statement.executeQuery(query.toString());
+            JSONArray result = new JSONArray();
+            while (relations.next()) {
+                String relationURI = relations.getString("uri");
+                String relationName = relations.getString("name");
+                JSONObject destinationEntity = entitiesMap.get(relations.getInt("destination_entity"));
+                String destinationEntityURI = (String) destinationEntity.get("uri");
+                String destinationEntityName = (String) destinationEntity.get("name");
+                JSONObject obj = new JSONObject();
+                obj.put("relation_uri", relationURI);
+                obj.put("relation_name", relationName);
+                obj.put("related_entity_uri", destinationEntityURI);
+                obj.put("related_entity_name", destinationEntityName);
+                result.add(obj);
+            }
+            relations.close();
+            statement.close();
+            conn.close();
+            return result;
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public static JSONArray retrieveRelations(List<String> graphs, String targetEntityName, String relatedEntityName) {
+        JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
+        JSONObject relatedEntity = DBService.retrieveEntityFromName(relatedEntityName);
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            setConnection(connection);
+            setJdbcTemplateUsed(false);
+            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " "
+                    + "and destination_entity = " + relatedEntity.get("id") + "and (");
+            int cnt = 0;
+            for (String graph : graphs) {
+                query.append("graph = '" + graph + "'");
+                cnt++;
+                if (cnt < graphs.size()) {
+                    query.append(" or ");
+                }
+            }
+            query.append(")");
+            ResultSet relations = statement.executeQuery(query.toString());
+            JSONArray result = new JSONArray();
+            while (relations.next()) {
+                String relationURI = relations.getString("uri");
+                String relationName = relations.getString("name");
+                JSONObject obj = new JSONObject();
+                obj.put("uri", relationURI);
+                obj.put("name", relationName);
+                result.add(obj);
+            }
+            relations.close();
+            statement.close();
+            conn.close();
+            return result;
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
 }

@@ -1,0 +1,17 @@
+WITH @#$%FROM%$#@
+INSERT {
+  ?pers ?person_project ?proj.
+  ?proj ?project_person ?pers.
+} WHERE {
+  ?pers a <http://eurocris.org/ontology/cerif#Person>.
+  ?proj a <http://eurocris.org/ontology/cerif#Project>.
+
+  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp.
+  ?pers <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. 
+    
+  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.
+  Bind( IRI(concat("http://eurocris.org/ontology/cerif#Person-Project/",encode_for_uri(?role) )) as ?person_project )
+  Bind( IRI(concat("http://eurocris.org/ontology/cerif#Project-Person/",encode_for_uri(?role_opposite) )) as ?project_person )
+}

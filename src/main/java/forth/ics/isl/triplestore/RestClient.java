@@ -1,6 +1,5 @@
 package forth.ics.isl.triplestore;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -14,10 +13,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
-import org.openrdf.rio.RDFFormat;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * A client for our Custom Restful Web service for the triple store
@@ -87,9 +82,8 @@ public class RestClient {
                 .queryParam("query", URLEncoder.encode(queryStr, "UTF-8").replaceAll("\\+", "%20"));
 
         //System.out.println("HttpHeaders.AUTHORIZATION: " + authorizationToken);
-        Invocation.Builder invocationBuilder = webTarget.request().header(HttpHeaders.AUTHORIZATION, authorizationToken);
+        Invocation.Builder invocationBuilder = webTarget.request().header("Authorization", authorizationToken);
         Response response = invocationBuilder.get();
-        client.close();
         return response;
     }
 
