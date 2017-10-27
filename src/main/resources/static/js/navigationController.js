@@ -584,6 +584,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// All entities used in the row model
     
 	// Relations used in the row model
+    /*
 	$scope.relations = [{
 			name: 'is related'
 		},{
@@ -598,7 +599,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			name: 'located at'
 		}
 	];
-	
+	*/
 	$scope.allEntities = [];
 	
 	// Target model
@@ -626,7 +627,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		id: autoincrementedRowModelId,
 		outerSelectedFilterExpression: '',
 		selectedRelation: '',
-		relations: angular.copy($scope.relations),
+		relations: [],//angular.copy($scope.relations),
 		rangeOfDates: {
 			from: null,//new Date(),
 			fromInputName: '',
@@ -777,7 +778,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				else {
 					if(response.status == '200') {
-						$log.info(angular.toJson(response.data));
+						//$log.info(angular.toJson(response.data));
 						// Response is formed like this:
 						// 	[{
 						// 		relation: {relation_uri: "SOME_URI", related_entity_name: "SOME_ENTITY_NAME"}
@@ -787,14 +788,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						// 	}]
 						
 						// Constructing relation List and related entity list
+						rowModel.relatedEntities = [];
+						rowModel.selectedRelatedEntity = null;
+						rowModel.relations = [];
+						rowModel.selectedRelation = null;
 						//angular.forEach(response.data, function(value, key) {
 						for(var i=0; i<response.data.length; i++) {
 							//relatedEntities
-							rowModel.relatedEntities.clear();
-							rowModel.relatedEntities.push.response.data[i].relatedEntity;
+							if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained) // Pure compare
+								rowModel.relatedEntities.push(response.data[i].related_entity);
 							//relations
-							rowModel.relatedEntities.clear();
-							rowModel.relations.push.response.data[i].relation;
+							rowModel.relations.push(response.data[i].relation);
 							//$log.info('value: ' + value);
 						}
 					}
