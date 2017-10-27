@@ -150,7 +150,7 @@
 									<label>Select Target Entity</label>
 									<md-select ng-model="targetModel.selectedTargetEntity" 
 											   name="targetEntityInput" 
-											   md-on-close="loadRelatedListsForRowModel(rowModelList[0])"
+											   md-on-close="loadRelatedListsForRowModel(rowModelList[0], targetModel.selectedTargetEntity)"
 											   required 
 											   md-no-asterisk="false">
 										<md-option ng-repeat="entity in targetModel.targetEntities" ng-value="entity" >

@@ -169,7 +169,7 @@
 									   required 
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" >
-									{{relation.name}}
+									{{relation.relation_name}}
 								</md-option>
 							</md-select>
 							<!-- name="relationInput_{{rowModel.id}}"  -->
@@ -212,7 +212,8 @@
 							<md-select ng-model="rowModel.selectedRelatedEntity" 
 									   name="relatedEntityInput"
 									   selected="rowModel.selectedRelatedEntity" 
-									   md-no-asterisk="false">
+									   md-no-asterisk="false"
+									   required>
 								<md-option ng-repeat="entity in rowModel.relatedEntities" ng-value="entity" >
 									{{entity.name}}
 								</md-option>
