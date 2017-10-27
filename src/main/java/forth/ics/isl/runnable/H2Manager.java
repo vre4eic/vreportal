@@ -6,6 +6,7 @@
 package forth.ics.isl.runnable;
 
 import forth.ics.isl.service.DBService;
+import static forth.ics.isl.service.DBService.setJdbcTemplateUsed;
 import forth.ics.isl.triplestore.RestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -40,7 +41,7 @@ public class H2Manager {
         deleteTable("namedgraph");
         deleteTable("entity");
         deleteTable("relation");
-        deleteTable("relations_mat");
+        deleteTable("relations_material");
 
         createTableCategory();
         createTableNamedgraph();
@@ -145,9 +146,9 @@ public class H2Manager {
     private int createTableRelationsMatUpdates() throws SQLException {
         return statement.executeUpdate("CREATE TABLE relations_material ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
-                + "related_entities varchar(50),"
+                + "related_entities varchar(50),\n"
                 + "update clob,\n"
-                + "PRIMARY KEY (`id`),\n"
+                + "PRIMARY KEY (`id`)\n"
                 + ");");
     }
 
@@ -165,7 +166,7 @@ public class H2Manager {
         insertEntity("Person",
                 "http://eurocris.org/ontology/cerif#Person",
                 "thesaurus/persons-firstAndLastNames.json",
-                "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct ?persName ?Service (?pers as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?pers cerif:is_source_of ?FLES.  \n"
@@ -184,7 +185,7 @@ public class H2Manager {
         insertEntity("Project",
                 "http://eurocris.org/ontology/cerif#Project",
                 "thesaurus/project-acronyms.json",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?projectTitle as ?title) ?projectAcronym ?Service (?proj as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?proj cerif:is_source_of ?FLES.\n"
@@ -207,7 +208,7 @@ public class H2Manager {
         insertEntity("Publication",
                 "http://eurocris.org/ontology/cerif#Publication",
                 "thesaurus/publications-titles.json",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service (?pub as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?pub cerif:is_source_of ?FLES.\n"
@@ -227,7 +228,7 @@ public class H2Manager {
         insertEntity("OrganisationUnit",
                 "http://eurocris.org/ontology/cerif#OrganisationUnit",
                 "thesaurus/organizationUnits-acronyms.json",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
@@ -241,8 +242,8 @@ public class H2Manager {
                 + "?orgName bds:matchAllTerms \"true\".\n"
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score)",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#> \n"
-                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -261,8 +262,8 @@ public class H2Manager {
                 + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "}",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#> \n"
-                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -288,7 +289,7 @@ public class H2Manager {
         insertEntity("Product",
                 "http://eurocris.org/ontology/cerif#Product",
                 "",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -313,7 +314,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) ",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -344,7 +345,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "}",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -382,7 +383,7 @@ public class H2Manager {
         insertEntity("Equipment",
                 "http://eurocris.org/ontology/cerif#Equipment",
                 "",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -407,7 +408,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) ",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -438,7 +439,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "}",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -476,7 +477,7 @@ public class H2Manager {
         insertEntity("Facility",
                 "http://eurocris.org/ontology/cerif#Facility",
                 "",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -501,7 +502,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) ",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -532,7 +533,7 @@ public class H2Manager {
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "}",
-                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#>\n"
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
@@ -684,7 +685,11 @@ public class H2Manager {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException {
         H2Manager h2 = new H2Manager();
-        h2.init();
+//        h2.init();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
+        h2.insertEntities();
+
         //        ResultSet results = h2.fetchEntities();
 //        while (results.next()) {
 //            System.out.println(results.getString(2));
@@ -695,17 +700,18 @@ public class H2Manager {
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
-        RestClient client = new RestClient(endpoint, namespace);
-        List<String> graphs = DBService.retrieveAllNamedgraphUris();
-        List<String> updates = DBService.retrieveAllRelationsMatUpdates();
-        for (String graph : graphs) {
-            for (String update : updates) {
-                update = update.replace("@#$%FROM%$#@", "<" + graph + ">");
-                String response = client.executeUpdatePOSTJSON(update.toString(), namespace, authorizationToken).readEntity(String.class);
-            }
-        }
-
-        //        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
+//        RestClient client = new RestClient(endpoint, namespace);
+//        List<String> graphs = DBService.retrieveAllNamedgraphUris();
+//        List<String> updates = DBService.retrieveAllRelationsMatUpdates();
+//        for (String graph : graphs) {
+//            for (String update : updates) {
+//                update = update.replace("@#$%FROM%$#@", "<" + graph + ">");
+//                String response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken).readEntity(String.class);
+//                System.out.println(response);
+//            }
+//            break;
+//        }
+//        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
         h2.terminate();
     }
 

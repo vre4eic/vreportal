@@ -98,10 +98,8 @@ public class DBService {
         JSONObject entityJSON = new JSONObject();
         try {
             //initStatement();
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
                 entityJSON.put("id", entities.getInt("id"));
@@ -116,7 +114,7 @@ public class DBService {
             }
             entities.close();
             statement.close();
-            connection.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -127,10 +125,8 @@ public class DBService {
         JSONObject entityJSON = new JSONObject();
         try {
             //initStatement();
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where uri = '" + uri + "'");
             while (entities.next()) {
                 entityJSON.put("id", entities.getInt("id"));
@@ -145,7 +141,7 @@ public class DBService {
             }
             entities.close();
             statement.close();
-            connection.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -155,17 +151,15 @@ public class DBService {
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("select name from entity");
             while (result.next()) {
                 entities.add(result.getString("name"));
             }
             result.close();
             statement.close();
-            connection.close();
+            conn.close();
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -175,10 +169,8 @@ public class DBService {
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity");
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
@@ -197,7 +189,7 @@ public class DBService {
             }
             entities.close();
             statement.close();
-            connection.close();
+            conn.close();
 
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
@@ -228,7 +220,7 @@ public class DBService {
         try {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
-            ResultSet result = statement.executeQuery("select update from relations_mat");
+            ResultSet result = statement.executeQuery("select update from relations_material");
             while (result.next()) {
                 uris.add(result.getString("update"));
             }
@@ -288,21 +280,14 @@ public class DBService {
     }
 
     public static void enrichMatRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
-
-        DBService dbService = new DBService();
-        Connection conn = initConnection();
+        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
         DBService.setConnection(conn);
-        dbService.setJdbcTemplateUsed(false);
+        DBService.setJdbcTemplateUsed(false);
         JSONArray entities = DBService.retrieveAllEntities();
-        h2.terminate();
-        h2 = new H2Manager();
-        dbService = new DBService();
-        dbService.setConnection(h2.getConnection());
-        dbService.setJdbcTemplateUsed(false);
+        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+        DBService.setConnection(conn);
         List<String> uris = DBService.retrieveAllNamedgraphUris();
-        h2.terminate();
         ////////
-        h2 = new H2Manager();
         RestClient client = new RestClient(endpoint, namespace);
         ////////
         for (String graphURI : uris) {
@@ -333,7 +318,6 @@ public class DBService {
                 }
             }
         }
-        h2.terminate();
     }
 
     public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName) {
@@ -345,11 +329,8 @@ public class DBService {
             entitiesMap.put((int) entity.get("id"), entity);
         }
         try {
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
             Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " and (");
             int cnt = 0;
             for (String graph : graphs) {
@@ -389,11 +370,8 @@ public class DBService {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
         JSONObject relatedEntity = DBService.retrieveEntityFromName(relatedEntityName);
         try {
-            Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            setConnection(connection);
-            setJdbcTemplateUsed(false);
-            Statement statement = connection.createStatement();
             Connection conn = initConnection();
+            Statement statement = conn.createStatement();
             StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " "
                     + "and destination_entity = " + relatedEntity.get("id") + "and (");
             int cnt = 0;
