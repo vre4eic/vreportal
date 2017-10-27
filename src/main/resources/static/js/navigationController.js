@@ -774,7 +774,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     $scope.currRowModel = null;
     
     $scope.serviceModel = { 
-		url: 'http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT',
+		url: 'http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT',
 		namespace: 'vre4eic'
 	}
 	
