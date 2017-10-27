@@ -1606,7 +1606,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Holding some history of the moves for reference
 		var previousFeature = new ol.Feature(); // The previous feature hovered over the map (can be null)
-		var oldFeature = new ol.Feature();		// The previous feature hovered over any pin (this is never null)
+		var oldFeature = new ol.Feature();		// The previous feature hovered over any pin (can never null)
 		
 		// On Hover
 		$scope.map.on('pointermove', function(e) {
