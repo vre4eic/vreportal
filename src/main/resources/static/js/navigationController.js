@@ -758,7 +758,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	
 	// Loading the list of relations and related entities 
-	// based on the selected target entity
+	// based on the selected entity
 	$scope.loadRelatedListsForRowModel = function(rowModel, selectedEntity) {		
 		if(selectedEntity !=null) {
 			// Parameters to sent
