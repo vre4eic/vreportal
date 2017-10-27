@@ -110,12 +110,9 @@ public class EntityManagerController {
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
             JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
             if (!bindings.isEmpty()) {
-                JSONObject resultSetJSON = (JSONObject) bindings.get(0);
-                if (resultSetJSON.containsKey("east")) { //there exists spatial info 
-                    entityJSON.put("geospatial", true);
-                }
-                resultEntitiesJSON.add(entityJSON);
+                entityJSON.put("geospatial", true);
             }
+            resultEntitiesJSON.add(entityJSON);
         }
         return resultEntitiesJSON;
     }
