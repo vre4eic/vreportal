@@ -663,6 +663,30 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Publication/\",encode_for_uri(?role) )) as ?project_pub ).\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Publication-Project/\",encode_for_uri(?role_opposite) )) as ?pub_project ).\n"
                 + "}");
+        insertRelationMatUpdate("Project-OrganisationUnit",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?proj ?project_org ?org.\n"
+                + "  ?org ?org_project ?proj.\n"
+                + "} WHERE {\n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?proj a <http://eurocris.org/ontology/cerif#Project>.\n"
+                + "\n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  {\n"
+                + "    ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "  } UNION {\n"
+                + "    ?pou <http://eurocris.org/ontology/cerif#has_destination> ?org.\n"
+                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  }\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-OrganisationUnit/\",encode_for_uri(?role) )) as ?project_org ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Project/\",encode_for_uri(?role_opposite) )) as ?org_project ).\n"
+                + "}");
 
     }
 
@@ -685,10 +709,7 @@ public class H2Manager {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException {
         H2Manager h2 = new H2Manager();
-//        h2.init();
-        h2.deleteTable("entity");
-        h2.createTableEntity();
-        h2.insertEntities();
+        h2.init();
 
         //        ResultSet results = h2.fetchEntities();
 //        while (results.next()) {
@@ -696,7 +717,7 @@ public class H2Manager {
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
 //      System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
-        String authorizationToken = "83a73585-895c-4234-91aa-4a9e681fb8a8";
+        String authorizationToken = "2b55f9de-169c-4828-a5fd-9c76143306da";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
@@ -711,7 +732,7 @@ public class H2Manager {
 //            }
 //            break;
 //        }
-//        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
+        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
         h2.terminate();
     }
 
