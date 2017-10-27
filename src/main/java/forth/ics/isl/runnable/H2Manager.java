@@ -6,11 +6,18 @@
 package forth.ics.isl.runnable;
 
 import forth.ics.isl.service.DBService;
+import forth.ics.isl.triplestore.RestClient;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -40,7 +47,7 @@ public class H2Manager {
         insertEntities();
         insertNamedgraphCategories();
         insertNamedgraphs();
-        insertRelations();
+
     }
 
     public int deleteTable(String tableName) throws SQLException {
@@ -60,9 +67,9 @@ public class H2Manager {
                 + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "','" + textGeoQuery + "', " + geospatial + ")");
     }
 
-    public int insertRelation(String name, String uri, String query) throws SQLException {
-        return statement.executeUpdate("insert into relation(`name`, `uri`, `query`)"
-                + " values ('" + name + "','" + uri + "','" + query + "')");
+    public int insertRelation(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
+        return statement.executeUpdate("insert into relation(`uri`, `name`, `source_entity`, `destination_entity`, `graph`)"
+                + " values ('" + uri + "','" + name + "', " + sourceEntity + ", " + destinationEntity + ", '" + graph + "')");
     }
 
     public int updateEntityGeospatial(String entityName, String columnName, boolean columnValue) throws SQLException {
@@ -71,7 +78,7 @@ public class H2Manager {
 
     public int createTableNamedgraph() throws SQLException {
         return statement.executeUpdate("CREATE TABLE namedgraph ( \n"
-                + "uri varchar(20) not null, \n"
+                + "uri varchar(30) not null, \n"
                 + "name varchar(20), \n"
                 + "description clob, \n"
                 + "category int, \n"
@@ -111,13 +118,18 @@ public class H2Manager {
                 + ");");
     }
 
-    private int createTableRelation() throws SQLException {
+    public int createTableRelation() throws SQLException {
         return statement.executeUpdate("CREATE TABLE relation ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "uri clob, \n"
                 + "name varchar(30), \n"
-                + "query clob, \n"
-                + "PRIMARY KEY (`id`)\n"
+                + "source_entity int, \n"
+                + "destination_entity int, \n"
+                + "graph varchar(30),"
+                + "PRIMARY KEY (`id`),\n"
+                + "FOREIGN KEY (`source_entity`) REFERENCES `entity` (`id`) ON DELETE CASCADE,"
+                + "FOREIGN KEY (`destination_entity`) REFERENCES `entity` (`id`) ON DELETE CASCADE,"
+                + "FOREIGN KEY (`graph`) REFERENCES `namedgraph` (`uri`) ON DELETE CASCADE"
                 + ");");
     }
 
@@ -211,8 +223,47 @@ public class H2Manager {
                 + "?orgName bds:matchAllTerms \"true\".\n"
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score)",
-                "",
-                "",
+                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "where {\n"
+                + "?org cerif:is_source_of ?FLES.\n"
+                + "?FLES cerif:has_destination ?Ser.\n"
+                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?FLE1 cerif:has_destination ?PA.\n"
+                + "?PA cerif:is_source_of ?FLE2.\n"
+                + "?FLE2 cerif:has_destination ?GBB.\n"
+                + "?GBB cerif:has_eastBoundaryLongitude ?east.\n"
+                + "?GBB cerif:has_westBoundaryLongitude ?west.\n"
+                + "?GBB cerif:has_northBoundaryLatitude ?north.\n"
+                + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
+                + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
+                + "}",
+                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "where {\n"
+                + "?org cerif:is_source_of ?FLES.\n"
+                + "?FLES cerif:has_destination ?Ser.\n"
+                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?FLE1 cerif:has_destination ?PA.\n"
+                + "?PA cerif:is_source_of ?FLE2.\n"
+                + "?FLE2 cerif:has_destination ?GBB.\n"
+                + "?GBB cerif:has_eastBoundaryLongitude ?east.\n"
+                + "?GBB cerif:has_westBoundaryLongitude ?west.\n"
+                + "?GBB cerif:has_northBoundaryLatitude ?north.\n"
+                + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
+                + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
+                + "?orgName bds:search \"@#$%TERM%$#@\".\n"
+                + "?orgName bds:matchAllTerms \"true\".\n"
+                + "?orgName bds:relevance ?score.\n"
+                + "}ORDER BY desc(?score)",
                 false);
         insertEntity("Product",
                 "http://eurocris.org/ontology/cerif#Product",
@@ -499,24 +550,7 @@ public class H2Manager {
     }
 
     private void insertRelations() throws SQLException {
-        insertRelation("has member",
-                "http://eurocris.org/ontology/cerif#Project-Person",
-                "");
-        insertRelation("participated in",
-                "http://eurocris.org/ontology/cerif#Person-Project",
-                "");
-        insertRelation("is member of",
-                "http://eurocris.org/ontology/cerif#Person-OrganizationUnit",
-                "");
-        insertRelation("has member",
-                "http://eurocris.org/ontology/cerif#OrganizationUnit-Person",
-                "");
-        insertRelation("is author of",
-                "http://eurocris.org/ontology/cerif#Person-Publication",
-                "");
-        insertRelation("has author",
-                "http://eurocris.org/ontology/cerif#Publication-Person",
-                "");
+        JSONArray entities = DBService.retrieveAllEntities();
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -536,22 +570,24 @@ public class H2Manager {
         return statement.executeQuery("select * from entity");
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException {
         H2Manager h2 = new H2Manager();
         h2.init();
-
-//        ResultSet results = h2.fetchEntities();
+        //        ResultSet results = h2.fetchEntities();
 //        while (results.next()) {
 //            System.out.println(results.getString(2));
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
-        //System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
-        DBService dbService = new DBService();
-        dbService.setConnection(connection);
-        dbService.setJdbcTemplateUsed(false);
+//      System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
+        String authorizationToken = "ca14d12c-280a-41ee-b189-5ea133c6d68d";
+        String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
+        String namespace = "vre4eic";
 
-        System.out.println(dbService.retrieveAllEntityNames());
-        h2.terminate();
+        DBService.createRelationsTable(h2, authorizationToken, endpoint, namespace);
+    }
+
+    public Connection getConnection() {
+        return this.connection;
     }
 
 }

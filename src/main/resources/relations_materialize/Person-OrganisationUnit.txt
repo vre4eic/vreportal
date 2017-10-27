@@ -1,0 +1,19 @@
+WITH @#$%FROM%$#@
+INSERT {
+  ?pers ?person_orgunit ?org.
+  ?org ?orgunit_person ?pers.
+} WHERE {
+  ?pers a <http://eurocris.org/ontology/cerif#Person>.
+  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.
+  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.
+  {
+    ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. 
+  } UNION {
+    ?pou <http://eurocris.org/ontology/cerif#has_destination> ?org.
+  }
+  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.
+  Bind( IRI(concat("http://eurocris.org/ontology/cerif#Person-OrganisationUnit/",encode_for_uri(?role) )) as ?person_orgunit ).
+  Bind( IRI(concat("http://eurocris.org/ontology/cerif#OrganisationUnit-Person/",encode_for_uri(?role_opposite) )) as ?orgunit_person )
+}

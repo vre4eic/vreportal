@@ -1,0 +1,17 @@
+WITH @#$%FROM%$#@
+INSERT {
+  ?org ?project_pub ?pub.
+  ?pub ?pub_project ?org.
+} WHERE {
+  ?pub a <http://eurocris.org/ontology/cerif#Publication>.
+  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.
+
+  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?op.
+  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?op.
+     
+  ?op <http://eurocris.org/ontology/cerif#has_classification> ?classif.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.
+  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.
+  Bind( IRI( concat("http://eurocris.org/ontology/cerif#OrganisationUnit-Publication/",encode_for_uri(?role) )) as ?orgunit_pub ).
+  Bind( IRI( concat("http://eurocris.org/ontology/cerif#Publication-OrganisationUnit/",encode_for_uri(?role_opposite) )) as ?pub_orgunit ).
+}
