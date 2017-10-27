@@ -691,21 +691,21 @@ public class H2Manager {
 //        }
 //        System.out.println(H2Service.retrieveAllNamedgraphs("jdbc:h2:~/evre", "sa", ""));
 //      System.out.println(H2Service.retrieveAllEntityNames("jdbc:h2:~/evre", "sa", ""));
-        String authorizationToken = "ca14d12c-280a-41ee-b189-5ea133c6d68d";
+        String authorizationToken = "83a73585-895c-4234-91aa-4a9e681fb8a8";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
-        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
-
+        RestClient client = new RestClient(endpoint, namespace);
         List<String> graphs = DBService.retrieveAllNamedgraphUris();
         List<String> updates = DBService.retrieveAllRelationsMatUpdates();
         for (String graph : graphs) {
             for (String update : updates) {
                 update = update.replace("@#$%FROM%$#@", "<" + graph + ">");
-//                String response = client.executeSparqlQuery(sparqlQuery.toString(), namespace, "text/csv", authorizationToken).readEntity(String.class);
+                String response = client.executeUpdatePOSTJSON(update.toString(), namespace, authorizationToken).readEntity(String.class);
             }
         }
 
+        //        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
         h2.terminate();
     }
 

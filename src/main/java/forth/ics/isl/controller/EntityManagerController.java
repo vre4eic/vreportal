@@ -42,10 +42,6 @@ import org.json.simple.parser.ParseException;
 @Controller
 public class EntityManagerController {
 
-    @Value("${h2.service.username}")
-    private String h2ServiceUsername;
-    @Value("${h2.service.password}")
-    private String h2ServicePassword;
     private RestClient restClient;
 
     @Value("${service.url}")

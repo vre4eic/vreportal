@@ -3,6 +3,7 @@ package forth.ics.isl.triplestore;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import javax.ws.rs.ClientErrorException;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -10,9 +11,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.simple.JSONObject;
 
 /**
  * A client for our Custom Restful Web service for the triple store
@@ -80,11 +83,18 @@ public class RestClient {
         WebTarget webTarget = client.target(serviceUrl + "/query/namespace/" + namespace)
                 .queryParam("format", format)
                 .queryParam("query", URLEncoder.encode(queryStr, "UTF-8").replaceAll("\\+", "%20"));
-
         //System.out.println("HttpHeaders.AUTHORIZATION: " + authorizationToken);
         Invocation.Builder invocationBuilder = webTarget.request().header("Authorization", authorizationToken);
         Response response = invocationBuilder.get();
         return response;
+    }
+
+    public Response executeUpdatePOSTJSON(String updateQuery, String namespace, String token) throws ClientErrorException {
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target(serviceUrl + "/update/namespace/" + namespace);
+        JSONObject json = new JSONObject();
+        json.put("query", updateQuery);
+        return webTarget.request(MediaType.TEXT_HTML).header("Authorization", token).post(Entity.json(json.toJSONString()));
     }
 
     public static void main(String[] args) throws IOException {
