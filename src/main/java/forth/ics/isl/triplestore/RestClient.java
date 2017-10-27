@@ -89,12 +89,13 @@ public class RestClient {
         return response;
     }
 
-    public Response executeUpdatePOSTJSON(String updateQuery, String namespace, String token) throws ClientErrorException {
+    public Response executeUpdatePOSTJSON(String update, String namespace, String token) throws ClientErrorException {
         Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target(serviceUrl + "/update/namespace/" + namespace);
         JSONObject json = new JSONObject();
-        json.put("query", updateQuery);
-        return webTarget.request(MediaType.TEXT_HTML).header("Authorization", token).post(Entity.json(json.toJSONString()));
+        json.put("query", update);
+        WebTarget webTarget = client.target(serviceUrl + "/update/namespace/" + namespace);
+        return webTarget.request(MediaType.APPLICATION_JSON).
+                header("Authorization", token).post(Entity.json(json.toJSONString()));
     }
 
     public static void main(String[] args) throws IOException {

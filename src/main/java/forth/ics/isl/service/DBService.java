@@ -215,14 +215,17 @@ public class DBService {
         return uris;
     }
 
-    public static List<String> retrieveAllRelationsMatUpdates() {
-        List<String> uris = new ArrayList<>();
+    public static JSONArray retrieveAllRelationsMatUpdates() {
+        JSONArray queries = new JSONArray();
         try {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
-            ResultSet result = statement.executeQuery("select update from relations_material");
+            ResultSet result = statement.executeQuery("select related_entities, update from relations_material");
             while (result.next()) {
-                uris.add(result.getString("update"));
+                JSONObject obj = new JSONObject();
+                obj.put("update", result.getString("update"));
+                obj.put("related_entities", result.getString("related_entities"));
+                queries.add(obj);
             }
             result.close();
             statement.close();
@@ -230,7 +233,7 @@ public class DBService {
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return uris;
+        return queries;
     }
 
     public static JSONArray retrieveAllNamedgraphs() {
@@ -279,46 +282,6 @@ public class DBService {
         return results;
     }
 
-    public static void enrichMatRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        DBService.setJdbcTemplateUsed(false);
-        JSONArray entities = DBService.retrieveAllEntities();
-        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        List<String> uris = DBService.retrieveAllNamedgraphUris();
-        ////////
-        RestClient client = new RestClient(endpoint, namespace);
-        ////////
-        for (String graphURI : uris) {
-            for (int i = 0; i < entities.size(); i++) {
-                JSONObject targetEntity = (JSONObject) entities.get(i);
-                String targetEntityURI = (String) targetEntity.get("uri");
-                int targetEntityID = (int) targetEntity.get("id");
-                int cnt = 0;
-                for (int j = 0; j < entities.size(); j++) {
-                    if (j == i) {
-                        continue;
-                    }
-                    StringBuilder sparqlQuery = new StringBuilder();
-                    JSONObject relatedEntity = (JSONObject) entities.get(j);
-                    String relatedEntityURI = (String) relatedEntity.get("uri");
-                    int relatedEntityID = (int) relatedEntity.get("id");
-                    sparqlQuery.append("select distinct ?relation from <" + graphURI + "> where {\n").
-                            append("?target_inst a <" + targetEntityURI + ">.\n").
-                            append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
-                            append("}");
-                    String response = client.executeSparqlQuery(sparqlQuery.toString(), namespace, "text/csv", authorizationToken).readEntity(String.class);
-                    String[] data = response.split("\\n");
-                    for (int k = 1; k < data.length; k++) {
-                        String relationUri = data[k];
-                        String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
-                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphURI);
-                    }
-                }
-            }
-        }
-    }
 
     public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);

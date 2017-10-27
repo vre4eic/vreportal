@@ -50,7 +50,7 @@ public class QueryGenService {
         JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
 
         JSONArray resultEntitiesJSON = new JSONArray();
-        String authorizationToken = "20181e37-3b77-4b45-9f68-351c582bc5f7";
+        String authorizationToken = "05ca2485-d8b3-4709-b347-ccc3f5f76e4c";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
         JSONParser parser = new JSONParser();
