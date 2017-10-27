@@ -136,12 +136,30 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Initializing All available entities
 	function initAllNamegraphs() {
 		queryService.getAllNamegraphs().then(function (response) {
-			//console.log(angular.toJson(response));
-			
-			$scope.namegraphs = makeAllNamegraphsSelected(response.data);
-			// Initialising the queryFrom string
-			constructQueryForm(response.data);
-			console.log('$scope.queryFrom: ' + $scope.queryFrom);
+			if(response.status == '200') {
+				$scope.namegraphs = makeAllNamegraphsSelected(response.data);
+				// Initialising the queryFrom string
+				constructQueryForm(response.data);
+				console.log('$scope.queryFrom: ' + $scope.queryFrom);
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}			
 		}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
@@ -269,7 +287,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						if(!report.targetAvailability.available && !report.relatedAvailability.available) {
 							// Target
 							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
-							  $scope.selectedTargetEntity.name + 
+							  $scope.targetModel.selectedTargetEntity.name + 
 							  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
 							
 							// Related
@@ -296,7 +314,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						// Case - Only target entity is unavailable
 						else if(!report.targetAvailability.available) {
 							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
-								  $scope.selectedTargetEntity.name + 
+								  $scope.targetModel.selectedTargetEntity.name + 
 								  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
 						}
 						
@@ -334,12 +352,24 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						loadNewEntityLists(response.data); // Apply the change
 					}
 				}
-				else {
+				else if(response.status == '400') {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+					modalInstance.close();
+				}
+				else if(response.status == '401') {
 					$log.info(response.status);
 					modalInstance.close();
 					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
 				}
-			
+				else {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+					modalInstance.close();
+				}
 			} // else close
 			
 		
@@ -414,9 +444,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		var selectedRelatedEntitiesAreAvailable = false;
 		
 		// Checking if there is any selected target entity
-		if($scope.selectedTargetEntity != null) {
+		if($scope.targetModel.selectedTargetEntity != null) {
 			for(var i=0; i<newEntityList.length; i++) {
-				if($scope.selectedTargetEntity.name == newEntityList[i].name) {
+				if($scope.targetModel.selectedTargetEntity.name == newEntityList[i].name) {
 					selectedTargetEntityIsAvailable = true;
 				    break;
 				}
@@ -484,14 +514,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Changes all the available entity list with new one
 	function loadNewEntityLists(entityList) {
 		// Update targetEntities List and retain selection if still available
-		$scope.targetEntities = entityList;
+		$scope.targetModel.targetEntities = entityList;
 		
 		// Retain the selection if there is one and is 
 		// still available in the new list
-		if($scope.selectedTargetEntity != null) {
+		if($scope.targetModel.selectedTargetEntity != null) {
 			angular.forEach(entityList, function(entity, key) {
-				if($scope.selectedTargetEntity.name == entity.name) {
-					$scope.selectedTargetEntity = entity;
+				if($scope.targetModel.selectedTargetEntity.name == entity.name) {
+					$scope.targetModel.selectedTargetEntity = entity;
 					console.log('targetEntities changed');
 				}
 			});
@@ -571,6 +601,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.allEntities = [];
 	
+	// Target model
+	$scope.targetModel = {
+		selectedTargetEntity: null,
+		targetEntities: $scope.allEntities, //angular.copy($scope.allEntities);
+		searchTargetKeywords: '',
+		targetThesaurus: {},
+		selectedTargetRecomentation: null,
+		targetChips: []
+	}
+	/*
 	// Target entity
 	$scope.selectedTargetEntity = null;
 	$scope.targetEntities = $scope.allEntities;//angular.copy($scope.allEntities);
@@ -578,7 +618,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.targetThesaurus = {};
 	$scope.selectedTargetRecomentation = null;
 	$scope.targetChips = [];
-	
+	*/
 	var autoincrementedRowModelId = 0;
 	
 	// Initial empty row model
@@ -618,12 +658,34 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Initializing All available entities
 	function initAllEntities() {
-		queryService.getAllEntities().then(function (response) {
-			//console.log(angular.toJson(response));
-			$scope.allEntities = response.data;
-			$scope.targetEntities = response.data;
-			$scope.initEmptyRowModel.relatedEntities = response.data;
-			$scope.rowModelList[0].relatedEntities = response.data;
+		//queryService.getAllEntities().then(function (response) {
+		constructQueryForm($scope.namegraphs);
+		queryService.getEntities($scope.queryFrom, $scope.credentials.token).then(function (response) {
+		//queryService.getEntities().then(function (response) {
+			if(response.status == '200') {
+				$scope.allEntities = response.data;
+				$scope.targetModel.targetEntities = response.data;
+				$scope.initEmptyRowModel.relatedEntities = response.data;
+				$scope.rowModelList[0].relatedEntities = response.data;
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
 		}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
@@ -688,6 +750,93 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
+	
+	
+	
+	
+	
+	
+	// Loading the list of relations and related entities 
+	// based on the selected target entity
+	$scope.loadRelatedListsForRowModel = function(rowModel) {		
+		if($scope.targetModel.selectedTargetEntity !=null) {
+			// Parameters to sent
+			var paramModel = {
+				fromSearch: $scope.queryFrom, 						// the collections (VREs) String
+				name: $scope.targetModel.selectedTargetEntity.name,
+				entities: $scope.targetModel.targetEntities// The selected target entity
+			}
+		
+			queryService.getRelationsAndRelatedEntitiesByTarget(paramModel, $scope.credentials.token)
+			.then(function (response) {
+	    		
+				if(response.status == -1) {
+					$scope.message = 'There was a network error. Try again later.';
+					$scope.showErrorAlert('Error', $scope.message);
+					modalInstance.close();
+				}
+				else {
+					if(response.status == '200') {
+						$log.info(angular.toJson(response.data));
+						// Response is formed like this:
+						// 	[{
+						// 		relation: {relation_uri: "SOME_URI", related_entity_name: "SOME_ENTITY_NAME"}
+						//		related_entity: { ... }
+						//	}, ... {
+						//		...
+						// 	}]
+						
+						// Constructing relation List and related entity list
+						//angular.forEach(response.data, function(value, key) {
+						for(var i=0; i<response.data.length; i++) {
+							//relatedEntities
+							rowModel.relatedEntities.clear();
+							rowModel.relatedEntities.push.response.data[i].relatedEntity;
+							//relations
+							rowModel.relatedEntities.clear();
+							rowModel.relations.push.response.data[i].relation;
+							//$log.info('value: ' + value);
+						}
+					}
+					else if(response.status == '400') {
+	    				$log.info(response.status);
+	    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+	    				$scope.showErrorAlert('Error', $scope.message);
+	    				modalInstance.close();
+	    			}
+	    			else if(response.status == '401') {
+	    				$log.info(response.status);
+	    				modalInstance.close();
+	    				$scope.showLogoutAlert();
+	    				authenticationService.clearCredentials();
+	    			}
+	    			else {
+	    				$log.info(response.status);
+	    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+	    				$scope.showErrorAlert('Error', $scope.message);
+	    				modalInstance.close();
+	    			}
+				
+				} // else close
+			
+			}, function (error) {
+				$scope.message = 'There was a network error. Try again later.';
+				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+					data : error
+				}));
+				modalInstance.close();
+			});
+			
+		} // If close - (selectedTargetEntity not null)
+		
+	}
+	
+	
+	
+	
+	
+	
+	
 	// Adding filter on related entity
 	$scope.addFilterOnRelated = function(rowModel) {
 		autoincrementedRowModelId++;
@@ -723,10 +872,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.loadThesaurus = function(entity, outerIndex) {
 		if(!(entity.thesaurus == "" || entity.thesaurus == null)) {
 			return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
-	        	//$log.info('$scope.targetThesaurus ' + JSON.stringify($scope.targetThesaurus));
+	        	//$log.info('$scope.targetModel.targetThesaurus ' + JSON.stringify($scope.targetModel.targetThesaurus));
 	        	// Case Target
 	        	if(outerIndex == -1) {
-	        		$scope.targetThesaurus = response.data;
+	        		$scope.targetModel.targetThesaurus = response.data;
 	        	}
 	        	// Case Related Entity
 	        	else { //if(entityCase == 'related')
@@ -736,7 +885,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 		else {
 			if(outerIndex == -1) {
-        		$scope.targetThesaurus = "";
+        		$scope.targetModel.targetThesaurus = "";
         	}
         	// Case Related Entity
         	else { //if(entityCase == 'related')
@@ -749,8 +898,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     $scope.querySearch = function(query, outerIndex) {
     	var results = [];
     	if(outerIndex == -1) {
-    		if($scope.targetThesaurus != '')
-    			results = query ? $scope.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetThesaurus;
+    		if($scope.targetModel.targetThesaurus != '')
+    			results = query ? $scope.targetModel.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetModel.targetThesaurus;
     	}
     	else { //if(entityCase == 'related')
     		if($scope.thesaurus != '')
@@ -818,108 +967,144 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	var updatedQueryModelPerPage = '';
     	
     	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
-
-    		updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
-        	updatedQueryModel.query = queryResponse.data.query;
-    		delete updatedQueryModel.geo_query;
-    		delete updatedQueryModel.text_geo_query;
-    		
-    		// Calling Service to get the count wrt to the query - Promise
-    		queryService.getEntityQueryResultsCount($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
-    		.then(function (queryCountResponse) {
-    			
-    			// Holding total number of results
-    			$scope.relatedEntityResultsCount = queryCountResponse.data.results.bindings[0].count.value;
-    			console.log('$scope.relatedEntityResultsCount: ' + $scope.relatedEntityResultsCount);
-    			
-    			// Change query such that only the first 10 are returned
-    			updatedQueryModelPerPage = Object.assign(updatedQueryModel);
-    			/////// After the line below, the updatedQueryModelPerPage.query becomes NA 
-    			var queryPerPage = "";//angular.copy(updatedQueryModelPerPage.query);
-    			queryPerPage = angular.copy(updatedQueryModelPerPage.query) + ' limit ' + $scope.itemsPerPage.toString() + ' offset ' + ($scope.currentPage-1).toString();
-    			updatedQueryModelPerPage.query = queryPerPage;
-    			
-	    		// Calling service to executing Query - Promise
-	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
-	    		.then(function (response) {
-	        		
-	    			if(response.status == -1) {
-	    				$scope.message = 'There was a network error. Try again later.';
-	    				$scope.showErrorAlert('Error', $scope.message);
-	    				modalInstance.close();
-	    			}
-	    			
-	    			else {
-	    				// Checking the response from blazegraph
-	    				if(response.status == '200') {
-	    					
-	    					$scope.relatedEntityResults = response.data;
-	    					
-	    					// Iterating response that doesn't have 'isChecked' element
-	    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
-	    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
-	    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
-	    						}
-	    			    	}
-	    					
-	    					//if($scope.relatedEntityResults.results != undefined)
-	    		    		//	$scope.totalItems = $scope.relatedEntityResults.results.bindings.length;
-	    					
-	    					modalInstance.close();
-	    					
-	    					// Used for capturing the current row and thus knowing where to put selected items
-	    			    	$scope.currRowModel = rowModel;
-	    			    	$mdDialog.show({
-	    			    		scope: $scope,
-	    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
-	    			    		parent: angular.element(document.body),
-	    			    		targetEvent: ev,
-	    			    		//clickOutsideToClose:true,
-	    			    		preserveScope: true,
-	    			    		fullscreen: false // Only for -xs, -sm breakpoints.
-	    			    	})
-	    			    	.then(function(answer) {
-	    			    		$scope.status = 'You are OK';
-	    			    	}, function() {
-	    			    		$scope.status = 'You cancelled the dialog.';
-	    			    	});
-	    				}
-	    				else if(response.status == '400') {
-	    					$log.info(response.status);
-	    					modalInstance.close();
-	    				}
-	    				else if(response.status == '401') {
-	    					$log.info(response.status);
-	    					modalInstance.close();
-	    					$scope.showLogoutAlert();
-	    					authenticationService.clearCredentials();
-	    				}
-	    				else {
-	    					$log.info(response.status);
-	    					modalInstance.close();
-	    				}
-	    			
-	    			} // else close
-	    			
-	    		
-	    		}, function (error) {
-	    			$scope.message = 'There was a network error. Try again later.';
-	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-	    				data : error
-	    			}));
-	    			modalInstance.close();
-	    		});
-	        	// Execute query promise - End
-	    		
-    		}, function (error) {
-    			$scope.message = 'There was a network error. Try again later.';
-    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-    				data : error
-    			}));
-    			modalInstance.close();
-    		});
-    		// Count query promise - End
-    		
+    		if(queryResponse.status == '200') {
+    			updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
+            	updatedQueryModel.query = queryResponse.data.query;
+        		delete updatedQueryModel.geo_query;
+        		delete updatedQueryModel.text_geo_query;
+        		
+        		// Calling Service to get the count wrt to the query - Promise
+        		queryService.getEntityQueryResultsCount($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
+        		.then(function (queryCountResponse) {
+        			if(queryCountResponse.status == '200') {
+        				// Holding total number of results
+            			$scope.relatedEntityResultsCount = queryCountResponse.data.results.bindings[0].count.value;
+            			console.log('$scope.relatedEntityResultsCount: ' + $scope.relatedEntityResultsCount);
+            			
+            			// Change query such that only the first 10 are returned
+            			updatedQueryModelPerPage = Object.assign(updatedQueryModel);
+            			/////// After the line below, the updatedQueryModelPerPage.query becomes NA 
+            			var queryPerPage = "";//angular.copy(updatedQueryModelPerPage.query);
+            			queryPerPage = angular.copy(updatedQueryModelPerPage.query) + ' limit ' + $scope.itemsPerPage.toString() + ' offset ' + ($scope.currentPage-1).toString();
+            			updatedQueryModelPerPage.query = queryPerPage;
+            			
+        	    		// Calling service to executing Query - Promise
+        	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
+        	    		.then(function (response) {
+        	        		
+        	    			if(response.status == -1) {
+        	    				$scope.message = 'There was a network error. Try again later.';
+        	    				$scope.showErrorAlert('Error', $scope.message);
+        	    				modalInstance.close();
+        	    			}
+        	    			
+        	    			else {
+        	    				if(response.status == '200') {
+        	    					
+        	    					$scope.relatedEntityResults = response.data;
+        	    					
+        	    					// Iterating response that doesn't have 'isChecked' element
+        	    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
+        	    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
+        	    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
+        	    						}
+        	    			    	}
+        	    					
+        	    					modalInstance.close();
+        	    					
+        	    					// Used for capturing the current row and thus knowing where to put selected items
+        	    			    	$scope.currRowModel = rowModel;
+        	    			    	$mdDialog.show({
+        	    			    		scope: $scope,
+        	    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
+        	    			    		parent: angular.element(document.body),
+        	    			    		targetEvent: ev,
+        	    			    		//clickOutsideToClose:true,
+        	    			    		preserveScope: true,
+        	    			    		fullscreen: false // Only for -xs, -sm breakpoints.
+        	    			    	})
+        	    			    	.then(function(answer) {
+        	    			    		$scope.status = 'You are OK';
+        	    			    	}, function() {
+        	    			    		$scope.status = 'You cancelled the dialog.';
+        	    			    	});
+        	    				}
+        	    				else if(response.status == '400') {
+        	        				$log.info(response.status);
+        	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        	        				$scope.showErrorAlert('Error', $scope.message);
+        	        				modalInstance.close();
+        	        			}
+        	        			else if(response.status == '401') {
+        	        				$log.info(response.status);
+        	        				modalInstance.close();
+        	        				$scope.showLogoutAlert();
+        	        				authenticationService.clearCredentials();
+        	        			}
+        	        			else {
+        	        				$log.info(response.status);
+        	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        	        				$scope.showErrorAlert('Error', $scope.message);
+        	        				modalInstance.close();
+        	        			}
+        	    			
+        	    			} // else close
+        	    			
+        	    		
+        	    		}, function (error) {
+        	    			$scope.message = 'There was a network error. Try again later.';
+        	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+        	    				data : error
+        	    			}));
+        	    			modalInstance.close();
+        	    		});
+        	        	// Execute query promise - End
+    				}
+        			else if(queryCountResponse.status == '400') {
+        				$log.info(queryCountResponse.status);
+        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.showErrorAlert('Error', $scope.message);
+        				modalInstance.close();
+        			}
+        			else if(queryCountResponse.status == '401') {
+        				$log.info(queryCountResponse.status);
+        				modalInstance.close();
+        				$scope.showLogoutAlert();
+        				authenticationService.clearCredentials();
+        			}
+        			else {
+        				$log.info(queryCountResponse.status);
+        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.showErrorAlert('Error', $scope.message);
+        				modalInstance.close();
+        			}
+        		}, function (error) {
+        			$scope.message = 'There was a network error. Try again later.';
+        			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+        				data : error
+        			}));
+        			modalInstance.close();
+        		});
+        		// Count query promise - End
+			}
+			else if(queryResponse.status == '400') {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(queryResponse.status == '401') {
+				$log.info(queryResponse.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
     	}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
@@ -929,12 +1114,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		});
     	// Construct query promise - End
 	};
-    
-    
-    
-    
-    
-    
     
 	$scope.closeRelatedEntitySearchResults = function(rowModel) {
 		// Hide dialog
@@ -1790,60 +1969,83 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			var updatedQueryModel = '';
 			
 			queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
-				console.log('queryResponse:');
-				console.log(queryResponse);
-				updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
-	        	updatedQueryModel.query = queryResponse.data.query;
-				delete updatedQueryModel.geo_query;
-	    		delete updatedQueryModel.text_geo_query;
-				console.log('Geospatial Query:');
-				console.log(updatedQueryModel);
+				if(queryResponse.status == '200') {
+					console.log('queryResponse:');
+					console.log(queryResponse);
+					updatedQueryModel = angular.copy(rowModel.selectedRelatedEntity.queryModel)
+		        	updatedQueryModel.query = queryResponse.data.query;
+					delete updatedQueryModel.geo_query;
+		    		delete updatedQueryModel.text_geo_query;
+					console.log('Geospatial Query:');
+					console.log(updatedQueryModel);
+					
+		    		// Calling service to executing Query - Promise
+		    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
+		    		.then(function (response) {
+				        		
+		    			if(response.status == -1) {
+		    				$scope.message = 'There was a network error. Try again later.';
+		    				$scope.showErrorAlert('Error', $scope.message);
+		    				modalInstance.close();
+		    			}
+					    			
+		    			else {
+		    				// Checking the response from blazegraph
+		    				if(response.status == '200') {
+		    					// handling results
+		    					handleGeoResultsForMap(response.data.results.bindings);
+		    					modalInstance.close();
+		    				}
+		    				else if(response.status == '400') {
+		        				$log.info(response.status);
+		        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+		        				$scope.showErrorAlert('Error', $scope.message);
+		        				modalInstance.close();
+		        			}
+		        			else if(response.status == '401') {
+		        				$log.info(response.status);
+		        				modalInstance.close();
+		        				$scope.showLogoutAlert();
+		        				authenticationService.clearCredentials();
+		        			}
+		        			else {
+		        				$log.info(response.status);
+		        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+		        				$scope.showErrorAlert('Error', $scope.message);
+		        				modalInstance.close();
+		        			}
+		    			
+		    			} // else close
+		    			
+		    		}, function (error) {
+		    			$scope.message = 'There was a network error. Try again later.';
+		    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+		    				data : error
+		    			}));
+		    			modalInstance.close();
+		    		});
+		        	// Execute query promise - End
+					
+				}
 				
-	    		// Calling service to executing Query - Promise
-	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
-	    		.then(function (response) {
-			        		
-    			if(response.status == -1) {
-    				$scope.message = 'There was a network error. Try again later.';
+				else if(queryResponse.status == '400') {
+    				$log.info(queryResponse.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
     				modalInstance.close();
     			}
-			    			
+    			else if(queryResponse.status == '401') {
+    				$log.info(queryResponse.status);
+    				modalInstance.close();
+    				$scope.showLogoutAlert();
+    				authenticationService.clearCredentials();
+    			}
     			else {
-    				// Checking the response from blazegraph
-    				if(response.status == '200') {
-    					// handling results
-    					handleGeoResultsForMap(response.data.results.bindings);
-    					//console.log(angular.toJson(response.data.results.bindings));
-    					modalInstance.close();
-    				}
-    				else if(response.status == '400') {
-    					$log.info(response.status);
-    					modalInstance.close();
-    				}
-    				else if(response.status == '401') {
-    					$log.info(response.status);
-    					modalInstance.close();
-    					$scope.showLogoutAlert();
-    					authenticationService.clearCredentials();
-    				}
-    				else {
-    					$log.info(response.status);
-    					modalInstance.close();
-    				}
-    			
-    			} // else close
-			    			
-			    		
-	    		}, function (error) {
-	    			$scope.message = 'There was a network error. Try again later.';
-	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-	    				data : error
-	    			}));
-	    			modalInstance.close();
-	    		});
-	        	// Execute query promise - End
-				
+    				$log.info(queryResponse.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    				modalInstance.close();
+    			}
 			},
 			function (error) {
 				$scope.message = 'There was a network error. Try again later.';

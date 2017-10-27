@@ -148,11 +148,12 @@
 							
 								<md-input-container class="md-block shrinked">
 									<label>Select Target Entity</label>
-									<md-select ng-model="selectedTargetEntity" 
+									<md-select ng-model="targetModel.selectedTargetEntity" 
 											   name="targetEntityInput" 
+											   md-on-close="loadRelatedListsForRowModel(rowModelList[0])"
 											   required 
 											   md-no-asterisk="false">
-										<md-option ng-repeat="entity in targetEntities" ng-value="entity" >
+										<md-option ng-repeat="entity in targetModel.targetEntities" ng-value="entity" >
 											{{entity.name}}
 										</md-option>
 									</md-select>
@@ -161,14 +162,14 @@
 								<!--
 								<md-input-container class="md-block" flex-gt-sm>
 									<label>Search for keyword</label>
-									<input name="clientName" ng-model="searchTargetKeywords">
+									<input name="clientName" ng-model="targetModel.searchTargetKeywords">
 									<div ng-messages="targetEntityInput.$error">
 										<div ng-message="required">This is required.</div>
 									</div>
 								</md-input-container>
 								-->
 																
-								<md-chips ng-model="targetChips" 
+								<md-chips ng-model="targetModel.targetChips" 
 										  md-removable="true" 
 										  class="shrinked" 
 										  md-enable-chip-edit="true"
@@ -177,15 +178,15 @@
 													 class="shrinked"
 													 md-no-cache="true" 
 													 md-dropdown-items="5" 
-													 md-selected-item="selectedTargetRecomentation" 
+													 md-selected-item="targetModel.selectedTargetRecomentation" 
 													 md-search-text="searchText"
 													 md-selected-item-change="selectedItemChange(item, -1)"
 													 md-items="item in querySearch(searchText, -1)"
 													 md-item-text="item.name"
 													 md-min-length="2"
-													 ng-disabled="selectedTargetEntity.name==''"
+													 ng-disabled="targetModel.selectedTargetEntity.name==''"
 													 placeholder="Search for keyword"
-													 ng-focus="loadThesaurus(selectedTargetEntity, -1)"
+													 ng-focus="loadThesaurus(targetModel.selectedTargetEntity, -1)"
 													 style="font-size:14px;">
 													 <!-- class="shrinked autocomplete-with-icon" -->
 	         										 <!-- md-floating-label="Search for keyword" -->

@@ -128,6 +128,22 @@ angular.module('app.mainServices', [])
 
 		},
 		
+		getRelationsAndRelatedEntitiesByTarget : function(paramModel, token) {
+			return $http({
+				'url': '/get_relations_related_entities',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': paramModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+		},
+		
 		getPageResults : function(pageParams) {
 			return $http({
 				'url' : '/paginator_json',
