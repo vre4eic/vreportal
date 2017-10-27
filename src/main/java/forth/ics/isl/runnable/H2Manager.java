@@ -251,7 +251,7 @@ public class H2Manager {
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
                 + "?org cerif:has_acronym ?orgAcronym.\n"
-                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?org cerif:is_source_of ?FLE1.\n"
                 + "?FLE1 cerif:has_destination ?PA.\n"
                 + "?PA cerif:is_source_of ?FLE2.\n"
                 + "?FLE2 cerif:has_destination ?GBB.\n"
