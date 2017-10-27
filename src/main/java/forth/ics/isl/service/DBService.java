@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,42 +43,42 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DBService {
-
+    
     @Autowired
     private static JdbcTemplate jdbcTemplate;
     private static DataSource dataSource;
-
+    
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
+    
     private static Connection connection;
-
+    
     public static Connection getConnection() {
         return connection;
     }
-
+    
     public static void setConnection(Connection connection) {
         DBService.connection = connection;
     }
-
+    
     static boolean jdbcTemplateUsed;// = true;
 
     public static boolean isJdbcTemplateUsed() {
         return jdbcTemplateUsed;
     }
-
+    
     public static void setJdbcTemplateUsed(boolean jdbcTemplateUsed) {
         DBService.jdbcTemplateUsed = jdbcTemplateUsed;
     }
-
+    
     @PostConstruct
     public void init() {
         System.out.println("@PostConstruct - DBService");
         setJdbcTemplateUsed(true);
     }
-
+    
     public static Connection initConnection() throws CannotGetJdbcConnectionException, SQLException {
         if (jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
         {
@@ -86,14 +87,14 @@ public class DBService {
             return connection;
         }
     }
-
+    
     private String getFilePath(String fileName) {
         //Get file from resources folder
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(fileName).getFile());
         return file.getAbsolutePath();
     }
-
+    
     public static JSONObject retrieveEntityFromName(String entity) {
         JSONObject entityJSON = new JSONObject();
         try {
@@ -120,7 +121,7 @@ public class DBService {
         }
         return entityJSON;
     }
-
+    
     public static JSONObject retrieveEntityFromURI(String uri) {
         JSONObject entityJSON = new JSONObject();
         try {
@@ -147,7 +148,7 @@ public class DBService {
         }
         return entityJSON;
     }
-
+    
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
@@ -165,7 +166,7 @@ public class DBService {
         }
         return entities;
     }
-
+    
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
@@ -190,13 +191,13 @@ public class DBService {
             entities.close();
             statement.close();
             conn.close();
-
+            
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return results;
     }
-
+    
     public static List<String> retrieveAllNamedgraphUris() {
         List<String> uris = new ArrayList<>();
         try {
@@ -214,7 +215,7 @@ public class DBService {
         }
         return uris;
     }
-
+    
     public static JSONArray retrieveAllRelationsMatUpdates() {
         JSONArray queries = new JSONArray();
         try {
@@ -235,7 +236,7 @@ public class DBService {
         }
         return queries;
     }
-
+    
     public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
@@ -281,13 +282,13 @@ public class DBService {
         }
         return results;
     }
-
-    public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName, JSONArray entities) {
+    
+    public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName, ArrayList<LinkedHashMap> entities) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
 //        JSONArray entities = DBService.retrieveAllEntities();
         HashMap<Integer, JSONObject> entitiesMap = new HashMap<>();
         for (int i = 0; i < entities.size(); i++) {
-            JSONObject entity = (JSONObject) entities.get(i);
+            JSONObject entity = new JSONObject(entities.get(i));
             entitiesMap.put((int) entity.get("id"), entity);
         }
         try {
@@ -328,7 +329,7 @@ public class DBService {
         }
         return null;
     }
-
+    
     public static JSONArray retrieveRelations(List<String> graphs, String targetEntityName, String relatedEntityName) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
         JSONObject relatedEntity = DBService.retrieveEntityFromName(relatedEntityName);
