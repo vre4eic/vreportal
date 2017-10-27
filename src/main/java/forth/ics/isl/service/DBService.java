@@ -223,6 +223,24 @@ public class DBService {
         return uris;
     }
 
+    public static List<String> retrieveAllRelationsMatUpdates() {
+        List<String> uris = new ArrayList<>();
+        try {
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("select update from relations_mat");
+            while (result.next()) {
+                uris.add(result.getString("update"));
+            }
+            result.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return uris;
+    }
+
     public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
@@ -269,9 +287,8 @@ public class DBService {
         return results;
     }
 
-    public static void createRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
-        h2.deleteTable("relation");
-        h2.createTableRelation();
+    public static void enrichMatRelationsTable(H2Manager h2, String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+
         DBService dbService = new DBService();
         Connection conn = initConnection();
         DBService.setConnection(conn);

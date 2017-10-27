@@ -40,13 +40,17 @@ public class H2Manager {
         deleteTable("namedgraph");
         deleteTable("entity");
         deleteTable("relation");
+        deleteTable("relations_mat");
+
         createTableCategory();
         createTableNamedgraph();
         createTableEntity();
         createTableRelation();
+        createTableRelationsMatUpdates();
         insertEntities();
         insertNamedgraphCategories();
         insertNamedgraphs();
+        insertRelationsMatUpdates();
 
     }
 
@@ -70,6 +74,11 @@ public class H2Manager {
     public int insertRelation(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
         return statement.executeUpdate("insert into relation(`uri`, `name`, `source_entity`, `destination_entity`, `graph`)"
                 + " values ('" + uri + "','" + name + "', " + sourceEntity + ", " + destinationEntity + ", '" + graph + "')");
+    }
+
+    public int insertRelationMatUpdate(String relatedEntities, String update) throws SQLException {
+        return statement.executeUpdate("insert into relations_material(`related_entities`, `update`)"
+                + " values ('" + relatedEntities + "', '" + update + "')");
     }
 
     public int updateEntityGeospatial(String entityName, String columnName, boolean columnValue) throws SQLException {
@@ -130,6 +139,15 @@ public class H2Manager {
                 + "FOREIGN KEY (`source_entity`) REFERENCES `entity` (`id`) ON DELETE CASCADE,"
                 + "FOREIGN KEY (`destination_entity`) REFERENCES `entity` (`id`) ON DELETE CASCADE,"
                 + "FOREIGN KEY (`graph`) REFERENCES `namedgraph` (`uri`) ON DELETE CASCADE"
+                + ");");
+    }
+
+    private int createTableRelationsMatUpdates() throws SQLException {
+        return statement.executeUpdate("CREATE TABLE relations_material ( \n"
+                + "id int NOT NULL AUTO_INCREMENT, \n"
+                + "related_entities varchar(50),"
+                + "update clob,\n"
+                + "PRIMARY KEY (`id`),\n"
                 + ");");
     }
 
@@ -223,7 +241,8 @@ public class H2Manager {
                 + "?orgName bds:matchAllTerms \"true\".\n"
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score)",
-                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#> \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -232,7 +251,7 @@ public class H2Manager {
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
                 + "?org cerif:has_acronym ?orgAcronym.\n"
-                + "?prg cerif:is_source_of ?FLE1.\n"
+                + "?org cerif:is_source_of ?FLE1.\n"
                 + "?FLE1 cerif:has_destination ?PA.\n"
                 + "?PA cerif:is_source_of ?FLE2.\n"
                 + "?FLE2 cerif:has_destination ?GBB.\n"
@@ -242,7 +261,8 @@ public class H2Manager {
                 + "?GBB cerif:has_southBoundaryLatitude ?south.\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "}",
-                "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                "PREFIX cerif:   <http://eurocris.org/ontology/cerif#> \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org cerif:is_source_of ?FLES.\n"
                 + "?FLES cerif:has_destination ?Ser.\n"
@@ -549,8 +569,100 @@ public class H2Manager {
                 false);
     }
 
-    private void insertRelations() throws SQLException {
-        JSONArray entities = DBService.retrieveAllEntities();
+    private void insertRelationsMatUpdates() throws SQLException {
+        insertRelationMatUpdate("OrganisationUnit-Publication",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?org ?project_pub ?pub.\n"
+                + "  ?pub ?pub_project ?org.\n"
+                + "} WHERE {\n"
+                + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>.\n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "\n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?op.\n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?op.\n"
+                + "     \n"
+                + "  ?op <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  Bind( IRI( concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Publication/\",encode_for_uri(?role) )) as ?orgunit_pub ).\n"
+                + "  Bind( IRI( concat(\"http://eurocris.org/ontology/cerif#Publication-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?pub_orgunit ).\n"
+                + "}");
+        insertRelationMatUpdate("Person-OrganisationUnit",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?pers ?person_orgunit ?org.\n"
+                + "  ?org ?orgunit_person ?pers.\n"
+                + "} WHERE {\n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  {\n"
+                + "    ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  } UNION {\n"
+                + "    ?pou <http://eurocris.org/ontology/cerif#has_destination> ?org.\n"
+                + "  }\n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-OrganisationUnit/\",encode_for_uri(?role) )) as ?person_orgunit ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Person/\",encode_for_uri(?role_opposite) )) as ?orgunit_person )\n"
+                + "}");
+        insertRelationMatUpdate("Person-Project",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?pers ?person_project ?proj.\n"
+                + "  ?proj ?project_person ?pers.\n"
+                + "} WHERE {\n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?proj a <http://eurocris.org/ontology/cerif#Project>.\n"
+                + "\n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp.\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
+                + "    \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Project/\",encode_for_uri(?role) )) as ?person_project )\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Person/\",encode_for_uri(?role_opposite) )) as ?project_person )\n"
+                + "}");
+        insertRelationMatUpdate("Person-Publication",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?pers ?person_publication ?pub.\n"
+                + "  ?pub ?publication_person ?pers.\n"
+                + "} WHERE {\n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>.\n"
+                + "\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pp.\n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
+                + "  \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Publication/\",encode_for_uri(?role) )) as ?person_publication ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Publication-Person/\",encode_for_uri(?role_opposite) )) as ?publication_person ).\n"
+                + "}");
+        insertRelationMatUpdate("Project-Publication",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?proj ?project_pub ?pub.\n"
+                + "  ?pub ?pub_project ?proj.\n"
+                + "} WHERE {\n"
+                + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>.\n"
+                + "  ?proj a <http://eurocris.org/ontology/cerif#Project>.\n"
+                + "\n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp.\n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp.\n"
+                + "     \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Publication/\",encode_for_uri(?role) )) as ?project_pub ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Publication-Project/\",encode_for_uri(?role_opposite) )) as ?pub_project ).\n"
+                + "}");
+
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -583,7 +695,18 @@ public class H2Manager {
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
-        DBService.createRelationsTable(h2, authorizationToken, endpoint, namespace);
+        DBService.enrichMatRelationsTable(h2, authorizationToken, endpoint, namespace);
+
+        List<String> graphs = DBService.retrieveAllNamedgraphUris();
+        List<String> updates = DBService.retrieveAllRelationsMatUpdates();
+        for (String graph : graphs) {
+            for (String update : updates) {
+                update = update.replace("@#$%FROM%$#@", "<" + graph + ">");
+//                String response = client.executeSparqlQuery(sparqlQuery.toString(), namespace, "text/csv", authorizationToken).readEntity(String.class);
+            }
+        }
+
+        h2.terminate();
     }
 
     public Connection getConnection() {
