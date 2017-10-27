@@ -212,20 +212,22 @@ public class EntityManagerController {
      */
     @RequestMapping(value = "/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+    JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         System.out.println("targetEntity:" + requestParams.get("targetEntity"));
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         // without authorization at the moment
 //        System.out.println("authorizationToken: " + authorizationToken);
         String fromClause = (String) requestParams.get("fromSearch");
         String targetEntity = (String) requestParams.get("name");
+//        JSONArray entities = (JSONArray) new JSONParser().parse((String) requestParams.get("entities"));
+        JSONArray entities = (JSONArray) requestParams.get("entities");
         List<String> graphs = new ArrayList<>();
         Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
         Matcher regexMatcher = regex.matcher(fromClause);
         while (regexMatcher.find()) {
             graphs.add(regexMatcher.group());
         }
-        return DBService.retrieveRelationsEntities(graphs, targetEntity);
+        return DBService.retrieveRelationsEntities(graphs, targetEntity, entities);
     }
 
     /**
@@ -294,7 +296,7 @@ public class EntityManagerController {
         while (regexMatcher.find()) {
             graphs.add(regexMatcher.group());
         }
-        DBService.retrieveRelationsEntities(graphs, targetName);
+//        DBService.retrieveRelationsEntities(graphs, targetName);
 
 //        DBService.retrieveRelations(graphs, targetName, relatedName);
     }

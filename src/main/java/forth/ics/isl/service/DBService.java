@@ -282,10 +282,9 @@ public class DBService {
         return results;
     }
 
-
-    public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName) {
+    public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName, JSONArray entities) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
-        JSONArray entities = DBService.retrieveAllEntities();
+//        JSONArray entities = DBService.retrieveAllEntities();
         HashMap<Integer, JSONObject> entitiesMap = new HashMap<>();
         for (int i = 0; i < entities.size(); i++) {
             JSONObject entity = (JSONObject) entities.get(i);
@@ -309,14 +308,15 @@ public class DBService {
             while (relations.next()) {
                 String relationURI = relations.getString("uri");
                 String relationName = relations.getString("name");
-                JSONObject destinationEntity = entitiesMap.get(relations.getInt("destination_entity"));
-                String destinationEntityURI = (String) destinationEntity.get("uri");
-                String destinationEntityName = (String) destinationEntity.get("name");
+                JSONObject relatedEntity = entitiesMap.get(relations.getInt("destination_entity"));
+//                String destinationEntityURI = (String) destinationEntity.get("uri");
+//                String destinationEntityName = (String) destinationEntity.get("name");
                 JSONObject obj = new JSONObject();
-                obj.put("relation_uri", relationURI);
-                obj.put("relation_name", relationName);
-                obj.put("related_entity_uri", destinationEntityURI);
-                obj.put("related_entity_name", destinationEntityName);
+                obj.put("related_entity", relatedEntity);
+                JSONObject relJSON = new JSONObject();
+                relJSON.put("relation_uri", relationURI);
+                relJSON.put("relation_name", relationName);
+                obj.put("relation", relJSON);
                 result.add(obj);
             }
             relations.close();
