@@ -169,7 +169,7 @@
 									   required 
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" >
-									{{relation.relation_name}}
+									{{relation.name}}
 								</md-option>
 							</md-select>
 							<!-- name="relationInput_{{rowModel.id}}"  -->
@@ -212,6 +212,7 @@
 							<md-select ng-model="rowModel.selectedRelatedEntity" 
 									   name="relatedEntityInput"
 									   selected="rowModel.selectedRelatedEntity" 
+									   ng-change="loadRelatedEntitiesAndRelationsByTarget(parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
 									   md-no-asterisk="false"
 									   required>
 								<md-option ng-repeat="entity in rowModel.relatedEntities" ng-value="entity" >
@@ -383,7 +384,7 @@
 				<div flex>
 					<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
 							   aria-label="Add Filter on Related Entity"
-							   ng-click="addFilterOnRelated(rowModel)"
+							   ng-click="addFilterOnRelated(parent.rowModel, rowModel)"
 							   ng-disabled="rowModel.selectedRelatedEntity == null">
 		            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
 		        	</md-button>
