@@ -84,7 +84,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.hideTreeMenuTogglerButton = function(boolean) {
 		$scope.hiddenTreeMenuTogglerButton = boolean;
 	}
-	
+	/*
 	$scope.namegraphs = [{
 		id: 'vre',
 		label: 'VREs',
@@ -103,7 +103,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			{label: 'envri-data', value: 'envri-data', selected: true}
 		]
 	}];
-	
+	*/
 	$scope.queryFrom = '';
 	
 	function constructQueryForm(namegraphs) {
@@ -626,7 +626,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Initializing All available entities
 	function initAllEntities() {
 		//queryService.getAllEntities().then(function (response) {
-		constructQueryForm($scope.namegraphs);
 		queryService.getEntities($scope.queryFrom, $scope.credentials.token).then(function (response) {
 		//queryService.getEntities().then(function (response) {
 			if(response.status == '200') {
