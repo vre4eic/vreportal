@@ -592,7 +592,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.initEmptyRowModel = {
 		id: autoincrementedRowModelId,
 		outerSelectedFilterExpression: '',
-		selectedRelation: '',
+		selectedRelation: null,
 		relations: [],//angular.copy($scope.relations),
 		rangeOfDates: {
 			from: null,//new Date(),
@@ -611,8 +611,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		relatedChips: [],
 		relatedEntitySearchText: '',
 		rowModelList: [],
-		activeRelatedSearchResultsStyle: 'enabled-style'//,
-		//activeStyle: 'disabled-style'
+		activeRelatedSearchResultsStyle: 'enabled-style',
+		activeRowModelStyle: 'disabled-style'
 	}
 	
 	$scope.thesaurus = {};
@@ -738,6 +738,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// (In case of selecting real target entity, the parent rowModel is null, 
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(parentRowModel, rowModel, selectedEntity, provenanceFunction) {
+				
 		if(selectedEntity !=null) {
 			
 			// Rrelated Entity List handling
@@ -757,13 +758,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}					
 				}
-				else { // provenanceFunction is: levelDown, relatedEntitySelect, targetEntitySelect
+				else { // provenanceFunction is: levelDown, targetEntitySelect
 					for(var i=0; i<$scope.rowModelList.length; i++) {
 						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}
-				
 				}
+				// Enabling rowModel
+				$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 			}
 			// Case where entity selection is from the related entity 
 			// (both selecting entity or level down)
@@ -963,6 +965,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 		//rowModel.rowModelList[outerIndex].activeStyle = 'enabledStyle';
 		rowModel.rowModelList[rowModel.rowModelList.length-1].id = autoincrementedRowModelId;
+		// Enabling rowModel
+		rowModel.rowModelList[rowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
 		// Loading related entities and relations for new related model
 		$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown')
@@ -993,19 +997,30 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Thesaurus	
 	
 	$scope.loadThesaurus = function(entity, outerIndex) {
-		if(!(entity.thesaurus == "" || entity.thesaurus == null)) {
-			return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
-	        	//$log.info('$scope.targetModel.targetThesaurus ' + JSON.stringify($scope.targetModel.targetThesaurus));
-	        	// Case Target
-	        	if(outerIndex == -1) {
-	        		$scope.targetModel.targetThesaurus = response.data;
+		if(entity != null) {
+			if(entity.thesaurus != "" && entity.thesaurus != null) {
+				return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
+		        	//$log.info('$scope.targetModel.targetThesaurus ' + JSON.stringify($scope.targetModel.targetThesaurus));
+		        	// Case Target
+		        	if(outerIndex == -1) {
+		        		$scope.targetModel.targetThesaurus = response.data;
+		        	}
+		        	// Case Related Entity
+		        	else { //if(entityCase == 'related')
+		        		$scope.thesaurus = response.data;
+		        	}
+		        });
+			}
+			else {
+				if(outerIndex == -1) {
+	        		$scope.targetModel.targetThesaurus = "";
 	        	}
 	        	// Case Related Entity
 	        	else { //if(entityCase == 'related')
-	        		$scope.thesaurus = response.data;
+	        		$scope.thesaurus = "";
 	        	}
-	        });
-		}
+			}
+		} // Closing - if(entity != null)
 		else {
 			if(outerIndex == -1) {
         		$scope.targetModel.targetThesaurus = "";
@@ -1441,7 +1456,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		parent: angular.element(document.body),
     		targetEvent: ev,
     		clickOutsideToClose:true,
-    		//onComplete: loadMapForRelatedEntity(),
     		onComplete:function(){
     				loadMapForRelatedEntity(rowModel);
     		},
@@ -1883,6 +1897,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						jsonItem[key] = property
 				});
 				
+				rowModel.selectedRelatedInstanceList.push(jsonItem);
+				
 				// Show related entity results panel on the respective rowModel
 				if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0) {
 					rowModel.shownEntitySearchResults = true;
@@ -1890,9 +1906,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1) {
 					rowModel.shownEntitySearchResults = false;
 				}
-				//console.log('jsonItem: ' + angular.toJson(jsonItem));
-				rowModel.selectedRelatedInstanceList.push(jsonItem);
-			  
+				
 			});
 			
 		}

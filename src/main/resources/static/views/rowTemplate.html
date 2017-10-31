@@ -116,6 +116,7 @@
 					</span>
 				</div>
 				
+				<div ng-class="rowModel.activeRowModelStyle">
 				<md-fab-speed-dial md-open="false" 
 								   md-direction="down"
 	              				   ng-class="targetSpeedDialMode"
@@ -142,6 +143,7 @@
 						</md-button>
 					</md-fab-actions>
 				</md-fab-speed-dial>
+				</div>
 			</div>
 	
 			<!-- Projection -->
@@ -149,8 +151,8 @@
 				 style="height:320px; 
 				 		padding:5px 5px; 
 				 		border:1px solid #ccc;
-				 		border-radius: 5px;">
-				 		<!-- ng-class="rowModel.activeStyle" -->
+				 		border-radius: 5px;" 
+				 		ng-class="rowModel.activeRowModelStyle">
 			
 				<div layout="column" style="max-width:260px;min-width:230px;">
 				
@@ -181,14 +183,18 @@
 						
 						<md-input-container style="margin:0; padding:2px; margin-top:-20px;">
          					<label>From Date</label>
-         					<md-datepicker name="fromDateInput_{{rowModel.id}}" ng-model="rowModel.rangeOfDates.from"/>
+         					<md-datepicker name="fromDateInput_{{rowModel.id}}" 
+         								   ng-model="rowModel.rangeOfDates.from" 
+         								   ng-disabled="rowModel.selectedRelation == null"/>
          					<div ng-messages="searchForm['fromDateInput_' + rowModel.id].$error">
          						<div ng-message="valid">Please enter some date</div>
          					</div>
 	       				</md-input-container>
 	      				<md-input-container style="margin:0; padding:2px;" class="shrinked">
 	        				<label>Until Date</label>
-	        				<md-datepicker name="untilDateInput_{{rowModel.id}}" ng-model="rowModel.rangeOfDates.until"></md-datepicker>
+	        				<md-datepicker name="untilDateInput_{{rowModel.id}}" 
+	        							   ng-model="rowModel.rangeOfDates.until"
+	        							   ng-disabled="rowModel.selectedRelation == null"/>
 	        				<div ng-messages="searchForm['untilDateInput_' + rowModel.id].$error">
 	         					<div ng-message="valid">Please enter some date</div>
 	         				</div>
@@ -229,57 +235,74 @@
 									max-width:238px;
 									max-height: 120px;
 									min-height: 100px;">
-							<md-chips ng-model="rowModel.relatedChips" 
-									  md-removable="true" 
-									  class="shrinked-alterned" 
-									  md-enable-chip-edit="true"
-									  md-transform-chip="transformChip($chip)"
-									  md-max-chips="3"
-									  style="padding:0;display: inline-block;width:170px;"><!--  -->
-								<md-autocomplete flex 
-												 layout-xs 
-												 md-input-name="relatedEntityInput"
-												 class="shrinked"
-												 md-no-cache="true" 
-												 md-dropdown-items="5" 
-												 md-selected-item="rowModel.selectedRecomentation" 
-	       										 md-search-text="rowModel.relatedEntitySearchText"
-	       										 md-selected-item-change="selectedItemChange(item, outerIndex)"
-	       										 md-items="item in querySearch(rowModel.relatedEntitySearchText, outerIndex)"
-	       										 md-item-text="item.name"
-	       										 md-min-length="2"
-	       										 ng-disabled="rowModel.selectedRelatedEntity == null"
-	       										 placeholder="Search for keyword"
-	       										 ng-focus="loadThesaurus(rowModel.selectedRelatedEntity, outerIndex)"
-	       										 style="font-size:14px;min-width:100px">
-		       									 <!-- required md-floating-label="Search for keyword" -->
-									<md-item-template>
-										<span md-highlight-text="rowModel.relatedEntitySearchText" style="width:200px">{{item.name}}</span>
-									</md-item-template>
+							<span>
+								<md-chips ng-model="rowModel.relatedChips" 
+										  md-removable="true" 
+										  class="shrinked-alterned" 
+										  md-enable-chip-edit="true"
+										  md-transform-chip="transformChip($chip)"
+										  md-max-chips="3"
+										  style="padding:0;display: inline-block;width:170px;"><!--  -->
+									<md-autocomplete flex 
+													 layout-xs 
+													 md-input-name="relatedEntityInput"
+													 class="shrinked"
+													 md-no-cache="true" 
+													 md-dropdown-items="5" 
+													 md-selected-item="rowModel.selectedRecomentation" 
+		       										 md-search-text="rowModel.relatedEntitySearchText"
+		       										 md-selected-item-change="selectedItemChange(item, outerIndex)"
+		       										 md-items="item in querySearch(rowModel.relatedEntitySearchText, outerIndex)"
+		       										 md-item-text="item.name"
+		       										 md-min-length="2"
+		       										 ng-disabled="rowModel.selectedRelatedEntity == null"
+		       										 placeholder="Search for keyword"
+		       										 ng-focus="loadThesaurus(rowModel.selectedRelatedEntity, outerIndex)"
+		       										 style="font-size:14px;min-width:100px">
+			       									 <!-- required md-floating-label="Search for keyword" -->
+										<md-item-template>
+											<span md-highlight-text="rowModel.relatedEntitySearchText" style="width:200px">{{item.name}}</span>
+										</md-item-template>
+									
+									    <md-not-found>
+											No terms matching "{{rowModel.relatedEntitySearchText}}" were found.
+								        </md-not-found>
+									</md-autocomplete>
+					
+									<md-chip-template>
+							        	<span style="font-size:14px;">
+											{{$chip.name}}
+										</span>
+									</md-chip-template>
+								</md-chips>
+								<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" 
+				            				md-delay="1000" 
+				            				md-direction="top">
+									Select Some related entity in order to be able to search for instances
+								</md-tooltip>
+							</span>
+							<span>
+								<md-button class="md-icon-button" 
+										   ng-disabled="rowModel.selectedRelatedEntity.name=='' || (rowModel.relatedEntitySearchText=='' && rowModel.relatedChips.length===0)"
+										   ng-click="showRelatedResultsDialog($event, rowModel)"
+										   style="padding:0px; 
+										   		  margin:0px; 
+										   		  margin-bottom:25px; 
+										   		  display:inline-block;">
+									<md-icon md-font-icon="fa fa-search" style="font-size:24px"></md-icon>
+								</md-button>
 								
-								    <md-not-found>
-										No terms matching "{{rowModel.relatedEntitySearchText}}" were found.
-							        </md-not-found>
-								</md-autocomplete>
-				
-								<md-chip-template>
-						        	<span style="font-size:14px;">
-										{{$chip.name}}
-									</span>
-								</md-chip-template>
-							</md-chips>
-							<md-button class="md-icon-button" 
-									   ng-disabled="rowModel.selectedRelatedEntity.name=='' || (rowModel.relatedEntitySearchText=='' && rowModel.relatedChips.length===0)"
-									   ng-click="showRelatedResultsDialog($event, rowModel)"
-									   style="padding:0px; 
-									   		  margin:0px; 
-									   		  margin-bottom:25px; 
-									   		  display:inline-block;">
-								<md-tooltip md-delay="1500" md-direction="top">
+								<md-tooltip ng-show="!(rowModel.selectedRelatedEntity.name=='' || (rowModel.relatedEntitySearchText=='' && rowModel.relatedChips.length===0))" 
+											md-delay="1500" 
+											md-direction="top">
 									Search for specific instance of "{{rowModel.selectedRelatedEntity.name}}" entity
 								</md-tooltip>
-								<md-icon md-font-icon="fa fa-search" style="font-size:24px"></md-icon>
-							</md-button>
+				            	<md-tooltip ng-show="rowModel.selectedRelatedEntity.name=='' || (rowModel.relatedEntitySearchText=='' && rowModel.relatedChips.length===0)" 
+				            				md-delay="1000" 
+				            				md-direction="top">
+									Enter some keywords to enable search for this entity
+								</md-tooltip>
+							</span>
 						</div>
 					
 						<md-input-container class="md-block shrinked" 
@@ -309,12 +332,25 @@
 	         								   class="md-icon-button" 
 	         								   aria-label="Map" 
 	         								   ng-click="showMapForRelatedResultsDialog($event, rowModel)"
-	         								   style="padding:0; padding-top: 5px;">
-							            <md-tooltip md-direction="top" md-delay="1500">
-						            		Restrict search geographically through the map
-						            	</md-tooltip>
+	         								   style="padding:0; padding-top: 5px;"
+	         								   ng-disabled="rowModel.selectedRelatedEntity == null || rowModel.selectedRelatedEntity.geospatial == 'FALSE'">
 						            	<md-icon md-font-icon="fa fa-globe" style="font-size:24px"></md-icon>
 						        	</md-button>
+						        	<md-tooltip ng-show="rowModel.selectedRelatedEntity != null && rowModel.selectedRelatedEntity.geospatial != 'FALSE'" 
+						            			md-direction="top" 
+						            			md-delay="1500">
+					            		Restrict search geographically through the map
+					            	</md-tooltip>
+					            	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" 
+					            				md-delay="1000" 
+					            				md-direction="top">
+										Select some related entity first
+									</md-tooltip>
+									<md-tooltip ng-show="rowModel.selectedRelatedEntity.geospatial == 'FALSE'" 
+					            				md-delay="1000" 
+					            				md-direction="top">
+										The selected related entity has no geospatial nature
+									</md-tooltip>
 	        					</div>
 	       					</div>
 						</md-input-container>
