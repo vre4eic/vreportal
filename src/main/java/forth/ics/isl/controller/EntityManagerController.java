@@ -218,8 +218,7 @@ public class EntityManagerController {
 //        System.out.println("authorizationToken: " + authorizationToken);
         String fromClause = (String) requestParams.get("fromSearch");
         String targetEntity = (String) requestParams.get("name");
-//        JSONArray entities = (JSONArray) new JSONParser().parse((String) requestParams.get("entities"));
-        ArrayList <LinkedHashMap> entities = (ArrayList) requestParams.get("entities");
+        ArrayList<LinkedHashMap> entities = (ArrayList) requestParams.get("entities");
         List<String> graphs = new ArrayList<>();
         Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
         Matcher regexMatcher = regex.matcher(fromClause);
@@ -229,33 +228,6 @@ public class EntityManagerController {
         return DBService.retrieveRelationsEntities(graphs, targetEntity, entities);
     }
 
-    /**
-     *
-     * @param authorizationToken
-     * @param requestParams
-     * @return
-     * @throws IOException
-     */
-//    @RequestMapping(value = "/get_related_entities", method = RequestMethod.POST, produces = {"application/json"})
-//    public @ResponseBody
-//    JSONObject populateEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
-//        System.out.println("running executequery_json...");
-//        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
-//        System.out.println("relation:" + requestParams.get("relation"));
-//        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
-//        // without authorization at the moment
-//////        System.out.println("authorizationToken: " + authorizationToken);
-////        String fromClause = (String) requestParams.get("fromSearch");
-////        String targetEntity = (String) requestParams.get("targetEntity");
-////        List<String> graphs = new ArrayList<>();
-////        Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
-////        Matcher regexMatcher = regex.matcher(fromClause);
-////        while (regexMatcher.find()) {
-////            graphs.add(regexMatcher.group());
-////        }
-////        DBService.retrieveRelationsEntities(graphs, targetEntity);
-//        return null;
-//    }
     /**
      *
      * @param authorizationToken

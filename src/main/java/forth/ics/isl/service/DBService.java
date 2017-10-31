@@ -43,42 +43,42 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class DBService {
-    
+
     @Autowired
     private static JdbcTemplate jdbcTemplate;
     private static DataSource dataSource;
-    
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    
+
     private static Connection connection;
-    
+
     public static Connection getConnection() {
         return connection;
     }
-    
+
     public static void setConnection(Connection connection) {
         DBService.connection = connection;
     }
-    
+
     static boolean jdbcTemplateUsed;// = true;
 
     public static boolean isJdbcTemplateUsed() {
         return jdbcTemplateUsed;
     }
-    
+
     public static void setJdbcTemplateUsed(boolean jdbcTemplateUsed) {
         DBService.jdbcTemplateUsed = jdbcTemplateUsed;
     }
-    
+
     @PostConstruct
     public void init() {
         System.out.println("@PostConstruct - DBService");
         setJdbcTemplateUsed(true);
     }
-    
+
     public static Connection initConnection() throws CannotGetJdbcConnectionException, SQLException {
         if (jdbcTemplateUsed) // Used only when a jdbcTemplate is spring injected
         {
@@ -87,18 +87,17 @@ public class DBService {
             return connection;
         }
     }
-    
+
     private String getFilePath(String fileName) {
         //Get file from resources folder
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(fileName).getFile());
         return file.getAbsolutePath();
     }
-    
+
     public static JSONObject retrieveEntityFromName(String entity) {
         JSONObject entityJSON = new JSONObject();
         try {
-            //initStatement();
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
@@ -121,11 +120,10 @@ public class DBService {
         }
         return entityJSON;
     }
-    
+
     public static JSONObject retrieveEntityFromURI(String uri) {
         JSONObject entityJSON = new JSONObject();
         try {
-            //initStatement();
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
             ResultSet entities = statement.executeQuery("select * from entity where uri = '" + uri + "'");
@@ -148,7 +146,7 @@ public class DBService {
         }
         return entityJSON;
     }
-    
+
     public static List<String> retrieveAllEntityNames() {
         List<String> entities = new ArrayList<>();
         try {
@@ -166,7 +164,7 @@ public class DBService {
         }
         return entities;
     }
-    
+
     public static JSONArray retrieveAllEntities() {
         JSONArray results = new JSONArray();
         try {
@@ -191,13 +189,13 @@ public class DBService {
             entities.close();
             statement.close();
             conn.close();
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return results;
     }
-    
+
     public static List<String> retrieveAllNamedgraphUris() {
         List<String> uris = new ArrayList<>();
         try {
@@ -215,7 +213,7 @@ public class DBService {
         }
         return uris;
     }
-    
+
     public static JSONArray retrieveAllRelationsMatUpdates() {
         JSONArray queries = new JSONArray();
         try {
@@ -236,7 +234,7 @@ public class DBService {
         }
         return queries;
     }
-    
+
     public static JSONArray retrieveAllNamedgraphs() {
         JSONArray results = new JSONArray();
         try {
@@ -282,7 +280,7 @@ public class DBService {
         }
         return results;
     }
-    
+
     public static JSONArray retrieveRelationsEntities(List<String> graphs, String targetEntityName, ArrayList<LinkedHashMap> entities) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
 //        JSONArray entities = DBService.retrieveAllEntities();
@@ -310,13 +308,11 @@ public class DBService {
                 String relationURI = relations.getString("uri");
                 String relationName = relations.getString("name");
                 JSONObject relatedEntity = entitiesMap.get(relations.getInt("destination_entity"));
-//                String destinationEntityURI = (String) destinationEntity.get("uri");
-//                String destinationEntityName = (String) destinationEntity.get("name");
                 JSONObject obj = new JSONObject();
                 obj.put("related_entity", relatedEntity);
                 JSONObject relJSON = new JSONObject();
-                relJSON.put("relation_uri", relationURI);
-                relJSON.put("relation_name", relationName);
+                relJSON.put("uri", relationURI);
+                relJSON.put("name", relationName);
                 obj.put("relation", relJSON);
                 result.add(obj);
             }
@@ -329,7 +325,7 @@ public class DBService {
         }
         return null;
     }
-    
+
     public static JSONArray retrieveRelations(List<String> graphs, String targetEntityName, String relatedEntityName) {
         JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
         JSONObject relatedEntity = DBService.retrieveEntityFromName(relatedEntityName);
