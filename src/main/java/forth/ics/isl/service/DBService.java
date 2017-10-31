@@ -292,7 +292,7 @@ public class DBService {
         try {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
-            StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " and (");
+            StringBuilder query = new StringBuilder("select distinct uri, name, destination_entity from relation where source_entity = " + targetEntity.get("id") + " and (");
             int cnt = 0;
             for (String graph : graphs) {
                 query.append("graph = '" + graph + "'");
@@ -304,10 +304,12 @@ public class DBService {
             query.append(")");
             ResultSet relations = statement.executeQuery(query.toString());
             JSONArray result = new JSONArray();
+            int id = 0;
             while (relations.next()) {
                 String relationURI = relations.getString("uri");
                 String relationName = relations.getString("name");
                 JSONObject relatedEntity = entitiesMap.get(relations.getInt("destination_entity"));
+                relatedEntity.put("id", id);
                 JSONObject obj = new JSONObject();
                 obj.put("related_entity", relatedEntity);
                 JSONObject relJSON = new JSONObject();
@@ -315,6 +317,7 @@ public class DBService {
                 relJSON.put("name", relationName);
                 obj.put("relation", relJSON);
                 result.add(obj);
+                id++;
             }
             relations.close();
             statement.close();
