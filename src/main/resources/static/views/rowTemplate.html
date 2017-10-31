@@ -171,7 +171,7 @@
 									   required 
 									   ng-change="loadRelatedEntitiesByRelation(rowModel)"
 									   md-no-asterisk="false">
-								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" >
+								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" ><!-- track by $index -->
 									{{relation.name}}
 								</md-option>
 							</md-select>

@@ -723,7 +723,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined){
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
-				rowModel.selectedRelatedEntity = rowModel.selectedRelation.relatedEntity;
+				angular.forEach(rowModel.relatedEntities, function(relatedEntity, key) {
+					if(relatedEntity.uri == rowModel.selectedRelation.relatedEntity.uri)
+						rowModel.selectedRelatedEntity = relatedEntity;
+				});
+				//rowModel.selectedRelatedEntity = rowModel.selectedRelation.relatedEntity;
 			}
 		}
 	}
@@ -850,6 +854,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						//relations
 						rowModel.relations.push(response.data[i].relation);
 						rowModel.relations[i].relatedEntity = response.data[i].related_entity;
+						//rowModel.relations[i].relatedEntity.id = Math.random().toString(36).substr(2, 5);
 						//$log.info('value: ' + value);
 					}
 						
