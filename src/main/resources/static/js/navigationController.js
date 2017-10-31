@@ -720,13 +720,23 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
+	$scope.loadRelatedEntitiesByRelation = function(rowModel) {
+		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined){
+			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
+				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
+				rowModel.selectedRelatedEntity = rowModel.selectedRelation.relatedEntity;
+			}
+		}
+	}
+	
 	// Loading the list of relations and related entities 
 	// based on the selected entity
-	// param: parentRowModel		the parentRowModel
-	// param: rowModel				the currentRowModel
+	// param: parentRowModel		the parentRowModel (can be null or undefined)
+	// param: rowModel				the currentRowModel (can be undefined)
 	// param: selectedEntity		the selected Entity (acting as target)
+	// param: provenanceFunction	A string denoting provenance ('addFilter', 'levelDown', 'relatedEntitySelect', 'targetEntitySelect')
 	// (In case of selecting real target entity, the parent rowModel is null, 
-	// the rowModel is also null and the selecteEntity is the selectedTargetEntity)
+	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(parentRowModel, rowModel, selectedEntity, provenanceFunction) {
 		if(selectedEntity !=null) {
 			
@@ -833,10 +843,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					rowModel.selectedRelation = null;
 					for(var i=0; i<response.data.length; i++) {
 						//Check for duplicates in the list of related entities
-						if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained) // Pure compare
+						// Pure compare
+						if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained)
 							rowModel.relatedEntities.push(response.data[i].related_entity);
 						//relations
 						rowModel.relations.push(response.data[i].relation);
+						rowModel.relations[i].relatedEntity = response.data[i].related_entity;
 						//$log.info('value: ' + value);
 					}
 						
@@ -894,8 +906,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			else {
 				if(response.status == '200') {
-					$log.info('Relations:');
-					$log.info(angular.toJson(response.data));
 					// Response is formed like this:
 					// [{name:"RELATION_NAME",uri:"SOME_URI"}, ... ]
 					

@@ -167,6 +167,7 @@
 							<md-select ng-model="rowModel.selectedRelation" 
 									   name="relationInput_{{rowModel.id}}" 
 									   required 
+									   ng-change="loadRelatedEntitiesByRelation(rowModel)"
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" >
 									{{relation.name}}
