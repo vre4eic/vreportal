@@ -251,8 +251,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		queryService.getEntities(queryFrom, $scope.credentials.token)
 		.then(function (response) {
-			console.log('getEntities:');
-			console.log(response.data);
 			
 			if(response.status == -1) {
 				$scope.message = 'There was a network error. Try again later.';
@@ -264,90 +262,99 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Checking the response status
 				if(response.status == '200') {
 					
-					var report = checkForUnavailableEntities(response.data);
-					
-					console.log("report:");
-					console.log(angular.toJson(report));
-					
-					console.log("$scope.unavailableCurrentlySelectedRelatedEntities:");
-					console.log($scope.unavailableCurrentlySelectedRelatedEntities);
-					
-					// Check from report then call dialog which will do the following
-					
-					modalInstance.close();
-					
-					// Conflicts
-					if(!report.targetAvailability.available || !report.relatedAvailability.available) {
+					if(response.data.remote_status == 200) {
+
+						var report = checkForUnavailableEntities(response.data.entities);
 						
-						var msg = 'There are currently selected entities that are no longer available.';
+						// Check from report then call dialog which will do the following
 						
-						// Case - Both target and related entities are unavailable
-						if(!report.targetAvailability.available && !report.relatedAvailability.available) {
-							// Target
-							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
-							  $scope.targetModel.selectedTargetEntity.name + 
-							  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
+						modalInstance.close();
+						
+						// Conflicts
+						if(!report.targetAvailability.available || !report.relatedAvailability.available) {
 							
-							// Related
-							// More than one related entities are unavailable
-							if(report.relatedAvailability.unavailableEntityList.length > 1) {
-								msg = msg + '<br/>Furthermore, the folowing selected <code class="blueCodeStyle">related</code> ' + 
-									  'entities are not available anymore and and should be re-selected as well:<br/> ';
-								
-								for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
-									msg = msg + '<br/><code><i>' + '\'' + 
-										  report.relatedAvailability.unavailableEntityList[i].name + 
-										  '\';</i></code>';
-								}
-							}
+							var msg = 'There are currently selected entities that are no longer available.';
 							
-							// Only one related entity is unavailable
-							else {
-								msg = msg + '<br/>Similar, the selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
-									  report.relatedAvailability.unavailableEntityList[0].name + 
-									  '\'</i></code> is also not avaialbe anymore and shoold be re-selected.'
-							}
-						}
-						
-						// Case - Only target entity is unavailable
-						else if(!report.targetAvailability.available) {
-							msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
+							// Case - Both target and related entities are unavailable
+							if(!report.targetAvailability.available && !report.relatedAvailability.available) {
+								// Target
+								msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
 								  $scope.targetModel.selectedTargetEntity.name + 
 								  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
-						}
-						
-						// Case - Only related entity is unavailable
-						else if(!report.relatedAvailability.available) {
-							
-							// More than one related entities are unavailable
-							if(report.relatedAvailability.unavailableEntityList.length > 1) {
-								msg = 'The folowing selected <code class="blueCodeStyle">related</code> entities are no longer ' + 
-									  'available and should be re-selected:<br/> ';
 								
-								for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
-									msg = msg + '<br/><code><i>\'' + 
-										  report.relatedAvailability.unavailableEntityList[i].name + 
-										  '\';</i></code>';
+								// Related
+								// More than one related entities are unavailable
+								if(report.relatedAvailability.unavailableEntityList.length > 1) {
+									msg = msg + '<br/>Furthermore, the folowing selected <code class="blueCodeStyle">related</code> ' + 
+										  'entities are not available anymore and and should be re-selected as well:<br/> ';
+									
+									for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
+										msg = msg + '<br/><code><i>' + '\'' + 
+											  report.relatedAvailability.unavailableEntityList[i].name + 
+											  '\';</i></code>';
+									}
+								}
+								
+								// Only one related entity is unavailable
+								else {
+									msg = msg + '<br/>Similar, the selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
+										  report.relatedAvailability.unavailableEntityList[0].name + 
+										  '\'</i></code> is also not avaialbe anymore and shoold be re-selected.'
 								}
 							}
 							
-							// Only one related entity is unavailable
-							else {
-								msg = 'The selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
-									  report.relatedAvailability.unavailableEntityList[0].name + 
-									  '\'<i></code> is no longer avaialbe and shoold be re-selected.'
+							// Case - Only target entity is unavailable
+							else if(!report.targetAvailability.available) {
+								msg = 'The selected <code class="blueCodeStyle">target</code> entity <code><i>\'' + 
+									  $scope.targetModel.selectedTargetEntity.name + 
+									  '\'</i></code> is no longer avaialbe and shoold be re-selected.'
 							}
 							
-						}
+							// Case - Only related entity is unavailable
+							else if(!report.relatedAvailability.available) {
+								
+								// More than one related entities are unavailable
+								if(report.relatedAvailability.unavailableEntityList.length > 1) {
+									msg = 'The folowing selected <code class="blueCodeStyle">related</code> entities are no longer ' + 
+										  'available and should be re-selected:<br/> ';
+									
+									for(var i=0; i<report.relatedAvailability.unavailableEntityList.length; i++) {
+										msg = msg + '<br/><code><i>\'' + 
+											  report.relatedAvailability.unavailableEntityList[i].name + 
+											  '\';</i></code>';
+									}
+								}
+								
+								// Only one related entity is unavailable
+								else {
+									msg = 'The selected <code class="blueCodeStyle">related</code> entity <code><i>\'' + 
+										  report.relatedAvailability.unavailableEntityList[0].name + 
+										  '\'<i></code> is no longer avaialbe and shoold be re-selected.'
+								}
+								
+							}
 
-						msg = msg + '</br></br>Do you want to proceed?'
+							msg = msg + '</br></br>Do you want to proceed?'
+							
+							showConfirmDialogForUnavailableEntities(ev, msg, response.data, checkboxNode)
+						}
 						
-						showConfirmDialogForUnavailableEntities(ev, msg, response.data, checkboxNode)
+						// No conflicts
+						else {
+							loadNewEntityLists(response.data); // Apply the change
+						}
 					}
-					
-					// No conflicts
+					else if(response.data.remote_status == 401){
+						$log.info(response.data.remote_status);
+						modalInstance.close();
+						$scope.showLogoutAlert();
+						authenticationService.clearCredentials();
+					}
 					else {
-						loadNewEntityLists(response.data); // Apply the change
+						$log.info(response.data.remote_status);
+						$scope.message = 'There was an error with the remote server. Try again later and if the same error occures again please contact the administrator.';
+						$scope.showErrorAlert('Error', $scope.message);
+						modalInstance.close();
 					}
 				}
 				else if(response.status == '400') {
@@ -625,14 +632,24 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Initializing All available entities
 	function initAllEntities() {
-		//queryService.getAllEntities().then(function (response) {
 		queryService.getEntities($scope.queryFrom, $scope.credentials.token).then(function (response) {
-		//queryService.getEntities().then(function (response) {
 			if(response.status == '200') {
-				$scope.allEntities = response.data;
-				$scope.targetModel.targetEntities = response.data;
-				$scope.initEmptyRowModel.relatedEntities = response.data;
-				$scope.rowModelList[0].relatedEntities = response.data;
+				if(response.data.remote_status == 200) {
+					$scope.allEntities = response.data.entities;
+					$scope.targetModel.targetEntities = response.data.entities;
+					$scope.initEmptyRowModel.relatedEntities = response.data.entities;
+					//$scope.rowModelList[0].relatedEntities = response.data.entities;
+				}
+				else if(response.data.remote_status == 401){
+					$log.info(response.data.remote_status);
+					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
+				}
+				else {
+					$log.info(response.data.remote_status);
+					$scope.message = 'There was an error with the remote server. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
