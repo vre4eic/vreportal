@@ -120,7 +120,7 @@ public class EntityManagerController {
             resultEntitiesJSON.add(entityJSON);
         }
         finalResult.put("remote_status", 200);
-        finalResult.put("entities", resultEntitiesJSON.toJSONString());
+        finalResult.put("entities", resultEntitiesJSON);
         return finalResult;
     }
 
