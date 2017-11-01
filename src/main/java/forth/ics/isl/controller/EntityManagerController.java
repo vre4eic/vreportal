@@ -93,7 +93,7 @@ public class EntityManagerController {
      */
     @RequestMapping(value = "/get_entities", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONArray loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+    JSONObject loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         System.out.println("Works");
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         String fromClause = (String) requestParams.get("fromSearch");
@@ -101,11 +101,17 @@ public class EntityManagerController {
         JSONArray resultEntitiesJSON = new JSONArray();
         String endpoint = serviceUrl;
         JSONParser parser = new JSONParser();
+        JSONObject finalResult = new JSONObject();
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
             String query = geoEntityQuery((String) entityJSON.get("uri"), fromClause);
             RestClient client = new RestClient(endpoint, namespace);
             Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
+            if (response.getStatus() != 200) {
+                System.out.println(response.readEntity(String.class));
+                finalResult.put("remote_status", response.getStatus());
+                return finalResult;
+            }
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
             JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
             if (!bindings.isEmpty()) {
@@ -113,7 +119,9 @@ public class EntityManagerController {
             }
             resultEntitiesJSON.add(entityJSON);
         }
-        return resultEntitiesJSON;
+        finalResult.put("remote_status", 200);
+        finalResult.put("entities", resultEntitiesJSON.toJSONString());
+        return finalResult;
     }
 
     /**

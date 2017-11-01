@@ -1,8 +1,13 @@
 package forth.ics.isl.triplestore;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import javax.ws.rs.ClientErrorException;
 
 import javax.ws.rs.client.Client;
@@ -16,6 +21,14 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.simple.JSONObject;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
+import java.util.Arrays;
+import java.util.HashSet;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A client for our Custom Restful Web service for the triple store
@@ -29,6 +42,12 @@ public class RestClient {
     private String namespace;
 
     public RestClient(String serviceUrl, String namespace) throws IOException {
+        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+        for (String log : loggers) {
+            Logger logger = (Logger) LoggerFactory.getLogger(log);
+            logger.setLevel(Level.INFO);
+            logger.setAdditive(false);
+        }
         this.serviceUrl = serviceUrl;
         this.namespace = namespace;
     }
