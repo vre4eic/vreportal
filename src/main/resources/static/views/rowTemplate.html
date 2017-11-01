@@ -117,32 +117,34 @@
 				</div>
 				
 				<div ng-class="rowModel.activeRowModelStyle">
-				<md-fab-speed-dial md-open="false" 
-								   md-direction="down"
-	              				   ng-class="targetSpeedDialMode"
-	              				   style="margin-top:103px">
-					<md-fab-trigger>
-						<md-button aria-label="menu" class="md-fab green-button">
-	 						<md-icon md-font-icon="fa fa-plus" 
-	 								 style="font-size:24px"></md-icon>
-						</md-button>
-					</md-fab-trigger>
-	
-					<md-fab-actions>
-						<md-button aria-label="Any of the folowing" 
-								   class="md-fab md-primary md-raised md-mini" 
-								   style="background-color: rgb(179, 174, 176);"
-								   ng-click="addNewEmptyRowModel(parent.rowModel, 'OR')">
-							OR
-						</md-button>
-						<md-button aria-label="All the following" 
-								   class="md-fab md-primary md-raised md-mini" 
-								   style="background-color: rgb(179, 174, 176);"
-								   ng-click="addNewEmptyRowModel(parent.rowModel, 'AND')">
-							AND
-						</md-button>
-					</md-fab-actions>
-				</md-fab-speed-dial>
+					<md-fab-speed-dial md-open="false" 
+									   md-direction="down"
+		              				   ng-class="targetSpeedDialMode"
+		              				   style="margin-top:103px">
+						<md-fab-trigger>
+							<md-button aria-label="menu" 
+									   class="md-fab green-button"
+									   ng-disabled="rowModel.activeRowModelStyle == 'disabled-style'">
+		 						<md-icon md-font-icon="fa fa-plus" 
+		 								 style="font-size:24px"></md-icon>
+							</md-button>
+						</md-fab-trigger>
+		
+						<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'">
+							<md-button aria-label="Any of the folowing" 
+									   class="md-fab md-primary md-raised md-mini" 
+									   style="background-color: rgb(179, 174, 176);"
+									   ng-click="addNewEmptyRowModel(parent.rowModel, 'OR')">
+								OR
+							</md-button>
+							<md-button aria-label="All the following" 
+									   class="md-fab md-primary md-raised md-mini" 
+									   style="background-color: rgb(179, 174, 176);"
+									   ng-click="addNewEmptyRowModel(parent.rowModel, 'AND')">
+								AND
+							</md-button>
+						</md-fab-actions>
+					</md-fab-speed-dial>
 				</div>
 			</div>
 	
