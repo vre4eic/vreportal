@@ -254,6 +254,7 @@ public class DBService {
                         found = true;
                         JSONArray children = (JSONArray) category.get("children");
                         JSONObject child = new JSONObject();
+                        child.put("id", gUri);
                         child.put("label", gName);
                         child.put("value", gUri);
                         children.add(child);
@@ -266,6 +267,7 @@ public class DBService {
                     JSONArray children = new JSONArray();
                     category.put("children", children);
                     JSONObject child = new JSONObject();
+                    child.put("id", gUri);
                     child.put("label", gName);
                     child.put("value", gUri);
                     children.add(child);
