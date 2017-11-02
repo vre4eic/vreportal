@@ -64,28 +64,27 @@ public class EntityManagerController {
      * @return An EndPointDataPage object that holds the items of the passed
      * page.
      */
-    @RequestMapping(value = "/get_all_entities", method = RequestMethod.GET, produces = {"application/json"})
-    public @ResponseBody
-    JSONArray loadEntitiesDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
-        System.out.println("Works");
-
-        /*
-    	int page = new Integer(requestParams.get("page")).intValue();
-    	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
-
-    	// The EndPointForm for the page
-    	EndPointDataPage endPointDataPage = new EndPointDataPage();
-    	endPointDataPage.setPage(page);
-    	endPointDataPage.setTotalItems(currQueryResult.get("results").get("bindings").size());
-    	endPointDataPage.setResult(getDataOfPageForCurrentEndPointForm(page, itemsPerPage));
-    	    	
-		return endPointDataPage;
-         */
-        //JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
-        JSONArray entities = DBService.retrieveAllEntities();
-        return entities;
-    }
-
+//    @RequestMapping(value = "/get_all_entities", method = RequestMethod.GET, produces = {"application/json"})
+//    public @ResponseBody
+//    JSONArray loadEntitiesDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
+//        System.out.println("Works");
+//
+//        /*
+//    	int page = new Integer(requestParams.get("page")).intValue();
+//    	int itemsPerPage = new Integer(requestParams.get("itemsPerPage")).intValue();
+//
+//    	// The EndPointForm for the page
+//    	EndPointDataPage endPointDataPage = new EndPointDataPage();
+//    	endPointDataPage.setPage(page);
+//    	endPointDataPage.setTotalItems(currQueryResult.get("results").get("bindings").size());
+//    	endPointDataPage.setResult(getDataOfPageForCurrentEndPointForm(page, itemsPerPage));
+//    	    	
+//		return endPointDataPage;
+//         */
+//        //JSONArray arr = retrieveAllEntities(h2ServiceUrl, h2ServiceUsername, h2ServicePassword);
+//        JSONArray entities = DBService.retrieveAllEntities();
+//        return entities;
+//    }
     /**
      * This service retrieves the entities which are stored within the H2
      * database and for each entity it is examined if it has geospatial nature
@@ -96,31 +95,48 @@ public class EntityManagerController {
     JSONObject loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         System.out.println("Works");
         System.out.println("fromSearch:" + requestParams.get("fromSearch"));
-        String fromClause = (String) requestParams.get("fromSearch");
-        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
         JSONArray resultEntitiesJSON = new JSONArray();
+        JSONObject finalResult = new JSONObject();
+        String fromSearch = (String) requestParams.get("fromSearch");
+        if (fromSearch == null || fromSearch.equals("")) {
+            finalResult.put("remote_status", 200);
+            finalResult.put("entities", resultEntitiesJSON);
+            return finalResult;
+        }
+        List<String> graphs = getGraphsFromClause(fromSearch);
+        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
         String endpoint = serviceUrl;
         JSONParser parser = new JSONParser();
-        JSONObject finalResult = new JSONObject();
+
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
-            String query = geoEntityQuery((String) entityJSON.get("uri"), fromClause);
-            RestClient client = new RestClient(endpoint, namespace);
-            Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
-            if (response.getStatus() != 200) {
-                System.out.println(response.readEntity(String.class));
-                finalResult.put("remote_status", response.getStatus());
-                return finalResult;
+            for (String graph : graphs) {
+                String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
+                RestClient client = new RestClient(endpoint, namespace);
+                Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
+                if (response.getStatus() != 200) {
+                    System.out.println(response.readEntity(String.class));
+                    finalResult.put("remote_status", response.getStatus());
+                    return finalResult;
+                }
+                JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
+                JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
+                if (bindings.size() == 1) {
+                    JSONObject row = (JSONObject) bindings.get(0);
+                    if (row.containsKey("FLE2")) {
+                        entityJSON.put("geospatial", true);
+                    }
+                    resultEntitiesJSON.add(entityJSON);
+                    break;
+                } else {
+                    continue;
+                }
             }
-            JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
-            JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
-            if (!bindings.isEmpty()) {
-                entityJSON.put("geospatial", true);
-            }
-            resultEntitiesJSON.add(entityJSON);
         }
-        finalResult.put("remote_status", 200);
-        finalResult.put("entities", resultEntitiesJSON);
+        finalResult.put(
+                "remote_status", 200);
+        finalResult.put(
+                "entities", resultEntitiesJSON);
         return finalResult;
     }
 
@@ -254,13 +270,18 @@ public class EntityManagerController {
         String fromClause = (String) requestParams.get("fromSearch");
         String targetEntity = (String) requestParams.get("targetEntity");
         String relatedEntity = (String) requestParams.get("relatedEntity");
+        List<String> graphs = getGraphsFromClause(fromClause);
+        return DBService.retrieveRelations(graphs, targetEntity, relatedEntity);
+    }
+
+    private List<String> getGraphsFromClause(String fromClause) {
         List<String> graphs = new ArrayList<>();
         Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
         Matcher regexMatcher = regex.matcher(fromClause);
         while (regexMatcher.find()) {
             graphs.add(regexMatcher.group());
         }
-        return DBService.retrieveRelations(graphs, targetEntity, relatedEntity);
+        return graphs;
     }
 
     public static void main(String[] args) throws SQLException, IOException {

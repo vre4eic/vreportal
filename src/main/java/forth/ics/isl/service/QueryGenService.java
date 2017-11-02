@@ -26,15 +26,16 @@ public class QueryGenService {
 
     public static String geoEntityQuery(String entityUri, String graphsClause) {
         String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT ?object \n"
+                + "SELECT ?object ?FLE2 \n"
                 + graphsClause + " \n"
                 + "WHERE {\n"
                 + "?object a <" + entityUri + ">.\n"
+                + "OPTIONAL {\n "
                 + "?object cerif:is_source_of ?FLE1.\n"
                 + "?FLE1 cerif:has_destination ?PA.\n"
                 + "?PA cerif:is_source_of ?FLE2.\n"
                 + "?FLE2 cerif:has_destination [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>]."
-                + "} limit 1";
+                + "} } limit 1";
         return query;
     }
 
