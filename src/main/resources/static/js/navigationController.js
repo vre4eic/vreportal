@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$mdComponentRegistry', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $mdComponentRegistry) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -53,7 +53,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    });
 	};
 	
-	// Used to inform user that error has occured
+	// Used to inform user that error has occurred
 	$scope.showErrorAlert = function(title, msg) {
 		$mdDialog.show(
 			$mdDialog.alert()
@@ -65,10 +65,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				.ok('OK')
 		)
 	};
-	
-	
-	
-		    
+	    
 	// Toggles SidePanel
 	$scope.toggleInfo = buildToggler('rightInfo');
 	$scope.toggleTreeMenu = buildToggler('treeMenu');
@@ -78,7 +75,26 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         $mdSidenav(componentId).toggle();
       };
     }
+	/*
+	$scope.closeTreeMenu = buildCloseForNamedgraphSideNav('treeMenu', ev);
 	
+	function buildCloseForNamedgraphSideNav(componentId, ev) {
+	      return function() {
+	        $mdSidenav(componentId).close().then(function() {
+	        	$scope.reLoadEntities(ev, queryFrom)
+	        });
+	      };
+	    }
+	}
+	*/
+	/*
+	// Executed when closing the sideNav treeMenu // Use $timeout
+	$mdComponentRegistry.when('treeMenu').then(function() {
+		$mdSidenav('treeMenu').onClose(function (event) {
+			$scope.reLoadEntities(event, $scope.queryFrom);
+		});
+	});
+	*/
 	$scope.hiddenTreeMenuTogglerButton = false;
 	
 	$scope.hideTreeMenuTogglerButton = function(boolean) {
@@ -139,7 +155,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		queryService.getAllNamegraphs().then(function (response) {
 			if(response.status == '200') {
 				$scope.namegraphs = makeAllNamegraphsSelected(response.data);
-				// Initialising the queryFrom string
+				// Initializing the queryFrom string
 				constructQueryForm(response.data);
 				// Initializing the available entities
 				initAllEntities($scope.queryFrom);
@@ -242,9 +258,47 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    alert(str);
 	};
 	
+	$scope.copyNamegraphs = function() {
+		$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+	}
+	
+	// Clears the whole treeRowModel and loads new entities (on tree-menu hide)
+	$scope.reLoadEntities = function(ev, queryFrom) {
+		var messageContent = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
+			+ 'That means that you will have to rebuild the query from ' 
+			+ 'scratch. Are you sure you want to continue with this action?';
+	
+		//showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode)
+		var confirm = $mdDialog.confirm()
+			.title('Important Message')
+			.htmlContent(messageContent)
+			.ariaLabel('Target Entity Selection - No longer Available')
+			.targetEvent(ev)
+			.ok('Yes Continue')
+			.cancel('Cancel');
+		
+		// If there are changes then ask for confirmation
+		if(angular.toJson($scope.namegraphs) != angular.toJson($scope.namegraphsCopy)) {
+		    $mdDialog.show(confirm).then(function() {
+		    	$scope.rowModelList = [];
+		    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
+				$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
+		    	initAllEntities(queryFrom); // Apply the change
+		    	$scope.hideTreeMenuTogglerButton(false);
+		    	$scope.toggleTreeMenu();
+		    }, function() { // Cancel
+		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
+		    });
+		}
+		else { // No changes
+			$scope.hideTreeMenuTogglerButton(false);
+	    	$scope.toggleTreeMenu();
+		}
+	}
+	
 	// Clears the whole treeRowModel and loads new entities
 	function loadNewEntities(ev, queryFrom, checkboxNode) {
-		
+		/*
 		var messageContent = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
 				+ 'That means that you will have to rebuild the query from ' 
 				+ 'scratch. Are you sure you want to continue with this action?';
@@ -266,56 +320,23 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    }, function() { // Cancel
 	    	// Un-check or check the last selected/de-selected VRE checkbox
 	    	if(checkboxNode.selected) {
-		    	checkboxNode.selected = false;
-		    	angular.forEach(checkboxNode.children, function(child, key) {
-		    		child.selected = false;
-		    	});
+	    		ivhTreeviewMgr.deselect(checkboxNode, checkboxNode.id);
+		    	//checkboxNode.selected = false;
+		    	//angular.forEach(checkboxNode.children, function(child, key) {
+		    	//	child.selected = false;
+		    	//});
 	    	}
 	    	else {
-	    		checkboxNode.selected = true;
-		    	angular.forEach(checkboxNode.children, function(child, key) {
-		    		child.selected = true;
-		    	});
+	    		ivhTreeviewMgr.select(checkboxNode, checkboxNode.id);
+	    		
+	    		//checkboxNode.selected = true;
+		    	//angular.forEach(checkboxNode.children, function(child, key) {
+		    	//	child.selected = true;
+		    	//});
 	    	}
-	    	console.log("TODO: append IDs to the namegraph children such that ivhTreeviewMgr is used for unchecking in case of canseling applied change")
 	    });
-						
+			*/			
 	}
-	/*	
-	// Shows confirm dialog whether to change the list of entities.
-	function showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode) {
-		var confirm = $mdDialog.confirm()
-		.title('Important Message')
-		.htmlContent(messageContent)
-		.ariaLabel('Target Entity Selection - No longer Available')
-		.targetEvent(ev)
-		.ok('Yes Continue')
-		.cancel('Cancel');
-
-	    $mdDialog.show(confirm).then(function() {
-	    	$scope.rowModelList = [];
-	    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
-			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
-	    	initAllEntities(queryFrom); // Apply the change
-	    }, function() { // Cancel
-	    	// Un-check or check the last selected/de-selected VRE checkbox
-	    	if(checkboxNode.selected) {
-		    	checkboxNode.selected = false;
-		    	angular.forEach(checkboxNode.children, function(child, key) {
-		    		child.selected = false;
-		    	});
-	    	}
-	    	else {
-	    		checkboxNode.selected = true;
-		    	angular.forEach(checkboxNode.children, function(child, key) {
-		    		child.selected = true;
-		    	});
-	    	}
-	    	console.log("TODO: append IDs to the namegraph children such that ivhTreeviewMgr is used for unchecking in case of canseling applied change")
-	    });
-	};
-	*/
-	
 	
 	$scope.breadcrumbItems = 
 		[{

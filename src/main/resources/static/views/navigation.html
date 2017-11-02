@@ -5,11 +5,14 @@
 			
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();" 
+					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();copyNamegraphs();" 
 							   class="md-fab md-mini hideLeft" 
 							   aria-label="Show VRE's menu"
 							   ng-hide="hiddenTreeMenuTogglerButton">
 			            <md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
+			            <md-tooltip md-delay="1000" md-direction="top">
+							Show VRE's menu
+						</md-tooltip>
 			        </md-button>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
@@ -20,7 +23,6 @@
 			
 			<md-sidenav class="md-sidenav-right" 
 					md-component-id="rightInfo"
-                	md-disable-backdrop 
                 	md-whiteframe="4"
                 	style="margin-top:94px; max-width:665px; width:665px">
 
@@ -76,11 +78,11 @@
 							md-component-id="treeMenu"
 		                	md-disable-backdrop 
 		                	md-whiteframe="3">
-		
+							<!-- md-disable-backdrop  -->
 							<md-toolbar class="md-accent">
 								<div class="md-toolbar-tools">
 									<md-button class="md-icon-button" aria-label="Hide Help" 
-											   ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();">
+											   ng-click="reLoadEntities($event, queryFrom);">
 				          				<md-icon md-font-icon="fa fa-chevron-circle-left" style="font-size:24px"></md-icon>
 				        			</md-button>
 									
