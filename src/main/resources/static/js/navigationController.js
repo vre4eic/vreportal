@@ -135,12 +135,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Initializing All available entities
 	function initAllNamegraphs() {
+		
 		queryService.getAllNamegraphs().then(function (response) {
 			if(response.status == '200') {
 				$scope.namegraphs = makeAllNamegraphsSelected(response.data);
 				// Initialising the queryFrom string
 				constructQueryForm(response.data);
-				console.log('$scope.queryFrom: ' + $scope.queryFrom);
+				// Initializing the available entities
+				initAllEntities($scope.queryFrom);
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
@@ -243,14 +245,43 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Clears the whole treeRowModel and loads new entities
 	function loadNewEntities(ev, queryFrom, checkboxNode) {
 		
-		var msg = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
+		var messageContent = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
 				+ 'That means that you will have to rebuild the query from ' 
 				+ 'scratch. Are you sure you want to continue with this action?';
 		
-		showConfirmDialogForUnavailableEntities(ev, msg, queryFrom, checkboxNode)
+		//showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode)
+		var confirm = $mdDialog.confirm()
+			.title('Important Message')
+			.htmlContent(messageContent)
+			.ariaLabel('Target Entity Selection - No longer Available')
+			.targetEvent(ev)
+			.ok('Yes Continue')
+			.cancel('Cancel');
+
+	    $mdDialog.show(confirm).then(function() {
+	    	$scope.rowModelList = [];
+	    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
+			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
+	    	initAllEntities(queryFrom); // Apply the change
+	    }, function() { // Cancel
+	    	// Un-check or check the last selected/de-selected VRE checkbox
+	    	if(checkboxNode.selected) {
+		    	checkboxNode.selected = false;
+		    	angular.forEach(checkboxNode.children, function(child, key) {
+		    		child.selected = false;
+		    	});
+	    	}
+	    	else {
+	    		checkboxNode.selected = true;
+		    	angular.forEach(checkboxNode.children, function(child, key) {
+		    		child.selected = true;
+		    	});
+	    	}
+	    	console.log("TODO: append IDs to the namegraph children such that ivhTreeviewMgr is used for unchecking in case of canseling applied change")
+	    });
 						
 	}
-		
+	/*	
 	// Shows confirm dialog whether to change the list of entities.
 	function showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode) {
 		var confirm = $mdDialog.confirm()
@@ -283,7 +314,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	console.log("TODO: append IDs to the namegraph children such that ivhTreeviewMgr is used for unchecking in case of canseling applied change")
 	    });
 	};
-	
+	*/
 	
 	
 	$scope.breadcrumbItems = 
@@ -430,9 +461,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			//$scope.$apply();
 		});
 	}
-	
-	initAllEntities($scope.queryFrom);
-	
+		
 	// Initializing empty row model (new instance)
 	function initRowModels() {
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
