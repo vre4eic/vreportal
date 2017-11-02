@@ -76,7 +76,7 @@ angular.module('app.mainServices', [])
 				return error;
 			});
 		},
-		
+		/*
 		getAllEntities : function() {
 			return $http({
 				'url' : '/get_all_entities',
@@ -91,7 +91,7 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 		},
-		
+		*/
 		getAllNamegraphs : function() {
 			return $http({
 				'url' : '/get_all_namedgraphs',
