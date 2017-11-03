@@ -804,3 +804,10 @@ input[type="checkbox"] {
 	color:#106CC8; 
 	background:rgba(0,0,0,0.065);
 }
+
+/* Vertical line on the left of a child rowModel  */
+/*.leftLined div.lock-size.layout-align-center-center {*/
+.leftLined div.ng-scope.layout-column {
+	/*border-left-style: solid;*/
+	border-left: 2px solid rgb(204, 204, 204);
+}

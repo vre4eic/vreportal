@@ -48,10 +48,10 @@
 		         style="width:72px"
 		         ng-cloak><!-- style="width:72px" -->
 		        
-		        <!-- Description Text -->
+		        <!-- Description text for applied filter-->
 		        <div ng-show="parent.rowModel!=null" 
 		        	 style="position:absolute; 
-		        	 		margin-left:-190px; 
+		        	 		margin-left:-300px; 
 		        	 		color:rgb(63,81,181);">
 		        	<span>
 		        		<span>
@@ -258,10 +258,10 @@
 		       										 md-item-text="item.name"
 		       										 md-min-length="2"
 		       										 ng-disabled="rowModel.selectedRelatedEntity == null"
-		       										 placeholder="Search for keyword"
+		       										 placeholder="Search by keyword"
 		       										 ng-focus="loadThesaurus(rowModel.selectedRelatedEntity, outerIndex)"
 		       										 style="font-size:14px;min-width:100px">
-			       									 <!-- required md-floating-label="Search for keyword" -->
+			       									 <!-- required md-floating-label="Search for keyword"  -->
 										<md-item-template>
 											<span md-highlight-text="rowModel.relatedEntitySearchText" style="width:200px">{{item.name}}</span>
 										</md-item-template>
@@ -444,7 +444,8 @@
 				<md-list-item ng-repeat="rowModel in rowModel.rowModelList track by $index" 
 						  ng-init="outerIndex=$index" 
 						  style="padding:10px 0; padding-left:70px;" 
-						  class="showListItem">
+						  class="showListItem"
+						  ng-class="{leftLined: parent.rowModel!=null}">
 						  <div layout="column" ng-include="'../views/rowTemplate.html'" onload="parent=$parent"></div>
 					<!--<row-template/>-->
 				</md-list-item>

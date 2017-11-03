@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$mdComponentRegistry', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $mdComponentRegistry) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -158,7 +158,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Initializing the queryFrom string
 				constructQueryForm(response.data);
 				// Initializing the available entities
-				initAllEntities($scope.queryFrom);
+				initAllEntities($scope.queryFrom, false);
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
@@ -239,9 +239,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		constructQueryForm($scope.namegraphs);
 		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
-		
-		loadNewEntities(ev, $scope.queryFrom, node);
-		
+				
 	}
 	
 	$scope.selectHats = function() {
@@ -264,9 +262,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Clears the whole treeRowModel and loads new entities (on tree-menu hide)
 	$scope.reLoadEntities = function(ev, queryFrom) {
-		var messageContent = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
-			+ 'That means that you will have to rebuild the query from ' 
-			+ 'scratch. Are you sure you want to continue with this action?';
+		var messageContent = 'In order to complete this action, the whole query '
+						   + 'constructed so far has to be reset.'
+						   + '<br/>'
+						   + 'That means that the query has to be re-constructed from scratch. ' 
+						   + '<br/><br/>' 
+						   + 'Are you sure you want to continue with this action?';
 	
 		//showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode)
 		var confirm = $mdDialog.confirm()
@@ -283,9 +284,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    	$scope.rowModelList = [];
 		    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 				$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
-		    	initAllEntities(queryFrom); // Apply the change
+		    	initAllEntities(queryFrom, true); // Apply the change and notify
 		    	$scope.hideTreeMenuTogglerButton(false);
 		    	$scope.toggleTreeMenu();
+		    	
 		    }, function() { // Cancel
 		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
 		    });
@@ -294,48 +296,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.hideTreeMenuTogglerButton(false);
 	    	$scope.toggleTreeMenu();
 		}
-	}
-	
-	// Clears the whole treeRowModel and loads new entities
-	function loadNewEntities(ev, queryFrom, checkboxNode) {
-		/*
-		var messageContent = 'In order to complete this action, the whole query constructed so far has to be reseted. ' 
-				+ 'That means that you will have to rebuild the query from ' 
-				+ 'scratch. Are you sure you want to continue with this action?';
-		
-		//showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode)
-		var confirm = $mdDialog.confirm()
-			.title('Important Message')
-			.htmlContent(messageContent)
-			.ariaLabel('Target Entity Selection - No longer Available')
-			.targetEvent(ev)
-			.ok('Yes Continue')
-			.cancel('Cancel');
-
-	    $mdDialog.show(confirm).then(function() {
-	    	$scope.rowModelList = [];
-	    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
-			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
-	    	initAllEntities(queryFrom); // Apply the change
-	    }, function() { // Cancel
-	    	// Un-check or check the last selected/de-selected VRE checkbox
-	    	if(checkboxNode.selected) {
-	    		ivhTreeviewMgr.deselect(checkboxNode, checkboxNode.id);
-		    	//checkboxNode.selected = false;
-		    	//angular.forEach(checkboxNode.children, function(child, key) {
-		    	//	child.selected = false;
-		    	//});
-	    	}
-	    	else {
-	    		ivhTreeviewMgr.select(checkboxNode, checkboxNode.id);
-	    		
-	    		//checkboxNode.selected = true;
-		    	//angular.forEach(checkboxNode.children, function(child, key) {
-		    	//	child.selected = true;
-		    	//});
-	    	}
-	    });
-			*/			
 	}
 	
 	$scope.breadcrumbItems = 
@@ -427,7 +387,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	// Initializing All available entities
-	function initAllEntities(queryFrom) {
+	function initAllEntities(queryFrom, notify) {
 		
 		var modalOptions = {
 			headerText: 'Loading Please Wait...',
@@ -443,6 +403,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					$scope.targetModel.targetEntities = response.data.entities;
 					$scope.initEmptyRowModel.relatedEntities = response.data.entities;
 					//$scope.rowModelList[0].relatedEntities = response.data.entities;
+					
+					if(notify) {
+					// Display msg
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent('Query has been reset.')
+				        .position('top right')
+				        .parent(angular.element('#mainContent'))
+				        .hideDelay(3000)
+				    );
+					}
 				}
 				else if(response.data.remote_status == 401){
 					$log.info(response.data.remote_status);
@@ -502,8 +473,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.rowModelList[$scope.rowModelList.length-1].outerSelectedFilterExpression = str;
 			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
 
-			// Loading related entities and relations for new related model
-			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', undefined, $scope.targetModel.selectedTargetEntity, 'addFilter')
+			// Loading related entities and relations for new related model 
+			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', undefined, $scope.targetModel.selectedTargetEntity, 'addFilter');
+			
+			// Enabling rowModel
+			$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		}
 		else { //if(parentRowModel != null) {
 			parentRowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
@@ -511,7 +485,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].id =  autoincrementedRowModelId;
 			
 			// Loading related entities and relations for new related model
-			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', parentRowModel, parentRowModel.selectedRelatedEntity, 'addFilter')
+			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', parentRowModel, parentRowModel.selectedRelatedEntity, 'addFilter');
+			
+			// Enabling rowModel
+			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		}
 		
 	}
@@ -604,6 +581,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}
 				}
+				
+				// Enabling rowModel
+				//$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 				
 				// Relation List Handling
 				
@@ -792,7 +772,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.rowModelList[rowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
 		// Loading related entities and relations for new related model
-		$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown')
+		$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown');
+		
+		// Enabling rowModel
+		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 	}
 	
 	// SpeedDialModes

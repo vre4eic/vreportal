@@ -121,7 +121,7 @@
 								
 								</section>
 									
-								<md-button ng-click="hideTreeMenuTogglerButton(false);toggleTreeMenu();" class="md-accent">
+								<md-button ng-click="reLoadEntities($event, queryFrom);" class="md-accent">
 									Hide this Sidenav
 								</md-button>
 							</md-content>
@@ -218,7 +218,7 @@
 						<div ng-repeat="rowModel in wholeRowModels track by $index" 
 							 style="padding:18px 0" 
 							 ng-init="outerIndex=$index">
-							<row-template/>
+							<row-template/> 
 						</div>
 						-->
 						
