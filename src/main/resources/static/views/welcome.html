@@ -61,7 +61,7 @@
 						</md-card-title-text>
 					</md-card-title>
 					<md-card-actions layout="row" layout-align="end center">
-						<md-button ng-click="goToState(card.state)">{{card.actionButtonLabel}}</md-button>
+						<md-button ng-click="goToState(card.state)" ng-disabled="card.disabled">{{card.actionButtonLabel}}</md-button>
 					</md-card-actions>
 				</md-card>
 				

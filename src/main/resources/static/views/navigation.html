@@ -16,7 +16,11 @@
 			        </md-button>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
-			            <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon>
+			            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
+			            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
+			            <md-tooltip md-delay="1000" md-direction="top">
+							Help
+						</md-tooltip>
 			        </md-button>
 				</div>
 			</md-toolbar>
@@ -32,9 +36,10 @@
 	          				<md-icon md-font-icon="fa fa-chevron-circle-right" style="font-size:24px"></md-icon>
 	        			</md-button>
 						
-						<h2 class="md-flex">Information</h2>
+						<h2 class="md-flex">Help</h2>
 						<span flex></span>
-						<md-icon md-font-icon="fa fa-info" style="font-size:24px;"></md-icon>
+						<!-- <md-icon md-font-icon="fa fa-info" style="font-size:24px;"></md-icon>-->
+						<md-icon md-font-icon="fa fa-question" style="font-size:24px;"></md-icon>
 					</div>
 				</md-toolbar>
 	
@@ -170,41 +175,48 @@
 									</div>
 								</md-input-container>
 								-->
-																
-								<md-chips ng-model="targetModel.targetChips" 
-										  md-removable="true" 
-										  class="shrinked" 
-										  md-enable-chip-edit="true"
-										  style="padding:0;">
-									<md-autocomplete flex layout-xs md-input-name="targetEntityInput"
-													 class="shrinked"
-													 md-no-cache="true" 
-													 md-dropdown-items="5" 
-													 md-selected-item="targetModel.selectedTargetRecomentation" 
-													 md-search-text="searchText"
-													 md-selected-item-change="selectedItemChange(item, -1)"
-													 md-items="item in querySearch(searchText, -1)"
-													 md-item-text="item.name"
-													 md-min-length="2"
-													 ng-disabled="targetModel.selectedTargetEntity.name==''"
-													 placeholder="Search for keyword"
-													 ng-focus="loadThesaurus(targetModel.selectedTargetEntity, -1)"
-													 style="font-size:14px;">
-													 <!-- class="shrinked autocomplete-with-icon" -->
-	         										 <!-- md-floating-label="Search for keyword" -->
-										<span md-highlight-text="searchText">{{item.name}}</span>
-									    <md-not-found>
-											No terms matching "{{searchText}}" were found.
-								        </md-not-found>
-									</md-autocomplete>
-									
-									<md-chip-template>
-							        	<span style="font-size:14px;">
-											{{$chip.name}}
-										</span>
-									</md-chip-template>
-								</md-chips>
-								
+								<span>
+									<md-chips ng-model="targetModel.targetChips" 
+											  md-removable="true" 
+											  class="shrinked" 
+											  md-transform-chip="transformChip($chip)"
+											  md-enable-chip-edit="true"
+											  style="padding:0;">
+										<md-autocomplete flex layout-xs md-input-name="targetEntityInput"
+														 class="shrinked"
+														 md-no-cache="true" 
+														 md-dropdown-items="5" 
+														 md-selected-item="targetModel.selectedTargetRecomentation" 
+														 md-search-text="searchText"
+														 md-selected-item-change="selectedItemChange(item, -1)"
+														 md-items="item in querySearch(searchText, -1)"
+														 md-item-text="item.name"
+														 md-min-length="2"
+														 ng-disabled="targetModel.selectedTargetEntity.name==null"
+														 placeholder="Containing keyword"
+														 ng-focus="loadThesaurus(targetModel.selectedTargetEntity, -1)"
+														 style="font-size:14px;">
+														 <!-- class="shrinked autocomplete-with-icon" -->
+		         										 <!-- md-floating-label="Search for keyword" -->
+											<span md-highlight-text="searchText">{{item.name}}</span>
+										    <md-not-found>
+												No terms matching "{{searchText}}" were found.
+									        </md-not-found>
+										</md-autocomplete>
+										
+										<md-chip-template>
+								        	<span style="font-size:14px;">
+												{{$chip.name}}
+											</span>
+										</md-chip-template>
+									</md-chips>
+									<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" 
+				            				md-delay="1000" 
+				            				md-direction="top"
+				            				style="margin-top: 40px !important;">
+									Select Some target entity to enable this search field
+								</md-tooltip>
+								</span>
 								<!-- 
 								Autocomplete with chip:
 								https://codepen.io/Rishii/pen/mPqazv

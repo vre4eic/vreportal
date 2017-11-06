@@ -51,8 +51,9 @@
 		        <!-- Description text for applied filter-->
 		        <div ng-show="parent.rowModel!=null" 
 		        	 style="position:absolute; 
-		        	 		margin-left:-300px; 
-		        	 		color:rgb(63,81,181);">
+		        	 		color:rgb(63,81,181);
+		        	 		margin-top:30px;"
+		        	 ng-style="{'margin-left':'calc(-300px - ' + rowModel.level + '*72px)'}">
 		        	<span>
 		        		<span>
 							<md-icon md-svg-src="../images/down-right-arrow.svg" 

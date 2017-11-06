@@ -354,6 +354,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Initial empty row model
 	$scope.initEmptyRowModel = {
 		id: autoincrementedRowModelId,
+		level: 0,
 		outerSelectedFilterExpression: '',
 		selectedRelation: null,
 		relations: [],//angular.copy($scope.relations),
@@ -489,6 +490,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Enabling rowModel
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+			
+			// Increment level by one considering the parent's level
+			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].level = parentRowModel.level + 1;
 		}
 		
 	}
@@ -768,6 +772,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 		//rowModel.rowModelList[outerIndex].activeStyle = 'enabledStyle';
 		rowModel.rowModelList[rowModel.rowModelList.length-1].id = autoincrementedRowModelId;
+		// Increment level by one considering the parent's level
+		rowModel.rowModelList[rowModel.rowModelList.length-1].level = rowModel.level + 1;
 		// Enabling rowModel
 		rowModel.rowModelList[rowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
@@ -1203,7 +1209,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applySearch = function() {
-		$log.info(angular.toJson($scope.rowModelList));
+		//$log.info(angular.toJson($scope.rowModelList));
+		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 	};
 	
 		

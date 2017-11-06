@@ -69,6 +69,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"navigation", 
+	 	   disabled:false, 
 	 	   view:""
 	    }, { 
 	 	   index:"1", 
@@ -79,7 +80,8 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
-	 	   state:"import", 
+	 	   state:"import",
+	 	   disabled:true, 
 	 	   view:""
 	    }, { 
 	 	   index:"2", 
@@ -90,7 +92,8 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
-	 	   state:"", 
+	 	   state:"",
+	 	   disabled:true, 
 	 	   view:""
 	    }
 	];
