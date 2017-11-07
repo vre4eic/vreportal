@@ -47,10 +47,16 @@
 					<p>
 						<div ng-include="'views/info/queryBuilderHelp.html'"></div>
 					</p>
-						
-					<md-button ng-click="toggleInfo()" class="md-accent">
-						Close this Sidenav
-					</md-button>
+					
+					<div layout="row">
+						<md-button ng-click="toggleInfo()" class="md-accent">
+							Close this Sidenav
+						</md-button>
+						<span flex></span>
+						<md-button class="md-primary" ng-href="views/info/queryBuilderHelp.pdf" target="_blank">
+							Open in PDF
+						</md-button>
+					</div>
 				</md-content>
 	
 			</md-sidenav>
