@@ -53,7 +53,7 @@
 		        	 style="position:absolute; 
 		        	 		color:rgb(63,81,181);
 		        	 		margin-top:30px;"
-		        	 ng-style="{'margin-left':'calc(-300px - ' + rowModel.level + '*72px)'}">
+		        	 ng-style="{'margin-left':'calc(-270px - ' + rowModel.level + '*72px)'}">
 		        	<span>
 		        		<span>
 							<md-icon md-svg-src="../images/down-right-arrow.svg" 
@@ -220,9 +220,9 @@
 						<md-input-container class="md-block shrinked">
 							<label>Select Related Entity</label>
 							<md-select ng-model="rowModel.selectedRelatedEntity" 
-									   name="relatedEntityInput"
+									   name="relatedEntityInput_{{rowModel.id}}" 
 									   selected="rowModel.selectedRelatedEntity" 
-									   ng-change="loadRelatedEntitiesAndRelationsByTarget(parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
+									   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
 									   md-no-asterisk="false"
 									   required>
 								<md-option ng-repeat="entity in rowModel.relatedEntities" ng-value="entity" >
@@ -230,7 +230,7 @@
 								</md-option>
 							</md-select>
 						</md-input-container>
-					
+						<!-- md-is-error="searchForm['relatedEntityInput_' + rowModel.id].$invalid" -->
 						<div style="padding:0; 
 									margin:0; 
 									overflow: auto;
@@ -375,11 +375,9 @@
 					
 					<md-list class="md-dense" style="margin-top:5px;overflow: auto;" flex>
 						
-						<!-- animate-show animate-hide -->
 						<md-list-item class="md-2-line md-long-text slide-fade showListItem" 
 									  ng-show="item != null"
 									  ng-repeat="item in rowModel.selectedRelatedInstanceList">
-									  <!-- ng-class="item.animateToRemove" -->
 							<div class="md-list-item-text">
 								<span ng-repeat="(key,val) in item" class="ng-binding">
 									<span ng-if="key != 'isChecked' && key != 'uri'">

@@ -163,7 +163,7 @@
 									<label>Select Target Entity</label>
 									<md-select ng-model="targetModel.selectedTargetEntity" 
 											   name="targetEntityInput" 
-											   ng-change="loadRelatedEntitiesAndRelationsByTarget(null, rowModel, targetModel.selectedTargetEntity, 'targetEntitySelect')"
+											   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, null, rowModel, targetModel.selectedTargetEntity, 'targetEntitySelect')"
 											   required 
 											   md-no-asterisk="false">
 										<md-option ng-repeat="entity in targetModel.targetEntities" ng-value="entity" >

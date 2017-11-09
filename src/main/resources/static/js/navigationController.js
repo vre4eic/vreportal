@@ -342,6 +342,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// Target model
 	$scope.targetModel = {
 		selectedTargetEntity: null,
+		backupSelectedTargetEntity: null,
 		targetEntities: $scope.allEntities, //angular.copy($scope.allEntities);
 		searchTargetKeywords: '',
 		targetThesaurus: {},
@@ -365,6 +366,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			untilInputName: ''
 		},
 		selectedRelatedEntity: null,//{name: '', thesaurus: '', queryModel: ''},
+		backupSelectedRelatedEntity: null,
 		relatedEntities: $scope.allEntities,//angular.copy($scope.allEntities),
 		searchRelatedKeywords: '',
 		allRelatedSearchResultsIsSelected: false,
@@ -475,7 +477,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
 
 			// Loading related entities and relations for new related model 
-			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', undefined, $scope.targetModel.selectedTargetEntity, 'addFilter');
+			$scope.loadRelatedEntitiesAndRelationsByTarget('no-event', 'Not-Needed', undefined, $scope.targetModel.selectedTargetEntity, 'addFilter');
 			
 			// Enabling rowModel
 			$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
@@ -486,7 +488,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].id =  autoincrementedRowModelId;
 			
 			// Loading related entities and relations for new related model
-			$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', parentRowModel, parentRowModel.selectedRelatedEntity, 'addFilter');
+			$scope.loadRelatedEntitiesAndRelationsByTarget('no-event', 'Not-Needed', parentRowModel, parentRowModel.selectedRelatedEntity, 'addFilter');
 			
 			// Enabling rowModel
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
@@ -520,7 +522,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.loadRelatedEntitiesByRelation = function(rowModel) {
-		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined){
+		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
 				angular.forEach(rowModel.relatedEntities, function(relatedEntity, key) {
@@ -540,7 +542,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// param: provenanceFunction	A string denoting provenance ('addFilter', 'levelDown', 'relatedEntitySelect', 'targetEntitySelect')
 	// (In case of selecting real target entity, the parent rowModel is null, 
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
-	$scope.loadRelatedEntitiesAndRelationsByTarget = function(parentRowModel, rowModel, selectedEntity, provenanceFunction) {
+	$scope.loadRelatedEntitiesAndRelationsByTarget = function(ev, parentRowModel, rowModel, selectedEntity, provenanceFunction) {
 				
 		if(selectedEntity !=null) {
 			
@@ -554,14 +556,73 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 						
 			// Case where entity selection is from target
-			if(rowModel == undefined) {// Selection from target
+			if(rowModel == undefined) {
+				// When adding new filter
 				if(provenanceFunction == 'addFilter') {
 					if($scope.rowModelList.length >0) {
 						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[$scope.rowModelList.length-1], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}					
 				}
-				else { // provenanceFunction is: levelDown, targetEntitySelect
+				
+				// When selecting target entity
+				else if(provenanceFunction == 'targetEntitySelect') {
+					var isEditAction = false;
+					// For each related entity - level 1
+					for(var i=0; i<$scope.rowModelList.length; i++) {
+						if($scope.rowModelList[i].selectedRelatedEntity != null || $scope.rowModelList[i].selectedRelation != null)
+							isEditAction = true;
+						break;
+					}
+					
+					// If this is not the initial selection (user is editing)
+					if(isEditAction) {
+					
+						var messageContent = 'In order to complete this action, the whole query has to be reset.'
+							   + '<br/>'
+							   + 'That means that the query has to be re-constructed from scratch. ' 
+							   + '<br/><br/>' 
+							   + 'Are you sure you want to continue with this action?';
+						
+						var confirm = $mdDialog.confirm()
+							.title('Important Message')
+							.htmlContent(messageContent)
+							.ariaLabel('Target Entity Selection - No longer Available')
+							.targetEvent(ev)
+							.ok('Yes Continue')
+							.cancel('Cancel');
+					
+						$mdDialog.show(confirm).then(function() { // OK
+							for(var i=0; i<$scope.rowModelList.length; i++) {
+								handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
+										paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+							}
+							// Holding Copy Of Selected Target Entity
+							$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+						}, function() { // Cancel
+							// Load previous selection (the backup)
+							for(var i=0; i<$scope.targetModel.targetEntities.length; i++) {
+								if($scope.targetModel.targetEntities[i].uri == $scope.targetModel.backupSelectedTargetEntity.uri)
+									$scope.targetModel.selectedTargetEntity = $scope.targetModel.targetEntities[i];
+							}
+						});
+						/*
+						.finally(function() {
+							console.log($scope.rowModelList[0].selectedRelatedEntity.name);
+						});
+						*/
+					}
+					else {
+						for(var i=0; i<$scope.rowModelList.length; i++) {
+							handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
+									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+						}
+						$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+					}
+					
+				} //if(provenanceFunction == 'targetEntitySelect') - Ends
+				
+				else { // provenanceFunction is: levelDown
 					for(var i=0; i<$scope.rowModelList.length; i++) {
 						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
@@ -570,43 +631,33 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Enabling rowModel
 				$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 			}
+			
 			// Case where entity selection is from the related entity 
-			// (both selecting entity or level down)
 			else {
-				if(provenanceFunction == 'addFilter') {
-					if($scope.rowModelList.length >0) {
-						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[rowModel.rowModelList.length-1], 
-								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-					}
-				}
-				else { // provenanceFunction is: levelDown, relatedEntitySelect, targetEntitySelect
-					for(var i=0; i<rowModel.rowModelList.length; i++) {
-						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
-								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-					}
-				}
 				
-				// Enabling rowModel
-				//$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+				var isEditAction = false; // Used to catch edit action
 				
-				// Relation List Handling
+				// Relation parameters - Start
 				
 				// Parameters to sent for the Relations Service (considering both target and related entity)
 				var paramModelForRelations = {}; // Initializing
 				
-				// Case - Target is target entity
+				// There is no parent
 				if(parentRowModel == undefined) {
 					paramModelForRelations = {
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name								// The selected entity name (related entity)
 					}
-					handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
 				}
 				// Case - Level Down
-				else if(parentRowModel == 'Not-Needed') {
+				else if(provenanceFunction == 'levelDown') {
 					//Do nothing
-					console.log('Level Down');
+					console.log('Level Downn');
+				}
+				else if(provenanceFunction == 'addFilter') {
+					//Do nothing
+					console.log('addFilter');
 				}
 				//Case - Target is related entity
 				else {
@@ -615,7 +666,81 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name								// The selected entity name (related entity)
 					}
-					handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+				}
+				
+				// Relation Parameters - Ends
+				
+				// When adding new filter
+				if(provenanceFunction == 'addFilter') {
+					if($scope.rowModelList.length >0) {
+						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[rowModel.rowModelList.length-1], 
+								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+					}
+				}
+				
+				// When selecting related entity
+				else if(provenanceFunction == 'relatedEntitySelect') {
+					
+					// For each related entity - level 1
+					for(var i=0; i<rowModel.rowModelList.length; i++) {
+						if(rowModel.rowModelList[i].selectedRelatedEntity != null || rowModel.rowModelList[i].selectedRelation != null)
+							isEditAction = true;
+						break;
+					}
+					
+					// If this is not the initial selection (user is editing)
+					if(isEditAction) {
+					
+						var messageContent = 'In order to complete this action, the query after the point of '
+							   + 'your change has to be reset.'
+							   + '<br/>'
+							   + 'That means that this part of the query has to be re-constructed from scratch. ' 
+							   + '<br/><br/>' 
+							   + 'Are you sure you want to continue with this action?';
+						
+						var confirm = $mdDialog.confirm()
+							.title('Important Message')
+							.htmlContent(messageContent)
+							.ariaLabel('Related Entity Selection - No longer Available')
+							.targetEvent(ev)
+							.ok('Yes Continue')
+							.cancel('Cancel');
+					
+						$mdDialog.show(confirm).then(function() { // OK
+							confirmToContinue = true;
+							for(var i=0; i<rowModel.rowModelList.length; i++) {
+								handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
+										paramModelForRelationsAndRelatedEntities,$scope.credentials.token);
+							}
+							
+							// Holding Copy Of Selected Related Entity
+							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+							// Relation List Handling (Applied after handling the relatedEntity)
+							handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+						}, function() { // Cancel
+							confirmToContinue = false;
+							// Load previous selection (the backup) - Selected Related Entity
+							for(var i=0; i<rowModel.relatedEntities.length; i++) {
+								if(rowModel.relatedEntities[i].uri == rowModel.backupSelectedRelatedEntity.uri)
+									rowModel.selectedRelatedEntity = rowModel.relatedEntities[i];
+							}
+							
+						});
+					}
+					
+					else { //if(!isEditAction)
+						// Relation List Handling (Applied after handling the relatedEntity)
+						handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+					}
+				} //if(provenanceFunction == 'relatedEntitySelect') - Ends
+				
+				else { // provenanceFunction is: levelDown
+					for(var i=0; i<rowModel.rowModelList.length; i++) {
+						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
+								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+					}
+					// Holding Copy Of Selected Related Entity
+					rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
 				}
 				
 			} // Close - else (selection from related entity
@@ -623,16 +748,25 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		} // If close - (selectedTargetEntity not null)
 	}
 	
-	// Relations and Related Entity
+	// Handling Relations and Related Entity By Target
 	function handleRelationsAndRelatedEntitiesByTarget(rowModel, paramModel, token) {
-				
+		
+		/*
+		// Modal here is very desturbing
+		var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Updating available options...'
+		};
+		
+		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		*/
 		queryService.getRelationsAndRelatedEntitiesByTarget(paramModel, token)
 		.then(function (response) {
     		
 			if(response.status == -1) {
 				$scope.message = 'There was a network error. Try again later.';
 				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
+				//modalInstance.close();
 			}
 			else {
 				if(response.status == '200') {
@@ -642,11 +776,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// 		relation: {relation_uri: "SOME_URI", related_entity_name: "SOME_ENTITY_NAME"}
 					//		related_entity: { ... }
 					//	}, ... ]
-					
+
 					// Constructing relation List and related entity list
 					rowModel.relatedEntities = [];
-					// Nulling all selected related entities
-					makeAllChildrenSelectedRelatedEntitiesNull(rowModel);
+					
+					// Handling Children when selecting an entity (if there are any)
+					if(rowModel.selectedRelatedEntity != null) // Setting field touched otherwise it wont return error
+						$scope.searchForm['relatedEntityInput_' + rowModel.id].$setTouched();
+					rowModel.selectedRelatedEntity = null;
+					
+					rowModel.rowModelList = [];
+					//$scope.searchForm['relatedEntityInput_' + rowModel.id].$setValidity('required', false);
 					rowModel.relations = [];
 					rowModel.selectedRelation = null;
 					for(var i=0; i<response.data.length; i++) {
@@ -657,20 +797,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						//relations
 						rowModel.relations.push(response.data[i].relation);
 						rowModel.relations[i].relatedEntity = response.data[i].related_entity;
-						//rowModel.relations[i].relatedEntity.id = Math.random().toString(36).substr(2, 5);
 						//$log.info('value: ' + value);
 					}
-						
+					//modalInstance.close();
 				}
 				else if(response.status == '400') {
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				modalInstance.close();
+    				//modalInstance.close();
     			}
     			else if(response.status == '401') {
     				$log.info(response.status);
-    				modalInstance.close();
+    				//modalInstance.close();
     				$scope.showLogoutAlert();
     				authenticationService.clearCredentials();
     			}
@@ -678,7 +817,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				modalInstance.close();
+    				//modalInstance.close();
     			}
 			
 			} // else close
@@ -688,10 +827,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
-			modalInstance.close();
+			//modalInstance.close();
 		});
 	}
-		
+	
+	/*
 	// Recursive method that makes all selected related entities in a tree rowmodel null
 	function makeAllChildrenSelectedRelatedEntitiesNull(rowModel) {
 		rowModel.selectedRelatedEntity = null;
@@ -702,6 +842,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			makeAllChildrenSelectedRelatedEntitiesNull(rowModel.rowModelList[i]);
 		}
 	}
+	*/
 	
 	// Handling relations based on target and related entities
 	function handleRelationsByTargetAndRelatedEntities(rowModel, paramModel, token) {
@@ -711,7 +852,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			if(response.status == -1) {
 				$scope.message = 'There was a network error. Try again later.';
 				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
 			}
 			else {
 				if(response.status == '200') {
@@ -729,11 +869,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				modalInstance.close();
     			}
     			else if(response.status == '401') {
     				$log.info(response.status);
-    				modalInstance.close();
     				$scope.showLogoutAlert();
     				authenticationService.clearCredentials();
     			}
@@ -741,7 +879,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				modalInstance.close();
     			}
 			
 			} // else close
@@ -751,20 +888,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
-			modalInstance.close();
 		});
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	// Adding filter on related entity
 	$scope.addFilterOnRelated = function(parentRowModel, rowModel) {
@@ -778,7 +903,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.rowModelList[rowModel.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
 		// Loading related entities and relations for new related model
-		$scope.loadRelatedEntitiesAndRelationsByTarget('Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown');
+		$scope.loadRelatedEntitiesAndRelationsByTarget('no-event', 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown');
 		
 		// Enabling rowModel
 		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
