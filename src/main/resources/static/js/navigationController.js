@@ -408,14 +408,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					//$scope.rowModelList[0].relatedEntities = response.data.entities;
 					
 					if(notify) {
-					// Display msg
-					$mdToast.show(
-						$mdToast.simple()
-				        .textContent('Query has been reset.')
-				        .position('top right')
-				        .parent(angular.element('#mainContent'))
-				        .hideDelay(3000)
-				    );
+						// Display msg
+						$mdToast.show(
+							$mdToast.simple()
+					        .textContent('Query has been reset.')
+					        .position('top right')
+					        .parent(angular.element('#mainContent'))
+					        .hideDelay(3000)
+					    );
 					}
 				}
 				else if(response.data.remote_status == 401){
@@ -521,15 +521,44 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
-	$scope.loadRelatedEntitiesByRelation = function(rowModel) {
+	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
 				angular.forEach(rowModel.relatedEntities, function(relatedEntity, key) {
-					if(relatedEntity.uri == rowModel.selectedRelation.relatedEntity.uri)
+					if(relatedEntity.uri == rowModel.selectedRelation.relatedEntity.uri) {
 						rowModel.selectedRelatedEntity = relatedEntity;
+						
+						if(parentRowModel == undefined) {
+							paramModelForRelations = {
+								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
+								targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
+								relatedEntity: rowModel.selectedRelatedEntity.name								// The selected entity name (related entity)
+							}
+						}
+						// Case - Level Down
+						else if(provenanceFunction == 'levelDown') {
+							//Do nothing
+							console.log('Level Downn');
+						}
+						else if(provenanceFunction == 'addFilter') {
+							//Do nothing
+							console.log('addFilter');
+						}
+						//Case - Target is related entity
+						else {
+							paramModelForRelations = {
+								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
+								targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
+								relatedEntity: rowModel.selectedRelatedEntity.name								// The selected entity name (related entity)
+							}
+						}
+						
+						// Updating the list of relations based on the user selected target and the auto-completed related entities
+						handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+						
+					}
 				});
-				//rowModel.selectedRelatedEntity = rowModel.selectedRelation.relatedEntity;
 			}
 		}
 	}
@@ -578,9 +607,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// If this is not the initial selection (user is editing)
 					if(isEditAction) {
 					
-						var messageContent = 'In order to complete this action, the whole query has to be reset.'
+						var messageContent = 'In order to complete this action, the query in terms of related options has to be reset.'
 							   + '<br/>'
-							   + 'That means that the query has to be re-constructed from scratch. ' 
+							   + 'That means that this part of the query has to be re-constructed from scratch.' 
 							   + '<br/><br/>' 
 							   + 'Are you sure you want to continue with this action?';
 						
@@ -593,12 +622,23 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							.cancel('Cancel');
 					
 						$mdDialog.show(confirm).then(function() { // OK
+							
 							for(var i=0; i<$scope.rowModelList.length; i++) {
 								handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
 										paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 							}
 							// Holding Copy Of Selected Target Entity
 							$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+							
+							// Display msg
+							$mdToast.show(
+								$mdToast.simple()
+						        .textContent('Query in terms or related options has been reset.')
+						        .position('top right')
+						        .parent(angular.element('#mainContent'))
+						        .hideDelay(3000)
+						    );
+							
 						}, function() { // Cancel
 							// Load previous selection (the backup)
 							for(var i=0; i<$scope.targetModel.targetEntities.length; i++) {
@@ -707,6 +747,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							.cancel('Cancel');
 					
 						$mdDialog.show(confirm).then(function() { // OK
+							
 							confirmToContinue = true;
 							for(var i=0; i<rowModel.rowModelList.length; i++) {
 								handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
@@ -717,6 +758,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
 							// Relation List Handling (Applied after handling the relatedEntity)
 							handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+							
+							// Display msg
+							$mdToast.show(
+								$mdToast.simple()
+						        .textContent('Query has been partly reset.')
+						        .position('top right')
+						        .parent(angular.element('#mainContent'))
+						        .hideDelay(3000)
+						    );
+							
 						}, function() { // Cancel
 							confirmToContinue = false;
 							// Load previous selection (the backup) - Selected Related Entity
@@ -860,10 +911,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 					// Constructing relation List and related entity list
 					rowModel.relations = [];
-					rowModel.selectedRelation = null;
 					for(var i=0; i<response.data.length; i++) {
 						rowModel.relations.push(response.data[i]);
 					}
+					
+					// Re-setting selected relation if still available
+					var found = false;
+					for(var i=0; i<rowModel.relations.length; i++) {
+						if(rowModel.relations[i].uri == rowModel.selectedRelation.uri) {
+							rowModel.selectedRelation = rowModel.relations[i];
+							found = true;
+						}
+					}
+					if(found == false)
+						rowModel.selectedRelation = null;
+					
 				}
 				else if(response.status == '400') {
     				$log.info(response.status);

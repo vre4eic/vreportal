@@ -95,6 +95,10 @@
 									<md-button class="md-icon-button" aria-label="Hide Help" 
 											   ng-click="reLoadEntities($event, queryFrom);">
 				          				<md-icon md-font-icon="fa fa-chevron-circle-left" style="font-size:24px"></md-icon>
+				          				<md-tooltip md-delay="1000" 
+				            						md-direction="top">
+											Apply changes and hide
+										</md-tooltip>
 				        			</md-button>
 									
 									<h2 class="md-flex">VREs</h2>
@@ -133,7 +137,7 @@
 								</section>
 									
 								<md-button ng-click="reLoadEntities($event, queryFrom);" class="md-accent">
-									Hide this Sidenav
+									Apply changes and hide
 								</md-button>
 							</md-content>
 			
@@ -220,8 +224,8 @@
 				            				md-delay="1000" 
 				            				md-direction="top"
 				            				style="margin-top: 40px !important;">
-									Select Some target entity to enable this search field
-								</md-tooltip>
+										Select Some target entity to enable this search field
+									</md-tooltip>
 								</span>
 								<!-- 
 								Autocomplete with chip:
