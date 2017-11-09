@@ -536,15 +536,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								relatedEntity: rowModel.selectedRelatedEntity.name								// The selected entity name (related entity)
 							}
 						}
-						// Case - Level Down
-						else if(provenanceFunction == 'levelDown') {
-							//Do nothing
-							console.log('Level Downn');
-						}
-						else if(provenanceFunction == 'addFilter') {
-							//Do nothing
-							console.log('addFilter');
-						}
+
 						//Case - Target is related entity
 						else {
 							paramModelForRelations = {
