@@ -178,9 +178,15 @@
 									{{relation.name}}
 								</md-option>
 							</md-select>
-							<!-- name="relationInput_{{rowModel.id}}"  -->
-							<div ng-messages="searchForm['relationInput_' +rowModel.id].$error">
-         						<div ng-message="required">This is required</div>
+							<div ng-messages="searchForm['relationInput_' + rowModel.id].$error">
+         						
+         						<div ng-message="required">
+         							This is required
+         							<br/>
+         							<span ng-show="rowModel.backupSelectedRelation != null">
+         								Previously selected: (<i>"{{rowModel.backupSelectedRelation.name}}"</i>)
+         							</span>
+         						</div>
          					</div>
 						</md-input-container>
 						

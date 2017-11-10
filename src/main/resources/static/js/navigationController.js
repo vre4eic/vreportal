@@ -358,6 +358,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		level: 0,
 		outerSelectedFilterExpression: '',
 		selectedRelation: null,
+		backupSelectedRelation: null,
 		relations: [],//angular.copy($scope.relations),
 		rangeOfDates: {
 			from: null,//new Date(),
@@ -908,15 +909,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					}
 					
 					// Re-setting selected relation if still available
-					var found = false;
-					for(var i=0; i<rowModel.relations.length; i++) {
-						if(rowModel.relations[i].uri == rowModel.selectedRelation.uri) {
-							rowModel.selectedRelation = rowModel.relations[i];
-							found = true;
+					if(rowModel.selectedRelation != null) {
+						var found = false;
+						for(var i=0; i<rowModel.relations.length; i++) {
+							if(rowModel.relations[i].uri == rowModel.selectedRelation.uri) {
+								rowModel.selectedRelation = rowModel.relations[i];
+								found = true;
+							}
+						}
+						if(found == false) {
+							rowModel.backupSelectedRelation = angular.copy(rowModel.selectedRelation);
+							rowModel.selectedRelation = null;
 						}
 					}
-					if(found == false)
-						rowModel.selectedRelation = null;
+					if(rowModel.backupSelectedRelation != null)
+					console.log('rowModel.backupSelectedRelation.name: ' + rowModel.backupSelectedRelation.name)
 					
 				}
 				else if(response.status == '400') {
