@@ -50,12 +50,14 @@ public class H2Manager {
         deleteTable("entity");
         deleteTable("relation");
         deleteTable("relations_material");
+        deleteTable("user_favorites");
 
         createTableCategory();
         createTableNamedgraph();
         createTableEntity();
         createTableRelation();
         createTableRelationsMatUpdates();
+        createTableUserFavorites();
         insertEntities();
         insertNamedgraphCategories();
         insertNamedgraphs();
@@ -156,6 +158,17 @@ public class H2Manager {
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "related_entities varchar(50),\n"
                 + "update clob,\n"
+                + "PRIMARY KEY (`id`)\n"
+                + ");");
+    }
+    
+    public int createTableUserFavorites() throws SQLException {
+    	return statement.executeUpdate("CREATE TABLE user_favorites ( \n"
+                + "id int NOT NULL AUTO_INCREMENT, \n"
+                + "username varchar(250),\n"
+                + "title varchar(250),\n"
+                + "description clob,\n"
+                + "query_model clob,\n"
                 + "PRIMARY KEY (`id`)\n"
                 + ");");
     }
