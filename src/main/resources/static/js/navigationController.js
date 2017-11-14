@@ -1155,14 +1155,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    			    		templateUrl: 'views/dialog/selectFromResults.tmpl.html', 
         	    			    		parent: angular.element(document.body),
         	    			    		targetEvent: ev,
-        	    			    		//clickOutsideToClose:true,
         	    			    		preserveScope: true,
         	    			    		fullscreen: false // Only for -xs, -sm breakpoints.
-        	    			    	})
-        	    			    	.then(function(answer) {
-        	    			    		$scope.status = 'You are OK';
-        	    			    	}, function() {
-        	    			    		$scope.status = 'You cancelled the dialog.';
         	    			    	});
         	    				}
         	    				else if(response.status == '400') {
@@ -1394,6 +1388,86 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
+	
+	
+	
+	// Open dialog for saving into favorites
+	$scope.showFavoriteDialog = function(ev) {
+		$mdDialog.show({
+			scope: $scope,
+    		templateUrl: 'views/dialog/favoriteForm.tmpl.html', 
+    		parent: angular.element(document.body),
+    		targetEvent: ev,
+    		clickOutsideToClose:true,
+    		preserveScope: true,
+    		fullscreen: false // Only for -xs, -sm breakpoints.
+    	});
+	}
+	
+	// Model holding current favorite
+	$scope.favoriteModel = {
+		username: $sessionStorage.userProfile.userId,
+		title: '',
+		description: '',
+		queryModel: {
+			targetModel: $scope.targetModel,
+			relatedModels: $scope.rowModelList
+		}
+	};
+	
+	// Save into or remove from favorites
+	$scope.saveIntoFavorites = function() {
+		//console.log(angular.toJson($scope.favoriteModel));
+		
+		queryService.saveIntoFavorites($scope.favoriteModel, $scope.credentials.token)
+		.then(function (response) {
+    		
+			if(response.status == -1) {
+				$scope.message = 'There was a network error. Try again later.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			else {
+				if(response.status == '200') {
+					$log.info(response.status);
+					
+				}
+				else if(response.status == '400') {
+    				$log.info(response.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
+    			else if(response.status == '401') {
+    				$log.info(response.status);
+    				$scope.showLogoutAlert();
+    				authenticationService.clearCredentials();
+    			}
+    			else {
+    				$log.info(response.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
+			
+			} // else close
+		
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+		
+	}
+	
+	// Hide Favorite Dialog
+	$scope.closeFavoriteDialog = function() {
+		$mdDialog.cancel();
+	}
+	
+	
+	
+	
+	
+	
 	$scope.applySearch = function() {
 		$log.info(angular.toJson($scope.rowModelList));
 		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
@@ -1458,7 +1532,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		onComplete:function(){
     				loadMapForRelatedEntity(rowModel);
     		},
-    		fullscreen: true,
+    		//fullscreen: true,
     		preserveScope: true,
     		fullscreen: false // Only for -xs, -sm breakpoints.
     	})

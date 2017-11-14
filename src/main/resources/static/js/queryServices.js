@@ -107,27 +107,6 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
-		getQueryResults : function(queryModel, token) {
-
-			return $http({
-				'url' : '/executequery_json',
-				'method' : 'POST',
-				'headers' : {
-					'Content-Type' : 'application/json',
-				    'Authorization': token
-				},
-				'data' : queryModel
-			}).then(function (success){
-				if(success.data.result != null) {
-					combineValuesToCreateLinks(success.data.result.results, splitStr);
-				}
-				return success.data;
-			},function (error) {
-				return error;
-			});
-
-		},
-		
 		getRelationsAndRelatedEntitiesByTarget : function(paramModel, token) {
 			return $http({
 				'url': '/get_relations_related_entities',
@@ -160,40 +139,7 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
-		getPageResults : function(pageParams) {
-			return $http({
-				'url' : '/paginator_json',
-				'method' : 'GET',
-				'headers' : {
-					'Content-Type' : 'application/json'
-				},
-				'params' : pageParams
-			}).then(function (success){
-				if(success.data.result != null) {
-					combineValuesToCreateLinks(success.data.result.results, splitStr);
-				}
-				return success.data;
-			},function (error) {
-				//error code
-			});
-		},
 		
-		getNameGraphsResults : function(token, additionalParams) {
-			return $http({
-				'url' : '/retrieveNameGraphs',
-				'method' : 'GET',
-				'headers' : {
-					'Content-Type' : 'application/json',
-					'Authorization': token
-				},
-				'params' : additionalParams
-			}).then(function (success){
-				return success.data;
-			},function (error) {
-				//error code
-			});
-
-		},
 		
 		checkAuthorization : function(token) {
 			return $http({
@@ -232,47 +178,24 @@ angular.module('app.mainServices', [])
 
 		},
 		
-		getAdvancedQueryResults : function(queryModel, token) {
+		saveIntoFavorites : function(model, token) {
 
 			return $http({
-				'url' : '/executeadvancedquery_json', 
+				'url' : '/save_into_favorites',
 				'method' : 'POST',
 				'headers' : {
 					'Content-Type' : 'application/json',
 				    'Authorization': token
 				},
-				'data' : queryModel
-			}).then(function (success){
-				if(success.data.result != null) {
-					combineValuesToCreateLinks(success.data.result.results, splitStr);
-				}
-				return success.data;
+				'data' : model
+			}).then(function (success) {
+				return success;
 			},function (error) {
-				return error;
+				//error code
 			});
 
-		},
-	}
-	
-	// Takes a json array (jsonResults) of json objects and parses it to discover values 
-	// that have a specific substring (splitStr). This is used to split that values into 
-	// uri and name in order to create links with labels.
-	function combineValuesToCreateLinks(jsonResults, splitStr) {
-		// Creating links by splitting concated fields
-		angular.forEach(jsonResults, function (row) {
-			angular.forEach(row, function (value, key) {
-				var name = '';
-				var uri = '';
-				// If the field is concut
-	            if(value.value.indexOf(splitStr) !== -1) {
-	            	uri = value.value.split(splitStr)[0];
-	            	name = value.value.split(splitStr)[1];
-	            	value.link = true;
-	            	value.name = name;
-	            	value.uri = uri;
-	            }
-			});
-        });  
+		}//,
+		
 	}
 	
 })
@@ -293,9 +216,9 @@ angular.module('app.mainServices', [])
 				},
 				'data' : importModel
 			}).then(function (success){
-				return success.data;
+				return success;
 			},function (error) {
-				//error code
+				return error;
 			});
 
 		}

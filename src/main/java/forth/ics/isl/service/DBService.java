@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -367,4 +368,31 @@ public class DBService {
         }
         return null;
     }
+    
+    public static JSONObject saveIntoFavorites(String username, String title, String description, String queryModel) {
+        JSONObject statusObject = new JSONObject();
+        try {
+            Connection conn = initConnection();
+
+            String sql = "INSERT INTO user_favorites (username, title, description, query_model)"
+            		   + "VALUES (?, ?, ?, ?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, username);
+			preparedStatement.setString(2, title);
+			preparedStatement.setString(3, description);
+			preparedStatement.setString(4, queryModel);
+			preparedStatement.executeUpdate();
+			
+            preparedStatement.close();
+            conn.close();
+            
+            statusObject.put("dbStatus", "success");
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+            statusObject.put("dbStatus", "fail");
+        }
+        return statusObject;
+    }
+    
 }

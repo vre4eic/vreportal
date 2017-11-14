@@ -57,7 +57,7 @@ app.controller("loginCtrl", ['$scope', 'authenticationService', '$location', '$t
 	                .then(function (profileResponse) {
 	        			if (profileResponse.name !== null) {
 	        				console.log("profileResponse", profileResponse);
-	        				//$scope.userProfile = profileResponse;
+	        				$sessionStorage.userProfile = profileResponse;
 	        				//updateUserProfile();
 	        	        } else {
 	        	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.message + "! Cannot retrieve user's profile. "});	        	            
