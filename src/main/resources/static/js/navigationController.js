@@ -1395,7 +1395,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applySearch = function() {
-		//$log.info(angular.toJson($scope.rowModelList));
+		$log.info(angular.toJson($scope.rowModelList));
 		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 	};
 	
