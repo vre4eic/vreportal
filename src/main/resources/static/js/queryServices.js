@@ -194,6 +194,24 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 
+		},
+		
+		removeFromFavoritesById : function(model, token) {
+
+			return $http({
+				'url' : '/remove_from_favorites_by_id',
+				'method' : 'POST',
+				'headers' : {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data' : model
+			}).then(function (success) {
+				return success;
+			},function (error) {
+				//error code
+			});
+
 		}//,
 		
 	}

@@ -15,10 +15,16 @@
 						</md-tooltip>
 			        </md-button>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
-					<md-button ng-click="showFavoriteDialog($event)" class="md-icon-button" aria-label="Favorites">
+					<md-button ng-click="showFavoriteDialog($event)" ng-show="!currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
 			            <md-icon md-font-icon="fa fa-heart-o" style="font-size:28px;">
 			            <md-tooltip md-delay="1000" md-direction="top">
-							Save into favorites
+							Add into favorites
+						</md-tooltip>
+			        </md-button>
+			        <md-button ng-click="removeCurrentQueryModelFromFavorites();" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
+			            <md-icon md-font-icon="fa fa-heart" style="font-size:28px;">
+			            <md-tooltip md-delay="1000" md-direction="top">
+							Rmove from favorites
 						</md-tooltip>
 			        </md-button>
 					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">

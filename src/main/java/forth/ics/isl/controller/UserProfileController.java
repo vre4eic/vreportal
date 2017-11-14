@@ -50,13 +50,9 @@ public class UserProfileController {
     @RequestMapping(value = "/save_into_favorites", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONObject saveIntoFavorites(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-        System.out.println("fromSearch:" + requestParams.get("username"));
-        System.out.println("fromSearch:" + requestParams.get("queryModel"));
-        System.out.println("fromSearch:" + requestParams.get("title"));
-        System.out.println("fromSearch:" + requestParams.get("description"));
 
-        JSONObject statusObject = new JSONObject();
-        JSONObject queryModel = new JSONObject((LinkedHashMap) requestParams.get("queryModel"));
+    	JSONObject statusObject = new JSONObject();
+        JSONObject queryModel = new JSONObject((LinkedHashMap)requestParams.get("queryModel"));
         statusObject = dbService.saveIntoFavorites(
                 requestParams.get("username").toString(),
                 requestParams.get("title").toString(),
@@ -66,7 +62,21 @@ public class UserProfileController {
 
         return statusObject;
     }
-
+    
+    
+    /**
+     * Removing a queryBuilder JSON model by the given ID
+     *
+     * @param id A string representation of the query model's ID to be removed
+     */
+    @RequestMapping(value = "/remove_from_favorites_by_id", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject removeFromFavoritesById(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+        JSONObject statusObject = new JSONObject();
+        statusObject = dbService.removeFromFavoritesById(requestParams.get("dbTableId").toString());
+        return statusObject;
+    }
+    
     /**
      * Retrieving user's list of query models from favorites
      *

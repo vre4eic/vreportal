@@ -1415,40 +1415,54 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	};
 	
+	$scope.currentFavorite = {
+		itIsFavorite: false,
+		dbTableId: null
+	};
+	
 	// Save into or remove from favorites
 	$scope.saveIntoFavorites = function() {
 		//console.log(angular.toJson($scope.favoriteModel));
 		
 		queryService.saveIntoFavorites($scope.favoriteModel, $scope.credentials.token)
-		.then(function (response) {
+			.then(function (response) {
     		
-			if(response.status == -1) {
-				$scope.message = 'There was a network error. Try again later.';
+			if(response.status == '200') {
+				if(response.data.dbStatus == 'success') {
+					// Hide Dialog
+					$mdDialog.cancel();
+					// Display msg
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent('The Query has been stored successfully!')
+				        .position('top right')
+				        .parent(angular.element('#mainContent'))
+				        .hideDelay(3000)
+				    );
+					$scope.currentFavorite.itIsFavorite = true;
+					$scope.currentFavorite.dbTableId = response.data.generatedId;
+				}
+				else {
+					$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
 			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
 			else {
-				if(response.status == '200') {
-					$log.info(response.status);
-					
-				}
-				else if(response.status == '400') {
-    				$log.info(response.status);
-    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-    				$scope.showErrorAlert('Error', $scope.message);
-    			}
-    			else if(response.status == '401') {
-    				$log.info(response.status);
-    				$scope.showLogoutAlert();
-    				authenticationService.clearCredentials();
-    			}
-    			else {
-    				$log.info(response.status);
-    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-    				$scope.showErrorAlert('Error', $scope.message);
-    			}
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
 			
-			} // else close
-		
 		}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
@@ -1463,8 +1477,55 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$mdDialog.cancel();
 	}
 	
-	
-	
+	// Removing the current queryModel from the database (uses the currentFavorite.dbTableId)
+	$scope.removeCurrentQueryModelFromFavorites = function() {
+		if($scope.currentFavorite.dbTableId != null) {
+			queryService.removeFromFavoritesById($scope.currentFavorite, $scope.credentials.token)
+			.then(function (response) {
+    		
+			if(response.status == '200') {
+				
+				if(response.data.dbStatus == 'success') {
+					// Display msg
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent('The Query has been removed from your favorites!')
+				        .position('top right')
+				        .parent(angular.element('#mainContent'))
+				        .hideDelay(3000)
+				    );
+					$scope.currentFavorite.itIsFavorite = false;
+					$scope.currentFavorite.dbTableId = null;
+				}
+				else {
+					$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+		}
+	}
 	
 	
 	
