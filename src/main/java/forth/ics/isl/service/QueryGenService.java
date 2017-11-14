@@ -35,6 +35,9 @@ public class QueryGenService {
                 + "?FLE1 cerif:has_destination ?PA.\n"
                 + "?PA cerif:is_source_of ?FLE2.\n"
                 + "?FLE2 cerif:has_destination [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>]."
+                + "}\n"
+                + "OPTIONAL {\n"
+                + "  ?FLE2 cerif:has_destination ?object.\n"
                 + "} } limit 1";
         return query;
     }

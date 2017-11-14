@@ -170,7 +170,7 @@ public class DBService {
         try {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
-            ResultSet entities = statement.executeQuery("select * from entity");
+            ResultSet entities = statement.executeQuery("select * from entity"); //ignore location
             while (entities.next()) {
                 JSONObject entity = new JSONObject();
                 entity.put("id", entities.getInt("id"));
