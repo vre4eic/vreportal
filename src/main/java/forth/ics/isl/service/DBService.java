@@ -428,4 +428,50 @@ public class DBService {
         return statusObject;
     }
     
+    public static JSONObject retrieveFavoriteQueryModelsByUsername(String usernameStr) {
+        JSONObject statusObject = new JSONObject();
+        try {
+        	
+        	JSONArray favoriteModels = new JSONArray();
+        	
+            Connection conn = initConnection();
+            String sql = "SELECT * FROM user_favorites WHERE username = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+			preparedStatement.setString(1, usernameStr);
+			
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				long userId = rs.getLong("id");
+				String username = rs.getString("username");
+				String title = rs.getString("title");
+				String description = rs.getString("description");
+				String queryModel = rs.getString("query_model");
+				
+				JSONObject favoriteModel = new JSONObject();
+				favoriteModel.put("userId", userId);
+				favoriteModel.put("username", username);
+				favoriteModel.put("title", title);
+				favoriteModel.put("description", description);
+				favoriteModel.put("queryModel", queryModel);
+				favoriteModels.add(favoriteModel);
+			}
+			
+			if (rs != null)
+				rs.close();
+			if (preparedStatement != null)
+				preparedStatement.close();
+			if (conn != null)
+				conn.close();
+			
+            
+            statusObject.put("dbStatus", "success");
+            statusObject.put("favoriteModels", favoriteModels);
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+            statusObject.put("dbStatus", "fail");
+        }
+        return statusObject;
+    }
+    
 }

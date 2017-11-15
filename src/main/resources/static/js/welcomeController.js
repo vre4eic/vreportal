@@ -81,7 +81,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"import",
-	 	   disabled:true, 
+	 	   disabled:false, 
 	 	   view:""
 	    }, { 
 	 	   index:"2", 
@@ -92,8 +92,8 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
-	 	   state:"",
-	 	   disabled:true, 
+	 	   state:"favorites",
+	 	   disabled:false, 
 	 	   view:""
 	    }
 	];

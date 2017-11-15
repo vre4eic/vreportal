@@ -80,16 +80,15 @@ public class UserProfileController {
     /**
      * Retrieving user's list of query models from favorites
      *
-     * @param authorizationToken A string holding the authorization token
-     * @param username The username of the user
+     * @param authorizationToken 	A string holding the authorization token
+     * @param username 				The username of the user
      */
     @RequestMapping(value = "/retrieve_favorite_query_models_by_user", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONArray loadFavoriteQueryModel(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-        System.out.println("fromSearch:" + requestParams.get("username"));
-
-        JSONArray queryModelsArray = new JSONArray();
-        return queryModelsArray;
+    JSONObject retrieveFavoriteQueryModelsByUsername(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+    	JSONObject statusObject = new JSONObject();
+        statusObject = dbService.retrieveFavoriteQueryModelsByUsername(requestParams.get("username").toString());
+        return statusObject;
     }
 
 }

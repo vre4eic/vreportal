@@ -212,6 +212,24 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 
+		},
+		
+		retrieveFavoriteQueryModelsByUsername : function(model, token) {
+
+			return $http({
+				'url' : '/retrieve_favorite_query_models_by_user',
+				'method' : 'POST',
+				'headers' : {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data' : model
+			}).then(function (success) {
+				return success;
+			},function (error) {
+				//error code
+			});
+
 		}//,
 		
 	}
