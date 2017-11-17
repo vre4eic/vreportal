@@ -988,6 +988,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Enabling rowModel
 		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+		
+		// Debugging:
+		var model = {
+			queryFrom: $scope.queryFrom,
+			rowModel: rowModel,
+			queryModel: {
+				targetModel: $scope.targetModel,
+				relatedModels: $scope.rowModelList
+			}
+		}
+		console.log(angular.toJson(model));
 	}
 	
 	// SpeedDialModes
@@ -1550,7 +1561,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applySearch = function() {
-		$log.info(angular.toJson($scope.rowModelList));
+		var model = {
+			queryFrom: $scope.queryFrom,
+			queryModel: {
+				targetModel: $scope.targetModel,
+				relatedModels: $scope.rowModelList
+			}
+		}
+		$log.info(angular.toJson(model));
 		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 	};
 	
