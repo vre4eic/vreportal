@@ -1561,6 +1561,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applySearch = function() {
+		// Development purpose
 		var model = {
 			queryFrom: $scope.queryFrom,
 			queryModel: {
