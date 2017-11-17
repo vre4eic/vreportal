@@ -5,6 +5,19 @@
 			
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
+					<md-button class="md-icon-button" ng-click="goToHomeView()" aria-label="Go at Home">
+						<md-icon md-font-icon="fa fa-home" style="font-size:28px;"/>
+						<md-tooltip md-delay="1000" md-direction="top">
+							Go back at Home view
+						</md-tooltip>
+					</md-button>
+					<!-- 
+					<md-icon md-font-icon="fa fa-chevron-right" 
+							 style="font-size: 104px; 
+							 margin-top: 4px; 
+							 position: absolute;
+							 color: #fafafa;"/>
+					-->
 					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();copyNamegraphs();" 
 							   class="md-fab md-mini hideLeft" 
 							   aria-label="Show VRE's menu"
@@ -177,6 +190,7 @@
 									<md-input-container class="md-block shrinked">
 										<label>Select Target Entity</label>
 										<md-select ng-model="targetModel.selectedTargetEntity" 
+												   ng-model-options="{trackBy: '$value.uri'}"
 												   name="targetEntityInput" 
 												   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, null, rowModel, targetModel.selectedTargetEntity, 'targetEntitySelect')"
 												   required 
@@ -208,7 +222,7 @@
 															 md-no-cache="true" 
 															 md-dropdown-items="5" 
 															 md-selected-item="targetModel.selectedTargetRecomentation" 
-															 md-search-text="searchText"
+															 md-search-text="targetModel.searchTargetKeywords"
 															 md-selected-item-change="selectedItemChange(item, -1)"
 															 md-items="item in querySearch(searchText, -1)"
 															 md-item-text="item.name"

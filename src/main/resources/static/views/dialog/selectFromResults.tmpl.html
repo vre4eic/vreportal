@@ -44,14 +44,14 @@ thead, tbody tr {
 									 ng-change="handleSelectAllRelatedSearchResults(currRowModel)"
 									 class="md-secondary"
 									 style="margin: 0px;">
-							Select All
+							{{'Select All' | uppercase}}
 						</md-checkbox>
 					</th>
 					<th ng-repeat="(key,val) in item" 
 						class="ng-binding" 
 						ng-if="key != 'isChecked' && key != 'uri'"
 						style="vertical-align:middle; padding:0;">
-							{{key}} 
+							{{key | uppercase}} 
 					</th>
 				</tr>
 			</thead>

@@ -48,7 +48,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        .textContent('Either your session has been expired or you are no longer authorized to continue.')
 	        .ariaLabel('Logout Message')
 	        .ok('OK')
-	    ).finally(function() { 
+	    ).finally(function() {
 	    	$state.go('login', {});
 	    });
 	};
@@ -345,7 +345,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		backupSelectedTargetEntity: null,
 		targetEntities: $scope.allEntities, //angular.copy($scope.allEntities);
 		searchTargetKeywords: '',
-		targetThesaurus: {},
 		selectedTargetRecomentation: null,
 		targetChips: []
 	}
@@ -390,6 +389,34 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.handleSelectAllRelatedSearchResults(rowModel);
 	}
 	
+	$scope.currentFavorite = {
+		itIsFavorite: false,
+		dbTableId: null
+	};
+	
+	this.$onInit = function () {
+		//Initializing empty row model (new instance)
+		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
+		$scope.rowModelList = [$scope.emptyRowModel];
+		
+		// Initializing target and rowModelList
+		// according to whether it is a "new" case or a "loading from favorites" case
+		function initRowModels() {
+			// Initializing model from favorite (if loaded)
+			if($sessionStorage.selectedFavoriteModel != null) {
+				$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
+				$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
+				// Let system know that this is already favorite
+				$scope.currentFavorite.itIsFavorite = true;
+				$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
+				// Making $sessionStorage.selectedQueryModel null, to free up memory
+				$sessionStorage.selectedFavoriteModel = null;
+			}
+		}
+		
+		initRowModels();
+	}
+		
 	// Initializing All available entities
 	function initAllEntities(queryFrom, notify) {
 		
@@ -397,16 +424,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			headerText: 'Loading Please Wait...',
 			bodyText: 'Initializing available options...'
 		};
-		
+	
 		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
-		
+	
 		queryService.getEntities(queryFrom, $scope.credentials.token).then(function (response) {
 			if(response.status == '200') {
 				if(response.data.remote_status == 200) {
 					$scope.allEntities = response.data.entities;
 					$scope.targetModel.targetEntities = response.data.entities;
 					$scope.initEmptyRowModel.relatedEntities = response.data.entities;
-					//$scope.rowModelList[0].relatedEntities = response.data.entities;
 					
 					if(notify) {
 						// Display msg
@@ -456,17 +482,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}).finally(function(){
 			//$scope.$apply();
 		});
+			
 	}
-		
-	// Initializing empty row model (new instance)
-	function initRowModels() {
-		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
-		//alert($scope.emptyRowModel.relatedChips.length===0);
-	}
-	
-	initRowModels();
-	
-	$scope.rowModelList = [$scope.emptyRowModel];
 		
 	$scope.addNewEmptyRowModel = function(parentRowModel, str) {
 		
@@ -523,6 +540,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
+
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
@@ -554,6 +572,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				});
 			}
 		}
+		
 	}
 	
 	// Loading the list of relations and related entities 
@@ -566,7 +585,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(ev, parentRowModel, rowModel, selectedEntity, provenanceFunction) {
 				
-		if(selectedEntity !=null) {
+		if(selectedEntity !=null) { 
 			
 			// Rrelated Entity List handling
 			
@@ -790,6 +809,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			} // Close - else (selection from related entity
 			
 		} // If close - (selectedTargetEntity not null)
+				
 	}
 	
 	// Handling Relations and Related Entity By Target
@@ -998,10 +1018,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if(entity != null) {
 			if(entity.thesaurus != "" && entity.thesaurus != null) {
 				return $http.get(entity.thesaurus, {cache: true}).then(function(response) {
-		        	//$log.info('$scope.targetModel.targetThesaurus ' + JSON.stringify($scope.targetModel.targetThesaurus));
+		        	//$log.info('$scope.targetThesaurus ' + JSON.stringify($scope.targetThesaurus));
 		        	// Case Target
 		        	if(outerIndex == -1) {
-		        		$scope.targetModel.targetThesaurus = response.data;
+		        		$scope.targetThesaurus = response.data;
 		        	}
 		        	// Case Related Entity
 		        	else { //if(entityCase == 'related')
@@ -1011,7 +1031,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			else {
 				if(outerIndex == -1) {
-	        		$scope.targetModel.targetThesaurus = "";
+	        		$scope.targetThesaurus = "";
 	        	}
 	        	// Case Related Entity
 	        	else { //if(entityCase == 'related')
@@ -1021,7 +1041,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		} // Closing - if(entity != null)
 		else {
 			if(outerIndex == -1) {
-        		$scope.targetModel.targetThesaurus = "";
+        		$scope.targetThesaurus = "";
         	}
         	// Case Related Entity
         	else { //if(entityCase == 'related')
@@ -1034,8 +1054,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     $scope.querySearch = function(query, outerIndex) {
     	var results = [];
     	if(outerIndex == -1) {
-    		if($scope.targetModel.targetThesaurus != '')
-    			results = query ? $scope.targetModel.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetModel.targetThesaurus;
+    		if($scope.targetThesaurus != '')
+    			results = query ? $scope.targetThesaurus.filter( createFilterFor(query) ) : $scope.targetThesaurus;
     	}
     	else { //if(entityCase == 'related')
     		if($scope.thesaurus != '')
@@ -1404,27 +1424,28 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	});
 	}
 	
-	// Model holding current favorite
+	// Model to hold current favorite
 	$scope.favoriteModel = {
 		username: $sessionStorage.userProfile.userId,
 		title: '',
 		description: '',
 		queryModel: {
-			targetModel: $scope.targetModel,
-			relatedModels: $scope.rowModelList
+			targetModel: null,
+			relatedModels: null
 		}
 	};
 	
-	$scope.currentFavorite = {
-		itIsFavorite: false,
-		dbTableId: null
-	};
-	
-	// Save into or remove from favorites
+	// Save into favorites
 	$scope.saveIntoFavorites = function() {
+		
+		// Updating model holding current favorite
+		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
+		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
+		
 		//console.log(angular.toJson($scope.favoriteModel));
 		
-		queryService.saveIntoFavorites($scope.favoriteModel, $scope.credentials.token)
+		//queryService.saveIntoFavorites(JSON.stringify($scope.favoriteModel), $scope.credentials.token)
+		queryService.saveIntoFavorites(angular.toJson($scope.favoriteModel), $scope.credentials.token)
 			.then(function (response) {
     		
 			if(response.status == '200') {
@@ -1528,8 +1549,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
-	
-	
 	$scope.applySearch = function() {
 		$log.info(angular.toJson($scope.rowModelList));
 		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
@@ -1545,6 +1564,27 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		
 		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		
 	
 	
@@ -2337,6 +2377,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//if()
 		//exists = 
 		$log.info('value: ' + value);
+	});
+
+	Promise.resolve(initRowModels()).then(function() {
+		//initPurpose = false;
 	});
 	*/
 	

@@ -129,6 +129,14 @@
             <artifactId>font-awesome</artifactId>
             <version>4.7.0</version>
         </dependency>
+        <!-- 
+        Lo-Dash - A modern JavaScript utility library delivering modularity, performance & extras.
+        -->
+        <dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>lodash</artifactId>
+			<version>4.17.4</version>
+		</dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>

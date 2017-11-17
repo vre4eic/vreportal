@@ -84,26 +84,7 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
 		};
 	}
 	
-	// Model holding current favorite
-	/*
-	$scope.favoriteModel = {
-		username: $sessionStorage.userProfile.userId,
-		title: '',
-		description: '',
-		queryModel: {
-			targetModel: $scope.targetModel,
-			relatedModels: $scope.rowModelList
-		}
-	};
-	*/
 	$scope.favoriteModels = [];
-	
-	/*
-	$scope.currentFavorite = {
-		itIsFavorite: false,
-		dbTableId: null
-	};
-	*/
 	
 	// Init favorites
 	function initFavoriteModels() {
@@ -127,14 +108,14 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
     		
 			if(response.status == '200') {
 				if(response.data.dbStatus == 'success') {
-					$scope.favoriteModels = response.data.favoriteModels;
-					modalInstance.close();
+					if(response.data.favoriteModels != null)
+						$scope.favoriteModels = response.data.favoriteModels;
 				}
 				else {
-					modalInstance.close();
 					$scope.message = 'I\'m sorry! Something went wrong and your list of favorites could not be loaded. Try again later and if the same error occures, please contact with the administrator.';
 					$scope.showErrorAlert('Error', $scope.message);
 				}
+				modalInstance.close();
 			}
 			else if(response.status == '400') {
 				modalInstance.close();
@@ -165,15 +146,33 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
 		
 	}
 	
+	// Converting object to array in order to use orderBy filter on ng-repeat
+	// To bypass the error "Error: 10 $digest() iterations reached. Aborting!"
+	// the results of the function are cashed by using the Lo-Dash’s memoize function
+	$scope.templateAry = _.memoize(function (tempItem) {
+	    var ary = [];
+	    angular.forEach(tempItem, function (val, key) {
+	    	if(key != '$$hashKey' && key != 'queryModel' && key != 'favoriteId' && key != 'username') // $$hashKey is added by angular (don't need it)
+	    		ary.push({key: key, val: val});
+	    });
+	    return ary;
+	});
+	
+	// Selecting the model to load
 	$scope.setSelectedFavoriteModel = function() {
-        //$scope.selected = this.item; // item is from the ng-repeat in html
-        //console.log($scope.selected);
-		
-		$scope.selectedQueryModel = this.item.queryModel;
-		console.log($scope.selectedQueryModel);
-		
+        //$scope.selectedQueryModel = this.item.queryModel; // this.item is from the ng-repeat in html
+        $scope.selectedFavoriteModel = this.item; // this.item is from the ng-repeat in html
     };
 	
+    // Loading model
+    $scope.loadQueryModel = function() {
+    	//console.log($scope.selectedQueryModel);
+    	//$sessionStorage.selectedQueryModel = angular.fromJson($scope.selectedQueryModel);
+    	console.log($scope.selectedFavoriteModel);
+    	$sessionStorage.selectedFavoriteModel = angular.fromJson($scope.selectedFavoriteModel);
+    	$state.go('navigation', {});
+    }
+    
 	/*
 	angular.forEach(list, function(value, key) {
 		//if()

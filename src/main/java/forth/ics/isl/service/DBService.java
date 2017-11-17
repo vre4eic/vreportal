@@ -29,6 +29,8 @@ import javax.annotation.PostConstruct;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -428,7 +430,7 @@ public class DBService {
         return statusObject;
     }
     
-    public static JSONObject retrieveFavoriteQueryModelsByUsername(String usernameStr) {
+    public static JSONObject retrieveFavoriteQueryModelsByUsername(String usernameStr) throws ParseException {
         JSONObject statusObject = new JSONObject();
         try {
         	
@@ -441,18 +443,20 @@ public class DBService {
 			
 			ResultSet rs = preparedStatement.executeQuery();
 			while (rs.next()) {
-				long userId = rs.getLong("id");
+				long favoriteId = rs.getLong("id");
 				String username = rs.getString("username");
 				String title = rs.getString("title");
 				String description = rs.getString("description");
 				String queryModel = rs.getString("query_model");
 				
 				JSONObject favoriteModel = new JSONObject();
-				favoriteModel.put("userId", userId);
+				favoriteModel.put("favoriteId", favoriteId);
 				favoriteModel.put("username", username);
 				favoriteModel.put("title", title);
 				favoriteModel.put("description", description);
-				favoriteModel.put("queryModel", queryModel);
+				JSONParser parser = new JSONParser();
+				JSONObject queryModelJson = (JSONObject) parser.parse(queryModel);
+				favoriteModel.put("queryModel", queryModelJson);
 				favoriteModels.add(favoriteModel);
 			}
 			

@@ -170,6 +170,7 @@
 						<md-input-container class="md-block">
 							<label>Select Relation</label>
 							<md-select ng-model="rowModel.selectedRelation" 
+									   ng-model-options="{trackBy: '$value.uri'}"
 									   name="relationInput_{{rowModel.id}}" 
 									   required 
 									   ng-change="loadRelatedEntitiesByRelation(parent.rowModel, rowModel)"
@@ -226,6 +227,7 @@
 						<md-input-container class="md-block shrinked">
 							<label>Select Related Entity</label>
 							<md-select ng-model="rowModel.selectedRelatedEntity" 
+									   ng-model-options="{trackBy: '$value.uri'}"
 									   name="relatedEntityInput_{{rowModel.id}}" 
 									   selected="rowModel.selectedRelatedEntity" 
 									   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
