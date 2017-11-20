@@ -1127,7 +1127,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	// Getting the query from back-end - Promise
     	
     	var updatedQueryModel = '';
-    	var updatedQueryModelPerPage = '';
+    	$scope.updatedQueryModelPerPage = '';
     	
     	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
     		if(queryResponse.status == '200') {
@@ -1145,14 +1145,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
             			console.log('$scope.relatedEntityResultsCount: ' + $scope.relatedEntityResultsCount);
             			
             			// Change query such that only the first 10 are returned
-            			updatedQueryModelPerPage = Object.assign(updatedQueryModel);
-            			/////// After the line below, the updatedQueryModelPerPage.query becomes NA 
-            			var queryPerPage = "";//angular.copy(updatedQueryModelPerPage.query);
-            			queryPerPage = angular.copy(updatedQueryModelPerPage.query) + ' limit ' + $scope.itemsPerPage.toString() + ' offset ' + ($scope.currentPage-1).toString();
-            			updatedQueryModelPerPage.query = queryPerPage;
+            			$scope.updatedQueryModelPerPage = Object.assign(updatedQueryModel);
+
+            			var queryPerPage = "";//angular.copy($scope.updatedQueryModelPerPage.query);
+            			queryPerPage = angular.copy($scope.updatedQueryModelPerPage.query) + ' limit ' + $scope.itemsPerPage.toString() + ' offset ' + ($scope.currentPage-1).toString();
+            			$scope.updatedQueryModelPerPage.query = queryPerPage;
+            			
+            			// Keeping backup of query for easy offset change when pressing the next page
+    			    	//$scope.updatedQueryModelPerPageBackup = angular.copy($scope.updatedQueryModelPerPage);
+    			    	//$scope.updatedQueryModelPerPageBackup.query.replace("offset 0","offset !@#NUM#@!");
             			
         	    		// Calling service to executing Query - Promise
-        	    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModelPerPage, $scope.credentials.token)
+        	    		queryService.getEntityQueryResults($scope.serviceModel, $scope.updatedQueryModelPerPage, $scope.credentials.token)
         	    		.then(function (response) {
         	        		
         	    			if(response.status == -1) {
@@ -1288,8 +1292,74 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.currentPage = 1;
 	$scope.itemsPerPage = 10;
 	
+	// Server-Side Pagination for query
+	function getData(rowModel) {
+		var pageParams = {
+			page: $scope.currentPage, 
+			itemsPerPage: $scope.itemsPerPage,
+		}
+		
+		// Preparing new query with offset according to the page number clicked
+		var subStrIndex = JSON.stringify($scope.updatedQueryModelPerPage.query).indexOf('offset');
+		var subString = JSON.stringify($scope.updatedQueryModelPerPage.query).substr(subStrIndex);
+		subString = subString.slice(0, -1);
+		console.log(subString);
+		
+		$scope.updatedQueryModelPerPage.query = JSON.stringify($scope.updatedQueryModelPerPage.query).replace(subString, 'offset ' + (pageParams.page-1) * pageParams.itemsPerPage);
+		$scope.updatedQueryModelPerPage.query = angular.fromJson($scope.updatedQueryModelPerPage.query);
+		console.log($scope.updatedQueryModelPerPage.query);
+		
+		queryService.getEntityQueryResults($scope.serviceModel, $scope.updatedQueryModelPerPage, $scope.credentials.token)
+		.then(function (response) {
+    		
+			if(response.status == -1) {
+				$scope.message = 'There was a network error. Try again later.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+			else {
+				if(response.status == '200') {
+					
+					$scope.relatedEntityResults = response.data;
+					
+					// Iterating response that doesn't have 'isChecked' element
+					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
+						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
+							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
+						}
+			    	}					
+				}
+				else if(response.status == '400') {
+    				$log.info(response.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
+    			else if(response.status == '401') {
+    				$log.info(response.status);
+    				$scope.showLogoutAlert();
+    				authenticationService.clearCredentials();
+    			}
+    			else {
+    				$log.info(response.status);
+    				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
+			
+			} // else close
+			
+			//modalInstance.close();
+		
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			//modalInstance.close();
+		});
+	}
+	
 	$scope.pageChanged = function() {
-		//getData();
+		getData($scope.currRowModel);
 	};
     	
 	// adding or removing selected items from the searched results of the related entity
