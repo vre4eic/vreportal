@@ -20,14 +20,16 @@
 		<div id="popupContainer">
 			<md-toolbar class="md-hue-2" style="background-color:rgb(250, 250, 250)">
 				<div class="md-toolbar-tools row" ng-controller="beforeLoginCtrl" layout-padding>
+				
 					<img src="/images/logo-vre4eic-modern-pink.png" alt="VRE4EIC" width="256" style="padding-right:10px;">
 					<span style="padding-left:20px;color:black;font-size:30px;" flex>Metadata Portal</span>
-					<!--
-					<span style="padding-left:20px;color:black;font-size:20px;" flex">
-						{{userProfile.name}}
-					</span>
-					-->
-					<md-menu>
+					<md-button ng-show="userProfile!=null && userProfile != undefined" class="md-icon-button" ng-click="goToHomeView()" aria-label="Go at Home">
+						<md-icon md-font-icon="fa fa-home" style="font-size:36px; color: #3f51b5;"/>
+						<md-tooltip md-delay="1000" md-direction="bottom">
+							Go at Home
+						</md-tooltip>
+					</md-button>
+					<md-menu ng-show="userProfile!=null && userProfile != undefined">
 						<md-button ng-click="openTopMenu($mdMenu, $event)" md-no-ink class="md-primary">
             				{{userProfile.name}}
             			</md-button>

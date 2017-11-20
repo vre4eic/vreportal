@@ -5,19 +5,6 @@
 			
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-button class="md-icon-button" ng-click="goToHomeView()" aria-label="Go at Home">
-						<md-icon md-font-icon="fa fa-home" style="font-size:28px;"/>
-						<md-tooltip md-delay="1000" md-direction="top">
-							Go back at Home view
-						</md-tooltip>
-					</md-button>
-					<!-- 
-					<md-icon md-font-icon="fa fa-chevron-right" 
-							 style="font-size: 104px; 
-							 margin-top: 4px; 
-							 position: absolute;
-							 color: #fafafa;"/>
-					-->
 					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();copyNamegraphs();" 
 							   class="md-fab md-mini hideLeft" 
 							   aria-label="Show VRE's menu"
@@ -27,6 +14,7 @@
 							Show VRE's menu
 						</md-tooltip>
 			        </md-button>
+			        <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="36" style="padding-right:10px;">
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					<md-button ng-click="showFavoriteDialog($event)" ng-show="!currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
 			            <md-icon md-font-icon="fa fa-heart-o" style="font-size:28px;">

@@ -329,10 +329,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			icon: 'fa fa-globe'
 		}];
 	
-	$scope.goToHomeView = function() {
-		$state.go('welcome', {});
-	}
-
 	// To be used for constructing the simple related entity query dynamically
     $scope.relatedEntityQuerySearchText = '';
 	

@@ -115,34 +115,35 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
 					$scope.message = 'I\'m sorry! Something went wrong and your list of favorites could not be loaded. Try again later and if the same error occures, please contact with the administrator.';
 					$scope.showErrorAlert('Error', $scope.message);
 				}
-				modalInstance.close();
 			}
 			else if(response.status == '400') {
-				modalInstance.close();
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
 			}
 			else if(response.status == '401') {
-				modalInstance.close();
 				$log.info(response.status);
 				$scope.showLogoutAlert();
 				authenticationService.clearCredentials();
 			}
 			else {
-				modalInstance.close();
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
 			}
+			//modalInstance.close();
 			
 		}, function (error) {
-			modalInstance.close();
+			//modalInstance.close();
 			$scope.message = 'There was a network error. Try again later.';
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
-		});
+		}).finally(function(){
+			$timeout(function(){
+				modalInstance.close();
+			});//, 500);
+		});;
 		
 	}
 	

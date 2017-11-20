@@ -198,10 +198,14 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', '$location
 	}
 	
 	$scope.openTopMenu = function($mdMenu, ev) {
-		  originatorEv = ev;
-		  $mdMenu.open(ev);
-	  };
+		originatorEv = ev;
+		$mdMenu.open(ev);
+	};
 	
+	$scope.goToHomeView = function() {
+		$state.go('welcome', {});
+	}
+	  
 } ]);
 
 app.controller("registrationCtrl", ['$scope', 'authenticationService', '$timeout', '$state', 
