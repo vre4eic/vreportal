@@ -1,4 +1,4 @@
-<div class="section" style="padding: 20px;">
+<div class="section" style="padding: 20px;" ng-cloak>
 	
 	<div class="row">
 		<div class="column inside" style="width:100%">
@@ -22,7 +22,7 @@
 							Add into favorites
 						</md-tooltip>
 			        </md-button>
-			        <md-button ng-click="removeCurrentQueryModelFromFavorites();" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
+			        <md-button ng-click="removeCurrentQueryModelFromFavorites($event);" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
 			            <md-icon md-font-icon="fa fa-heart" style="font-size:28px;">
 			            <md-tooltip md-delay="1000" md-direction="top">
 							Rmove from favorites
@@ -205,7 +205,7 @@
 												  md-transform-chip="transformChip($chip)"
 												  md-enable-chip-edit="true"
 												  style="padding:0;">
-											<md-autocomplete flex layout-xs md-input-name="targetEntityInput"
+											<md-autocomplete flex layout-xs md-input-name="targetEntityAutocompleteInput"
 															 class="shrinked"
 															 md-no-cache="true" 
 															 md-dropdown-items="5" 
@@ -275,6 +275,10 @@
 					</span>
 					
 					<span layout="row">
+						<md-button class="md-raised md-primary" ng-click="applyReset($event)">
+							<md-icon md-font-icon="fa fa-search" style="font-size:18px"></md-icon>
+							Reset
+						</md-button>
 						<span flex></span>
 						<md-button class="md-raised md-primary" ng-click="applySearch()">
 							<md-icon md-font-icon="fa fa-search" style="font-size:18px"></md-icon>

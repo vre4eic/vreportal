@@ -75,26 +75,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         $mdSidenav(componentId).toggle();
       };
     }
-	/*
-	$scope.closeTreeMenu = buildCloseForNamedgraphSideNav('treeMenu', ev);
 	
-	function buildCloseForNamedgraphSideNav(componentId, ev) {
-	      return function() {
-	        $mdSidenav(componentId).close().then(function() {
-	        	$scope.reLoadEntities(ev, queryFrom)
-	        });
-	      };
-	    }
-	}
-	*/
-	/*
-	// Executed when closing the sideNav treeMenu // Use $timeout
-	$mdComponentRegistry.when('treeMenu').then(function() {
-		$mdSidenav('treeMenu').onClose(function (event) {
-			$scope.reLoadEntities(event, $scope.queryFrom);
-		});
-	});
-	*/
 	$scope.hiddenTreeMenuTogglerButton = false;
 	
 	$scope.hideTreeMenuTogglerButton = function(boolean) {
@@ -284,6 +265,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    	$scope.rowModelList = [];
 		    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 				$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
+				$scope.rowModelList[0].activeRowModelStyle = 'enabled-style';
 		    	initAllEntities(queryFrom, true); // Apply the change and notify
 		    	$scope.hideTreeMenuTogglerButton(false);
 		    	$scope.toggleTreeMenu();
@@ -843,6 +825,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// Handling Children when selecting an entity (if there are any)
 					if(rowModel.selectedRelatedEntity != null) // Setting field touched otherwise it wont return error
 						$scope.searchForm['relatedEntityInput_' + rowModel.id].$setTouched();
+					
 					rowModel.selectedRelatedEntity = null;
 					
 					rowModel.rowModelList = [];
@@ -1518,9 +1501,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Updating model holding current favorite
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
 		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
-		
-		//console.log(angular.toJson($scope.favoriteModel));
-		
+				
 		//queryService.saveIntoFavorites(JSON.stringify($scope.favoriteModel), $scope.credentials.token)
 		queryService.saveIntoFavorites(angular.toJson($scope.favoriteModel), $scope.credentials.token)
 			.then(function (response) {
@@ -1576,54 +1557,112 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	// Removing the current queryModel from the database (uses the currentFavorite.dbTableId)
-	$scope.removeCurrentQueryModelFromFavorites = function() {
+	$scope.removeCurrentQueryModelFromFavorites = function(ev) {
 		if($scope.currentFavorite.dbTableId != null) {
 			
-			queryService.removeFromFavoritesById($scope.currentFavorite, $scope.credentials.token)
-			.then(function (response) {
-    		
-				if(response.status == '200') {
-					
-					if(response.data.dbStatus == 'success') {
-						// Display msg
-						$mdToast.show(
-							$mdToast.simple()
-					        .textContent('The Query has been removed from your favorites!')
-					        .position('top right')
-					        .parent(angular.element('#mainContent'))
-					        .hideDelay(3000)
-					    );
-						$scope.currentFavorite.itIsFavorite = false;
-						$scope.currentFavorite.dbTableId = null;
+			// Ask before removing from favorites
+			var confirm = $mdDialog.confirm()
+				.title('Warning Message')
+				.htmlContent('Are you sure you want to remove this query from your favorites?')
+				.ariaLabel('Confirmation')
+				.targetEvent(ev)
+				.ok('Yes Proceed')
+				.cancel('Cancel');
+			
+			$mdDialog.show(confirm).then(function() { // OK
+				queryService.removeFromFavoritesById($scope.currentFavorite, $scope.credentials.token)
+				.then(function (response) {
+					if(response.status == '200') {
+						if(response.data.dbStatus == 'success') {
+							// Display msg
+							$mdToast.show(
+								$mdToast.simple()
+						        .textContent('The Query has been removed from your favorites!')
+						        .position('top right')
+						        .parent(angular.element('#mainContent'))
+						        .hideDelay(3000)
+						    );
+							$scope.currentFavorite.itIsFavorite = false;
+							$scope.currentFavorite.dbTableId = null;
+						}
+						else {
+							$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
+							$scope.showErrorAlert('Error', $scope.message);
+						}
 					}
-					else {
-						$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
+					else if(response.status == '400') {
+						$log.info(response.status);
+						$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 						$scope.showErrorAlert('Error', $scope.message);
 					}
-				}
-				else if(response.status == '400') {
-					$log.info(response.status);
-					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-					$scope.showErrorAlert('Error', $scope.message);
-				}
-				else if(response.status == '401') {
-					$log.info(response.status);
-					$scope.showLogoutAlert();
-					authenticationService.clearCredentials();
-				}
-				else {
-					$log.info(response.status);
-					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-					$scope.showErrorAlert('Error', $scope.message);
-				}
-				
-			}, function (error) {
-				$scope.message = 'There was a network error. Try again later.';
-				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-					data : error
-				}));
-			});
+					else if(response.status == '401') {
+						$log.info(response.status);
+						$scope.showLogoutAlert();
+						authenticationService.clearCredentials();
+					}
+					else {
+						$log.info(response.status);
+						$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+						$scope.showErrorAlert('Error', $scope.message);
+					}
+					
+				}, function (error) {
+					$scope.message = 'There was a network error. Try again later.';
+					alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+						data : error
+					}));
+				});
+		    	
+		    }, function() { // Cancel
+		    	//
+		    });
+			
+			
 		}
+	}
+	
+	$scope.applyReset = function(ev) {
+		var confirm = $mdDialog.confirm()
+			.title('Warning Message')
+			.htmlContent('Are you sure you want to reset the query constructed so far?')
+			.ariaLabel('Target Entity Selection - No longer Available')
+			.targetEvent(ev)
+			.ok('Yes Proceed')
+			.cancel('Cancel');
+		
+		$mdDialog.show(confirm).then(function() { // OK
+			
+			//Initializing empty row model (new instance)
+			$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
+			$scope.rowModelList = [$scope.emptyRowModel];
+			
+			// Resetting target model
+			$scope.targetModel.selectedTargetEntity = null;
+			$scope.targetModel.backupSelectedTargetEntity = null;
+			$scope.targetModel.targetEntities = $scope.allEntities;
+			$scope.targetModel.searchTargetKeywords = '';
+			$scope.targetModel.selectedTargetRecomentation = null;
+			$scope.targetModel.targetChips = [];
+			
+			// Handling favorites
+			if($sessionStorage.selectedFavoriteModel != null) {
+				// Resetting favorite related options
+				$scope.currentFavorite.itIsFavorite = false;
+				$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
+				// Making $sessionStorage.selectedQueryModel null, to free up memory
+				$sessionStorage.selectedFavoriteModel = null;
+			}
+			//console.log($scope.rowModelList);
+			// Setting select inputs untouched
+			//$scope.searchForm.$setPristine();
+			$scope.searchForm['targetEntityInput'].$setUntouched();
+			var rowModelId = $scope.rowModelList[0].id;
+			$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
+			$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
+			
+	    }, function() { // Cancel
+	    	// Do nothing
+	    });
 	}
 	
 	$scope.applySearch = function() {
