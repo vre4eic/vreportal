@@ -973,11 +973,50 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			queryFrom: $scope.queryFrom,
 			rowModel: rowModel,
 			queryModel: {
-				targetModel: $scope.targetModel,
-				relatedModels: $scope.rowModelList
+				targetModel: angular.copy($scope.targetModel),
+				relatedModels: angular.copy($scope.rowModelList)
 			}
 		}
+		
+		// Delete Useless for the back-end properties, occupying a lot of volume
+		
+		// ----------- model.queryModel:
+		
+		// Target
+		delete model.queryModel.targetModel.backupSelectedTargetEntity;
+		delete model.queryModel.targetModel.targetEntities;
+		
+		// Related Entity List (whole (model.queryModel))
+		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+		}
+		
+		// ----------- model.rowModel"
+		
+		// Related Entity List (just the current rowModel))
+		delete model.rowModel.backupSelectedRelatedEntity;
+		delete model.rowModel.backupSelectedRelation;
+		delete model.rowModel.relatedEntities;
+		delete model.rowModel.relations;
+		// Delete for children recursively
+		deleteUselessForBackEndRelatedProperties(model.rowModel)
+		
 		console.log(angular.toJson(model));
+	}
+	
+	// Recursive Method used for development only (so far), which deletes all these properties that
+	// occupy a big volume in the rowModelList
+	function deleteUselessForBackEndRelatedProperties(rowModel) {
+		delete rowModel.backupSelectedRelatedEntity;
+		delete rowModel.backupSelectedRelation;
+		delete rowModel.relatedEntities;
+		delete rowModel.relations;
+		
+		// For all children
+		for(var i=0; i<rowModel.rowModelList.length; i++) {
+			// Recursively
+			deleteUselessForBackEndRelatedProperties(rowModel.rowModelList[i]);
+		}
 	}
 	
 	// SpeedDialModes
@@ -1486,7 +1525,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Model to hold current favorite
 	$scope.favoriteModel = {
-		username: $sessionStorage.userProfile.userId,
+		username: null,
 		title: '',
 		description: '',
 		queryModel: {
@@ -1499,6 +1538,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.saveIntoFavorites = function() {
 		
 		// Updating model holding current favorite
+		$scope.favoriteModel.username = $sessionStorage.userProfile.userId;
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
 		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
 				
@@ -1674,6 +1714,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				relatedModels: $scope.rowModelList
 			}
 		}
+		
+		// Delete Useless for the back-end properties, occupying a lot of volume
+		
+		// ----------- model.queryModel:
+		
+		// Target
+		delete model.queryModel.targetModel.backupSelectedTargetEntity;
+		delete model.queryModel.targetModel.targetEntities;
+		
+		// Related Entity List (whole (model.queryModel))
+		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+		}
+				
 		$log.info(angular.toJson(model));
 		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 	};
