@@ -1713,6 +1713,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
 			$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
 			
+			// Open tree menu again
+			
+			// Initial value for the flag
+			$scope.treeMenuIsOpen = true; 
+			// Open treeMenu
+			$scope.toggleTreeMenu();
+			// Keep first copy
+			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+			
 	    }, function() { // Cancel
 	    	// Do nothing
 	    });
