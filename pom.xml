@@ -23,6 +23,16 @@
                     <groupId>org.slf4j</groupId>
                     <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
+                <!-- 
+                Please uncomment this to avoid conflicts with log4j 
+                before ctreating the big fat jar
+                -->
+                <!--
+                <exclusion>
+		            <groupId>ch.qos.logback</groupId>
+		            <artifactId>logback-classic</artifactId>
+		        </exclusion>
+		        -->
             </exclusions>
         </dependency>
         <dependency>
