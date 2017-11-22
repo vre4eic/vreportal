@@ -5,15 +5,15 @@
 			
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-button ng-click="hideTreeMenuTogglerButton(true);toggleTreeMenu();copyNamegraphs();" 
+					<md-button ng-click="toggleTreeMenu();" 
 							   class="md-fab md-mini hideLeft" 
 							   aria-label="Show VRE's menu"
-							   ng-hide="hiddenTreeMenuTogglerButton">
+							   ng-hide="treeMenuIsOpen">
 			            <md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
 			            <md-tooltip md-delay="1000" md-direction="top">
 							Show VRE's menu
 						</md-tooltip>
-			        </md-button>
+			        </md-button><!-- copyNamegraphs(); -->
 			        <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="36" style="padding-right:10px;">
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					<md-button ng-click="showFavoriteDialog($event)" ng-show="!currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
@@ -92,7 +92,9 @@
 						</li>
 					</ul>
 					-->
-				
+					<md-backdrop ng-show="treeMenuIsOpen" 
+								 class="md-sidenav-backdrop md-opaque md-default-theme"
+								 ng-cloak></md-backdrop>
 				
 					<span layout="row">
 				        
@@ -121,7 +123,17 @@
 				
 								<md-content layout-margin>
 									
-									<md-input-container class="md-block" style="width:200px;">
+									<label style="rgba(0,0,0,0.38); text-align: justify;">
+										Please check or un-check the VREs to be used while constructing the query.
+										<br/>
+										<!--
+										<code>
+											Note that changing the list of VREs after the query has been constructed is not possible since the whole query will be reset.
+										</code>
+										-->
+									</label>
+									
+									<md-input-container class="md-block eliminate-error-spacer-for-search-vres" style="width:200px;">
 										<label>Search VREs</label>
 										<input ng-model="treeVre">
 									</md-input-container>
@@ -132,18 +144,6 @@
 						  					 ivh-treeview-filter="treeVre"
 						  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
 						  					 ivh-treeview-on-cb-change="namegraphTreeCallback($event, ivhNode, ivhIsSelected, ivhTree)">
-						  					 <!--
-											<script type="text/ng-template">
-												<span ivh-treeview-toggle>
-													<span ivh-treeview-twistie></span>
-												</span>
-												<md-box></md-box>
-												<span class="ivh-treeview-node-label" ivh-treeview-toggle>
-													{{trvw.label(node)}}
-												</span>
-												<div ivh-treeview-children></div>
-	      									</script>
-									    	-->
 										</div>
 									
 									</section>

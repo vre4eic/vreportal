@@ -226,9 +226,19 @@ NEW
 }
 
 /* Overwriting check for ViewTree */
+/*
 div.md-icon:after {
 	display: block !important;
 	/*background-color: blue;*/
+}
+*/
+
+/* Eliminating error spaces for "Search VREs" */
+md-input-container.md-block.eliminate-error-spacer-for-search-vres:after {
+	display: inline-block;
+}
+.eliminate-error-spacer-for-search-vres:after {
+	display: inline-block;
 }
 
 /* Mockups */

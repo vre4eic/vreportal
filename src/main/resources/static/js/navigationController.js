@@ -71,16 +71,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.toggleTreeMenu = buildToggler('treeMenu');
 	
 	function buildToggler(componentId) {
-      return function() {
-        $mdSidenav(componentId).toggle();
-      };
+		return function() {
+			$mdSidenav(componentId).toggle();
+			$scope.treeMenuIsOpen = $mdSidenav(componentId).isOpen();
+		};
     }
 	
-	$scope.hiddenTreeMenuTogglerButton = false;
-	
+	/*
 	$scope.hideTreeMenuTogglerButton = function(boolean) {
 		$scope.hiddenTreeMenuTogglerButton = boolean;
 	}
+	*/
 	/*
 	$scope.namegraphs = [{
 		id: 'vre',
@@ -130,14 +131,28 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		return namegraphs;
 	}
 	
+	function stringifyReplacerForMenuTree(key,value) {
+	    if (key=="$$hashKey") return undefined;
+	    else if (key=="__ivhTreeviewExpanded") return undefined;
+	    else return value;
+	}
+	
 	// Initializing All available entities
-	function initAllNamegraphs() {
+	function initAllNamegraphs(newCase) {
 		
 		queryService.getAllNamegraphs().then(function (response) {
 			if(response.status == '200') {
 				$scope.namegraphs = makeAllNamegraphsSelected(response.data);
 				// Initializing the queryFrom string
 				constructQueryForm(response.data);
+				if(newCase) { // Not from favorites
+					// Initial value for the flag
+					$scope.treeMenuIsOpen = true; 
+					// Open treeMenu
+					$scope.toggleTreeMenu();
+					// Keep first copy
+					$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+				}
 				// Initializing the available entities
 				initAllEntities($scope.queryFrom, false);
 			}
@@ -165,14 +180,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				data : error
 			}));
 		}).finally(function(){
-			//$scope.$apply();
+			
 		});
 	}
-	
-	initAllNamegraphs();
-	
-	
-	
+			
 	/*
 	$scope.namegraphs = [{
 			id: 'hats',
@@ -260,14 +271,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		// If there are changes then ask for confirmation
-		if(angular.toJson($scope.namegraphs) != angular.toJson($scope.namegraphsCopy)) {
+		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
 		    $mdDialog.show(confirm).then(function() {
 		    	$scope.rowModelList = [];
 		    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 				$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
 				$scope.rowModelList[0].activeRowModelStyle = 'enabled-style';
 		    	initAllEntities(queryFrom, true); // Apply the change and notify
-		    	$scope.hideTreeMenuTogglerButton(false);
 		    	$scope.toggleTreeMenu();
 		    	
 		    }, function() { // Cancel
@@ -275,7 +285,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    });
 		}
 		else { // No changes
-			$scope.hideTreeMenuTogglerButton(false);
 	    	$scope.toggleTreeMenu();
 		}
 	}
@@ -310,6 +319,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			label: 'East Laos',
 			icon: 'fa fa-globe'
 		}];
+	
 	
 	// To be used for constructing the simple related entity query dynamically
     $scope.relatedEntityQuerySearchText = '';
@@ -373,26 +383,32 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	};
 	
 	this.$onInit = function () {
+				
 		//Initializing empty row model (new instance)
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 		$scope.rowModelList = [$scope.emptyRowModel];
 		
 		// Initializing target and rowModelList
 		// according to whether it is a "new" case or a "loading from favorites" case
-		function initRowModels() {
-			// Initializing model from favorite (if loaded)
-			if($sessionStorage.selectedFavoriteModel != null) {
-				$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
-				$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
-				// Let system know that this is already favorite
-				$scope.currentFavorite.itIsFavorite = true;
-				$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
-				// Making $sessionStorage.selectedQueryModel null, to free up memory
-				$sessionStorage.selectedFavoriteModel = null;
-			}
+		
+		// Initializing model from favorite (if loaded)
+		if($sessionStorage.selectedFavoriteModel != null) {
+			
+			initAllNamegraphs(false); // true stands for "new case"
+			
+			$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
+			$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
+			// Let system know that this is already favorite
+			$scope.currentFavorite.itIsFavorite = true;
+			$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
+			// Making $sessionStorage.selectedQueryModel null, to free up memory
+			$sessionStorage.selectedFavoriteModel = null;
+		}
+		// New Case
+		else {
+			initAllNamegraphs(true); // true stands for "new case"
 		}
 		
-		initRowModels();
 	}
 		
 	// Initializing All available entities
@@ -438,11 +454,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
 			}
 			else if(response.status == '401') {
 				$log.info(response.status);
-				modalInstance.close();
 				$scope.showLogoutAlert();
 				authenticationService.clearCredentials();
 			}
@@ -450,7 +464,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
 			}
 			modalInstance.close();
 		}, function (error) {
