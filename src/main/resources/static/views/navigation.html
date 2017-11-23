@@ -92,16 +92,18 @@
 						</li>
 					</ul>
 					-->
-					<md-backdrop ng-show="treeMenuIsOpen" 
-								 class="md-sidenav-backdrop md-opaque md-default-theme"
-								 ng-cloak></md-backdrop>
-				
+					
+					
 					<span layout="row">
+				        
+				        <md-backdrop ng-show="treeMenuIsOpen" 
+								 class="md-opaque"
+								 ng-cloak></md-backdrop>
 				        
 				        <!-- Side tree -->
 						<md-sidenav class="md-sidenav-left" 
-								md-component-id="treeMenu"
-			                	md-disable-backdrop 
+								md-component-id="treeMenu" 
+								md-disable-backdrop
 			                	md-whiteframe="3">
 								<!-- md-disable-backdrop  -->
 								<md-toolbar class="md-accent">

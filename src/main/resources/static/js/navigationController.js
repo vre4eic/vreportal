@@ -35,6 +35,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		templateUrl: '/views/loadingModal.html'
 	};
 	
+	$scope.mainViewBackdrop = 'enabled-main-view-backdrop';
+	
 	// Used to inform user that his token is no longer valid and will be logged out
 	$scope.showLogoutAlert = function() {
 	    // Appending dialog to document.body to cover sidenav in docs app
@@ -65,12 +67,31 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				.ok('OK')
 		)
 	};
-	    
-	// Toggles SidePanel
-	$scope.toggleInfo = buildToggler('rightInfo');
-	$scope.toggleTreeMenu = buildToggler('treeMenu');
 	
-	function buildToggler(componentId) {
+	// Used to know that the treeMenu was opened and because the user opened the Info it was closed
+	$scope.treeMenuWasOpen = false;
+	
+	// Toggles SidePanel
+	$scope.toggleInfo = infoBuildToggler('rightInfo');
+	function infoBuildToggler(componentId) {
+		return function() {
+			$mdSidenav(componentId).toggle();
+			
+			if($scope.treeMenuIsOpen) {
+				$scope.toggleTreeMenu();
+				$scope.treeMenuWasOpen = true;
+			}
+			
+			else if($scope.treeMenuWasOpen) {
+				$scope.toggleTreeMenu();
+				$scope.treeMenuWasOpen = false;
+			}
+			 
+		};
+    }
+	
+	$scope.toggleTreeMenu = treeMenuBuildToggler('treeMenu');
+	function treeMenuBuildToggler(componentId) {
 		return function() {
 			$mdSidenav(componentId).toggle();
 			$scope.treeMenuIsOpen = $mdSidenav(componentId).isOpen();
@@ -134,6 +155,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	function stringifyReplacerForMenuTree(key,value) {
 	    if (key=="$$hashKey") return undefined;
 	    else if (key=="__ivhTreeviewExpanded") return undefined;
+	    else if (key=="__ivhTreeviewIndeterminate") return undefined;
 	    else return value;
 	}
 	
@@ -150,9 +172,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					$scope.treeMenuIsOpen = true; 
 					// Open treeMenu
 					$scope.toggleTreeMenu();
-					// Keep first copy
-					$scope.namegraphsCopy = angular.copy($scope.namegraphs);
 				}
+				
+				// Keep first copy
+				$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+				
 				// Initializing the available entities
 				initAllEntities($scope.queryFrom, false);
 			}
@@ -271,18 +295,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		// If there are changes then ask for confirmation
-		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
-		    $mdDialog.show(confirm).then(function() {
-		    	$scope.rowModelList = [];
-		    	$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
-				$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
-				$scope.rowModelList[0].activeRowModelStyle = 'enabled-style';
-		    	initAllEntities(queryFrom, true); // Apply the change and notify
+		if($scope.targetModel.selectedTargetEntity != null && $scope.targetModel.selectedTargetEntity != undefined) {
+			if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
+			    $mdDialog.show(confirm).then(function() {
+			    	resetWholeQueryModel();			    	
+			    }, function() { // Cancel
+			    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
+			    });
+			}
+			else { // No changes
 		    	$scope.toggleTreeMenu();
-		    	
-		    }, function() { // Cancel
-		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
-		    });
+			}
 		}
 		else { // No changes
 	    	$scope.toggleTreeMenu();
@@ -393,11 +416,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Initializing model from favorite (if loaded)
 		if($sessionStorage.selectedFavoriteModel != null) {
-			
-			initAllNamegraphs(false); // true stands for "new case"
-			
+						
 			$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
 			$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
+			$scope.namegraphs = $sessionStorage.selectedFavoriteModel.queryModel.namegraphs;
+			// Keep first copy of namegraphs
+			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+			
 			// Let system know that this is already favorite
 			$scope.currentFavorite.itIsFavorite = true;
 			$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
@@ -984,7 +1009,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Debugging:
 		var model = {
 			queryFrom: $scope.queryFrom,
-			rowModel: rowModel,
+			rowModel: angular.copy(rowModel),
 			queryModel: {
 				targetModel: angular.copy($scope.targetModel),
 				relatedModels: angular.copy($scope.rowModelList)
@@ -1543,7 +1568,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		description: '',
 		queryModel: {
 			targetModel: null,
-			relatedModels: null
+			relatedModels: null,
+			namegraphs: []
 		}
 	};
 	
@@ -1554,6 +1580,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.favoriteModel.username = $sessionStorage.userProfile.userId;
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
 		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
+		$scope.favoriteModel.queryModel.namegraphs = $scope.namegraphs;
 				
 		//queryService.saveIntoFavorites(JSON.stringify($scope.favoriteModel), $scope.credentials.token)
 		queryService.saveIntoFavorites(angular.toJson($scope.favoriteModel), $scope.credentials.token)
@@ -1684,47 +1711,50 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		$mdDialog.show(confirm).then(function() { // OK
-			
-			//Initializing empty row model (new instance)
-			$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
-			$scope.rowModelList = [$scope.emptyRowModel];
-			
-			// Resetting target model
-			$scope.targetModel.selectedTargetEntity = null;
-			$scope.targetModel.backupSelectedTargetEntity = null;
-			$scope.targetModel.targetEntities = $scope.allEntities;
-			$scope.targetModel.searchTargetKeywords = '';
-			$scope.targetModel.selectedTargetRecomentation = null;
-			$scope.targetModel.targetChips = [];
-			
-			// Handling favorites
-			if($sessionStorage.selectedFavoriteModel != null) {
-				// Resetting favorite related options
-				$scope.currentFavorite.itIsFavorite = false;
-				$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
-				// Making $sessionStorage.selectedQueryModel null, to free up memory
-				$sessionStorage.selectedFavoriteModel = null;
-			}
-			//console.log($scope.rowModelList);
-			// Setting select inputs untouched
-			//$scope.searchForm.$setPristine();
-			$scope.searchForm['targetEntityInput'].$setUntouched();
-			var rowModelId = $scope.rowModelList[0].id;
-			$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
-			$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
-			
-			// Open tree menu again
-			
-			// Initial value for the flag
-			$scope.treeMenuIsOpen = true; 
-			// Open treeMenu
-			$scope.toggleTreeMenu();
-			// Keep first copy
-			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
-			
+			resetWholeQueryModel();			
 	    }, function() { // Cancel
 	    	// Do nothing
 	    });
+	}
+	
+	// Resets the whole query model
+	function resetWholeQueryModel() {
+		//Initializing empty row model (new instance)
+		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
+		$scope.rowModelList = [$scope.emptyRowModel];
+		
+		// Resetting target model
+		$scope.targetModel.selectedTargetEntity = null;
+		$scope.targetModel.backupSelectedTargetEntity = null;
+		$scope.targetModel.targetEntities = $scope.allEntities;
+		$scope.targetModel.searchTargetKeywords = '';
+		$scope.targetModel.selectedTargetRecomentation = null;
+		$scope.targetModel.targetChips = [];
+		
+		// Handling favorites
+		if($sessionStorage.selectedFavoriteModel != null) {
+			// Resetting favorite related options
+			$scope.currentFavorite.itIsFavorite = false;
+			$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
+			// Making $sessionStorage.selectedQueryModel null, to free up memory
+			$sessionStorage.selectedFavoriteModel = null;
+		}
+		//console.log($scope.rowModelList);
+		// Setting select inputs untouched
+		//$scope.searchForm.$setPristine();
+		$scope.searchForm['targetEntityInput'].$setUntouched();
+		var rowModelId = $scope.rowModelList[0].id;
+		$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
+		$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
+		
+		// Open tree menu again
+		
+		// Initial value for the flag
+		$scope.treeMenuIsOpen = true; 
+		// Open treeMenu
+		$scope.toggleTreeMenu();
+		// Keep first copy
+		$scope.namegraphsCopy = angular.copy($scope.namegraphs);
 	}
 	
 	$scope.applySearch = function() {
