@@ -173,7 +173,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// Open treeMenu
 					$scope.toggleTreeMenu();
 				}
-				
 				// Keep first copy
 				$scope.namegraphsCopy = angular.copy($scope.namegraphs);
 				
@@ -294,22 +293,23 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.ok('Yes Continue')
 			.cancel('Cancel');
 		
-		// If there are changes then ask for confirmation
-		if($scope.targetModel.selectedTargetEntity != null && $scope.targetModel.selectedTargetEntity != undefined) {
-			if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
-			    $mdDialog.show(confirm).then(function() {
-			    	resetWholeQueryModel();			    	
-			    }, function() { // Cancel
-			    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
-			    });
-			}
-			else { // No changes
-		    	$scope.toggleTreeMenu();
-			}
+		// If target is selected and there are changes on the tree then ask for confirmation
+		if($scope.targetModel.selectedTargetEntity == null) {
+			// Keep Copy of namegraphs to compare next time
+			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+		}
+		
+		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
+			$mdDialog.show(confirm).then(function() {
+		    	resetWholeQueryModel();			    	
+		    }, function() { // Cancel
+		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
+		    });
 		}
 		else { // No changes
 	    	$scope.toggleTreeMenu();
 		}
+		
 	}
 	
 	$scope.breadcrumbItems = 
