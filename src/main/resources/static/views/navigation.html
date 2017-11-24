@@ -38,9 +38,14 @@
 				</div>
 			</md-toolbar>
 			
+			<md-backdrop ng-show="infoNavIsOpen" 
+								 class="md-opaque"
+								 ng-cloak></md-backdrop>
+			
 			<md-sidenav class="md-sidenav-right" 
 					md-component-id="rightInfo"
                 	md-whiteframe="4"
+                	md-disable-backdrop
                 	style="margin-top:94px; max-width:665px; width:665px">
 
 				<md-toolbar class="md-accent">
@@ -140,17 +145,20 @@
 										<input ng-model="treeVre">
 									</md-input-container>
 									
-									<section layout="column">
+									<section layout="column" style="margin-bottom:0;">
 						
 						  				<div ivh-treeview="namegraphs" class="checkbox"
 						  					 ivh-treeview-filter="treeVre"
 						  					 ivh-treeview-on-toggle="awesomeCallback(ivhNode, ivhIsExpanded, ivhTree)"
-						  					 ivh-treeview-on-cb-change="namegraphTreeCallback($event, ivhNode, ivhIsSelected, ivhTree)">
+						  					 ivh-treeview-on-cb-change="namegraphTreeCallback($event, ivhNode, ivhIsSelected, ivhTree)"
+						  					 style="margin-bottom:0;">
 										</div>
 									
 									</section>
 										
-									<md-button ng-click="reLoadEntities($event, queryFrom);" class="md-accent">
+									<md-button ng-click="reLoadEntities($event, queryFrom);" 
+											   class="md-accent" 
+											   style="margin-top:0;">
 										Apply changes and hide
 									</md-button>
 								</md-content>

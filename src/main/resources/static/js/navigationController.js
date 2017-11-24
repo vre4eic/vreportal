@@ -76,6 +76,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	function infoBuildToggler(componentId) {
 		return function() {
 			$mdSidenav(componentId).toggle();
+			$scope.infoNavIsOpen = $mdSidenav(componentId).isOpen();
 			
 			if($scope.treeMenuIsOpen) {
 				$scope.toggleTreeMenu();
