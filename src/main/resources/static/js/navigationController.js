@@ -1857,11 +1857,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Used for capturing the current row and thus knowing where to put selected items
     	$scope.currRowModel = rowModel;
     	$mdDialog.show({
-    		//scope: $scope,
+    		scope: $scope,
     		templateUrl: 'views/dialog/selectFromMap.tmpl.html', 
     		parent: angular.element(document.body),
     		targetEvent: ev,
-    		clickOutsideToClose:true,
+    		//clickOutsideToClose:true,
     		onComplete:function(){
     				loadMapForRelatedEntity(rowModel);
     		},
@@ -1883,17 +1883,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Starting with map in related entity
 					
 		$scope.pins = [{ 
-		    	type:"Product", 
+		    	type: rowModel.selectedRelatedEntity.name, 
 		    	selectedImg: "../images/Map-Marker-Marker-Inside-Pink-icon.png", 
 		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Pink-icon.png"
-			},{ 
-		    	type:"Equipment", 
-		    	selectedImg: "../images/Map-Marker-Marker-Inside-Chartreuse-icon.png", 
-		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Chartreuse-icon.png"
-			},{ 
-		    	type:"Facility", 
-		    	selectedImg: "../images/Map-Marker-Marker-Inside-Azure-icon.png", 
-		    	unselectedImg: "../images/Map-Marker-Marker-Outside-Azure-icon.png"
 			}]
 		
 		
@@ -2600,6 +2592,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	  		
 	  	}
 		
+	}
+	
+	$scope.closeSelectedFromMapDialogDialog = function() { 
+		$mdDialog.cancel();
 	}
 	
 	

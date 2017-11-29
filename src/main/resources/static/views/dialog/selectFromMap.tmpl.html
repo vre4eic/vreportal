@@ -1,9 +1,12 @@
-<md-dialog  style="width:100%; max-height:626px;">
-	<md-dialog-content>
+<md-dialog  style="width:100%; max-height:680px;">
+	<md-dialog-content style="padding-bottom:0;">
 		<div layout-padding>
-			<p>
+			<span>
 				Please hold down <code>Ctrl + left mouse click</code> while selecting some area on the map.
-			</p>
+				<span ng-show="currRowModel != null">
+					Then <code>click on any pin</code> to select/de-select any "{{currRowModel.selectedRelatedEntity.name}}".
+				</span>
+			</span>
 		</div>
 		
 		<div uib-alert ng-repeat="alert in alerts"
@@ -43,11 +46,22 @@
 		<div id="map" class="map">
 			<div id="popup"></div>
 		</div>
-		<div layout-padding>
-			<div style="display: inline-block; font-style:italic;">Coordinates of mouse position (display projection used is <code style="color:#106CC8;background: rgba(0,0,0,0.065);">'EPSG:4326'</code>): </div>
+		<div layout-padding style="padding-bottom:0px;">
+			<div style="display: inline-block; font-style:italic;">
+				Coordinates of mouse position (display projection used is <code style="color:#106CC8;background: rgba(0,0,0,0.065);">'EPSG:4326'</code>): 
+			</div>
 			<div style="display: inline-block; font-style:italic;" id="mouse-position" flex></div>
 		</div>
 		<div id="info"></div>
 	</md-dialog-content>
+	
+	<md-dialog-actions layout="row" style="padding-top:0px; padding-bottom:10px;">
+		<md-button class="md-raised md-primary" ng-click="closeSelectedFromMapDialogDialog()">
+			<md-icon md-font-icon="fa fa-times" style="font-size:18px"></md-icon>
+			Close
+		</md-button>
+		<span flex></span>
+	</md-dialog-actions>
+	
 </md-dialog>
 	
