@@ -1990,7 +1990,70 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        }),					// To hide logo use:
 	        logo: logoElement 	//document.createElement('span')
 		});      
-	      
+
+	    // Adding "Searching by Toponyms" on the map
+	    
+	    // Code regarding toponyms - Start
+	    
+	    // Flying animation
+	    // location: coordinates
+	    // Example: https://openlayers.org/en/latest/examples/animation.html
+	    function flyTo(location, done) {
+	        var duration = 3000;
+	        var zoom = 11;//$scope.map.getView().getZoom();
+	        var parts = 2;
+	        var called = false;
+	        function callback(complete) {
+	          --parts;
+	          if (called) {
+	            return;
+	          }
+	          if (parts === 0 || !complete) {
+	            called = true;
+	            done(complete);
+	          }
+	        }
+	        $scope.map.getView().animate({
+	          center: location,
+	          duration: duration
+	        }, callback);
+	        $scope.map.getView().animate({
+	          zoom: zoom - 3,
+	          duration: duration / 2
+	        }, {
+	          zoom: zoom,
+	          duration: duration / 2
+	        }, callback);
+	      }
+	    
+		// Instantiate with some options and add the Control
+		var geocoder = new Geocoder('nominatim', {
+			provider: 'osm',
+			lang: 'en',
+			placeholder: 'Search for ...',
+			limit: 5,
+			debug: false,
+			autoComplete: true,
+			keepOpen: false,
+			preventDefault: true
+		});
+		
+		$scope.map.addControl(geocoder);
+	  
+		geocoder.on('addresschosen', function(evt){
+			console.log('get address');
+			flyTo(evt.coordinate, function() {});
+			/*
+			$scope.map.setView(
+				new ol.View({
+		        	center: evt.coordinate, // Default is [0, 0]
+		        	zoom: 11 //Default is 2
+		        })
+			);
+			*/
+		});
+	    // Code regarding toponyms - End
+	    
 		// a DragBox interaction used to select features by drawing boxes
 	    $scope.dragBox = new ol.interaction.DragBox({
 			condition: ol.events.condition.platformModifierKeyOnly

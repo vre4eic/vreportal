@@ -665,21 +665,6 @@ md-list-item.removed-item {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* --- material checkbox and radio for bootswatch --- */
 
 
@@ -819,4 +804,32 @@ input[type="checkbox"] {
 .leftLined div.ng-scope.layout-column {
 	/*border-left-style: solid;*/
 	border-left: 2px solid rgb(204, 204, 204);
+}
+
+
+
+
+/* geocode style */
+
+.customGeocoder div.gcd-gl-control.ol-control {
+	margin-top: 10px;
+}
+.customGeocoder button.gcd-gl-btn {
+	background-position-x: 58%;
+    background-position-y: 38%;
+    width: 1.35em;
+}
+.customGeocoder input.gcd-gl-input {
+	top: .29em;
+	left: 2.55em;
+}
+.customGeocoder ul.gcd-gl-result{
+	font-size: 16px;
+	top: 2.58em !important;
+}
+.customGeocoder li {
+	line-height: 1.875rem !important;
+}
+.customGeocoder ul.gcd-gl-result>li:nth-child(odd) {
+	background-color: #eeeeee !important;
 }
