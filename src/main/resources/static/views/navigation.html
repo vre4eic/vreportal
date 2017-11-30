@@ -222,7 +222,7 @@
 															 md-selected-item="targetModel.selectedTargetRecomentation" 
 															 md-search-text="targetModel.searchTargetKeywords"
 															 md-selected-item-change="selectedItemChange(item, -1)"
-															 md-items="item in querySearch(searchText, -1)"
+															 md-items="item in querySearch(targetModel.searchTargetKeywords, -1)"
 															 md-item-text="item.name"
 															 md-min-length="2"
 															 ng-disabled="targetModel.selectedTargetEntity.name==null"
