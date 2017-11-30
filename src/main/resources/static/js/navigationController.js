@@ -345,6 +345,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}];
 	
 	
+	$scope.configuration = {
+		wholeTreeModel: {
+			
+		},
+		everyRowModel: {
+			
+		},
+		relatedEntityMap: {
+			maxResoultCountForShowingPinsOnInit: 200
+		}
+	}
+	
 	// To be used for constructing the simple related entity query dynamically
     $scope.relatedEntityQuerySearchText = '';
 	
@@ -1532,6 +1544,22 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	return containedElement;
     }
 	
+	// Determines if an item is contained into a list
+	function containedInListBasedOnURI(item, list, uriPath) {
+		
+		var containedElement = {'contained': false, 'index': -1};
+		
+		for(var i=0; i<list.length; i++) {
+						
+		    if(item[uriPath].value === list[i][uriPath].value) {
+		    	containedElement.contained = true;
+		    	containedElement.index = i;
+		    }
+		}
+    	    		
+    	return containedElement;
+    }
+	
 	// Used when entering a new chip
 	$scope.transformChip = function(chip) {
 		// If it is an object, it's already a known chip
@@ -1863,18 +1891,25 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		targetEvent: ev,
     		//clickOutsideToClose:true,
     		onComplete:function(){
-    				loadMapForRelatedEntity(rowModel);
+    			loadMapForRelatedEntity(rowModel);
+    			// Capturing the whole map
+    			$scope.coordinatesRegion.north = 90.0000;
+	            $scope.coordinatesRegion.south = -90.0000;
+	            $scope.coordinatesRegion.west = -180.0000;
+	            $scope.coordinatesRegion.east = 180.0000;
+    			// Calling the service to load results on the map, when their count is less than a max allowed number
+    			$scope.retrieveGeoData(true); // true is for considering "maxResoultCountForShowingPinsOnInit" as max allowed number
     		},
     		//fullscreen: true,
     		preserveScope: true,
     		fullscreen: false // Only for -xs, -sm breakpoints.
     	})
-    	.then(function(answer) {
-    		console.log("OK");
-    	}, function() {
+    	.then(function(data) {
+    		console.log("then");
+    	}, function(err) {
     		$scope.status = 'You cancelled the dialog.';
     	}).finally(function() {
-    		console.log("OK");
+    		
     	});
 	}
 
@@ -2055,7 +2090,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			console.log("north: " + north + ", south: " + south + ", west: " + west + ", east: " + east);
 			
 			// Calling the service
-			$scope.retrieveGeoData();
+			$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
 			
 		}
 
@@ -2176,68 +2211,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    		})
 	    	});
 	    
-	    	for (i = 0; i < geoResults.length; i++) {
-		    		  
-	    		// Polygon Feature (rectangular)
-	    		var polyFeature = new ol.Feature({
-	    			geometry: new ol.geom.Polygon([
-						[
-						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)],
-						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].south.value)],
-						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].south.value)],
-						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].north.value)],
-						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)]
-						]
-					])
-	    		});
-		    		  
-		    		  
-	    		polyFeature.setStyle(areaStyle);
-	    		polyFeatures.push(polyFeature); // Adding into Array
-		    	
-	    		// Constructing the pointFeature hard-coded
-    			// Point Feature (with marker icon)
-    			// Since we have rectangular this point is the center of the polygon
-    			/*
-    			var pointFeature = new ol.Feature({
-    				geometry: polyFeature.getGeometry().getInteriorPoint(),
-    				featureType: 'marker',
-    				name: '<a href="' + uriWrapper + '" target="_blank">' + nameWrapper + '</a>',
-    				responsible: responsibleWrapper,
-    				service: serviceWrapper
-    			});
-    			*/
-    			
-    			// Constructing the pointFeature dynamically
-    			var pointFeature = new ol.Feature();
-    			pointFeature.setGeometry(polyFeature.getGeometry().getInteriorPoint());
-    			pointFeature.set('featureType', 'marker');
-    			// Leaving it as it is in the original data and will 
-    			// be changed when constructing the actual pop-up element
-    			angular.forEach(geoResults[i], function (property, key) {
-    				pointFeature.set(key, property);
-    			});
-    			    			
-    			/*
-    			// Constructing the pointFeature hard-coded
-    			var pointFeature = new ol.Feature();
-    			pointFeature.setGeometry(polyFeature.getGeometry().getInteriorPoint());
-    			pointFeature.set('featureType', 'marker');
-    			pointFeature.set('name', '<a href="' + uriWrapper + '" target="_blank">' + nameWrapper + '</a>');
-    			pointFeature.set('responsible', responsibleWrapper);
-    			pointFeature.set('service', serviceWrapper);
-		        */ 
-    			
-    			// Change  coordinate systems to display on the map
-    			polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-    			pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-	        	  
-    			// Setting unselected style
-    			//pointFeature.setStyle(iconStylePinkUnselected);
-	        	          	  
-    			pointFeatures.push(pointFeature); // Adding into Array
-	        	          	          	  
-    		} // loop ends
+	    	
 	    	
 	    	// A vector layer holding the polygon features
 			polyVectorLayer = new ol.layer.Vector({
@@ -2286,26 +2260,98 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// On Select
 			select.on('select', function(evt) {
 				
-				var jsonItem = {};
-				
-				console.log('evt.selected: ');
-				angular.forEach(evt.selected[0].getProperties(), function (property, key) {
-					//console.log(key + ': ' + property.value);
-					if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
-						jsonItem[key] = property
-				});
-				
-				rowModel.selectedRelatedInstanceList.push(jsonItem);
-				
-				// Show related entity results panel on the respective rowModel
-				if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0) {
-					rowModel.shownEntitySearchResults = true;
+				// Select
+				if(evt.selected.length > 0) {
+					var jsonItem = {};
+					
+					console.log('evt.selected: ');
+					angular.forEach(evt.selected[0].getProperties(), function (property, key) {
+						//console.log(key + ': ' + property.value);
+						if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+							jsonItem[key] = property
+					});
+					
+					if(!containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true).contained)
+						rowModel.selectedRelatedInstanceList.push(jsonItem);
+					
+					// Show related entity results panel on the respective rowModel
+					if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+						rowModel.shownEntitySearchResults = true;
+					else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+						rowModel.shownEntitySearchResults = false;
 				}
-				else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1) {
-					rowModel.shownEntitySearchResults = false;
+				
+				else {
+					
+				}
+				
+				if(evt.deselected.length > 0) {
+					var jsonItem = {};
+					
+					console.log('evt.deselected: ');
+					angular.forEach(evt.deselected[0].getProperties(), function (property, key) {
+						//console.log(key + ': ' + property.value);
+						if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+							jsonItem[key] = property
+					});
+					
+					var containedObject = containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true);
+					if(containedObject.contained)
+						rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
+					
+					// Show related entity results panel on the respective rowModel
+					if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+						rowModel.shownEntitySearchResults = true;
+					else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+						rowModel.shownEntitySearchResults = false;
 				}
 				
 			});
+			
+			for (i = 0; i < geoResults.length; i++) {
+	    		  
+	    		// Polygon Feature (rectangular)
+	    		var polyFeature = new ol.Feature({
+	    			geometry: new ol.geom.Polygon([
+						[
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)],
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].south.value)],
+						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].south.value)],
+						 	[parseFloat(geoResults[i].east.value), parseFloat(geoResults[i].north.value)],
+						 	[parseFloat(geoResults[i].west.value), parseFloat(geoResults[i].north.value)]
+						]
+					])
+	    		});
+		    		  
+		    		  
+	    		polyFeature.setStyle(areaStyle);
+	    		polyFeatures.push(polyFeature); // Adding into Array
+    			
+    			// Constructing the pointFeature dynamically
+    			var pointFeature = new ol.Feature();
+    			pointFeature.setGeometry(polyFeature.getGeometry().getInteriorPoint());
+    			pointFeature.set('featureType', 'marker');
+    			
+    			// Leaving it as it is in the original data and will 
+    			// be changed when constructing the actual pop-up element
+    			angular.forEach(geoResults[i], function (property, key) {
+    				pointFeature.set(key, property);
+    			});
+    			
+    			// Change  coordinate systems to display on the map
+    			polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+    			pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+	        	
+    			// Marking as checked if already selected
+    			if(containedInListBasedOnURI(geoResults[i], rowModel.selectedRelatedInstanceList, 'uri').contained)
+    				select.getFeatures().push(pointFeature);	// DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!
+    			
+    			// Setting unselected style
+    			//pointFeature.setStyle(iconStylePinkUnselected);
+	        	          	  
+    			pointFeatures.push(pointFeature); // Adding into Array
+	        	          	          	  
+    		} // loop ends
 			
 		}
 		
@@ -2456,24 +2502,25 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 		});
 		
-
-		// This is no longer needed - If I've changed the service
-		$scope.retrieveGeoData = function() {
-			/*
-			var queryModel = {
-				north : $scope.coordinatesRegion.north,
-				south : $scope.coordinatesRegion.south,
-				west : $scope.coordinatesRegion.west,
-				east : $scope.coordinatesRegion.east,
-				itemsPerPage : $scope.itemsPerPage
-			};
-			*/
+		// considerTotalResultCount: Boolean used to decide whether to consider "maxResoultCountForShowingPinsOnInit" 
+		// or not. Basically we use false to display pins when drawing rectangle and true to display pins when opening 
+		// the dialog if their count is less than "maxResoultCountForShowingPinsOnInit"
+		$scope.retrieveGeoData = function(considerTotalResultCount) {
+			
 			// Modal
-	  		var modalOptions = {
-  				headerText: 'Loading Please Wait...',
-  				bodyText: 'Search process undergoing...'
-  			};
-			var modalInstance = modalService.showModal(modalDefaults, modalDefaultOptions);
+			var modalOptions = {
+	  			headerText: 'Loading Please Wait...',
+	  			bodyText: 'Search process undergoing...'
+	  		};
+			
+			if(considerTotalResultCount) { // Options when first opening this dialog
+		  		modalOptions = {
+	  				headerText: 'Loading Please Wait...',
+	  				bodyText: 'Loading options...'
+	  			};
+			}
+			
+			var modalInstance = modalService.showModal(modalDefaults, modalOptions);
 			
 			// Some dynamically defined preparation
 			
@@ -2514,7 +2561,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					console.log('Geospatial Query:');
 					console.log(updatedQueryModel);
 					
-		    		// Calling service to executing Query - Promise
+					// Only for case where results should be loaded when opening the map
+					//
+					// The hack is that we add a limit 1 more the allowed one and then we should check if the 
+					// total results are more than the allowed (if they are more, they will be just one more)
+					// Then we either use the results or just throw them away
+					if(considerTotalResultCount)
+						updatedQueryModel.query = updatedQueryModel.query + ' limit ' + ($scope.configuration.relatedEntityMap.maxResoultCountForShowingPinsOnInit + 1);
+					
+        			// Calling service to executing Query - Promise
 		    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
 		    		.then(function (response) {
 				        		
@@ -2528,9 +2583,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    				// Checking the response from blazegraph
 		    				if(response.status == '200') {
 		    					// handling results
-		    					handleGeoResultsForMap(response.data.results.bindings);
+		    					
+		    					// Case where results should be loaded when opening the map
+		    					if(considerTotalResultCount) {
+		    						// Checking if count is less or equal to the allowed limit
+		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntityMap.maxResoultCountForShowingPinsOnInit)
+		    							handleGeoResultsForMap(response.data.results.bindings);
+		    					}
+		    					
+		    					// Case where results are loaded by drawing rectangle
+		    					else // if(!considerTotalResultCount) {
+		    						handleGeoResultsForMap(response.data.results.bindings);
+		    					
 		    					modalInstance.close();
 		    				}
+		    				
 		    				else if(response.status == '400') {
 		        				$log.info(response.status);
 		        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -2560,7 +2627,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    			modalInstance.close();
 		    		});
 		        	// Execute query promise - End
-					
 				}
 				
 				else if(queryResponse.status == '400') {

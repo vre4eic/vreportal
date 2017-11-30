@@ -1,10 +1,25 @@
-<md-dialog  style="width:100%; max-height:680px;">
+<md-dialog  style="width:100%; max-height:740px;">
 	<md-dialog-content style="padding-bottom:0;">
-		<div layout-padding>
+		
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h2>Map Options</h2>
+				<span flex></span>
+		        <md-button class="md-icon-button" ng-click="closeSelectedFromMapDialogDialog()">
+			        <md-icon class="md-icon-button" 
+							 aria-label="Close dialog" 
+							 md-font-icon="fa fa-times" style="font-size:24px;">
+					</md-icon>
+				</md-button>
+			</div>
+		</md-toolbar>
+		
+		<div layout-padding style="padding: 16px 8px 16px 8px">
 			<span>
 				Please hold down <code>Ctrl + left mouse click</code> while selecting some area on the map.
 				<span ng-show="currRowModel != null">
-					Then <code>click on any pin</code> to select/de-select any "{{currRowModel.selectedRelatedEntity.name}}".
+					Then <code>click on any pin</code> to select / de-select any 
+					<code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{currRowModel.selectedRelatedEntity.name}}"</code>.
 				</span>
 			</span>
 		</div>
@@ -46,11 +61,21 @@
 		<div id="map" class="map">
 			<div id="popup"></div>
 		</div>
-		<div layout-padding style="padding-bottom:0px;">
-			<div style="display: inline-block; font-style:italic;">
-				Coordinates of mouse position (display projection used is <code style="color:#106CC8;background: rgba(0,0,0,0.065);">'EPSG:4326'</code>): 
-			</div>
-			<div style="display: inline-block; font-style:italic;" id="mouse-position" flex></div>
+		<div layout="row">
+			<span layout-padding style="padding-bottom:0px;">
+				<div style="display: inline-block; font-style:italic;">
+					Coordinates of mouse position (display projection used is <code style="color:#106CC8;background: rgba(0,0,0,0.065);">'EPSG:4326'</code>): 
+				</div>
+				<div style="display: inline-block; font-style:italic;" id="mouse-position" flex></div>
+			</span>
+			<!--
+			<span flex></span>
+			<span layout-padding style="padding-bottom:0px;">
+				<div style="display: inline-block; font-style:italic;">
+					<code style="color:#106CC8;background: rgba(0,0,0,0.065);">Total items to load:</code> {{relatedEntityResultsCount}}
+				</div>
+			</span>
+			-->
 		</div>
 		<div id="info"></div>
 	</md-dialog-content>
