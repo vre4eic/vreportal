@@ -813,15 +813,21 @@ input[type="checkbox"] {
 
 .customGeocoder div.gcd-gl-control.ol-control {
 	margin-top: 10px;
+	min-width: 2.53em;
+	height: 2.48em;
 }
 .customGeocoder button.gcd-gl-btn {
 	background-position-x: 58%;
-    background-position-y: 38%;
-    width: 1.35em;
+    background-position-y: 40%;
+    height: 1.375em;
+    width: 1.375em;
+    top: .09em;
+    background-size: 18px 18px;
+    background-image: url(../images/search.svg);
 }
 .customGeocoder input.gcd-gl-input {
 	top: .29em;
-	left: 2.55em;
+	left: 2.9em;
 }
 .customGeocoder ul.gcd-gl-result{
 	font-size: 16px;

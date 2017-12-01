@@ -2334,7 +2334,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							jsonItem[key] = property
 					});
 					
-					if(!containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true).contained)
+					//if(!containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true).contained)
+					if(!containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri').contained)
 						rowModel.selectedRelatedInstanceList.push(jsonItem);
 					
 					// Show related entity results panel on the respective rowModel
@@ -2348,6 +2349,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 				}
 				
+				// Deselect
 				if(evt.deselected.length > 0) {
 					var jsonItem = {};
 					
@@ -2358,7 +2360,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							jsonItem[key] = property
 					});
 					
-					var containedObject = containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true);
+					//var containedObject = containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true);
+					var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
 					if(containedObject.contained)
 						rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
 					
