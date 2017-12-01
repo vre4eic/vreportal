@@ -205,6 +205,10 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', '$location
 	$scope.goToHomeView = function() {
 		$state.go('welcome', {});
 	}
+	
+	$scope.goToFavoritesView = function() {
+		$state.go('favorites', {});
+	}
 	  
 } ]);
 

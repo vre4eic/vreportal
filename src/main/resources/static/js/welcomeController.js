@@ -87,7 +87,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   index:"2", 
 	 	   title:"My Favorites", 
 	 	   description:"Data navigation might require a few steps to be achieved. However, as soon as important findings are achieved, they can be stored for direct feature access.", 
-	 	   icon:"mdi-heart", 
+	 	   icon:"mdi-star", 
 	 	   disabled:"false",
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
