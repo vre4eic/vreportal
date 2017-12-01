@@ -839,3 +839,9 @@ input[type="checkbox"] {
 .customGeocoder ul.gcd-gl-result>li:nth-child(odd) {
 	background-color: #eeeeee !important;
 }
+
+/* Makes toolbar a little more narrow */
+.narrow-toolbar {
+	height: 40px;
+    min-height: 40px;
+}

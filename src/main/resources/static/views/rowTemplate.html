@@ -151,7 +151,7 @@
 	
 			<!-- Projection -->
 			<div layout="row" 
-				 style="height:320px; 
+				 style="height:296px; 
 				 		padding:5px 5px; 
 				 		border:1px solid #ccc;
 				 		border-radius: 5px;" 
@@ -159,7 +159,7 @@
 			
 				<div layout="column" style="max-width:260px;min-width:230px;">
 				
-					<md-toolbar class="md-primary">
+					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
 							<h2>... related</h2>
 						</div>
@@ -216,7 +216,7 @@
 	      					
 				<div layout="column" style="width:270px;">
 					
-					<md-toolbar class="md-primary">
+					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
 							<h2>... to entity</h2>
 						</div>
@@ -375,7 +375,7 @@
 					 ng-show="rowModel.shownEntitySearchResults" 
 					 class="searchResultsRelatedEntityInit transformWidth">
 					
-					<md-toolbar class="md-primary">
+					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
 							<h2>Searching entity results</h2>
 						</div>
@@ -411,7 +411,7 @@
 					</md-list>
 				</div>
 				
-				<div style="padding-top:5px; z-index:2" ng-show="!($first && $last) || parent.rowModel!=null">
+				<div style="z-index:2" ng-show="!($first && $last) || parent.rowModel!=null">
 					<md-button aria-label="Remove Filter" 
 							   class="md-icon-button"
 							   ng-click="removeRowModel(outerIndex, parent.rowModel)"
