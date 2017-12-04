@@ -44,14 +44,14 @@ public class QueryGenService {
 
     public static void main(String[] args) throws IOException, ParseException, SQLException {
 //        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
-        String forClause = "from <http://rcuk-data> from <http://epos-data>";
+        String from = "from <http://rcuk-data> from <http://epos-data>";
         //JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
 
         Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
         DBService dbService = new DBService();
         dbService.setConnection(connection);
         dbService.setJdbcTemplateUsed(false);
-        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
+        JSONArray initEntitiesJSON = DBService.retrieveAllEntities(true);
 
         JSONArray resultEntitiesJSON = new JSONArray();
         String authorizationToken = "05ca2485-d8b3-4709-b347-ccc3f5f76e4c";
@@ -60,8 +60,8 @@ public class QueryGenService {
         JSONParser parser = new JSONParser();
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
-            String query = geoEntityQuery((String) entityJSON.get("uri"), forClause);
-            RestClient client = new RestClient(endpoint, namespace);
+            String query = geoEntityQuery((String) entityJSON.get("uri"), from);
+            RestClient client = new RestClient(endpoint, namespace, authorizationToken);
             Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
             JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");

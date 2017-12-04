@@ -1,13 +1,8 @@
 package forth.ics.isl.triplestore;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import javax.ws.rs.ClientErrorException;
 
 import javax.ws.rs.client.Client;
@@ -21,13 +16,13 @@ import javax.ws.rs.core.Response;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.simple.JSONObject;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import org.json.simple.JSONArray;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -40,14 +35,31 @@ public class RestClient {
 
     private String serviceUrl;
     private String namespace;
+    private String authorizationToken;
 
-    public RestClient(String serviceUrl, String namespace) throws IOException {
+    public RestClient(String serviceUrl, String namespace, String authorizationToken) throws IOException {
+        // Be put in comments due to conflicts with log4j when creating the fat jar
         Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
         for (String log : loggers) {
             Logger logger = (Logger) LoggerFactory.getLogger(log);
             logger.setLevel(Level.INFO);
             logger.setAdditive(false);
         }
+        ///
+        this.serviceUrl = serviceUrl;
+        this.namespace = namespace;
+        this.authorizationToken = authorizationToken;
+    }
+
+    public RestClient(String serviceUrl, String namespace) throws IOException {
+        // Be put in comments due to conflicts with log4j when creating the fat jar
+        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+        for (String log : loggers) {
+            Logger logger = (Logger) LoggerFactory.getLogger(log);
+            logger.setLevel(Level.INFO);
+            logger.setAdditive(false);
+        }
+        ///
         this.serviceUrl = serviceUrl;
         this.namespace = namespace;
     }
@@ -108,6 +120,27 @@ public class RestClient {
         return response;
     }
 
+    public Response executeSparqlQuery(String queryStr, String format) throws UnsupportedEncodingException {
+        Client client = ClientBuilder.newClient();
+        WebTarget webTarget = client.target(serviceUrl + "/query/namespace/" + namespace)
+                .queryParam("format", format)
+                .queryParam("query", URLEncoder.encode(queryStr, "UTF-8").replaceAll("\\+", "%20"));
+        //System.out.println("HttpHeaders.AUTHORIZATION: " + authorizationToken);
+        Invocation.Builder invocationBuilder = webTarget.request().header("Authorization", authorizationToken);
+        Response response = invocationBuilder.get();
+        return response;
+    }
+
+    public Response executeBatchSparqlQueryPOST(JSONArray queries, String format) throws UnsupportedEncodingException {
+        Client client = ClientBuilder.newClient();
+        JSONObject json = new JSONObject();
+        json.put("query", queries.toJSONString());
+        json.put("format", format);
+        WebTarget webTarget = client.target(serviceUrl + "/query/batch/namespace/" + namespace);
+        return webTarget.request(MediaType.APPLICATION_JSON).
+                header("Authorization", authorizationToken).post(Entity.json(json.toJSONString()));
+    }
+
     public Response executeUpdatePOSTJSON(String update, String namespace, String token) throws ClientErrorException {
         Client client = ClientBuilder.newClient();
         JSONObject json = new JSONObject();
@@ -142,11 +175,9 @@ public class RestClient {
         String authorizationToken = "83a73585-895c-4234-91aa-4a9e681fb8a8";
         String endpoint = "http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
-
-        RestClient client = new RestClient(endpoint, namespace);
+        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         String response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken).readEntity(String.class);
         System.out.println(response);
-
     }
 
 }

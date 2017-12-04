@@ -1,5 +1,6 @@
 package forth.ics.isl.controller;
 
+import forth.ics.isl.data.model.parser.Utils;
 import java.io.IOException;
 import java.util.Map;
 
@@ -103,8 +104,8 @@ public class EntityManagerController {
             finalResult.put("entities", resultEntitiesJSON);
             return finalResult;
         }
-        List<String> graphs = getGraphsFromClause(fromSearch);
-        JSONArray initEntitiesJSON = DBService.retrieveAllEntities();
+        List<String> graphs = Utils.getGraphsFromClause(fromSearch);
+        JSONArray initEntitiesJSON = DBService.retrieveAllEntities(false);
         String endpoint = serviceUrl;
         JSONParser parser = new JSONParser();
 
@@ -112,7 +113,7 @@ public class EntityManagerController {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
             for (String graph : graphs) {
                 String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
-                RestClient client = new RestClient(endpoint, namespace);
+                RestClient client = new RestClient(endpoint, namespace, authorizationToken);
                 Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
                 if (response.getStatus() != 200) {
                     System.out.println(response.readEntity(String.class));
@@ -270,18 +271,8 @@ public class EntityManagerController {
         String fromClause = (String) requestParams.get("fromSearch");
         String targetEntity = (String) requestParams.get("targetEntity");
         String relatedEntity = (String) requestParams.get("relatedEntity");
-        List<String> graphs = getGraphsFromClause(fromClause);
+        List<String> graphs = Utils.getGraphsFromClause(fromClause);
         return DBService.retrieveRelations(graphs, targetEntity, relatedEntity);
-    }
-
-    private List<String> getGraphsFromClause(String fromClause) {
-        List<String> graphs = new ArrayList<>();
-        Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
-        Matcher regexMatcher = regex.matcher(fromClause);
-        while (regexMatcher.find()) {
-            graphs.add(regexMatcher.group());
-        }
-        return graphs;
     }
 
     public static void main(String[] args) throws SQLException, IOException {
