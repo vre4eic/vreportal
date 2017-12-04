@@ -393,15 +393,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		backupSelectedRelatedEntity: null,
 		relatedEntities: $scope.allEntities,//angular.copy($scope.allEntities),
 		searchRelatedKeywords: '',
-		allRelatedSearchResultsIsSelected: false,
-		allRelatedEntitiesSelectedList: [{name: 'All Instances Selected'}],
+		allRelatedSearchResultsIsSelected: true,
+		allRelatedEntitiesSelectedList: [{name: 'Search By Keyword'}],
 		selectedRelatedInstanceList: [],
 		shownEntitySearchResults: false,
 		selectedRecomentation: null,
 		relatedChips: [],
 		relatedEntitySearchText: '',
 		rowModelList: [],
-		activeRelatedSearchResultsStyle: 'enabled-style',
+		activeRelatedSearchResultsStyle: 'disabled-style', //'enabled-style'
 		activeRowModelStyle: 'disabled-style'
 	}
 	
@@ -1492,7 +1492,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					value.isChecked = false;
 				}
 			});
-			rowModel.allRelatedEntitiesSelectedList = [{name: 'All Instances Selected'}];
+			rowModel.allRelatedEntitiesSelectedList = [{name: 'Search By Keyword'}];
 		}
 		
 		else { //(selected==false)
