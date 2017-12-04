@@ -1809,9 +1809,104 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
 		}
 				
-		$log.info(angular.toJson(model));
-		$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
+		//$log.info(angular.toJson(model));
+		//$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
+		retrieveFinalResults(angular.toJson(model));
 	};
+	
+	
+	
+	
+	
+	$scope.finalResults = {};
+	
+	function retrieveFinalResults(searchEntityModel) {
+    	
+    	// Trying with promise - Start
+    	
+    	var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Search process undergoing...'
+		};
+    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+    	
+    	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
+    		if(queryResponse.status == '200') {
+    			
+        		var params = {
+        				format: "application/json",
+        				query: queryResponse.query + ' limit 100' // final Search Query
+        		}
+    			// Calling service to executing Query - Promise
+	    		queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
+	    		.then(function (response) {
+	        		
+	    			if(response.status == -1) {
+	    				$scope.message = 'There was a network error. Try again later.';
+	    				$scope.showErrorAlert('Error', $scope.message);
+	    			}
+	    			
+	    			else {
+	    				if(response.status == '200') {
+	    					$scope.finalResults = response.data;
+	    				}
+	    				else if(response.status == '400') {
+	        				$log.info(response.status);
+	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+	        				$scope.showErrorAlert('Error', $scope.message);
+	        			}
+	        			else if(response.status == '401') {
+	        				$log.info(response.status);
+	        				$scope.showLogoutAlert();
+	        				authenticationService.clearCredentials();
+	        			}
+	        			else {
+	        				$log.info(response.status);
+	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+	        				$scope.showErrorAlert('Error', $scope.message);
+	        			}
+	    			
+	    			} // else close
+	    			
+	    		}, function (error) {
+	    			$scope.message = 'There was a network error. Try again later.';
+	    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+	    				data : error
+	    			}));
+	    		}).finally(function() {
+	    			modalInstance.close();
+	        	});
+	        	// Execute query promise - End
+			}
+    		
+			else if(queryResponse.status == '400') {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(queryResponse.status == '401') {
+				$log.info(queryResponse.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+    	}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			modalInstance.close();
+		});
+    	// Construct query promise - End
+	};
+	
 	
 		
 	

@@ -140,6 +140,22 @@ angular.module('app.mainServices', [])
 		},
 		
 		
+		getFinalSearchQuery : function(paramModel, token) {
+			return $http({
+				'url': '/final_search_query',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': paramModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+		},
+		
 		
 		checkAuthorization : function(token) {
 			return $http({
