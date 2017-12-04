@@ -139,8 +139,7 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
-		
-		getFinalSearchQuery : function(paramModel, token) {
+		computeFinalSearchQuery : function(paramModel, token) {
 			return $http({
 				'url': '/final_search_query',
 				'method': 'POST',

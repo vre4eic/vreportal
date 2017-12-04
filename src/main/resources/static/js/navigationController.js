@@ -1809,7 +1809,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
 		}
 				
-		//$log.info(angular.toJson(model));
+		$log.info(angular.toJson(model));
 		//$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 		retrieveFinalResults(angular.toJson(model));
 	};
@@ -1830,7 +1830,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		};
     	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
     	
-    	queryService.computeRelatedEntityQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
+    	queryService.computeFinalSearchQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
     		if(queryResponse.status == '200') {
     			
         		var params = {
