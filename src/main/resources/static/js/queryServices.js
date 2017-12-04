@@ -155,7 +155,6 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
-		
 		checkAuthorization : function(token) {
 			return $http({
 				'url' : '/checkAuthorization',
