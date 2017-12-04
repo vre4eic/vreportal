@@ -46,15 +46,13 @@ import org.json.simple.JSONObject;
 @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Controller
 public class QueryController {
-
-    @Value("${service.url}")
+	
+	@Value("${service.url}")
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
     private JsonNode currQueryResult;
     private RestClient restClient;
-    @Value("${maps.namegraph}")
-    private String mapNamegraphs;
 
     @PostConstruct
     public void init() throws IOException {
