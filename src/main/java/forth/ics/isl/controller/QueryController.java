@@ -46,8 +46,8 @@ import org.json.simple.JSONObject;
 @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Controller
 public class QueryController {
-	
-	@Value("${service.url}")
+
+    @Value("${service.url}")
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
@@ -61,8 +61,7 @@ public class QueryController {
 
     @RequestMapping(value = "/final_search_query", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONObject searchEntityQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
-        String queryModel = (String) requestParams.get("queryModel");
+    JSONObject searchEntityQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody String queryModel) throws IOException {
         QueryDataModel model = new QueryDataModel(queryModel);
         JSONObject responseJsonObject = new JSONObject();
         responseJsonObject.put("query", model.toSPARQL());
