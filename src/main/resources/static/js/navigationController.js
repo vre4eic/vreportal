@@ -1787,8 +1787,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		var model = {
 			queryFrom: $scope.queryFrom,
 			queryModel: {
-				targetModel: $scope.targetModel,
-				relatedModels: $scope.rowModelList
+				targetModel: angular.copy($scope.targetModel),
+				relatedModels: angular.copy($scope.rowModelList)
 			}
 		}
 		
