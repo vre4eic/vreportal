@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -35,7 +36,10 @@ public class RelatedModel {
     private RelatedModel parentModel;
     private String keywordSearchPattern;
     private List<String> selectedGraphs;
-
+    
+    @Autowired
+    private DBService dbService;
+    
     public RelatedModel(JSONObject jsonModel, List<String> selectedGraphs) {
         this.selectedGraphs = selectedGraphs;
         init(jsonModel);
@@ -96,14 +100,16 @@ public class RelatedModel {
     private void findRelationsRelatedEntities() {
         Connection conn;
         try {
-            conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            DBService.setConnection(conn);
-            DBService.setJdbcTemplateUsed(false);
+            ////conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            ////DBService.setConnection(conn);
+            ////DBService.setJdbcTemplateUsed(false);
+        	conn = dbService.initConnection();
             sugRelationsRelatedEntities = new HashMap<>();
             JSONArray entities = DBService.retrieveAllEntities(false);
-            conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            DBService.setConnection(conn);
-            JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, relatedName, Utils.jsonArrayToList(entities));
+            ////conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            ////DBService.setConnection(conn);
+            ////JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, relatedName, Utils.jsonArrayToList(entities));
+            JSONArray relationsEntities = dbService.retrieveRelationsEntities(selectedGraphs, relatedName, Utils.jsonArrayToList(entities));
             for (int i = 0; i < relationsEntities.size(); i++) {
                 JSONObject obj = (JSONObject) relationsEntities.get(i);
                 sugRelationsRelatedEntities.put(
