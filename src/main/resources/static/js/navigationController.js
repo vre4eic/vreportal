@@ -503,13 +503,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
 			}
-			modalInstance.close();
 		}, function (error) {
 			$scope.message = 'There was a network error. Try again later.';
 			$scope.showErrorAlert('Error', $scope.message);
-			modalInstance.close();
 		}).finally(function(){
-			//$scope.$apply();
+			modalInstance.close();
 		});
 			
 	}
@@ -859,7 +857,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			if(response.status == -1) {
 				$scope.message = 'There was a network error. Try again later.';
 				$scope.showErrorAlert('Error', $scope.message);
-				//modalInstance.close();
 			}
 			else {
 				if(response.status == '200') {
@@ -893,17 +890,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						rowModel.relations[i].relatedEntity = response.data[i].related_entity;
 						//$log.info('value: ' + value);
 					}
-					//modalInstance.close();
 				}
 				else if(response.status == '400') {
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				//modalInstance.close();
     			}
     			else if(response.status == '401') {
     				$log.info(response.status);
-    				//modalInstance.close();
     				$scope.showLogoutAlert();
     				authenticationService.clearCredentials();
     			}
@@ -911,7 +905,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
-    				//modalInstance.close();
     			}
 			
 			} // else close
@@ -921,6 +914,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
+		}).finally(function(){
 			//modalInstance.close();
 		});
 	}
@@ -1345,6 +1339,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				data : error
 			}));
 			modalInstance.close();
+		}).finally(function(){
+			//modalInstance.close();
 		});
     	// Construct query promise - End
 	};
@@ -1835,7 +1831,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			
         		var params = {
         				format: "application/json",
-        				query: queryResponse.query + ' limit 100' // final Search Query
+        				query: queryResponse.data.query + ' limit 100' // final Search Query
         		}
     			// Calling service to executing Query - Promise
 	    		queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
