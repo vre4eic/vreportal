@@ -347,13 +347,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.configuration = {
 		wholeTreeModel: {
-			
 		},
 		everyRowModel: {
-			
 		},
-		relatedEntityMap: {
-			maxResoultCountForShowingPinsOnInit: 200
+		targetEntity: {
+			excludedEntities: [{name: 'Location'}]
+		},
+		relatedEntity: {
+			map: {
+				maxResoultCountForShowingPinsOnInit: 200
+			},
+			excludedEntities: []
 		}
 	}
 	
@@ -463,8 +467,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			if(response.status == '200') {
 				if(response.data.remote_status == 200) {
 					$scope.allEntities = response.data.entities;
-					$scope.targetModel.targetEntities = response.data.entities;
-					$scope.initEmptyRowModel.relatedEntities = response.data.entities;
+					$scope.targetModel.targetEntities = angular.copy($scope.allEntities); // Such that $scope.allEntities holds both excluded and non-excluded ones
+					
+					// Remove entities marked as excluded from target entity list
+					for(var i=$scope.configuration.targetEntity.excludedEntities.length-1; i>=0; i--) {
+						var containedInListObject = containedInListBasedOnFieldPath($scope.configuration.targetEntity.excludedEntities[i], $scope.targetModel.targetEntities, 'name');
+						if(containedInListObject.contained) {
+							$scope.targetModel.targetEntities.splice(containedInListObject.index, 1);
+						}
+					};
+					
+					//$scope.initEmptyRowModel.relatedEntities = $scope.allEntities; // No need to load all entities here
 					
 					if(notify) {
 						// Display msg
@@ -625,7 +638,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			var paramModelForRelationsAndRelatedEntities = {
 				fromSearch: $scope.queryFrom, 				// the collections (VREs) String
 				name: selectedEntity.name,					// The selected entity name
-				entities: $scope.targetModel.targetEntities	// The list of all entities (target always has them all)
+				entities: $scope.allEntities				// The list of all entities
 			}
 						
 			// Case where entity selection is from target
@@ -1545,7 +1558,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	return containedElement;
     }
 	
-	// Determines if an item is contained into a list
+	// Determines if an item is contained into a list based on URI.value
 	function containedInListBasedOnURI(item, list, uriPath) {
 		
 		var containedElement = {'contained': false, 'index': -1};
@@ -1553,6 +1566,22 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		for(var i=0; i<list.length; i++) {
 						
 		    if(item[uriPath].value === list[i][uriPath].value) {
+		    	containedElement.contained = true;
+		    	containedElement.index = i;
+		    }
+		}
+    	    		
+    	return containedElement;
+    }
+	
+	// Determines if an item is contained into a list
+	function containedInListBasedOnFieldPath(item, list, fieldPath) {
+		
+		var containedElement = {'contained': false, 'index': -1};
+		
+		for(var i=0; i<list.length; i++) {
+						
+		    if(item[fieldPath] === list[i][fieldPath]) {
 		    	containedElement.contained = true;
 		    	containedElement.index = i;
 		    }
@@ -2733,7 +2762,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// total results are more than the allowed (if they are more, they will be just one more)
 					// Then we either use the results or just throw them away
 					if(considerTotalResultCount)
-						updatedQueryModel.query = updatedQueryModel.query + ' limit ' + ($scope.configuration.relatedEntityMap.maxResoultCountForShowingPinsOnInit + 1);
+						updatedQueryModel.query = updatedQueryModel.query + ' limit ' + ($scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit + 1);
 					
         			// Calling service to executing Query - Promise
 		    		queryService.getEntityQueryResults($scope.serviceModel, updatedQueryModel, $scope.credentials.token)
@@ -2753,7 +2782,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    					// Case where results should be loaded when opening the map
 		    					if(considerTotalResultCount) {
 		    						// Checking if count is less or equal to the allowed limit
-		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntityMap.maxResoultCountForShowingPinsOnInit)
+		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit)
 		    							handleGeoResultsForMap(response.data.results.bindings);
 		    					}
 		    					
