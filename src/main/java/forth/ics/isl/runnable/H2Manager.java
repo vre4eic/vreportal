@@ -239,7 +239,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?projectTitle as ?title) (?projName as ?name) (?projectAcronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?projectURI)",
+                "distinct (?projectTitle as ?title) (?projName as ?name) (?projectAcronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -247,7 +247,7 @@ public class H2Manager {
                 //                + "?@#$%VAR%$#@ a cerif:Project.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?projectTitle.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI> ?projURI.}\n"
-                + "BIND(if(bound(?projURI),?projURI,?proj) as ?projectURI).\n"
+                + "BIND(if(bound(?projURI),?projURI,?proj) as ?@#$%VAR%$#@).\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?projectAcronym.\n"
                 + "?@#$%VAR%$#@ rdfs:label ?projName.\n",
                 "?@#$%VAR%$#@ rdfs:label ?projName.\n"
