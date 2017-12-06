@@ -8,6 +8,7 @@
 var app = angular.module('app', ['ngResource','ui.bootstrap', 'ngMessages',
                                  'ngAnimate', 'ui.codemirror', 
                                  'app.mainServices', 'app.securityServices', 
+                                 'app.shareDataAmongControllersServices', 
                                  'ngTagsInput', 'ngMaterial', 'ivh.treeview', 
                                  'ui.router', 'ngCookies', 'ngStorage',
                                  'ngSanitize', 'ngMaterial']);//'ngRoute', 'openlayers-directive'

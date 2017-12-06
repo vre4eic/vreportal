@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$window', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', 'homeStateConfirmService', '$mdSidenav', '$window', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, homeStateConfirmService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -347,8 +347,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.configuration = {
 		wholeTreeModel: {
+			levelLimit: 2, 		// Not applied yet
+			bothAndOr: true 	// Not applied yet
 		},
 		everyRowModel: {
+			degreeLimit: 2 		// Not applied yet
 		},
 		targetEntity: {
 			excludedEntities: [{name: 'Location'}]
@@ -357,7 +360,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			map: {
 				maxResoultCountForShowingPinsOnInit: 200
 			},
-			excludedEntities: []
+			excludedEntities: [],
+			selectedInstancesLimit:10 	// Not applied yet
 		}
 	}
 	
@@ -629,7 +633,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// (In case of selecting real target entity, the parent rowModel is null, 
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(ev, parentRowModel, rowModel, selectedEntity, provenanceFunction) {
-				
+
+		// Setting flag that makes clear that a query is under construction 
+		// (used to avoid leaving without confirmation)
+		homeStateConfirmService.setQueryUnderConstruction(true);
+		
 		if(selectedEntity !=null) { 
 			
 			// Rrelated Entity List handling
@@ -1659,6 +1667,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				    );
 					$scope.currentFavorite.itIsFavorite = true;
 					$scope.currentFavorite.dbTableId = response.data.generatedId;
+					
+					// Setting flag that makes clear that the query is not under construction any more
+					// (used to allow leaving without confirmation since it is saved)
+					homeStateConfirmService.setQueryUnderConstruction(false);
 				}
 				else {
 					$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
@@ -1814,6 +1826,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.toggleTreeMenu();
 		// Keep first copy
 		$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+		
+		// Setting flag that makes clear that the query is not under construction any more
+		// (used to allow leaving without confirmation)
+		homeStateConfirmService.setQueryUnderConstruction(false);
+		
+		// Display msg
+		$mdToast.show(
+			$mdToast.simple()
+	        .textContent('The Query has been reset!')
+	        .position('top right')
+	        .parent(angular.element('#mainContent'))
+	        .hideDelay(3000)
+	    );
+		
 	}
 	
 	$scope.applySearch = function() {

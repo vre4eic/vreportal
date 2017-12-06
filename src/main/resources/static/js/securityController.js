@@ -174,8 +174,8 @@ app.controller("mfaDialogController", ['$scope', 'authenticationService', '$mdDi
 } ]);
 
 
-app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', '$location', '$timeout', '$state', 
-                             function($scope, authenticationService, $location, $timeout, $state) {
+app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeStateConfirmService', '$location', '$timeout', '$state', '$mdDialog', 
+                             function($scope, authenticationService, homeStateConfirmService, $location, $timeout, $state, $mdDialog) {
 	$scope.headingTitle = "Login";		
 	$scope.userProfile = {};
 	
@@ -202,14 +202,42 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', '$location
 		$mdMenu.open(ev);
 	};
 	
-	$scope.goToHomeView = function() {
-		$state.go('welcome', {});
+	$scope.goToHomeView = function(ev) {
+		// Checks if there is any query currently under construction
+		// and prompts message or just navigate to the new page
+		if(homeStateConfirmService.isQueryUnderConstruction())
+			confirmLeavingFromQueryBuilder(ev, 'welcome');
+		else
+			$state.go('welcome', {});
 	}
 	
-	$scope.goToFavoritesView = function() {
-		$state.go('favorites', {});
+	$scope.goToFavoritesView = function(ev) {
+		// Checks if there is any query currently under construction
+		// and prompts message or just navigate to the new page
+		if(homeStateConfirmService.isQueryUnderConstruction())
+			confirmLeavingFromQueryBuilder(ev, 'favorites');
+		else
+			$state.go('favorites', {});
 	}
-	  
+	
+	// Ask confirmation before leaving query builder if you are there
+	function confirmLeavingFromQueryBuilder(ev, state) {
+		var confirm = $mdDialog.confirm()
+			.title('Warning Message')
+			.htmlContent('It seems that some query is under construction. </br>Are you sure you want to leave this page?')
+			.ariaLabel('Confirmation')
+			.targetEvent(ev)
+			.ok('Yes I want to leave')
+			.cancel('No, stay here');
+		
+		$mdDialog.show(confirm).then(function() { // OK
+			homeStateConfirmService.setQueryUnderConstruction(false);
+			$state.go(state, {});
+		}, function() { // Cancel
+			// do nothing
+		});
+	}
+	
 } ]);
 
 app.controller("registrationCtrl", ['$scope', 'authenticationService', '$timeout', '$state', 
