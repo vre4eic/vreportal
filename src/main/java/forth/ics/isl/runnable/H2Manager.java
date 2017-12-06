@@ -134,7 +134,7 @@ public class H2Manager {
                 + "text_geo_query clob, \n"
                 + "thesaurus varchar(50), \n"
                 + "geospatial boolean, \n"
-                + "selection_list varchar(100), \n"
+                + "selection_list clob, \n"
                 + "selection_pattern clob, \n"
                 + "keyword_search clob,\n"
                 + "var_name varchar(10),"
@@ -206,7 +206,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?persName ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?persName as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
@@ -239,7 +239,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?projectTitle as ?title) ?projName ?projectAcronym ?Service (?@#$%VAR%$#@ as ?projectURI)",
+                "distinct (?projectTitle as ?title) (?projName as ?name) (?projectAcronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?projectURI)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
