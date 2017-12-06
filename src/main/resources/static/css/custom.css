@@ -359,6 +359,18 @@ md-autocomplete.shrinked input.ng-scope {
   background-color: rgba(230, 230, 229, 0.96);
 }
 
+.blue-button.md-button.md-fab {
+	background-color: #3f51b5;
+}
+.blue-button.md-button.md-fab:not([disabled]):hover {
+	background-color: #2b387c;
+	color: white;
+}
+.blue-button.md-button.md-fab[disabled] {
+  color : rgb(187, 187, 187);
+  background-color: rgba(230, 230, 229, 0.96);
+}
+
 .teal-button.md-button.md-fab {
 	background-color: #009688;
 }

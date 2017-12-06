@@ -287,7 +287,7 @@
 					<span layout="row">
 						<md-button class="md-raised md-primary" 
 								   ng-click="applySearch()"
-								   ><!-- ng-disabled="searchForm.$invalid" -->
+								   ng-disabled="searchForm.$invalid">
 							<md-icon md-font-icon="fa fa-search" style="font-size:18px"></md-icon>
 							Search
 						</md-button>
@@ -337,6 +337,10 @@
 					<div>
 						<table class="table table-striped table-condensed table-hover scrollTable">
 							<thead>
+								<div layout-padding>
+									To resolve any of the <code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{targetModel.selectedTargetEntity.name}}"</code> 
+									results listed below, please <code>click on the</code> respective <code>row</code>.
+								</div>
 								<tr ng-repeat="item in finalResults.results.bindings|limitTo:1" class="ng-scope">
 									<th ng-repeat="(key,val) in item" 
 										class="ng-binding" 
@@ -380,7 +384,9 @@
 								-->
 							</tfoot>
 							<tbody>
-								<tr ng-repeat="item in finalResults.results.bindings" class="ng-scope"> <!-- ng-class="{selected: entity.isChecked}" -->
+								<tr ng-repeat="item in finalResults.results.bindings" 
+									class="ng-scope"
+									ng-click="handleClickedRowFromFinalResults(item.uri.value);"> <!-- ng-class="{selected: entity.isChecked}" -->
 									<td ng-repeat="(key,val) in item" 
 										class="ng-binding" 
 										ng-if="key != 'isChecked' && key != 'uri'"

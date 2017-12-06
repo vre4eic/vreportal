@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$window', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
 	
 	$scope.headingTitle = "Metadata Search";
 	
@@ -566,6 +566,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
+	$scope.enableFirstRelatedEntity = function() {
+		// Enabling rowModel
+		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+	}
+	
 	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
 
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
@@ -708,7 +713,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					}
 				}
 				// Enabling rowModel
-				$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+				//$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 			}
 			
 			// Case where entity selection is from the related entity 
@@ -1011,7 +1016,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.loadRelatedEntitiesAndRelationsByTarget('no-event', 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'levelDown');
 		
 		// Enabling rowModel
-		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+		//$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
 		// Debugging:
 		var model = {
@@ -1903,6 +1908,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	// Construct query promise - End
 	};
 	
+	$scope.handleClickedRowFromFinalResults = function(uri) {
+		//$window.location.href = 'http://www.google.com';
+		$window.open(uri, '_blank');
+	}
 	
 		
 	
