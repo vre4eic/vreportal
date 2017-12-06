@@ -5,6 +5,7 @@
  */
 package forth.ics.isl.data.model.parser;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
@@ -14,6 +15,8 @@ import org.json.simple.JSONObject;
 public class TargetModel {
 
     private String name, uri, selectionList, varName, selectionPattern;
+    private String targetEntitySearchText;
+    private String keywordSearchPattern;
 
     public TargetModel(JSONObject jsonModel) {
         init(jsonModel);
@@ -33,6 +36,23 @@ public class TargetModel {
         this.selectionPattern = (String) ((JSONObject) jsonModel.get("selectedTargetEntity")).get("selection_pattern");
         this.uri = (String) ((JSONObject) jsonModel.get("selectedTargetEntity")).get("uri");
         this.selectionList = (String) ((JSONObject) jsonModel.get("selectedTargetEntity")).get("selection_list");
+        ///
+        StringBuilder sb = new StringBuilder();
+        JSONArray searchChips = (JSONArray) jsonModel.get("targetChips");
+        for (int i = 0; i < searchChips.size(); i++) {
+            sb.append((String) ((JSONObject) searchChips.get(i)).get("name") + " ");
+        }
+        sb.append((String) jsonModel.get("searchTargetKeywords"));
+        this.targetEntitySearchText = sb.toString().trim();
+        this.keywordSearchPattern = "";
+        if (!this.targetEntitySearchText.equals("")) {
+            this.keywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedTargetEntity")).get("keyword_search");
+            this.keywordSearchPattern = this.keywordSearchPattern.replace("@#$%TERM%$#@", this.targetEntitySearchText);
+        }
+    }
+
+    public String getKeywordSearchPattern(String var) {
+        return keywordSearchPattern.replace("@#$%VAR%$#@", var);
     }
 
     public String getName() {

@@ -59,6 +59,9 @@ public class RelatedModel {
 
     private void init(JSONObject jsonModel) {
         this.id = (long) jsonModel.get("id");
+        if (jsonModel.get("selectedRelatedEntity") == null) {
+            return;
+        }
         this.relatedName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("name");
         this.relatedVarName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("var_name");
         this.relatedUri = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("uri");
