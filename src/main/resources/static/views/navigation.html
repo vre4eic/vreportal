@@ -311,21 +311,7 @@
 				</form>
 			</md-content>
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+			<!-- Displaying Results -->
 			<md-content>
 				<div style="padding-left:30px;" class="row" ng-show="finalResults.results.bindings.length > 0">
 					<md-toolbar class="md-primary">
@@ -350,38 +336,30 @@
 									</th>
 								</tr>
 							</thead>
+							
 							<tfoot>
-							<!--
-								<tr ng-class="currRowModel.activeRelatedSearchResultsStyle">
+								<tr>
 									<td>
 										<div class="text-center">
 											<ul uib-pagination items-per-page="itemsPerPage"
-												total-items="relatedEntityResultsCount" 
+												total-items="finalResults.totalItems" 
 												ng-model="currentPage"
 												max-size="maxSize" 
 												class="pagination-sm" 
 												boundary-links="true"
 												force-ellipses="true" 
-												ng-change="pageChanged()">
+												ng-change="getFinalReusltsForData();">
 											</ul>
 										</div>
 									</td>
 								<tr>
 								<tr>
 									<td layout="row">
-										<div flex>
-											<md-button class="md-raised md-primary" ng-click="closeRelatedEntitySearchResults(currRowModel)">
-												<md-icon md-font-icon="fa fa-check-circle-o" style="font-size:18px"></md-icon>
-												<span ng-show="!currRowModel.allRelatedSearchResultsIsSelected">Select</span>
-												<span ng-show="currRowModel.allRelatedSearchResultsIsSelected">Close</span>
-											</md-button>
-										</div>
 										<div class="text-right" ng-class="activeRelatedSearchResultsStyle">
-											Number of Results: <b>{{relatedEntityResultsCount}}</b>
+											Number of Results: <b>{{finalResults.totalItems}}</b>
 										</div>
 									</td>
 								</tr>
-								-->
 							</tfoot>
 							<tbody>
 								<tr ng-repeat="item in finalResults.results.bindings" 
@@ -409,14 +387,6 @@
 				</div>
 				
 			</md-content>
-			
-			
-			
-			
-			
-			
-			
-			
 			
 		</div>
 		

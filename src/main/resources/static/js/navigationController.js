@@ -126,7 +126,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	*/
 	$scope.queryFrom = '';
 	
-	function constructQueryForm(namegraphs) {
+	function constructQueryFrom(namegraphs) {
 		$scope.queryFrom = '';
 		angular.forEach(namegraphs, function(parentValue, parentKey) {
 			angular.forEach(parentValue.children, function(childValue, childKey) {
@@ -167,7 +167,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			if(response.status == '200') {
 				$scope.namegraphs = makeAllNamegraphsSelected(response.data);
 				// Initializing the queryFrom string
-				constructQueryForm(response.data);
+				constructQueryFrom(response.data);
 				if(newCase) { // Not from favorites
 					// Initial value for the flag
 					$scope.treeMenuIsOpen = true; 
@@ -253,7 +253,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//console.log(angular.toJson($scope.namegraphs));
 		//console.log("namegraphTreeCallback: \nlabel: " + node.label + "\nselected: " + node.selected);
 		
-		constructQueryForm($scope.namegraphs);
+		constructQueryFrom($scope.namegraphs);
 		$log.info('$scope.queryFrom: ' + $scope.queryFrom);
 				
 	}
@@ -443,6 +443,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.namegraphs = $sessionStorage.selectedFavoriteModel.queryModel.namegraphs;
 			// Keep first copy of namegraphs
 			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+			// Construct the "from" section in the query
+			constructQueryFrom($scope.namegraphsCopy);
 			
 			// Let system know that this is already favorite
 			$scope.currentFavorite.itIsFavorite = true;
@@ -1843,6 +1845,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applySearch = function() {
+		
+		// Setting the first page to be the current one
+		$scope.currentPage = 1;
+		
 		// Development purpose
 		var model = {
 			queryFrom: $scope.queryFrom,
@@ -1891,10 +1897,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			
         		var params = {
         				format: "application/json",
-        				query: queryResponse.data.query + ' limit 100' // final Search Query
+        				query: queryResponse.data.query,// + ' limit 100', // final Search Query
+        				itemsPerPage: 100
         		}
     			// Calling service to executing Query - Promise
-	    		queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
+	    		//queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
+	    		queryService.getFinalQueryResults(params, $scope.credentials.token)
 	    		.then(function (response) {
 	        		
 	    			if(response.status == -1) {
@@ -1963,8 +1971,31 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	// Construct query promise - End
 	};
 	
+	// Put them into the configuration
+	$scope.currentPage = 1;
+	$scope.itemsPerPage = 100;
+	
+	
+	// Server-Side Pagination for query
+	$scope.getFinalReusltsForData = function() {
+		var pageParams = {
+			page: $scope.currentPage, 
+			itemsPerPage: $scope.itemsPerPage
+		}
+		
+		queryService.getFinalQueryResultsForPage(pageParams, $scope.credentials.token)
+		.then(function (response){
+			$scope.finalResults = response.data;
+		},function (error){
+		    $scope.message2 = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message2 + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+	}
+	// Handling clicking on row of final results, by resolving 
+	// the item (through the URI) in a new tab 
 	$scope.handleClickedRowFromFinalResults = function(uri) {
-		//$window.location.href = 'http://www.google.com';
 		$window.open(uri, '_blank');
 	}
 	

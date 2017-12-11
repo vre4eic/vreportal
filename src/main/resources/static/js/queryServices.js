@@ -155,6 +155,43 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
+		getFinalQueryResults : function(paramModel, token) {
+			return $http({
+				'url': '/execute_final_query',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': paramModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+		},
+		
+		getFinalQueryResultsForPage : function(paramModel, token) {
+			return $http({
+				'url': '/get_final_query_results_per_page',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': paramModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+		},
+		
+		
+		
+		
+		
+		
 		checkAuthorization : function(token) {
 			return $http({
 				'url' : '/checkAuthorization',

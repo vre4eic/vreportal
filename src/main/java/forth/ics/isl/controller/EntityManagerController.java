@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import forth.ics.isl.service.DBService;
 import static forth.ics.isl.service.QueryGenService.geoEntityQuery;
 import forth.ics.isl.triplestore.RestClient;
@@ -48,6 +51,8 @@ public class EntityManagerController {
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
+    // Holding the results of the final query
+    private JSONObject currFinalQueryResult;
 
     @Autowired
     private DBService dbService;
@@ -274,7 +279,140 @@ public class EntityManagerController {
         List<String> graphs = Utils.getGraphsFromClause(fromClause);
         return DBService.retrieveRelations(graphs, targetEntity, relatedEntity);
     }
-
+    
+    
+    
+    
+    
+    /**
+     * Method used for calling the respective service in order to run a query, the results of which are stored in a variable
+     *
+     * @param authorizationToken 	A valid token ensuring security
+     * @param requestParams 		A JSON Object holding the parameters (query and format)
+     * 
+     * @return 				
+     * @throws ParseException 
+     */
+    @RequestMapping(value = "/execute_final_query", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject executeFinalQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+    	
+    	restClient = new RestClient(serviceUrl, namespace, authorizationToken);
+    	
+    	System.out.println("query:" + requestParams.get("query"));
+    	
+    	JSONObject responseJsonObject = new JSONObject();
+        responseJsonObject.put("query", requestParams.get("query"));
+    	
+    	try {
+    		Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, "application/json", authorizationToken);
+    		System.out.println("serviceResponce.getStatus(): "  + serviceResponce.getStatusInfo());
+    		
+    		// Setting Response status to POJO
+			responseJsonObject.put("statusCode", serviceResponce.getStatus());
+			responseJsonObject.put("statusInfo", serviceResponce.getStatusInfo().toString());
+			
+			// In case of OK status handle the response
+    		if (serviceResponce.getStatus() == 200) {
+	    		// Serializing in pojo
+	    		ObjectMapper mapper = new ObjectMapper();
+	    		// Holding JSON result in jsonNode globally (The whole results, which can be a lot)
+	    		JSONParser parser = new JSONParser();
+	    		currFinalQueryResult = (JSONObject) parser.parse(serviceResponce.readEntity(String.class));
+	    		
+	    		// Total Items
+	        	int totalItems = ((JSONArray)((JSONObject) currFinalQueryResult.get("results")).get("bindings")).size();
+	    		
+	    		// Setting total items for the response
+				responseJsonObject.put("totalItems", totalItems);
+	    		
+	    		// Holding the first page results in a separate JsonNode
+	    		JSONObject firstPageQueryResult = getDataOfPageForCurrentFinalQuery(1, (int)requestParams.get("itemsPerPage"), totalItems);
+	    		
+	    		// Setting results for the response (for now we set them all and 
+	    		// later we will replace them with those at the first page)
+				responseJsonObject.put("results", firstPageQueryResult);
+				
+    		}
+		} 
+    	catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+		return responseJsonObject;
+    }
+    
+    /**
+     * Method used for calling the respective service in order to run a query, the results of which are stored in a variable
+     *
+     * @param authorizationToken 	A valid token ensuring security
+     * @param requestParams 		A JSON Object holding the parameters (query and format)
+     * 
+     * @return 				
+     * @throws ParseException 
+     */
+    @RequestMapping(value = "/get_final_query_results_per_page", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject getFinalQueryResultsPerPage(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+    	
+    	JSONObject responseJsonObject = new JSONObject();
+    	
+    	// Total Items
+    	int totalItems = ((JSONArray)((JSONObject) currFinalQueryResult.get("results")).get("bindings")).size();
+    	
+    	// Setting total items for the response
+    	responseJsonObject.put("totalItems", totalItems);
+    	JSONObject pageQueryResult = getDataOfPageForCurrentFinalQuery((int)requestParams.get("page"), (int)requestParams.get("itemsPerPage"), totalItems);
+    	responseJsonObject.put("results", pageQueryResult);
+    	
+		return responseJsonObject;
+    }
+    
+    /**
+     * Constructs an ObjectNode for one page only, based on the passed page and the whole data
+     *
+     * @param page	 		The page number
+     * @param itemsPerPage 	The number of items per page
+     * @return 				the constructed ObjectNode
+     */
+    private JSONObject getDataOfPageForCurrentFinalQuery(int page, int itemsPerPage, int totalItems) {
+    	    	    	    	
+    	//{"head":{"vars":["s","p","o"]},"results":{"bindings":[{"s":{... "p":{...
+    			
+		// bindings
+		JSONArray bindingsJsonArray = new JSONArray();
+		
+		JSONObject resultsObj = (JSONObject)currFinalQueryResult.get("results");
+		JSONArray bindingsArr = (JSONArray)resultsObj.get("bindings");
+		
+		List<String> bindingsList = new ArrayList<String>();
+		
+		if(((page-1)*itemsPerPage)+itemsPerPage+1>totalItems)
+			bindingsList = bindingsArr.subList(((page-1)*itemsPerPage)+1, totalItems);
+		else
+			bindingsList = bindingsArr.subList(((page-1)*itemsPerPage)+1, ((page-1)*itemsPerPage)+itemsPerPage+1);
+		
+		for (int i=0; i<bindingsList.size(); i++) {
+			bindingsJsonArray.add(bindingsList.get(i));
+		}
+		
+		JSONObject pageResultsObj = new JSONObject();
+		pageResultsObj.put("bindings", bindingsJsonArray);
+		
+    	return pageResultsObj;
+    	
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public static void main(String[] args) throws SQLException, IOException {
         String fromClause = "from <http://ekt-data> from <http://rcuk-data>";
         String uri = "http://eurocris.org/ontology/cerif#Person";
