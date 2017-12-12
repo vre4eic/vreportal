@@ -426,6 +426,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		dbTableId: null
 	};
 	
+	$scope.finalQuery = "";
+	
 	this.$onInit = function () {
 				
 		//Initializing empty row model (new instance)
@@ -457,8 +459,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			initAllNamegraphs(true); // true stands for "new case"
 		}
 		
-	}
+		// Initial value for the Final query (used in code-mirror)
+		//initFinalQuery();
 		
+	}
+	/*
+	function initFinalQuery() {
+		$scope.finalQuery = "Not Yet Defined";
+	}
+	*/
 	// Initializing All available entities
 	function initAllEntities(queryFrom, notify) {
 		
@@ -1714,7 +1723,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if($scope.currentFavorite.dbTableId != null) {
 			
 			// Ask before removing from favorites
-			var confirm = $mdDialog.confirm()
+			var confirm = $mdDialog.confirm({
+		    		onComplete: function afterShowAnimation() {
+		                var $dialog = angular.element(document.querySelector('md-dialog'));
+		                var $actionsSection = $dialog.find('md-dialog-actions');
+		                var $cancelButton = $actionsSection.children()[0];
+		                var $confirmButton = $actionsSection.children()[1];
+		                angular.element($confirmButton).addClass('md-raised md-warn');
+		                angular.element($cancelButton).addClass('md-raised'); 
+		            }
+		        })
 				.title('Warning Message')
 				.htmlContent('Are you sure you want to remove this query from your favorites?')
 				.ariaLabel('Confirmation')
@@ -1775,7 +1793,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.applyReset = function(ev) {
-		var confirm = $mdDialog.confirm()
+		var confirm = $mdDialog.confirm(
+			{
+	    		onComplete: function afterShowAnimation() {
+	                var $dialog = angular.element(document.querySelector('md-dialog'));
+	                var $actionsSection = $dialog.find('md-dialog-actions');
+	                var $cancelButton = $actionsSection.children()[0];
+	                var $confirmButton = $actionsSection.children()[1];
+	                angular.element($confirmButton).addClass('md-raised md-warn');
+	                angular.element($cancelButton).addClass('md-raised'); 
+	            }
+	        })
 			.title('Warning Message')
 			.htmlContent('Are you sure you want to reset the query constructed so far?')
 			.ariaLabel('Target Entity Selection - No longer Available')
@@ -1844,6 +1872,135 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 	}
 	
+	// The ui-codemirror option
+	$scope.cmOption = {
+		lineNumbers: true,
+		lineWrapping: true,
+		indentWithTabs: true,
+		//fixedGutter: true,
+		//autoRefresh: true,
+		readOnly: true,
+		//readOnly: 'nocursor',
+		mode: 'sparql'
+	};
+	
+	$scope.fullScreenStyleForDialog = 'non-full-screen-dialog';
+	
+	$scope.makeSparqlObservationInFullScreen = function() {
+		$scope.fullScreenStyleForDialog = 'full-screen-dialog';
+		$scope.refreshCodemirror = true;
+	    $timeout(function () {
+	      $scope.refreshCodemirror = false;
+	    }, 100);
+	}
+	
+	$scope.exitSparqlObservationFromFullScreen = function() {
+		$scope.fullScreenStyleForDialog = 'non-full-screen-dialog';
+		$scope.refreshCodemirror = true;
+	    $timeout(function () {
+	      $scope.refreshCodemirror = false;
+	    }, 100);
+	}
+	
+	$scope.observeSparql = function(ev) {
+		
+		$mdDialog.show({
+    		scope: $scope,
+    		templateUrl: 'views/dialog/sparqlObserve.tmpl.html', 
+    		parent: angular.element(document.body),
+    		targetEvent: ev,
+    		clickOutsideToClose:true,
+    		onComplete:function(){    			
+    			// Development purpose
+    			var model = {
+    				queryFrom: $scope.queryFrom,
+    				queryModel: {
+    					targetModel: angular.copy($scope.targetModel),
+    					relatedModels: angular.copy($scope.rowModelList)
+    				}
+    			}
+    			
+    			// Delete Useless for the back-end properties, occupying a lot of volume
+    			
+    			// Target
+    			delete model.queryModel.targetModel.backupSelectedTargetEntity;
+    			delete model.queryModel.targetModel.targetEntities;
+    			
+    			// Related Entity List (whole (model.queryModel))
+    			for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+    				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+    			}
+    			
+    			computeFinalQuery(angular.toJson(model));
+    			
+    		},
+    		//fullscreen: true,
+    		preserveScope: true,
+    		fullscreen: false // Only for -xs, -sm breakpoints.
+    	})
+    	.then(function(data) {
+    		console.log("then");
+    	}, function(err) {
+    		$scope.status = 'You cancelled the dialog.';
+    	}).finally(function() {
+    		
+    	});
+		
+	}
+	
+	function computeFinalQuery(searchEntityModel) {
+		
+		var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Search process undergoing...'
+		};
+    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		
+    	queryService.computeFinalSearchQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
+    		if(queryResponse.status == '200') {
+    			$scope.finalQuery = queryResponse.data.query;
+    			
+    			// Trick to make line-numbers render correctly
+    			$scope.refreshCodemirror = true;
+    		    $timeout(function () {
+    		      $scope.refreshCodemirror = false;
+    		    }, 100);
+    			modalInstance.close();
+			}
+    		
+			else if(queryResponse.status == '400') {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(queryResponse.status == '401') {
+				$log.info(queryResponse.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+    	}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			modalInstance.close();
+		});
+    	
+	}
+	
+	$scope.closeSparqlObserve = function() {
+		// Hide dialog
+		$mdDialog.cancel();
+	}
+	
 	$scope.applySearch = function() {
 		
 		// Setting the first page to be the current one
@@ -1875,10 +2032,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//$scope.showErrorAlert('Info', 'Running the query will be available in the final version. For the moment only construction-related functionality is possible.');
 		retrieveFinalResults(angular.toJson(model));
 	};
-	
-	
-	
-	
 	
 	$scope.finalResults = {};
 	

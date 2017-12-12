@@ -57,20 +57,6 @@
 								</th>
 							</tr>
 						</thead>
-						<tfoot>
-							<tr>
-								<td layout="row">
-									<div flex>
-										<md-button class="md-raised md-primary"
-												   ng-click="loadQueryModel();"
-												   ng-disabled="!selectedFavoriteModel">
-											<md-icon md-font-icon="fa fa-check-circle-o" style="font-size:18px"/>
-											Load
-										</md-button>
-									</div>
-								</td>
-							</tr>
-						</tfoot>
 						<tbody>
 							<tr ng-repeat="item in favoriteModels" class="ng-scope" ng-click="setSelectedFavoriteModel();">
 								<td ng-repeat="property in templateAry(item) | orderBy:'-key'" 
@@ -81,7 +67,26 @@
 							</tr>
 						</tbody>
 					</table>
-				
+					<md-divider></md-divider>
+					<div layout="row">
+						<div flex>
+							<md-button class="md-raised md-primary"
+									   ng-click="loadQueryModel();"
+									   ng-disabled="!selectedFavoriteModel">
+								<md-icon md-font-icon="fa fa-check-circle-o" style="font-size:18px"/>
+								Load
+							</md-button>
+						</div>
+						<div>
+							<md-button class="md-raised md-primary"
+									   ng-click="deleteQueryModel($event);"
+									   ng-disabled="!selectedFavoriteModel">
+								<md-icon md-font-icon="fa fa-trash-o" style="font-size:18px"/>
+								Delete
+							</md-button>
+						</div>
+					</div>
+					
 				
 				</form>
 			</md-content>

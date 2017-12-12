@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$http', '$log', '$mdDialog', '$mdToast', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $http, $log, $mdDialog, $mdToast) {
+app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$mdToast', '$http', '$log', '$mdDialog', '$mdToast', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $mdToast, $http, $log, $mdDialog, $mdToast) {
 	
 	$scope.headingTitle = "My Favorites";
 	
@@ -84,6 +84,7 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
 		};
 	}
 	
+	$scope.currentFavorite = {};
 	$scope.favoriteModels = [];
 	
 	// Init favorites
@@ -174,13 +175,79 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
     	$state.go('navigation', {});
     }
     
-	/*
-	angular.forEach(list, function(value, key) {
-		//if()
-		//exists = 
-		$log.info('value: ' + value);
-	});
-	*/
-	
+    $scope.deleteQueryModel = function(ev) {
+    	
+    	var confirm = $mdDialog.confirm({
+	    		onComplete: function afterShowAnimation() {
+	                var $dialog = angular.element(document.querySelector('md-dialog'));
+	                var $actionsSection = $dialog.find('md-dialog-actions');
+	                //$actionsSection.css("text-align", "center");
+	                //$actionsSection.css("display", "block");
+	                var $cancelButton = $actionsSection.children()[0];
+	                var $confirmButton = $actionsSection.children()[1];
+	                angular.element($confirmButton).addClass('md-raised md-warn');
+	                angular.element($cancelButton).addClass('md-raised'); 
+	            }
+	        })
+    		.title('Warning Message')
+    		.htmlContent("Are you sure you want to <code>delete</code> the selected query model.</br> Please note that <code>fulfilling this action, leaves no recovering options</code>.")
+    		.ariaLabel('Query Model deletion')
+    		.targetEvent(ev)
+    		.ok('Yes Continue')
+    		.cancel('Cancel');
+
+		$mdDialog.show(confirm).then(function() { // OK
+			
+			$scope.currentFavorite.dbTableId = $scope.selectedFavoriteModel.favoriteId;
+	    	queryService.removeFromFavoritesById($scope.currentFavorite, $scope.credentials.token)
+			.then(function (response) {
+				if(response.status == '200') {
+					if(response.data.dbStatus == 'success') {
+						
+						// Re-retrieve favorites
+						initFavoriteModels();
+						
+						// Display msg
+						$mdToast.show(
+							$mdToast.simple()
+					        .textContent('The Query has been removed from your favorites!')
+					        .position('top right')
+					        .parent(angular.element('#mainContent'))
+					        .hideDelay(3000)
+					    );
+					}
+					else {
+						$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
+						$scope.showErrorAlert('Error', $scope.message);
+					}
+				}
+				else if(response.status == '400') {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+				else if(response.status == '401') {
+					$log.info(response.status);
+					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
+				}
+				else {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+				
+			}, function (error) {
+				$scope.message = 'There was a network error. Try again later.';
+				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+					data : error
+				}));
+			});
+			
+		}, function() { // Cancel
+			// Do nothing
+		});
+    	
+    }
 	
 }]);
