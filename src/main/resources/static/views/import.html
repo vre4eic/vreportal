@@ -8,12 +8,54 @@
 				<h2 class="md-flex">{{headingTitle}}</h2>
 				<span flex></span>
 				<h5 class="md-flex" ng-show="selectedFormat != null">Content-Type: {{selectedFormat}}</h5>
-				<md-button ng-click="toggleInfo()" class="md-fab md-mini" aria-label="Show Help">
-			    	<md-icon md-svg-src="images/information-variant.svg"></md-icon>
-			    </md-button>
+				
+				<div>
+					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
+			            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
+			            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
+			            <md-tooltip md-delay="1000" md-direction="top">
+							Help
+						</md-tooltip>
+			        </md-button>
+		        </div>
+				
+				
+				
 			</div>
 		</md-toolbar>
 		
+		<md-sidenav class="md-sidenav-right" 
+				md-component-id="rightInfo"
+               	md-whiteframe="4"
+               	md-disable-backdrop
+               	style="margin-top:94px;">
+
+			<md-toolbar class="md-accent">
+				<div class="md-toolbar-tools">
+					<md-button class="md-icon-button" aria-label="Hide Help" ng-click="toggleInfo()">
+	         				<md-icon md-font-icon="fa fa-chevron-circle-right" style="font-size:24px"></md-icon>
+	       			</md-button>
+					
+					<h2 class="md-flex">Help</h2>
+					<span flex></span>
+					<!-- <md-icon md-font-icon="fa fa-info" style="font-size:24px;"></md-icon>-->
+					<md-icon md-font-icon="fa fa-question" style="font-size:24px;"></md-icon>
+				</div>
+			</md-toolbar>
+	
+			<md-content layout-margin>
+				<p>
+					<div ng-include="'views/info/importInfo.html'"></div>
+				</p>
+				
+				<div layout="row">
+					<md-button ng-click="toggleInfo()" class="md-accent">
+						Close this Sidenav
+					</md-button>
+				</div>
+			</md-content>
+	
+		</md-sidenav>
 		
 		<div uib-alert ng-repeat="alert in alerts"
 			 ng-class="'alert-' + (alert.type || 'warning')" class='fadeAlert'
@@ -52,12 +94,12 @@
 							 md-selected-item="selectedNamegraph" 
 							 md-search-text="searchText"
 							 md-items="item in querySearch(searchText)"
-							 md-item-text="item.g.value"
+							 md-item-text="item.label"
 							 md-min-length="0"
 							 placeholder="Namegraph"
 							 style="padding-right:5px; width:500px;">
 		        <md-item-template>
-		          <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.g.value}}</span>
+		          <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.label}}</span>
 		        </md-item-template>
 				<md-not-found>
 	          		Since namegraph "{{searchText}}" doesn't exist, a new one will be created.
@@ -82,34 +124,5 @@
 			dropzone.autoDiscover = false;
 		</script>
 	</div>
-	<md-sidenav class="md-sidenav-right" 
-				md-component-id="rightInfo"
-               	md-disable-backdrop 
-               	md-whiteframe="4"
-               	style="margin-top:30px;">
-
-		<md-toolbar class="md-accent">
-			<div class="md-toolbar-tools">
-				<md-button class="md-icon-button" aria-label="Hide Help" ng-click="toggleInfo()">
-          			<md-icon md-svg-src="images/chevron-right.svg" style="color: white;"></md-icon>
-        		</md-button>
-				<h2 class="md-flex">Information</h2>
-				<span flex></span>
-				<md-icon md-font-icon="mdi mdi-information-outline" style="font-size:25px;"></md-icon>
-			</div>
-		</md-toolbar>
-	
-		<md-content layout-margin>
-			
-			<p>
-				<div ng-include="'views/info/importInfo.html'"></div>
-			</p>
-				
-			<md-button ng-click="toggleInfo()" class="md-accent">
-				Close this Sidenav
-			</md-button>
-		</md-content>
-	
-	</md-sidenav>
     
 </div>
