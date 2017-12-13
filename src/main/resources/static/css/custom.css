@@ -542,9 +542,8 @@ md-autocomplete.shrinked input.ng-scope {
 }
 
 
-//*.CodeMirror-gutter-elt {left: -29px !important}*/
 
-/*
+/* funky-show-hide - Animation*/
 .funky-show-hide.ng-hide-add {
   transform: rotateZ(0);
   transform-origin: right;
@@ -564,7 +563,40 @@ md-autocomplete.shrinked input.ng-scope {
 .funky-show-hide.ng-hide-remove.ng-hide-remove-active {
   transform: rotateY(0);
 }
-*/
+
+/* zoom-show-hide - Animation*/
+.zoom-show-hide.ng-hide-add {
+  	-webkit-transition:all 0.5s ease-in-out;
+	-moz-transition:all 0.5s ease-in-out;
+	-ms-transition:all 0.5s ease-in-out;
+	-o-transition:all 0.5s ease-in-out;
+	transition:all 0.5s ease-in-out;
+}
+
+.zoom-show-hide.ng-hide-add.ng-hide-add-active {
+  -webkit-transform: scale(0);
+  -ms-transform: scale(0);
+  transform: scale(0);
+}
+
+.zoom-show-hide.ng-hide-remove {
+	transform: scale(0.1);
+	-webkit-transition:all 0.5s ease-in-out;
+	-moz-transition:all 0.5s ease-in-out;
+	-ms-transition:all 0.5s ease-in-out;
+	-o-transition:all 0.5s ease-in-out;
+	transition:all 0.5s ease-in-out;
+}
+
+.zoom-show-hide.ng-hide-remove.ng-hide-remove-active {
+  -webkit-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+}
+
+
+
+
 
 
 
@@ -626,11 +658,11 @@ md-list-item.removed-item {
 /* Animation when hiding search results of related entity */ 
 
 .transformWidth {
-	-webkit-transition: width 1s ease; 
-	-moz-transition: width 1s ease; 
-	-ms-transition: width 1s ease; 
-  	-o-transition: width 1s ease; 
-	transition: width 1s ease;
+	-webkit-transition: width 1s ease-out; 
+	-moz-transition: width 1s ease-out; 
+	-ms-transition: width 1s ease-out; 
+  	-o-transition: width 1s ease-out; 
+	transition: width 1s ease-out;
 }
 
 /* changes width */
@@ -653,10 +685,10 @@ md-list-item.removed-item {
 .transformWidth.ng-hide-add,
 .transformWidth.ng-hide-remove.ng-hide-remove-active {
 	opacity: 1;
-	-webkit-transition: width 1s ease; 
-	-moz-transition: width 1s ease; 
-	-ms-transition: width 1s ease; 
-  	-o-transition: width 1s ease; 
+	-webkit-transition: width 1s ease-out; 
+	-moz-transition: width 1s ease-out; 
+	-ms-transition: width 1s ease-out; 
+  	-o-transition: width 1s ease-out; 
 	transition: all 1s ease;
 }
 

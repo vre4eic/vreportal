@@ -5,48 +5,59 @@
 			
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-button ng-click="toggleTreeMenu();" 
-							   class="md-fab md-mini hideLeft" 
-							   aria-label="Show VRE's menu"
-							   ng-hide="treeMenuIsOpen">
-			            <md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
-			            <md-tooltip md-delay="1000" md-direction="top">
-							Show VRE's menu
-						</md-tooltip>
-			        </md-button><!-- copyNamegraphs(); -->
+				
+					<div class="zoom-show-hide" ng-hide="treeMenuIsOpen">
+					<!-- 
+						This md-button used to have the ng-hide (not its div container)
+						along with a animation class 'hideLeft' 
+					-->
+						<md-button ng-click="toggleTreeMenu();" 
+								   class="md-fab md-mini" 
+								   aria-label="Show VRE's menu">
+				            <md-icon md-font-icon="fa fa-bars" style="font-size:20px;"></md-icon>
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Show VRE's menu
+							</md-tooltip>
+				        </md-button>
+					</div>
+			        
 			        <!-- <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="36" style="padding-right:10px;">-->
 			        <md-icon md-font-icon="fa fa-search" style="font-size:36px; padding-right:10px;"></md-icon>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					
-					<md-button ng-click="observeSparql($event)" 
-							   ng-show="!searchForm.$invalid" 
-							   class="md-icon-button" 
-							   aria-label="Observe Sparql">
-			            <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="28">
-			            <md-tooltip md-delay="1000" md-direction="top">
-							Observe SPARQL Query
-						</md-tooltip>
-			        </md-button>
+					<div ng-show="!searchForm.$invalid" class="zoom-show-hide">
+						<md-button ng-click="observeSparql($event)" 
+								   
+								   class="md-icon-button" 
+								   aria-label="Observe Sparql">
+				            <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="28">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Observe SPARQL Query
+							</md-tooltip>
+				        </md-button>
+					</div>
 					
-					<md-button ng-click="showFavoriteDialog($event)" ng-show="!currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
-			            <md-icon md-font-icon="fa fa-star-o" style="font-size:28px;">
-			            <md-tooltip md-delay="1000" md-direction="top">
-							Add into favorites
-						</md-tooltip>
-			        </md-button>
-			        <md-button ng-click="removeCurrentQueryModelFromFavorites($event);" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
-			            <md-icon md-font-icon="fa fa-star" style="font-size:28px;">
-			            <md-tooltip md-delay="1000" md-direction="top">
-							Remove from favorites
-						</md-tooltip>
-			        </md-button>
-					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
-			            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
-			            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
-			            <md-tooltip md-delay="1000" md-direction="top">
-							Help
-						</md-tooltip>
-			        </md-button>
+					<div>
+						<md-button ng-click="showFavoriteDialog($event)" ng-show="!currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
+				            <md-icon md-font-icon="fa fa-star-o" style="font-size:28px;">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Add into favorites
+							</md-tooltip>
+				        </md-button>
+				        <md-button ng-click="removeCurrentQueryModelFromFavorites($event);" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
+				            <md-icon md-font-icon="fa fa-star" style="font-size:28px;">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Remove from favorites
+							</md-tooltip>
+				        </md-button>
+						<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
+				            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
+				            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Help
+							</md-tooltip>
+				        </md-button>
+			        </div>
 				</div>
 			</md-toolbar>
 			
