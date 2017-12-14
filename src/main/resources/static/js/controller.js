@@ -182,14 +182,14 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
             	if($scope.selectedFormat == 'Automatic') {
 	            	this.options.params = { 
 	            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
-	            		'namedGraphParam': $scope.searchText,
+	            		'namedGraphParam': 'http://' + $scope.searchText,
 	            		'authorizationParam': $scope.credentials.token 
 	            	};
             	}
             	else {
             		this.options.params = { 
     	            		'contentTypeParam': $scope.selectedFormat, 
-    	            		'namedGraphParam': $scope.searchText,
+    	            		'namedGraphParam': 'http://' + $scope.searchText,
     	            		'authorizationParam': $scope.credentials.token 
     	            	};
             	}

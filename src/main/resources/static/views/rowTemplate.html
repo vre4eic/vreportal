@@ -133,7 +133,7 @@
 					</md-tooltip>
 				</md-button>
 				
-				<div ng-class="rowModel.activeRowModelStyle">
+				<div ng-class="rowModel.activeRowModelStyle" ng-show="parent.rowModel == null">
 					
 					<md-fab-speed-dial ng-show="rowModel.activeRowModelStyle == 'enabled-style'"
 									   md-open="false" 
@@ -207,7 +207,7 @@
          							This is required
          							<br/>
          							<span ng-show="rowModel.backupSelectedRelation != null">
-         								Previously selected: (<i>"{{rowModel.backupSelectedRelation.name}}"</i>)
+         								<i>"{{rowModel.backupSelectedRelation.name}}" was previously selected</i>
          							</span>
          						</div>
          					</div>
@@ -445,26 +445,70 @@
 				
 			</div>
 			
-			<div class="lock-size" 
-				 ng-show="rowModel.rowModelList.length==0"
-				 style="padding-top:12px;" 
-				 ng-cloak>
-				 <!-- ng-class="rowModel.activeStyle" -->
-				<div flex>
-					<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
-							   aria-label="Add Filter on Related Entity"
-							   ng-click="addFilterOnRelated(parent.rowModel, rowModel)"
-							   ng-disabled="rowModel.selectedRelatedEntity == null">
-		            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
-		        	</md-button>
-		        	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" md-delay="1000" md-direction="top">
-						Select some related entity first
-					</md-tooltip>
-					<md-tooltip ng-show="rowModel.selectedRelatedEntity != null" md-delay="1000" md-direction="top">
-						Add a filter on entity {{rowModel.selectedRelatedEntity.name}}
-					</md-tooltip>
-	        	</div>
+			<div>
+				<div style="height:52px; padding-top:12px;" 
+					 ng-cloak>
+					 <!-- ng-class="rowModel.activeStyle" -->
+					<div class="lock-size zoom-show-hide" 
+					 	 ng-show="rowModel.rowModelList.length==0" 
+					 	 flex>
+						<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
+								   aria-label="Add Filter on Related Entity"
+								   ng-click="addFilterOnRelated(parent.rowModel, rowModel)"
+								   ng-disabled="rowModel.selectedRelatedEntity == null">
+			            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
+			        	</md-button>
+			        	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" md-delay="1000" md-direction="top">
+							Select some related entity first
+						</md-tooltip>
+						<md-tooltip ng-show="rowModel.selectedRelatedEntity != null" md-delay="1000" md-direction="top">
+							Add a filter on entity {{rowModel.selectedRelatedEntity.name}}
+						</md-tooltip>
+		        	</div>
+				</div>
+				<div style="height:180px;>
+					<div ng-class="rowModel.activeRowModelStyle" 
+						 ng-show="rowModel.rowModelList.length>0"
+						 class="zoom-show-hide">
+						
+						<md-fab-speed-dial ng-show="rowModel.activeRowModelStyle == 'enabled-style'"
+										   md-open="false" 
+										   md-direction="down"
+			              				   ng-class="targetSpeedDialMode"
+			              				   style="margin-top:51px">
+							<md-fab-trigger>
+								<md-button aria-label="menu" 
+										   class="md-fab green-button"
+										   ng-disabled="rowModel.activeRowModelStyle == 'disabled-style'">
+			 						<md-icon md-font-icon="fa fa-plus" 
+			 								 style="font-size:24px"></md-icon>
+								</md-button>
+							</md-fab-trigger>
+			
+							<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'">
+								<md-button aria-label="Any of the folowing" 
+										   class="md-fab md-primary md-raised md-mini" 
+										   style="background-color: rgb(179, 174, 176);"
+										   ng-click="addNewEmptyRowModel(rowModel, 'OR')">
+									OR
+								</md-button>
+								<md-button aria-label="All the following" 
+										   class="md-fab md-primary md-raised md-mini" 
+										   style="background-color: rgb(179, 174, 176);"
+										   ng-click="addNewEmptyRowModel(rowModel, 'AND')">
+									AND
+								</md-button>
+							</md-fab-actions>
+							<md-tooltip md-delay="1000" md-direction="top">
+								Add a new filter on entity "{{rowModel.selectedRelatedEntity.name}}"
+							</md-tooltip>
+						</md-fab-speed-dial>
+					</div>
+				</div>
 			</div>
+			
+			
+			
 			<!-- <md-divider></md-divider> -->
 		</div>
 			
