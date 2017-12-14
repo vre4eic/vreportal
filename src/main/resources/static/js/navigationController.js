@@ -540,7 +540,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 	}
 		
-	$scope.addNewEmptyRowModel = function(parentRowModel, str) {
+	$scope.addNewEmptyRowModel = function(parentRowModel,  rowModel, str) {
 		
 		autoincrementedRowModelId++;
 		
@@ -569,6 +569,46 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Increment level by one considering the parent's level
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].level = parentRowModel.level + 1;
 		}
+		
+		// Debugging:
+		var model = {
+			queryFrom: $scope.queryFrom,
+			rowModel: angular.copy(rowModel),
+			logicalExpression: str,
+			queryModel: {
+				targetModel: angular.copy($scope.targetModel),
+				relatedModels: angular.copy($scope.rowModelList)
+			}
+		}
+		
+		// Delete Useless for the back-end properties, occupying a lot of volume
+		
+		// ----------- model.queryModel:
+		
+		// Target
+		delete model.queryModel.targetModel.backupSelectedTargetEntity;
+		delete model.queryModel.targetModel.targetEntities;
+		
+		// Related Entity List (whole (model.queryModel))
+		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+		}
+		
+		// ----------- model.rowModel"
+		
+		// Related Entity List (just the current rowModel))
+		delete model.rowModel.backupSelectedRelatedEntity;
+		delete model.rowModel.backupSelectedRelation;
+		delete model.rowModel.relatedEntities;
+		delete model.rowModel.relations;
+		// Delete for children recursively
+		deleteUselessForBackEndRelatedProperties(model.rowModel)
+		
+		// Case of adding filter on target (there is no current rowModel)
+		if(parentRowModel == null)
+			delete model.rowModel;
+		
+		console.log(angular.toJson(model));
 		
 	}
 	
