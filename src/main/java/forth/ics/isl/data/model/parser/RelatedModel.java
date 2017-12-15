@@ -62,11 +62,15 @@ public class RelatedModel {
         if (jsonModel.get("selectedRelatedEntity") == null) {
             return;
         }
-        this.relatedName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("name");
-        this.relatedVarName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("var_name");
-        this.relatedUri = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("uri");
-        this.relationName = (String) ((JSONObject) jsonModel.get("selectedRelation")).get("name");
-        this.relationUri = (String) ((JSONObject) jsonModel.get("selectedRelation")).get("uri");
+        if (jsonModel.get("selectedRelatedEntity") != null) {
+            this.relatedName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("name");
+            this.relatedVarName = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("var_name");
+            this.relatedUri = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("uri");
+        }
+        if (jsonModel.get("selectedRelation") != null) {
+            this.relationName = (String) ((JSONObject) jsonModel.get("selectedRelation")).get("name");
+            this.relationUri = (String) ((JSONObject) jsonModel.get("selectedRelation")).get("uri");
+        }
         ///
         StringBuilder sb = new StringBuilder();
         JSONArray searchChips = (JSONArray) jsonModel.get("relatedChips");
@@ -96,32 +100,50 @@ public class RelatedModel {
         relatedModels = new ArrayList<>();
         if (selectedGraphs != null) {
             manageEmbeddedRelatedModels((JSONArray) jsonModel.get("rowModelList"));
-            findRelationsRelatedEntities();
+            sugRelationsRelatedEntities = findRelationsRelatedEntities(relatedName);
         }
     }
 
-    private void findRelationsRelatedEntities() {
-        try {
-            ////conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            ////DBService.setConnection(conn);
-            ////DBService.setJdbcTemplateUsed(false);
-            Connection conn = dbService.initConnection();
-            sugRelationsRelatedEntities = new HashMap<>();
-            JSONArray entities = DBService.retrieveAllEntities(false);
-            ////conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            ////DBService.setConnection(conn);
-//            JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, relatedName, Utils.jsonArrayToList(entities));
-            JSONArray relationsEntities = dbService.retrieveRelationsEntities(selectedGraphs, relatedName, Utils.jsonArrayToList(entities));
-            for (int i = 0; i < relationsEntities.size(); i++) {
-                JSONObject obj = (JSONObject) relationsEntities.get(i);
-                sugRelationsRelatedEntities.put(
-                        (String) ((JSONObject) obj.get("relation")).get("uri"),
-                        (String) ((JSONObject) obj.get("related_entity")).get("uri")
-                );
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(RelatedModel.class.getName()).log(Level.SEVERE, null, ex);
+    public HashMap<String, String> findRelationsRelatedEntities(String relatedEntityName) {
+        HashMap<String, String> result = new HashMap<>();
+        JSONArray entities = DBService.retrieveAllEntities(false);
+        JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, relatedEntityName, Utils.jsonArrayToList(entities));
+        for (int i = 0; i < relationsEntities.size(); i++) {
+            JSONObject obj = (JSONObject) relationsEntities.get(i);
+            result.put(
+                    (String) ((JSONObject) obj.get("relation")).get("uri"),
+                    (String) ((JSONObject) obj.get("related_entity")).get("uri")
+            );
         }
+        return result;
+    }
+
+    public void setRelationName(String relationName) {
+        this.relationName = relationName;
+    }
+
+    public void setRelationUri(String relationUri) {
+        this.relationUri = relationUri;
+    }
+
+    public void setRelatedName(String relatedName) {
+        this.relatedName = relatedName;
+    }
+
+    public void setRelatedUri(String relatedUri) {
+        this.relatedUri = relatedUri;
+    }
+
+    public void setRelatedVarName(String relatedVarName) {
+        this.relatedVarName = relatedVarName;
+    }
+
+    public void setSelectedGraphs(List<String> selectedGraphs) {
+        this.selectedGraphs = selectedGraphs;
+    }
+
+    public void setFilterExp(String filterExp) {
+        this.filterExp = FilterExp.fromString(filterExp);
     }
 
     public String getRelationName() {
@@ -157,7 +179,7 @@ public class RelatedModel {
     }
 
     public String getKeywordSearchPattern(String var) {
-        return keywordSearchPattern.replace("@#$%VAR%$#@", var);
+        return keywordSearchPattern != null ? keywordSearchPattern.replace("@#$%VAR%$#@", var) : "";
     }
 
     public String getRelatedVarName() {
@@ -215,14 +237,21 @@ public class RelatedModel {
         } else {
             for (int i = 0; i < relatedEntities.size(); i++) {
                 JSONObject obj = (JSONObject) relatedEntities.get(i);
-                if (obj.get("selectedRelation") == null || obj.get("selectedRelatedEntity") == null) {
-                    return;
-                }
+//                if (obj.get("selectedRelation") == null || obj.get("selectedRelatedEntity") == null) {
+//                    return;
+//                }
                 RelatedModel relModel = new RelatedModel(obj, selectedGraphs);
                 relModel.setParentModel(this);
                 this.relatedModels.add(relModel);
             }
         }
+    }
+
+    public boolean isNullRelatedModel() {
+        if (this.relatedUri == null && this.relationName == null) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -254,7 +283,7 @@ public class RelatedModel {
         StringBuilder block = new StringBuilder();
         String relVar = getRelatedVarName() + "_" + relCnt;
         block.append("?" + targetEntity + " <" + getRelationUri() + "> ?" + relVar + ".\n");
-        if (!getSelectedUris().isEmpty()) {
+        if (getSelectedUris() != null && !getSelectedUris().isEmpty()) {
             block.append("filter(?" + relVar + " in (");
             int cnt = 0;
             for (String selUri : getSelectedUris()) {
@@ -266,9 +295,9 @@ public class RelatedModel {
             }
             block.append(")).\n");
         }
-        block.append((getKeywordSearchPattern(relVar) + "\n").trim());
+        block.append((getKeywordSearchPattern(relVar) + "\n").trim() + "\n");
         List<String> relEntitiesBlocks = new ArrayList<>();
-        if (!relatedModels.isEmpty()) {
+        if (relatedModels != null && !relatedModels.isEmpty()) {
             for (RelatedModel relModel : relatedModels) {
                 String curBlock = relModel.createSPARQLBlock(relVar, ++relCnt);
                 relEntitiesBlocks.add(curBlock);
@@ -283,7 +312,7 @@ public class RelatedModel {
                     if (relModel.getFilterExp() == FilterExp.AND) {
                         currentBlock = currentBlock + bl;
                     } else {
-                        currentBlock = "{\n" + currentBlock + "} UNION {\n" + block + "}\n";
+                        currentBlock = "{\n" + currentBlock + "} UNION {\n" + bl + "}\n";
                     }
                 }
                 block.append(currentBlock);

@@ -83,7 +83,8 @@ public class DBService {
         {
             return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
         } else {
-            return connection;
+            return DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            //return connection;
         }
     }
 
@@ -204,7 +205,6 @@ public class DBService {
             entities.close();
             statement.close();
             conn.close();
-
         } catch (SQLException ex) {
             Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -326,9 +326,6 @@ public class DBService {
         }
         try {
             Connection conn = initConnection();
-            if (conn.isClosed()) {
-                conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            }
             Statement statement = conn.createStatement();
             StringBuilder query = new StringBuilder("select distinct uri, name, destination_entity from relation where source_entity = " + targetEntity.get("id") + " and (");
             int cnt = 0;

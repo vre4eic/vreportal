@@ -92,10 +92,10 @@ public class RestClient {
 
         String mimeType = format;
         Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target(restURL).queryParam("namegraph", namedGraph);
+        WebTarget webTarget = client.target(restURL).queryParam("graph", namedGraph);
         System.out.println("authorizationToken NEW: " + authorizationToken);
         Response response = webTarget.request()
-                .header(HttpHeaders.AUTHORIZATION, authorizationToken)
+                .header("Authorization", authorizationToken)
                 .post(Entity.entity(content, mimeType));
         return response;
     }

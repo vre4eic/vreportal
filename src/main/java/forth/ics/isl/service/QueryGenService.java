@@ -47,10 +47,8 @@ public class QueryGenService {
         String from = "from <http://rcuk-data> from <http://epos-data>";
         //JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
 
-        Connection connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService dbService = new DBService();
-        dbService.setConnection(connection);
-        dbService.setJdbcTemplateUsed(false);
+
+        
         JSONArray initEntitiesJSON = DBService.retrieveAllEntities(true);
 
         JSONArray resultEntitiesJSON = new JSONArray();
