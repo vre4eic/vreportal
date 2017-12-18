@@ -1051,7 +1051,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					rowModel.selectedRelation = null;
 					
 					// Storing response in the rowModel
-					rowModel.relatedEntityRelationTuples = response.data;
+					rowModel.relatedEntityRelationTuples = angular.toJson(response.data);
 					
 					for(var i=0; i<response.data.length; i++) {
 						//Check for duplicates in the list of related entities
