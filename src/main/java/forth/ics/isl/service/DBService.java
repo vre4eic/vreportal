@@ -374,7 +374,7 @@ public class DBService {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
             StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " "
-                    + "and destination_entity = " + relatedEntity.get("id") + "and (");
+                    + "and destination_entity = " + relatedEntity.get("id") + " and (");
             int cnt = 0;
             for (String graph : graphs) {
                 query.append("graph = '" + graph + "'");

@@ -20,6 +20,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  * @author rousakis
  */
+@Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Controller
 public class SuggestionController {
 
     @Value("${service.url}")
