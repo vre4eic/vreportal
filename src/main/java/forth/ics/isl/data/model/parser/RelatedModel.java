@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -37,6 +39,7 @@ public class RelatedModel {
     private RelatedModel parentModel;
     private String keywordSearchPattern;
     private List<String> selectedGraphs;
+    private JSONArray relatedEntityRelationTuples;
 
     @Autowired
     private DBService dbService;
@@ -62,6 +65,13 @@ public class RelatedModel {
         this.id = (long) jsonModel.get("id");
         String expr = (String) jsonModel.get("outerSelectedFilterExpression");
         this.filterExp = FilterExp.fromString(expr);
+        if (jsonModel.get("relatedEntityRelationTuples") != null) {
+            try {
+                this.relatedEntityRelationTuples = (JSONArray) new JSONParser().parse((String) jsonModel.get("relatedEntityRelationTuples"));
+            } catch (ParseException ex) {
+                Logger.getLogger(RelatedModel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         if (jsonModel.get("selectedRelatedEntity") == null) {
             return;
         }
@@ -193,6 +203,10 @@ public class RelatedModel {
 
     public long getId() {
         return id;
+    }
+
+    public JSONArray getRelatedEntityRelationTuples() {
+        return relatedEntityRelationTuples;
     }
 
     public void setId(long id) {

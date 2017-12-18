@@ -68,13 +68,15 @@ public class SuggestionController {
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
         EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
         String relatedEntity = suggester.getRowModel().getRelatedName();
-        ArrayList<LinkedHashMap> entities = (ArrayList) suggester.getRowModel().get("relatedEntityRelationTuples");
+        JSONArray relEntityRelationTuples = suggester.getRowModel().getRelatedEntityRelationTuples();
+
+//        ArrayList<LinkedHashMap> entities = (ArrayList) suggester.getRowModel().get("relatedEntityRelationTuples");
 //        String targetEntity = (String) requestParams.get("targetEntity");
 //        String relatedEntity = (String) requestParams.get("relatedEntity");
         //this ArrayList is returned from service: /dynamic/get_relations_related_entities
         JSONArray relations = new JSONArray();
-        for (LinkedHashMap entity : entities) {
-            JSONObject obj = new JSONObject(entity);
+        for (int i = 0; i < relEntityRelationTuples.size(); i++) {
+            JSONObject obj = (JSONObject) relEntityRelationTuples.get(i);
             String relEntity = (String) ((JSONObject) (obj.get("related_entity"))).get("name");
             if (relEntity.equals(relatedEntity)) {
                 JSONObject relation = new JSONObject();
@@ -83,7 +85,6 @@ public class SuggestionController {
                 relations.add(relation);
             }
         }
-
         return relations;
     }
 }
