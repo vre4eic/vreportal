@@ -1050,6 +1050,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					//$scope.searchForm['relatedEntityInput_' + rowModel.id].$setValidity('required', false);
 					rowModel.relations = [];
 					rowModel.selectedRelation = null;
+					
+					// Storing response in the rowModel
+					rowModel.relatedEntityRelationTuples = response.data;
+					
 					for(var i=0; i<response.data.length; i++) {
 						//Check for duplicates in the list of related entities
 						// Pure compare
