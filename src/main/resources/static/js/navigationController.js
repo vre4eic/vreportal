@@ -591,7 +591,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Related Entity List (whole (model.queryModel))
 		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
 		}
 		
 		// ----------- model.rowModel"
@@ -601,8 +601,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		delete model.rowModel.backupSelectedRelation;
 		delete model.rowModel.relatedEntities;
 		delete model.rowModel.relations;
+		
 		// Delete for children recursively
-		deleteUselessForBackEndRelatedProperties(model.rowModel)
+		deleteUselessForBackEndRelatedProperties(model.rowModel, false);
 		
 		// Case of adding filter on target (there is no current rowModel)
 		if(parentRowModel == null)
@@ -663,7 +664,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Related Entity List (whole (model.queryModel))
 		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
 		}
 		
 		// ----------- model.rowModel"
@@ -674,8 +675,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			delete model.rowModel.backupSelectedRelation;
 			delete model.rowModel.relatedEntities;
 			delete model.rowModel.relations;
+			
 			// Delete for children recursively
-			deleteUselessForBackEndRelatedProperties(model.rowModel)
+			deleteUselessForBackEndRelatedProperties(model.rowModel, false);
 		}
 		
 		console.log(angular.toJson("###############################################################"));
@@ -698,7 +700,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						
 						if(parentRowModel == undefined) {
 							paramModelForRelations = {
-								entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entities>
 								model: angular.toJson(model)
 							}
 						}
@@ -706,7 +707,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						//Case - Target is related entity
 						else {
 							paramModelForRelations = {
-								entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entities>
 								model: angular.toJson(model)
 							}
 						}
@@ -758,7 +758,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Related Entity List (whole (model.queryModel))
 			for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
 			}
 			
 			// ----------- model.rowModel"
@@ -769,8 +769,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				delete model.rowModel.backupSelectedRelation;
 				delete model.rowModel.relatedEntities;
 				delete model.rowModel.relations;
+				
 				// Delete for children recursively
-				deleteUselessForBackEndRelatedProperties(model.rowModel)
+				deleteUselessForBackEndRelatedProperties(model.rowModel, false);
 			}
 			
 			//console.log(angular.toJson("###############################################################"));
@@ -891,7 +892,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// There is no parent
 				if(parentRowModel == undefined) {
 					paramModelForRelations = {
-						entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entity>
 						model: angular.toJson(model)
 					}
 				}
@@ -907,7 +907,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				//Case - Target is related entity
 				else {
 					paramModelForRelations = {
-						entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entity>
 						model: angular.toJson(model)
 					}
 				}
@@ -1207,7 +1206,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Related Entity List (whole (model.queryModel))
 		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
 		}
 		
 		// ----------- model.rowModel"
@@ -1217,8 +1216,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		delete model.rowModel.backupSelectedRelation;
 		delete model.rowModel.relatedEntities;
 		delete model.rowModel.relations;
+		
 		// Delete for children recursively
-		deleteUselessForBackEndRelatedProperties(model.rowModel)
+		deleteUselessForBackEndRelatedProperties(model.rowModel, false);
 		
 		console.log("ADD FILTER ON RELATED ENTITY - START");
 		console.log(angular.toJson(model));
@@ -1227,7 +1227,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Recursive Method used for development only (so far), which deletes all these properties that
 	// occupy a big volume in the rowModelList
-	function deleteUselessForBackEndRelatedProperties(rowModel) {
+	// Parameters: the rowModel and a boolean denoting whether to delete the relatedEntityRelationTuples
+	function deleteUselessForBackEndRelatedProperties(rowModel, deleteRelatedEntityRelationTuples) {
+		
+		// Used for avoiding deleting for the parameter named rowModel (but delete for the relatedModels list)
+		if(deleteRelatedEntityRelationTuples)
+			delete rowModel.relatedEntityRelationTuples;
+		
 		delete rowModel.backupSelectedRelatedEntity;
 		delete rowModel.backupSelectedRelation;
 		delete rowModel.relatedEntities;
@@ -1235,8 +1241,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// For all children
 		for(var i=0; i<rowModel.rowModelList.length; i++) {
-			// Recursively
-			deleteUselessForBackEndRelatedProperties(rowModel.rowModelList[i]);
+			// Recursively (always deleting the relatedEntityRelationTuples)
+			deleteUselessForBackEndRelatedProperties(rowModel.rowModelList[i], true);
 		}
 	}
 	
@@ -2067,7 +2073,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			
     			// Related Entity List (whole (model.queryModel))
     			for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-    				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+    				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
     			}
     			
     			computeFinalQuery(angular.toJson(model));
@@ -2164,7 +2170,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Related Entity List (whole (model.queryModel))
 		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
 		}
 				
 		$log.info(angular.toJson(model));
