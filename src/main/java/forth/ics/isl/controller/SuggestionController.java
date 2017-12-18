@@ -46,8 +46,8 @@ public class SuggestionController {
 
     @RequestMapping(value = "/dynamic/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody String suggestModel) throws IOException, ParseException, SQLException {
-        EntitiesSuggester suggester = new EntitiesSuggester(suggestModel, namespace, serviceUrl, authorizationToken);
+    JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException, SQLException {
+        EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
         ArrayList<Map> entities = new ArrayList();
         JSONArray entitiesJSON = DBService.retrieveAllEntities(false);
         for (int i = 0; i < entitiesJSON.size(); i++) {
@@ -55,7 +55,7 @@ public class SuggestionController {
             Map map = (Map) obj;
             entities.add(map);
         }
-        JSONArray result = suggester.retrieveRelationsEntitiesV2(entities);
+        JSONArray result = suggester.retrieveRelationsEntities(entities);
         return result;
     }
 
@@ -64,6 +64,7 @@ public class SuggestionController {
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
 //        String targetEntity = (String) requestParams.get("targetEntity");
         String relatedEntity = (String) requestParams.get("relatedEntity");
+        //this ArrayList is returned from service: /dynamic/get_relations_related_entities
         ArrayList<LinkedHashMap> entities = (ArrayList) requestParams.get("entities");
         JSONArray relations = new JSONArray();
         for (LinkedHashMap entity : entities) {

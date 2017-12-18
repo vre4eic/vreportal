@@ -84,7 +84,6 @@ public class DBService {
             return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
         } else {
             return DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-            //return connection;
         }
     }
 

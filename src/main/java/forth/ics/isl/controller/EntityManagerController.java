@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import forth.ics.isl.data.model.parser.QueryDataModel;
+import forth.ics.isl.data.model.suggest.EntitiesSuggester;
 
 import forth.ics.isl.service.DBService;
 import static forth.ics.isl.service.QueryGenService.geoEntityQuery;
@@ -242,12 +244,16 @@ public class EntityManagerController {
     @RequestMapping(value = "/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
-        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+//        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
+//        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+//        String fromClause = (String) requestParams.get("fromSearch");
+//        String targetEntity = (String) requestParams.get("name");
         // without authorization at the moment
 //        System.out.println("authorizationToken: " + authorizationToken);
-        String fromClause = (String) requestParams.get("fromSearch");
-        String targetEntity = (String) requestParams.get("name");
+        EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
+        QueryDataModel model = suggester.getModel();
+        String fromClause = model.getSelectedGraphsClause();
+        String targetEntity = model.getTargetModel().getName();
         ArrayList<LinkedHashMap> entities = (ArrayList) requestParams.get("entities");
         List<String> graphs = new ArrayList<>();
         Pattern regex = Pattern.compile("(?<=<)[^>]+(?=>)");
@@ -268,14 +274,19 @@ public class EntityManagerController {
     @RequestMapping(value = "/get_relations", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
-        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
-        System.out.println("relatedEntity:" + requestParams.get("relatedEntity"));
-        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
+//        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
+//        System.out.println("relatedEntity:" + requestParams.get("relatedEntity"));
+//        System.out.println("fromSearch:" + requestParams.get("fromSearch"));
         // without authorization at the moment
 //        System.out.println("authorizationToken: " + authorizationToken);
-        String fromClause = (String) requestParams.get("fromSearch");
-        String targetEntity = (String) requestParams.get("targetEntity");
-        String relatedEntity = (String) requestParams.get("relatedEntity");
+//        String fromClause = (String) requestParams.get("fromSearch");
+//        String targetEntity = (String) requestParams.get("targetEntity");
+//        String relatedEntity = (String) requestParams.get("relatedEntity");
+        EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, namespace);
+        QueryDataModel model = suggester.getModel();
+        String fromClause = model.getSelectedGraphsClause();
+        String targetEntity = model.getTargetModel().getName();
+        String relatedEntity = suggester.getRowModel().getRelatedName();
         List<String> graphs = Utils.getGraphsFromClause(fromClause);
         return DBService.retrieveRelations(graphs, targetEntity, relatedEntity);
     }

@@ -59,6 +59,8 @@ public class RelatedModel {
 
     private void init(JSONObject jsonModel) {
         this.id = (long) jsonModel.get("id");
+        String expr = (String) jsonModel.get("outerSelectedFilterExpression");
+        this.filterExp = FilterExp.fromString(expr);
         if (jsonModel.get("selectedRelatedEntity") == null) {
             return;
         }
@@ -95,8 +97,6 @@ public class RelatedModel {
         if (!selectedUris.isEmpty() && (boolean) jsonModel.get("allRelatedSearchResultsIsSelected") == false) {
             this.keywordSearchPattern = "";
         }
-        String expr = (String) jsonModel.get("outerSelectedFilterExpression");
-        this.filterExp = FilterExp.fromString(expr);
         relatedModels = new ArrayList<>();
         if (selectedGraphs != null) {
             manageEmbeddedRelatedModels((JSONArray) jsonModel.get("rowModelList"));
