@@ -696,6 +696,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
 								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
+								entities: rowModel.relatedEntities,
 								model: angular.toJson(model)
 							}
 						}
@@ -706,6 +707,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
 								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
+								entities: rowModel.relatedEntities,
 								model: angular.toJson(model)
 							}
 						}
@@ -895,6 +897,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
+						entities: rowModel.relatedEntities,
 						model: angular.toJson(model)
 					}
 				}
@@ -913,6 +916,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
+						entities: rowModel.relatedEntities,
 						model: angular.toJson(model)
 					}
 				}
