@@ -740,13 +740,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				fromSearch: $scope.queryFrom, 				// the collections (VREs) String
 				name: selectedEntity.name,					// The selected entity name
 				entities: $scope.allEntities,				// The list of all entities
-				model: angular.toJson(model)
+				model: model
 			}
 						
 			// Case where entity selection is from target
 			if(rowModel == undefined) {
 				// When adding new filter
 				if(provenanceFunction == 'addFilter') {
+					
+					// Add logical expression to model
+					paramModelForRelationsAndRelatedEntities.model.logicalExpression = 
+						model.queryModel.relatedModels[model.queryModel.relatedModels.length-1].outerSelectedFilterExpression;
+					
 					if($scope.rowModelList.length >0) {
 						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[$scope.rowModelList.length-1], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
@@ -855,7 +860,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					console.log('Level Downn');
 				}
 				else if(provenanceFunction == 'addFilter') {
-					//Do nothing
+					// Do nothing
 					console.log('addFilter');
 				}
 				//Case - Target is related entity
@@ -871,6 +876,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				// When adding new filter
 				if(provenanceFunction == 'addFilter') {
+					
+					// Add logical expression to model
+					paramModelForRelationsAndRelatedEntities.model.logicalExpression = 
+						model.rowModel.rowModelList[model.rowModel.rowModelList.length-1].outerSelectedFilterExpression;					
+					
 					if($scope.rowModelList.length >0) {
 						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[rowModel.rowModelList.length-1], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
