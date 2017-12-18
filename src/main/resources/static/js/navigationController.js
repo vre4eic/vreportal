@@ -570,7 +570,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].level = parentRowModel.level + 1;
 		}
 		
-		// Debugging:
+		// Debugging - START:
 		var model = {
 			queryFrom: $scope.queryFrom,
 			rowModel: angular.copy(rowModel),
@@ -611,7 +611,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		console.log("ADD FILTER ON TARGET ENTITY (that can be related entity in some cases) - START");
 		console.log(angular.toJson(model));
 		console.log("ADD FILTER ON TARGET ENTITY (that can be related entity in some cases) - END");
-		
+		// Debugging - END:
 	}
 	
 	$scope.removeRowModel = function(outerIndex, rowModel) {
@@ -678,9 +678,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			deleteUselessForBackEndRelatedProperties(model.rowModel)
 		}
 		
-		//console.log(angular.toJson("###############################################################"));
-		//console.log(angular.toJson(model));
-		//console.log(angular.toJson("###############################################################"));
+		console.log(angular.toJson("###############################################################"));
+		console.log(angular.toJson(model));
+		console.log(angular.toJson("###############################################################"));
 		
 		
 		
@@ -689,14 +689,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
 				angular.forEach(rowModel.relatedEntities, function(relatedEntity, key) {
 					if(relatedEntity.uri == rowModel.selectedRelation.relatedEntity.uri) {
-						rowModel.selectedRelatedEntity = relatedEntity;
+						
+						// Setting in the UI the selected related entity
+						rowModel.selectedRelatedEntity = relatedEntity; // Not needed for the servise that uses model
+						
+						// Setting in the model parameter the selected relatedEntity
+						model.rowModel.selectedRelatedEntity = relatedEntity;
 						
 						if(parentRowModel == undefined) {
 							paramModelForRelations = {
-								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
-								targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
-								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
-								entities: rowModel.relatedEntities,
+								entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entities>
 								model: angular.toJson(model)
 							}
 						}
@@ -704,10 +706,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						//Case - Target is related entity
 						else {
 							paramModelForRelations = {
-								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
-								targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
-								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
-								entities: rowModel.relatedEntities,
+								entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entities>
 								model: angular.toJson(model)
 							}
 						}
@@ -736,7 +735,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// (used to avoid leaving without confirmation)
 		homeStateConfirmService.setQueryUnderConstruction(true);
 		
-		if(selectedEntity !=null) { 
+		if(selectedEntity !=null) {
 			
 			// Param-model for the new service
 			var model = {
@@ -782,8 +781,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Parameters to sent for the Relations And Related Entities Service (the same for all cases)
 			var paramModelForRelationsAndRelatedEntities = {
-				fromSearch: $scope.queryFrom, 				// the collections (VREs) String
-				name: selectedEntity.name,					// The selected entity name
 				entities: $scope.allEntities,				// The list of all entities
 				model: angular.toJson(model)
 			}
@@ -894,10 +891,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// There is no parent
 				if(parentRowModel == undefined) {
 					paramModelForRelations = {
-						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
-						targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
-						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
-						entities: rowModel.relatedEntities,
+						entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entity>
 						model: angular.toJson(model)
 					}
 				}
@@ -913,10 +907,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				//Case - Target is related entity
 				else {
 					paramModelForRelations = {
-						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
-						targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
-						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
-						entities: rowModel.relatedEntities,
+						entities: rowModel.relatedEntities,			// This has to be tuple of <relation, related entity>
 						model: angular.toJson(model)
 					}
 				}

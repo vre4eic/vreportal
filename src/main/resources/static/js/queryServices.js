@@ -109,6 +109,7 @@ angular.module('app.mainServices', [])
 		
 		getRelationsAndRelatedEntitiesByTarget : function(paramModel, token) {
 			return $http({
+				//'url': '/get_relations_related_entities',
 				'url': '/dynamic/get_relations_related_entities',
 				'method': 'POST',
 				'headers': {
@@ -125,6 +126,7 @@ angular.module('app.mainServices', [])
 		
 		getRelationsByTargetAndRelatedEntity : function(paramModel, token) {
 			return $http({
+				//'url': '/get_relations',
 				'url': '/dynamic/get_relations',
 				'method': 'POST',
 				'headers': {
