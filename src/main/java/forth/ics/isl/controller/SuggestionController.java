@@ -6,7 +6,6 @@
 package forth.ics.isl.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import forth.ics.isl.data.model.parser.QueryDataModel;
 import forth.ics.isl.data.model.suggest.EntitiesSuggester;
 import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
@@ -67,10 +66,12 @@ public class SuggestionController {
     @RequestMapping(value = "/dynamic/get_relations", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
+        EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
+        String relatedEntity = suggester.getRowModel().getRelatedName();
+        ArrayList<LinkedHashMap> entities = (ArrayList) suggester.getRowModel().get("relatedEntityRelationTuples");
 //        String targetEntity = (String) requestParams.get("targetEntity");
-        String relatedEntity = (String) requestParams.get("relatedEntity");
+//        String relatedEntity = (String) requestParams.get("relatedEntity");
         //this ArrayList is returned from service: /dynamic/get_relations_related_entities
-        ArrayList<LinkedHashMap> entities = (ArrayList) requestParams.get("entities");
         JSONArray relations = new JSONArray();
         for (LinkedHashMap entity : entities) {
             JSONObject obj = new JSONObject(entity);
