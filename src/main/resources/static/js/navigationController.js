@@ -647,7 +647,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		var model = {
 			queryFrom: $scope.queryFrom,
 			rowModel: angular.copy(rowModel),
-			//logicalExpression: str,
 			queryModel: {
 				targetModel: angular.copy($scope.targetModel),
 				relatedModels: angular.copy($scope.rowModelList)
@@ -697,7 +696,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
 								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
-								model: model
+								model: angular.toJson(model)
 							}
 						}
 
@@ -707,7 +706,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
 								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
-								model: model
+								model: angular.toJson(model)
 							}
 						}
 						
@@ -784,7 +783,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				fromSearch: $scope.queryFrom, 				// the collections (VREs) String
 				name: selectedEntity.name,					// The selected entity name
 				entities: $scope.allEntities,				// The list of all entities
-				model: model
+				model: angular.toJson(model)
 			}
 						
 			// Case where entity selection is from target
@@ -793,7 +792,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				if(provenanceFunction == 'addFilter') {
 					
 					// Add logical expression to model
-					paramModelForRelationsAndRelatedEntities.model.logicalExpression = 
+					paramModelForRelationsAndRelatedEntities.logicalExpression = 
 						model.queryModel.relatedModels[model.queryModel.relatedModels.length-1].outerSelectedFilterExpression;
 					
 					if($scope.rowModelList.length >0) {
@@ -896,7 +895,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
-						model: model
+						model: angular.toJson(model)
 					}
 				}
 				// Case - Level Down
@@ -914,7 +913,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
 						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
-						model: model
+						model: angular.toJson(model)
 					}
 				}
 				
@@ -924,7 +923,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				if(provenanceFunction == 'addFilter') {
 					
 					// Add logical expression to model
-					paramModelForRelationsAndRelatedEntities.model.logicalExpression = 
+					paramModelForRelationsAndRelatedEntities.logicalExpression = 
 						model.rowModel.rowModelList[model.rowModel.rowModelList.length-1].outerSelectedFilterExpression;					
 					
 					if($scope.rowModelList.length >0) {
