@@ -608,7 +608,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if(parentRowModel == null)
 			delete model.rowModel;
 		
+		console.log("ADD FILTER ON TARGET ENTITY (that can be related entity in some cases) - START");
 		console.log(angular.toJson(model));
+		console.log("ADD FILTER ON TARGET ENTITY (that can be related entity in some cases) - END");
 		
 	}
 	
@@ -691,13 +693,54 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		if(selectedEntity !=null) { 
 			
+			// Param-model for the new service
+			var model = {
+				queryFrom: $scope.queryFrom,
+				rowModel: angular.copy(rowModel),
+				//logicalExpression: str,
+				queryModel: {
+					targetModel: angular.copy($scope.targetModel),
+					relatedModels: angular.copy($scope.rowModelList)
+				}
+			}
+			
+			// Delete Useless for the back-end properties, occupying a lot of volume
+			
+			// ----------- model.queryModel:
+			
+			// Target
+			delete model.queryModel.targetModel.backupSelectedTargetEntity;
+			delete model.queryModel.targetModel.targetEntities;
+			
+			// Related Entity List (whole (model.queryModel))
+			for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+			}
+			
+			// ----------- model.rowModel"
+			
+			// Related Entity List (just the current rowModel))
+			if(model.rowModel != undefined) {
+				delete model.rowModel.backupSelectedRelatedEntity;
+				delete model.rowModel.backupSelectedRelation;
+				delete model.rowModel.relatedEntities;
+				delete model.rowModel.relations;
+				// Delete for children recursively
+				deleteUselessForBackEndRelatedProperties(model.rowModel)
+			}
+			
+			//console.log(angular.toJson("###############################################################"));
+			//console.log(angular.toJson(model));
+			//console.log(angular.toJson("###############################################################"));
+			
 			// Rrelated Entity List handling
 			
 			// Parameters to sent for the Relations And Related Entities Service (the same for all cases)
 			var paramModelForRelationsAndRelatedEntities = {
 				fromSearch: $scope.queryFrom, 				// the collections (VREs) String
 				name: selectedEntity.name,					// The selected entity name
-				entities: $scope.allEntities				// The list of all entities
+				entities: $scope.allEntities,				// The list of all entities
+				model: angular.toJson(model)
 			}
 						
 			// Case where entity selection is from target
@@ -1123,7 +1166,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Delete for children recursively
 		deleteUselessForBackEndRelatedProperties(model.rowModel)
 		
+		console.log("ADD FILTER ON RELATED ENTITY - START");
 		console.log(angular.toJson(model));
+		console.log("ADD FILTER ON RELATED ENTITY - END");
 	}
 	
 	// Recursive Method used for development only (so far), which deletes all these properties that
