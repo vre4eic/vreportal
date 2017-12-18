@@ -642,7 +642,49 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
-
+		
+		// Param-model for the new service
+		var model = {
+			queryFrom: $scope.queryFrom,
+			rowModel: angular.copy(rowModel),
+			//logicalExpression: str,
+			queryModel: {
+				targetModel: angular.copy($scope.targetModel),
+				relatedModels: angular.copy($scope.rowModelList)
+			}
+		}
+		
+		// Delete Useless for the back-end properties, occupying a lot of volume
+		
+		// ----------- model.queryModel:
+		
+		// Target
+		delete model.queryModel.targetModel.backupSelectedTargetEntity;
+		delete model.queryModel.targetModel.targetEntities;
+		
+		// Related Entity List (whole (model.queryModel))
+		for(var i=0; i<model.queryModel.relatedModels.length; i++) {
+			deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i])
+		}
+		
+		// ----------- model.rowModel"
+		
+		// Related Entity List (just the current rowModel))
+		if(model.rowModel != undefined) {
+			delete model.rowModel.backupSelectedRelatedEntity;
+			delete model.rowModel.backupSelectedRelation;
+			delete model.rowModel.relatedEntities;
+			delete model.rowModel.relations;
+			// Delete for children recursively
+			deleteUselessForBackEndRelatedProperties(model.rowModel)
+		}
+		
+		//console.log(angular.toJson("###############################################################"));
+		//console.log(angular.toJson(model));
+		//console.log(angular.toJson("###############################################################"));
+		
+		
+		
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
@@ -654,7 +696,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							paramModelForRelations = {
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
-								relatedEntity: rowModel.selectedRelatedEntity.name								// The selected entity name (related entity)
+								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
+								model: model
 							}
 						}
 
@@ -663,7 +706,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							paramModelForRelations = {
 								fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 								targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
-								relatedEntity: rowModel.selectedRelatedEntity.name								// The selected entity name (related entity)
+								relatedEntity: rowModel.selectedRelatedEntity.name,				// The selected entity name (related entity)
+								model: model
 							}
 						}
 						
@@ -851,7 +895,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					paramModelForRelations = {
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: $scope.targetModel.selectedTargetEntity.name,		// The selected entity name (target)
-						relatedEntity: selectedEntity.name								// The selected entity name (related entity)
+						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
+						model: model
 					}
 				}
 				// Case - Level Down
@@ -868,7 +913,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					paramModelForRelations = {
 						fromSearch: $scope.queryFrom, 									// the collections (VREs) String
 						targetEntity: parentRowModel.selectedRelatedEntity.name,		// The selected entity name (target)
-						relatedEntity: selectedEntity.name								// The selected entity name (related entity)
+						relatedEntity: selectedEntity.name,								// The selected entity name (related entity)
+						model: model
 					}
 				}
 				
