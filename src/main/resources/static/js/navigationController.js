@@ -570,6 +570,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].level = parentRowModel.level + 1;
 		}
 		
+		/*
 		// Debugging - START:
 		var model = {
 			queryFrom: $scope.queryFrom,
@@ -613,6 +614,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		console.log(angular.toJson(model));
 		console.log("ADD FILTER ON TARGET ENTITY (that can be related entity in some cases) - END");
 		// Debugging - END:
+		*/
 	}
 	
 	$scope.removeRowModel = function(outerIndex, rowModel) {
@@ -642,19 +644,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 	}
 	
-	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
-		
-		// Param-model for the new service
-		var model = {
-			queryFrom: $scope.queryFrom,
-			rowModel: angular.copy(rowModel),
-			queryModel: {
-				targetModel: angular.copy($scope.targetModel),
-				relatedModels: angular.copy($scope.rowModelList)
-			}
-		}
-		
-		// Delete Useless for the back-end properties, occupying a lot of volume
+	// Delete Useless for the back-end properties, occupying a lot of volume
+	function deleteUselessForBackendinformation(model) {
 		
 		// ----------- model.queryModel:
 		
@@ -680,11 +671,28 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			deleteUselessForBackEndRelatedProperties(model.rowModel, false);
 		}
 		
-		console.log(angular.toJson("###############################################################"));
-		console.log(angular.toJson(model));
-		console.log(angular.toJson("###############################################################"));
+		//console.log(angular.toJson("###############################################################"));
+		//console.log(angular.toJson(model));
+		//console.log(angular.toJson("###############################################################"));
+		return model;
+	}
+	
+	$scope.loadRelatedEntitiesByRelation = function(parentRowModel, rowModel) {
 		
+		// Param-model for the new service
+		var model = {
+			queryFrom: $scope.queryFrom,
+			rowModel: angular.copy(rowModel),
+			queryModel: {
+				targetModel: angular.copy($scope.targetModel),
+				relatedModels: angular.copy($scope.rowModelList)
+			}
+		}
 		
+		// Delete Useless for the back-end properties, occupying a lot of volume
+		model = deleteUselessForBackendinformation(model);
+		
+		//@@@loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
 		
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
@@ -700,14 +708,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						
 						if(parentRowModel == undefined) {
 							paramModelForRelations = {
-								model: angular.toJson(model)
+								model: model
 							}
 						}
 
 						//Case - Target is related entity
 						else {
 							paramModelForRelations = {
-								model: angular.toJson(model)
+								model: model
 							}
 						}
 						
@@ -749,41 +757,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			
 			// Delete Useless for the back-end properties, occupying a lot of volume
-			
-			// ----------- model.queryModel:
-			
-			// Target
-			delete model.queryModel.targetModel.backupSelectedTargetEntity;
-			delete model.queryModel.targetModel.targetEntities;
-			
-			// Related Entity List (whole (model.queryModel))
-			for(var i=0; i<model.queryModel.relatedModels.length; i++) {
-				deleteUselessForBackEndRelatedProperties(model.queryModel.relatedModels[i], true);
-			}
-			
-			// ----------- model.rowModel"
-			
-			// Related Entity List (just the current rowModel))
-			if(model.rowModel != undefined) {
-				delete model.rowModel.backupSelectedRelatedEntity;
-				delete model.rowModel.backupSelectedRelation;
-				delete model.rowModel.relatedEntities;
-				delete model.rowModel.relations;
-				
-				// Delete for children recursively
-				deleteUselessForBackEndRelatedProperties(model.rowModel, false);
-			}
-			
-			//console.log(angular.toJson("###############################################################"));
-			//console.log(angular.toJson(model));
-			//console.log(angular.toJson("###############################################################"));
+			model = deleteUselessForBackendinformation(model);
 			
 			// Rrelated Entity List handling
 			
 			// Parameters to sent for the Relations And Related Entities Service (the same for all cases)
 			var paramModelForRelationsAndRelatedEntities = {
 				entities: $scope.allEntities,				// The list of all entities
-				model: angular.toJson(model)
+				model: model
 			}
 						
 			// Case where entity selection is from target
@@ -796,9 +777,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						model.queryModel.relatedModels[model.queryModel.relatedModels.length-1].outerSelectedFilterExpression;
 					
 					if($scope.rowModelList.length >0) {
-						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[$scope.rowModelList.length-1], 
+						handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[$scope.rowModelList.length-1], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-					}					
+						
+					}
 				}
 				
 				// When selecting target entity
@@ -830,21 +812,28 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 						$mdDialog.show(confirm).then(function() { // OK
 							
-							for(var i=0; i<$scope.rowModelList.length; i++) {
-								handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
-										paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-							}
+							// Create an empty model
+							$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
+							// Enable the style for it
+							$scope.emptyRowModel.activeRowModelStyle= 'enabled-style';
+							// Delete all the children and add only one (the empty one just created)
+							$scope.rowModelList = [$scope.emptyRowModel];
+							
+							var rowModelId = $scope.rowModelList[0].id;
+							$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
+							
+							// Reconstructing the model to send
+							paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
+							
+							// Delete Useless for the back-end properties, occupying a lot of volume
+							model = deleteUselessForBackendinformation(model);
+							
+							// Calling service to load option selections for the empty child
+							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[0], 
+									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+							
 							// Holding Copy Of Selected Target Entity
 							$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
-							
-							// Display msg
-							$mdToast.show(
-								$mdToast.simple()
-						        .textContent('Query in terms or related options has been reset.')
-						        .position('top right')
-						        .parent(angular.element('#mainContent'))
-						        .hideDelay(3000)
-						    );
 							
 						}, function() { // Cancel
 							// Load previous selection (the backup)
@@ -861,7 +850,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					}
 					else {
 						for(var i=0; i<$scope.rowModelList.length; i++) {
-							handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
+							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[i], 
 									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 						}
 						$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
@@ -871,7 +860,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				else { // provenanceFunction is: levelDown
 					for(var i=0; i<$scope.rowModelList.length; i++) {
-						handleRelationsAndRelatedEntitiesByTarget($scope.rowModelList[i], 
+						handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[i], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}
 				}
@@ -892,7 +881,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// There is no parent
 				if(parentRowModel == undefined) {
 					paramModelForRelations = {
-						model: angular.toJson(model)
+						model: model
 					}
 				}
 				// Case - Level Down
@@ -907,7 +896,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				//Case - Target is related entity
 				else {
 					paramModelForRelations = {
-						model: angular.toJson(model)
+						model: model
 					}
 				}
 				
@@ -921,7 +910,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						model.rowModel.rowModelList[model.rowModel.rowModelList.length-1].outerSelectedFilterExpression;					
 					
 					if($scope.rowModelList.length >0) {
-						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[rowModel.rowModelList.length-1], 
+						handleRelationsAndRelatedEntitiesByTarget(rowModel, rowModel.rowModelList[rowModel.rowModelList.length-1], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}
 				}
@@ -956,11 +945,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 						$mdDialog.show(confirm).then(function() { // OK
 							
-							confirmToContinue = true;
-							for(var i=0; i<rowModel.rowModelList.length; i++) {
-								handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
-										paramModelForRelationsAndRelatedEntities,$scope.credentials.token);
-							}
+							//confirmToContinue = true;
+							
+							// Delete all children of this rowModel
+							rowModel.rowModelList = [];
+							
+							// Reconstructing the model to send
+							paramModelForRelationsAndRelatedEntities.model.rowModel = angular.copy(rowModel);
+							paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
+							
+							// Delete Useless for the back-end properties, occupying a lot of volume
+							model = deleteUselessForBackendinformation(model);
 							
 							// Holding Copy Of Selected Related Entity
 							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
@@ -995,7 +990,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				else { // provenanceFunction is: levelDown
 					for(var i=0; i<rowModel.rowModelList.length; i++) {
-						handleRelationsAndRelatedEntitiesByTarget(rowModel.rowModelList[i], 
+						handleRelationsAndRelatedEntitiesByTarget(rowModel, rowModel.rowModelList[i], 
 								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 					}
 					// Holding Copy Of Selected Related Entity
@@ -1009,9 +1004,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	// Handling Relations and Related Entity By Target
-	function handleRelationsAndRelatedEntitiesByTarget(rowModel, paramModel, token) {
+	function handleRelationsAndRelatedEntitiesByTarget(parentRowModel, rowModel, paramModel, token) {
 		
-		/*
+		//console.log('handleRelationsAndRelatedEntitiesByTarget(): ');
+		//console.log(angular.toJson(paramModel));
+		
 		// Modal here is very desturbing
 		var modalOptions = {
 			headerText: 'Loading Please Wait...',
@@ -1019,7 +1016,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		};
 		
 		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
-		*/
+		
+		// Make the model String (more convenient for the back-end)
+		paramModel.model = angular.toJson(paramModel.model);
+		
 		queryService.getRelationsAndRelatedEntitiesByTarget(paramModel, token)
 		.then(function (response) {
     		
@@ -1029,40 +1029,52 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			else {
 				if(response.status == '200') {
-					//$log.info(angular.toJson(response.data));
-					// Response is formed like this:
-					// 	[{
-					// 		relation: {relation_uri: "SOME_URI", related_entity_name: "SOME_ENTITY_NAME"}
-					//		related_entity: { ... }
-					//	}, ... ]
 
-					// Constructing relation List and related entity list
-					rowModel.relatedEntities = [];
+					if(response.data.length > 0) {
+						
+						rowModel.selectedRelatedEntity = null;
+						
+						rowModel.rowModelList = [];
+						//$scope.searchForm['relatedEntityInput_' + rowModel.id].$setValidity('required', false);
+						rowModel.relations = [];
+						rowModel.selectedRelation = null;
+						
+						// Storing response in the rowModel
+						rowModel.relatedEntityRelationTuples = angular.toJson(response.data);
 					
-					// Handling Children when selecting an entity (if there are any)
-					if(rowModel.selectedRelatedEntity != null) // Setting field touched otherwise it wont return error
-						$scope.searchForm['relatedEntityInput_' + rowModel.id].$setTouched();
-					
-					rowModel.selectedRelatedEntity = null;
-					
-					rowModel.rowModelList = [];
-					//$scope.searchForm['relatedEntityInput_' + rowModel.id].$setValidity('required', false);
-					rowModel.relations = [];
-					rowModel.selectedRelation = null;
-					
-					// Storing response in the rowModel
-					rowModel.relatedEntityRelationTuples = angular.toJson(response.data);
-					
-					for(var i=0; i<response.data.length; i++) {
-						//Check for duplicates in the list of related entities
-						// Pure compare
-						if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained)
-							rowModel.relatedEntities.push(response.data[i].related_entity);
-						//relations
-						rowModel.relations.push(response.data[i].relation);
-						rowModel.relations[i].relatedEntity = response.data[i].related_entity;
-						//$log.info('value: ' + value);
+						for(var i=0; i<response.data.length; i++) {
+							//Check for duplicates in the list of related entities
+							// Pure compare
+							if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained)
+								rowModel.relatedEntities.push(response.data[i].related_entity);
+							//relations
+							rowModel.relations.push(response.data[i].relation);
+							rowModel.relations[i].relatedEntity = response.data[i].related_entity;
+							//$log.info('value: ' + value);
+						}
+						
+						// Display msg
+						$mdToast.show(
+							$mdToast.simple()
+					        .textContent('Selection Options for related entities have been updated.')
+					        .position('top right')
+					        .parent(angular.element('#mainContent'))
+					        .hideDelay(3000)
+					    );
 					}
+					
+					else { //if(response.data.length <= 0)
+						
+						if(parentRowModel != null) 	// Parent is some entityModel
+							parentRowModel.rowModelList.splice(parentRowModel.rowModelList.length-1, 1);
+						else 						// Parent is target
+							$scope.rowModelList.splice($scope.rowModelList.length-1, 1);
+						
+						// I cannot get the parentRowModel, thus prompting a general message
+						$scope.message = 'The selected options for \"Relation\" and "Related Entity" lead to no results.';
+						$scope.showErrorAlert('Information', $scope.message);
+					}
+					
 				}
 				else if(response.status == '400') {
     				$log.info(response.status);
@@ -1087,8 +1099,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
-		}).finally(function(){
-			//modalInstance.close();
+		}).finally(function() {
+			modalInstance.close();
 		});
 	}
 	
@@ -1107,6 +1119,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Handling relations based on target and related entities
 	function handleRelationsByTargetAndRelatedEntities(rowModel, paramModel, token) {
+		
+		// Make the model String (more convenient for the back-end)
+		paramModel.model = angular.toJson(paramModel.model);
+		
 		queryService.getRelationsByTargetAndRelatedEntity(paramModel, token)
 		.then(function (response) {
     		
@@ -1186,6 +1202,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Enabling rowModel
 		//$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		
+		/*
 		// Debugging:
 		var model = {
 			queryFrom: $scope.queryFrom,
@@ -1223,6 +1240,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		console.log("ADD FILTER ON RELATED ENTITY - START");
 		console.log(angular.toJson(model));
 		console.log("ADD FILTER ON RELATED ENTITY - END");
+		*/
 	}
 	
 	// Recursive Method used for development only (so far), which deletes all these properties that

@@ -195,7 +195,7 @@
 									   name="relationInput_{{rowModel.id}}"
 									   ng-disabled="rowModel.activeRowModelStyle == 'disabled-style'" 
 									   ng-required = "rowModel.activeRowModelStyle == 'enabled-style'" 
-									   ng-change="loadRelatedEntitiesByRelation(parent.rowModel, rowModel)"
+									   ng-change="loadRelatedEntitiesByRelation(parent.rowModel, rowModel);"
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" ><!-- track by $index -->
 									{{relation.name}}
@@ -260,6 +260,16 @@
 									{{entity.name}}
 								</md-option>
 							</md-select>
+							<div ng-messages="searchForm['relatedEntityInput_' + rowModel.id].$error">
+         						
+         						<div ng-message="required">
+         							This is required
+         							<br/>
+         							<span ng-show="rowModel.backupSelectedRelation != null">
+         								<i>"{{rowModel.backupSelectedRelatedEntity.name}}" was previously selected</i>
+         							</span>
+         						</div>
+         					</div>
 						</md-input-container>
 						<!-- md-is-error="searchForm['relatedEntityInput_' + rowModel.id].$invalid" -->
 						<div style="padding:0; 
@@ -455,13 +465,28 @@
 						<md-button class="md-fab md-mini md-primary animate-show animate-hide" 
 								   aria-label="Add Filter on Related Entity"
 								   ng-click="addFilterOnRelated(parent.rowModel, rowModel)"
-								   ng-disabled="rowModel.selectedRelatedEntity == null">
+								   ng-disabled="rowModel.selectedRelatedEntity == null || rowModel.selectedRelation == null">
 			            	<md-icon md-font-icon="fa fa-level-down" style="font-size:24px"></md-icon>
 			        	</md-button>
-			        	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null" md-delay="1000" md-direction="top">
+			        	<md-tooltip ng-show="rowModel.selectedRelatedEntity == null && rowModel.selectedRelation == null" 
+			        				md-delay="1000" 
+			        				md-direction="top">
+							Select some related entity and relation first
+						</md-tooltip>
+						<md-tooltip ng-show="rowModel.selectedRelatedEntity == null && rowModel.selectedRelation != null" 
+									md-delay="1000" 
+									md-direction="top">
 							Select some related entity first
 						</md-tooltip>
-						<md-tooltip ng-show="rowModel.selectedRelatedEntity != null" md-delay="1000" md-direction="top">
+						<md-tooltip ng-show="rowModel.selectedRelatedEntity != null && rowModel.selectedRelation == null" 
+									md-delay="1000" 
+									md-direction="top">
+							Select some relation first
+						</md-tooltip>
+						
+						<md-tooltip ng-show="rowModel.selectedRelatedEntity != null && rowModel.selectedRelation != null" 
+									md-delay="1000" 
+									md-direction="top">
 							Add a filter on entity {{rowModel.selectedRelatedEntity.name}}
 						</md-tooltip>
 		        	</div>
