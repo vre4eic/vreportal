@@ -398,9 +398,12 @@ public class EntityManagerController {
         List<String> bindingsList = new ArrayList<String>();
 
         if (((page - 1) * itemsPerPage) + itemsPerPage + 1 > totalItems) {
+            /*if(totalItems < itemsPerPage) {
+                bindingsList = bindingsArr.subList(0, totalItems);
+            }*/
             if (((page - 1) * itemsPerPage) + 1 < totalItems) {
-                bindingsList = bindingsArr.subList(((page - 1) * itemsPerPage) + 1, totalItems);
-            }
+                bindingsList = bindingsArr.subList(((page - 1) * itemsPerPage), totalItems);
+            } 
         } else {
             bindingsList = bindingsArr.subList(((page - 1) * itemsPerPage) + 1, ((page - 1) * itemsPerPage) + itemsPerPage + 1);
         }
