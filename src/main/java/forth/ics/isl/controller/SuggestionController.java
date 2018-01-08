@@ -52,13 +52,14 @@ public class SuggestionController {
     public @ResponseBody
     JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException, SQLException {
         EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
-        ArrayList<Map> entities = new ArrayList();
-        JSONArray entitiesJSON = DBService.retrieveAllEntities(false);
-        for (int i = 0; i < entitiesJSON.size(); i++) {
-            JSONObject obj = (JSONObject) entitiesJSON.get(i);
-            Map map = (Map) obj;
-            entities.add(map);
-        }
+        ArrayList<Map> entities = (ArrayList) requestParams.get("entities");
+//        ArrayList<Map> entities = new ArrayList();
+//        JSONArray entitiesJSON = DBService.retrieveAllEntities(false);
+//        for (int i = 0; i < entitiesJSON.size(); i++) {
+//            JSONObject obj = (JSONObject) entitiesJSON.get(i);
+//            Map map = (Map) obj;
+//            entities.add(map);
+//        }
         JSONArray result = suggester.retrieveRelationsEntities(entities);
         return result;
     }

@@ -116,27 +116,28 @@ public class EntitiesSuggester {
             String query = model.toSPARQL().replace("distinct", "") + " limit 1";
             queries.add(query);
         }
-
-        // execute the set of queries
-        RestClient client = new RestClient(endpoint, namespace, token);
-        JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
-        int i = 0;
-        for (String relation : sugRelationRelEntities.keySet()) {
-            JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
-            JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
-            if (!res.isEmpty()) {
-                String relatedEntityUri = sugRelationRelEntities.get(relation);
-                JSONObject obj = new JSONObject();
-                JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
-                obj.put("related_entity", relatedEntity);
-                JSONObject relJSON = new JSONObject();
-                relJSON.put("uri", relation);
-                relJSON.put("name", relations.get(relation));
-                obj.put("relation", relJSON);
-                result.add(obj);
-                System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
+        if (!queries.isEmpty()) {
+            // execute the set of queries
+            RestClient client = new RestClient(endpoint, namespace, token);
+            JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
+            int i = 0;
+            for (String relation : sugRelationRelEntities.keySet()) {
+                JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
+                JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
+                if (!res.isEmpty()) {
+                    String relatedEntityUri = sugRelationRelEntities.get(relation);
+                    JSONObject obj = new JSONObject();
+                    JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
+                    obj.put("related_entity", relatedEntity);
+                    JSONObject relJSON = new JSONObject();
+                    relJSON.put("uri", relation);
+                    relJSON.put("name", relations.get(relation));
+                    obj.put("relation", relJSON);
+                    result.add(obj);
+                    System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
+                }
+                i++;
             }
-            i++;
         }
         return result;
     }
