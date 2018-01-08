@@ -314,7 +314,7 @@ public class EntityManagerController {
         responseJsonObject.put("query", requestParams.get("query"));
 
         try {
-            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString() + " limit 102", namespace, "application/json", authorizationToken);
+            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, "application/json", authorizationToken);
             System.out.println("serviceResponce.getStatus(): " + serviceResponce.getStatusInfo());
 
             // Setting Response status to POJO
