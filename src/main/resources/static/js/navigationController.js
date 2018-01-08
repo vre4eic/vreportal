@@ -302,7 +302,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
 			$mdDialog.show(confirm).then(function() {
-		    	resetWholeQueryModel();			    	
+		    	resetWholeQueryModel(true);			    	
 		    }, function() { // Cancel
 		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
 		    });
@@ -1065,10 +1065,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 					else { //if(response.data.length <= 0)
 						
-						if(parentRowModel != null) 	// Parent is some entityModel
+						if(parentRowModel != null) // Parent is some entityModel
 							parentRowModel.rowModelList.splice(parentRowModel.rowModelList.length-1, 1);
-						else 						// Parent is target
-							$scope.rowModelList.splice($scope.rowModelList.length-1, 1);
+						else { // Parent is target
+							if($scope.rowModelList.length == 1) // This is the only rowmodel
+								resetWholeQueryModel(false);
+							else // /There are more than one row models (target has many children)
+								$scope.rowModelList.splice($scope.rowModelList.length-1, 1);
+						}
 						
 						// I cannot get the parentRowModel, thus prompting a general message
 						$scope.message = 'The selected options for \"Relation\" and "Related Entity" lead to no results.';
@@ -1975,14 +1979,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		$mdDialog.show(confirm).then(function() { // OK
-			resetWholeQueryModel();			
+			resetWholeQueryModel(true);			
 	    }, function() { // Cancel
 	    	// Do nothing
 	    });
 	}
 	
 	// Resets the whole query model
-	function resetWholeQueryModel() {
+	function resetWholeQueryModel(openTreeMenu) {
 		//Initializing empty row model (new instance)
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 		$scope.rowModelList = [$scope.emptyRowModel];
@@ -2012,12 +2016,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
 		
 		// Open tree menu again
-		
-		// Initial value for the flag
-		$scope.treeMenuIsOpen = true; 
-		// Open treeMenu
-		$scope.toggleTreeMenu();
-		// Keep first copy
+		if(openTreeMenu) {
+			// Initial value for the flag
+			$scope.treeMenuIsOpen = true; 
+			// Open treeMenu
+			$scope.toggleTreeMenu();
+		}
+	
+		// Keep first copy of namedgraphs
 		$scope.namegraphsCopy = angular.copy($scope.namegraphs);
 		
 		// Setting flag that makes clear that the query is not under construction any more
