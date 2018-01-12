@@ -237,6 +237,9 @@
 												  class="shrinked" 
 												  md-transform-chip="transformChip($chip)"
 												  md-enable-chip-edit="true"
+												  md-on-add="loadRelatedEntitiesAndRelationsByTarget($event, null, rowModel, targetModel.selectedTargetEntity, 'targetEntitySelect')"
+												  md-on-remove="loadRelatedEntitiesAndRelationsByTarget($event, null, rowModel, targetModel.selectedTargetEntity, 'targetEntitySelect')"
+												  md-add-on-blur="true"
 												  style="padding:0;">
 											<md-autocomplete flex layout-xs md-input-name="targetEntityAutocompleteInput"
 															 class="shrinked"
