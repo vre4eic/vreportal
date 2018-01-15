@@ -26,7 +26,7 @@
 			<div class="md-toolbar-tools">
 				<h2 class="md-flex">Data Results</h2>
 				<span flex></span>
-				<md-button class="md-icon-button" ng-click="closeRelatedEntitySearchResults(currRowModel)">
+				<md-button class="md-icon-button" ng-click="closeRelatedEntitySearchResults($event, currRowModel)">
 					<md-icon class="md-secondary" 
 							 aria-label="Close Related Entity Search Results" 
 							 md-font-icon="fa fa-times" style="font-size:24px;">
@@ -74,7 +74,7 @@
 					<tr>
 						<td layout="row">
 							<div flex>
-								<md-button class="md-raised md-primary" ng-click="closeRelatedEntitySearchResults(currRowModel)">
+								<md-button class="md-raised md-primary" ng-click="closeRelatedEntitySearchResults($event, currRowModel)">
 									<md-icon md-font-icon="fa fa-check-circle-o" style="font-size:18px"></md-icon>
 									<span ng-show="!currRowModel.allRelatedSearchResultsIsSelected">Select</span> <!-- class="animate-cross-fade-show animate-cross-fade-hide" -->
 									<span ng-show="currRowModel.allRelatedSearchResultsIsSelected">Close</span>

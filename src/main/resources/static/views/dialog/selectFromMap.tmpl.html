@@ -5,7 +5,7 @@
 			<div class="md-toolbar-tools">
 				<h2>Map Options</h2>
 				<span flex></span>
-		        <md-button class="md-icon-button" ng-click="closeSelectedFromMapDialogDialog()">
+		        <md-button class="md-icon-button" ng-click="closeSelectedFromMapDialogDialog($event, currRowModel)">
 			        <md-icon class="md-icon-button" 
 							 aria-label="Close dialog" 
 							 md-font-icon="fa fa-times" style="font-size:24px;">
@@ -81,7 +81,7 @@
 	</md-dialog-content>
 	
 	<md-dialog-actions layout="row" style="padding-top:0px; padding-bottom:10px;">
-		<md-button class="md-raised md-primary" ng-click="closeSelectedFromMapDialogDialog()">
+		<md-button class="md-raised md-primary" ng-click="closeSelectedFromMapDialogDialog($event, currRowModel)">
 			<md-icon md-font-icon="fa fa-times" style="font-size:18px"></md-icon>
 			Close
 		</md-button>

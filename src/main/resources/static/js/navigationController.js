@@ -405,6 +405,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		allRelatedSearchResultsIsSelected: true,
 		allRelatedEntitiesSelectedList: [{name: 'Search By Keyword'}],
 		selectedRelatedInstanceList: [],
+		backupSelectedRelatedInstanceList: [],
 		shownEntitySearchResults: false,
 		selectedRecomentation: null,
 		relatedChips: [],
@@ -623,6 +624,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			delete model.rowModel.backupSelectedRelatedEntity;
 			delete model.rowModel.backupRelatedChips;
 			delete model.rowModel.backupSelectedRelation;
+			delete model.rowModel.backupSelectedRelatedInstanceList;
 			delete model.rowModel.relatedEntities;
 			delete model.rowModel.relations;
 			
@@ -814,12 +816,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						});
 						*/
 					}
-					else {
+					else { // if(!isEditAction) {
 						for(var i=0; i<$scope.rowModelList.length; i++) {
 							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[i], 
 									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 						}
+						// Holding Copy Of Selected Target Entity
 						$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+						// Holding Copy Of Selected Target Entity
 						$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
 					}
 					
@@ -933,6 +937,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
 							// Holding Copy of the Chips for next time
 							rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
+							// Keeping backup of the selectedRelatedInstanceList
+					    	rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
+							
 							// Relation List Handling (Applied after handling the relatedEntity)
 							handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
 							
@@ -956,12 +963,30 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							// Load previous list of chips (backup)
 							rowModel.relatedChips = angular.copy(rowModel.backupRelatedChips);
 							
+							// Load previous list of selected related Instances
+							rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
+							
+							// If the list of instances to be loaded (from the backup) is empty, then hide the respective panel
+							if(rowModel.selectedRelatedInstanceList.length < 1)
+								$scope.showEntitySearchResults(rowModel, false);
+							else
+								$scope.showEntitySearchResults(rowModel, true);
+							
 						});
 					}
 					
 					else { //if(!isEditAction)
+						
+						// Holding Copy Of Selected Related Entity
+						rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+						// Holding Copy of the Chips for next time
+						rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
+						// Keeping backup of the selectedRelatedInstanceList
+				    	rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
+						
 						// Relation List Handling (Applied after handling the relatedEntity)
 						handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+						
 					}
 				} //if(provenanceFunction == 'relatedEntitySelect') - Ends
 				
@@ -1196,6 +1221,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		delete rowModel.backupSelectedRelatedEntity;
 		delete rowModel.backupRelatedChips;
 		delete rowModel.backupSelectedRelation;
+		delete rowModel.backupSelectedRelatedInstanceList;
 		delete rowModel.relatedEntities;
 		delete rowModel.relations;
 		
@@ -1491,7 +1517,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	// Construct query promise - End
 	};
     
-	$scope.closeRelatedEntitySearchResults = function(rowModel) {
+	$scope.closeRelatedEntitySearchResults = function(ev, rowModel) {
+		
+		// Check if the list of instances is changed and call service to reload option lists
+		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+		
 		// Hide dialog
 		$mdDialog.cancel();
 		// Show related entity results panel on respective rowModel
@@ -1603,7 +1634,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//$log.info('$scope.relatedEntityResults.results: ' + angular.toJson($scope.relatedEntityResults.results.bindings) );
 	}
 	
-	$scope.removeSelectedRelatedItem = function(rowModel, itemIndex) {
+	$scope.removeSelectedRelatedItem = function(ev, rowModel, itemIndex) {
 		$log.info('itemIndex: ' + itemIndex);
 		
 		// Delay
@@ -1619,6 +1650,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
         //rowModel.selectedRelatedInstanceList[itemIndex].animateToRemove = 'removed-item';
 		rowModel.selectedRelatedInstanceList.splice(itemIndex, 1);
+				
+		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+		
 		// Hide related entity search results' panel if there are no items to show
 		if(rowModel.selectedRelatedInstanceList.length < 1) {
 			rowModel.shownEntitySearchResults = false;
@@ -1627,6 +1662,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
 			$scope.handleSelectAllRelatedSearchResults(rowModel);
 		}
+		
 	}
 
 	$scope.handleSelectAllRelatedSearchResults = function(rowModel) {
@@ -3193,7 +3229,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 	}
 	
-	$scope.closeSelectedFromMapDialogDialog = function() { 
+	$scope.closeSelectedFromMapDialogDialog = function(ev, rowModel) {
+		
+		// Check if the list of instances is changed and call service to reload option lists
+		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+		
+		
 		$mdDialog.cancel();
 	}
 	
