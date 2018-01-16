@@ -398,6 +398,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			until: null,
 			untilInputName: ''
 		},
+		backupRangeOfDates: {
+			from: null,//new Date(),
+			fromInputName: '',
+			until: null,
+			untilInputName: ''
+		},
 		selectedRelatedEntity: null,//{name: '', thesaurus: '', queryModel: ''},
 		backupSelectedRelatedEntity: null,
 		relatedEntities: $scope.allEntities,//angular.copy($scope.allEntities),
@@ -603,7 +609,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	// Delete Useless for the back-end properties, occupying a lot of volume
-	function deleteUselessForBackendinformation(model) {
+	function deleteUselessForBackendInformation(model) {
 		
 		// ----------- model.queryModel:
 		
@@ -625,6 +631,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			delete model.rowModel.backupRelatedChips;
 			delete model.rowModel.backupSelectedRelation;
 			delete model.rowModel.backupSelectedRelatedInstanceList;
+			delete model.rowModel.backupRangeOfDates;
 			delete model.rowModel.relatedEntities;
 			delete model.rowModel.relations;
 			
@@ -651,7 +658,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 		
 		// Delete Useless for the back-end properties, occupying a lot of volume
-		model = deleteUselessForBackendinformation(model);
+		model = deleteUselessForBackendInformation(model);
 		
 		//@@@loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
 		
@@ -695,7 +702,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// param: parentRowModel		the parentRowModel (can be null or undefined)
 	// param: rowModel				the currentRowModel (can be undefined)
 	// param: selectedEntity		the selected Entity (acting as target)
-	// param: provenanceFunction	A string denoting provenance ('addFilter', 'levelDown', 'relatedEntitySelect', 'targetEntitySelect')
+	// param: provenanceFunction	A string denoting provenance ('addFilter', 'levelDown', 'relatedEntitySelect', 
+	// 								'targetEntitySelect', 'targetChipChange')
 	// (In case of selecting real target entity, the parent rowModel is null, 
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(ev, parentRowModel, rowModel, selectedEntity, provenanceFunction) {
@@ -718,7 +726,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			
 			// Delete Useless for the back-end properties, occupying a lot of volume
-			model = deleteUselessForBackendinformation(model);
+			model = deleteUselessForBackendInformation(model);
 			
 			// Rrelated Entity List handling
 			
@@ -744,8 +752,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					}
 				}
 				
-				// When selecting target entity
-				else if(provenanceFunction == 'targetEntitySelect') {
+				// When selecting target entity or adding/removing a chiip
+				else if(provenanceFunction == 'targetEntitySelect' || provenanceFunction == 'targetChipChange') {
 					var isEditAction = false;
 					// For each related entity - level 1
 					for(var i=0; i<$scope.rowModelList.length; i++) {
@@ -787,17 +795,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
 							
 							// Delete Useless for the back-end properties, occupying a lot of volume
-							model = deleteUselessForBackendinformation(model);
+							model = deleteUselessForBackendInformation(model);
 							
 							// Calling service to load option selections for the empty child
 							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[0], 
 									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 							
 							// Holding Copy Of Selected Target Entity
-							$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+							if(provenanceFunction == 'targetEntitySelect')
+								$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
 							
 							// Holding Copy Of Selected Target Entity
-							$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
+							if(provenanceFunction == 'targetChipChange')
+								$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
 							
 						}, function() { // Cancel
 							// Load previous selection (the backup)
@@ -887,7 +897,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				
 				// When selecting related entity
-				else if(provenanceFunction == 'relatedEntitySelect') {
+				else if(provenanceFunction == 'relatedEntitySelect' || 
+						provenanceFunction == 'relatedChipChange' || 
+						provenanceFunction == 'relatedListOfInstancesChange' ||
+						provenanceFunction == 'relatedRangeOfDatesChange') {
 					
 					/*
 					// For each related entity - level 1
@@ -897,9 +910,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						break;
 					}
 					*/
-					// Set edit action if there are children
+					// Set edit action if there are any children defined
 					if(rowModel.rowModelList.length > 0)
 						isEditAction = true;
+					
+					// Set edit action specifically when changing the selected 
+					// entity or the chips and there are selected instances defined
+					if(isEditAction == false) {
+						if(provenanceFunction == 'relatedEntitySelect' || 
+						   provenanceFunction == 'relatedChipChange' || 
+						   provenanceFunction == 'relatedRangeOfDatesChange') {
+							if(rowModel.selectedRelatedInstanceList.length > 0)
+								isEditAction = true;
+						}
+					}
 					
 					// If this is not the initial selection (user is editing)
 					if(isEditAction) {
@@ -931,17 +955,42 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
 							
 							// Delete Useless for the back-end properties, occupying a lot of volume
-							model = deleteUselessForBackendinformation(model);
+							model = deleteUselessForBackendInformation(model);
 							
-							// Holding Copy Of Selected Related Entity
-							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+							// Specifically when changing the selected entity
+							if(provenanceFunction == 'relatedEntitySelect') {
+								// Holding Copy Of Selected Related Entity
+								rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+							
+								// Relation List Handling (Applied after handling the relatedEntity)
+								handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+							}
+							
+							// Specifically when changing chips or instances
+							
 							// Holding Copy of the Chips for next time
-							rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
+							if(provenanceFunction == 'relatedChipChange')
+								rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
 							// Keeping backup of the selectedRelatedInstanceList
-					    	rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
+							if(provenanceFunction == 'relatedListOfInstancesChange')
+								rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
 							
-							// Relation List Handling (Applied after handling the relatedEntity)
-							handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+							// in certain case the selected instances have to be cleared 
+							// (when changing the selected related entity or the related selected chips)
+							if(provenanceFunction == 'relatedEntitySelect' || 
+							   provenanceFunction == 'relatedChipChange' || 
+							   provenanceFunction == 'relatedRangeOfDatesChange') {
+								// Clearing list of Instances and hiding respective panel
+								// If the list of instances to be loaded (from the backup) is empty, then hide the respective panel
+								if(rowModel.selectedRelatedInstanceList.length > 0) {
+									rowModel.selectedRelatedInstanceList = [];
+									$scope.showEntitySearchResults(rowModel, false);
+								}
+							}
+							
+							// Keeping backup of the rangeOfDatesDefined
+							if(provenanceFunction == 'relatedRangeOfDatesChange')
+								rowModel.backupRangeOfDates = angular.copy(rowModel.rangeOfDates);
 							
 							// Display msg
 							$mdToast.show(
@@ -960,33 +1009,49 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 									rowModel.selectedRelatedEntity = rowModel.relatedEntities[i];
 							}
 							
+							// Specifically when chips or instances were changed but canceled
+							
 							// Load previous list of chips (backup)
-							rowModel.relatedChips = angular.copy(rowModel.backupRelatedChips);
+							if(provenanceFunction == 'relatedChipChange')
+								rowModel.relatedChips = angular.copy(rowModel.backupRelatedChips);
 							
 							// Load previous list of selected related Instances
-							rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
+							if(provenanceFunction == 'relatedListOfInstancesChange') {
+								rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
 							
-							// If the list of instances to be loaded (from the backup) is empty, then hide the respective panel
-							if(rowModel.selectedRelatedInstanceList.length < 1)
-								$scope.showEntitySearchResults(rowModel, false);
-							else
-								$scope.showEntitySearchResults(rowModel, true);
+								// If the list of instances to be loaded (from the backup) is empty, then hide the respective panel
+								if(rowModel.selectedRelatedInstanceList.length < 1)
+									$scope.showEntitySearchResults(rowModel, false);
+								else
+									$scope.showEntitySearchResults(rowModel, true);
+							}
 							
+							// Load previous range of dates (backup)
+							if(provenanceFunction == 'relatedRangeOfDatesChange')
+								rowModel.rangeOfDates = angular.copy(rowModel.backupRangeOfDates);
+								
 						});
 					}
 					
 					else { //if(!isEditAction)
 						
 						// Holding Copy Of Selected Related Entity
-						rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+						if(provenanceFunction == 'relatedEntitySelect') {
+							rowModel.backupSelectedRelatedEntity = angular.copy(rowModel.selectedRelatedEntity);
+							// Relation List Handling (Applied after handling the relatedEntity)
+							handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
+						}
+						
 						// Holding Copy of the Chips for next time
-						rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
+						if(provenanceFunction == 'relatedChipChange')
+							rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
 						// Keeping backup of the selectedRelatedInstanceList
-				    	rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
-						
-						// Relation List Handling (Applied after handling the relatedEntity)
-						handleRelationsByTargetAndRelatedEntities(rowModel, paramModelForRelations, $scope.credentials.token);
-						
+						if(provenanceFunction == 'relatedListOfInstancesChange')
+							rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
+				    	/// Keeping backup of the rangeOfDatesDefined
+				    	if(provenanceFunction == 'relatedRangeOfDatesChange')
+				    		rowModel.backupRelatedChips = angular.copy(rowModel.rangeOfDates);
+				    	
 					}
 				} //if(provenanceFunction == 'relatedEntitySelect') - Ends
 				
@@ -1222,6 +1287,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		delete rowModel.backupRelatedChips;
 		delete rowModel.backupSelectedRelation;
 		delete rowModel.backupSelectedRelatedInstanceList;
+		delete rowModel.backupRangeOfDates;
 		delete rowModel.relatedEntities;
 		delete rowModel.relations;
 		
@@ -1521,7 +1587,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Check if the list of instances is changed and call service to reload option lists
 		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
-			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
 		
 		// Hide dialog
 		$mdDialog.cancel();
@@ -1652,7 +1718,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		rowModel.selectedRelatedInstanceList.splice(itemIndex, 1);
 				
 		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
-			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
 		
 		// Hide related entity search results' panel if there are no items to show
 		if(rowModel.selectedRelatedInstanceList.length < 1) {
@@ -3233,7 +3299,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Check if the list of instances is changed and call service to reload option lists
 		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
-			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
 		
 		
 		$mdDialog.cancel();

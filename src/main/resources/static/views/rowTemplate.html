@@ -217,7 +217,9 @@
          					<label>From Date</label>
          					<md-datepicker name="fromDateInput_{{rowModel.id}}" 
          								   ng-model="rowModel.rangeOfDates.from" 
-         								   ng-disabled="rowModel.selectedRelation == null"/>
+         								   ng-disabled="rowModel.selectedRelation == null"
+         								   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedRangeOfDatesChange')"/>
+         								   <!-- ng-model-options="{updateOn: 'blur'}" -->
          					<div ng-messages="searchForm['fromDateInput_' + rowModel.id].$error">
          						<div ng-message="valid">Please enter some date</div>
          					</div>
@@ -226,7 +228,9 @@
 	        				<label>Until Date</label>
 	        				<md-datepicker name="untilDateInput_{{rowModel.id}}" 
 	        							   ng-model="rowModel.rangeOfDates.until"
-	        							   ng-disabled="rowModel.selectedRelation == null"/>
+	        							   ng-disabled="rowModel.selectedRelation == null"
+	        							   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedRangeOfDatesChange')"/>
+	        							   <!-- ng-model-options="{updateOn: 'blur'}" -->
 	        				<div ng-messages="searchForm['untilDateInput_' + rowModel.id].$error">
 	         					<div ng-message="valid">Please enter some date</div>
 	         				</div>
@@ -286,8 +290,8 @@
 										  md-enable-chip-edit="true"
 										  md-transform-chip="transformChip($chip)"
 										  md-max-chips="3"
-										  md-on-add="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
-										  md-on-remove="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect')"
+										  md-on-add="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedChipChange')"
+										  md-on-remove="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedChipChange')"
 										  md-add-on-blur="true"
 										  style="padding:0;display: inline-block;width:170px;"><!--  -->
 									<md-autocomplete flex 
