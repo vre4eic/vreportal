@@ -95,6 +95,7 @@ public class RelatedModel {
         this.keywordSearchPattern = "";
         if (!this.relatedEntitySearchText.equals("")) {
             this.keywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("keyword_search");
+            this.keywordSearchPattern = getKeywordSearchPattern(relatedVarName);
             this.keywordSearchPattern = this.keywordSearchPattern.replace("@#$%TERM%$#@", this.relatedEntitySearchText);
         }
         ///

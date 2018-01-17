@@ -344,16 +344,16 @@ public class H2Manager {
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
                 false,
-                "distinct (??@#$%VAR%$#Name as ?name) (??@#$%VAR%$#Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ??@#$%VAR%$#Name.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ??@#$%VAR%$#Acronym.",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ??@#$%VAR%$#Name.\n"
-                + "?@#$%VAR%$#Name bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
                 "org"
         );
         insertEntity("Product",
