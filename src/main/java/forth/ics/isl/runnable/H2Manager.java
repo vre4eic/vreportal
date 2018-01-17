@@ -273,16 +273,16 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (??@#$%VAR%$#Title as ?title) (??@#$%VAR%$#Date as ?publication_date) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Date as ?publication_date) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:Publication.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ??@#$%VAR%$#Title.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ??@#$%VAR%$#Date.\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ??@#$%VAR%$#Title.\n"
-                + "??@#$%VAR%$#Title bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ?@#$%VAR%$#@Date.\n",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
+                + "?@#$%VAR%$#@Title bds:search \"@#$%TERM%$#@\".",
                 "pub"
         );
         insertEntity("OrganisationUnit",
