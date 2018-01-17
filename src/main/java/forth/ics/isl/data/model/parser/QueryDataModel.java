@@ -79,17 +79,19 @@ public class QueryDataModel {
         int relCnt = 0;
         List<String> relEntitiesBlocks = new ArrayList<>();
         for (RelatedModel relModel : relatedModels) {
+            if (!relModel.isNullRelatedModel()) {
 //            query.append(relModel.createSPARQLBlock(targetVar, relCnt));
-            relEntitiesBlocks.add(relModel.createSPARQLBlock(targetVar, relCnt));
-            relCnt++;
+                relEntitiesBlocks.add(relModel.createSPARQLBlock(targetVar, relCnt));
+                relCnt++;
+            }
         }
 
         StringBuilder query = new StringBuilder();
         query.append("select " + selectionList + " " + getSelectedGraphsClause() + " where {\n");
         query.append(targetModel.getSelectionPattern(targetVar));
         query.append((targetModel.getKeywordSearchPattern(targetVar)).trim() + "\n");
-        if (relatedModels.size() > 0) {
-            if (relatedModels.size() == 1) {
+        if (relatedModels.size() > 0 && relEntitiesBlocks.size() > 0) {
+            if (relatedModels.size() == 1 && relEntitiesBlocks.size() == 1) {
                 query.append(relEntitiesBlocks.get(0));
             } else {
                 String currentBlock = relEntitiesBlocks.get(0);

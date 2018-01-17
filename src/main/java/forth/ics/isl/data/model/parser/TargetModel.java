@@ -52,7 +52,7 @@ public class TargetModel {
     }
 
     public String getKeywordSearchPattern(String var) {
-        return keywordSearchPattern.replace("@#$%VAR%$#@", var);
+        return keywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var);
     }
 
     public String getName() {
@@ -67,7 +67,7 @@ public class TargetModel {
         if (var == null) {
             return selectionList;
         }
-        return selectionList.replace("@#$%VAR%$#@", var);
+        return selectionList.replaceAll("@#\\$%VAR%\\$#@", var);
     }
 
     public String getVarName() {
@@ -78,7 +78,7 @@ public class TargetModel {
         if (var == null) {
             return selectionPattern;
         }
-        return selectionPattern.replace("@#$%VAR%$#@", var);
+        return selectionPattern.replaceAll("@#\\$%VAR%\\$#@", var);
     }
 
     @Override

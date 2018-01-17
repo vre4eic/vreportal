@@ -190,7 +190,7 @@ public class RelatedModel {
     }
 
     public String getKeywordSearchPattern(String var) {
-        return keywordSearchPattern != null ? keywordSearchPattern.replace("@#$%VAR%$#@", var) : "";
+        return keywordSearchPattern != null ? keywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
     }
 
     public String getRelatedVarName() {

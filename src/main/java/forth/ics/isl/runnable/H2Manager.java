@@ -206,15 +206,15 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?persName as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?@#$%VAR%$#@Name as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:Person.  \n"
-                + "?@#$%VAR%$#@ rdfs:label ?persName. \n",
-                "?@#$%VAR%$#@ rdfs:label ?persName. \n"
-                + "?persName bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
+                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
                 "pers"
         );
         insertEntity("Project",
@@ -239,19 +239,19 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?projectTitle as ?title) (?projName as ?name) (?projectAcronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:Project.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?projectTitle.\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI> ?projURI.}\n"
-                + "BIND(if(bound(?projURI),?projURI,?proj) as ?@#$%VAR%$#@).\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?projectAcronym.\n"
-                + "?@#$%VAR%$#@ rdfs:label ?projName.\n",
-                "?@#$%VAR%$#@ rdfs:label ?projName.\n"
-                + "?projName bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI> ?@#$%VAR%$#@URI.}\n"
+                + "BIND(if(bound(?@#$%VAR%$#@URI),?@#$%VAR%$#@URI,?@#$%VAR%$#@) as ?@#$%VAR%$#@).\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.\n"
+                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name.\n",
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
                 "proj"
         );
         insertEntity("Publication",
@@ -273,16 +273,16 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (??@#$%VAR%$#Title as ?title) (??@#$%VAR%$#Date as ?publication_date) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:Publication.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?pubTitle.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ?pubDate.\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?pubTitle.\n"
-                + "?pubTitle bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ??@#$%VAR%$#Title.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ??@#$%VAR%$#Date.\n",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ??@#$%VAR%$#Title.\n"
+                + "??@#$%VAR%$#Title bds:search \"@#$%TERM%$#@\".",
                 "pub"
         );
         insertEntity("OrganisationUnit",
@@ -344,16 +344,16 @@ public class H2Manager {
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
                 false,
-                "distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (??@#$%VAR%$#Name as ?name) (??@#$%VAR%$#Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?orgName.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?orgAcronym.",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?orgName.\n"
-                + "?orgName bds:search \"@#$%TERM%$#@\".",
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ??@#$%VAR%$#Name.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ??@#$%VAR%$#Acronym.",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ??@#$%VAR%$#Name.\n"
+                + "?@#$%VAR%$#Name bds:search \"@#$%TERM%$#@\".",
                 "org"
         );
         insertEntity("Product",
@@ -448,9 +448,9 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) \n",
                 false,
-                "distinct ?name  ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Νame  ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Product>.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -466,8 +466,8 @@ public class H2Manager {
                 + "}\n"
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
-                + "?name bds:search \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
+                + "?@#$%VAR%$#@Νame bds:search \"@#$%TERM%$#@\".",
                 "prod"
         );
         insertEntity("Equipment",
@@ -562,9 +562,9 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) \n",
                 false,
-                "distinct ?name  ?Responsible ?Service (?object as ?uri)",
+                "distinct ?@#$%VAR%$#@Name  ?Responsible ?Service (?object as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Equipment>.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -580,9 +580,9 @@ public class H2Manager {
                 + "}\n"
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
-                + "?name bds:search \"@#$%TERM%$#@\".",
-                "object"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "eq"
         );
         insertEntity("Facility",
                 "http://eurocris.org/ontology/cerif#Facility",
@@ -676,9 +676,9 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) \n",
                 false,
-                "distinct ?name  ?Responsible ?Service (?object as ?uri)",
+                "distinct ?@#$%VAR%$#@Name  ?Responsible ?Service (?object as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Facility>.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -694,9 +694,9 @@ public class H2Manager {
                 + "}\n"
                 + "}\n"
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?name.\n"
-                + "?name bds:search \"@#$%TERM%$#@\".",
-                "object"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "fac"
         );
         insertEntity("Location",
                 "http://eurocris.org/ontology/cerif#GeographicBoundingBox",
