@@ -218,18 +218,20 @@
          					<md-datepicker name="fromDateInput_{{rowModel.id}}" 
          								   ng-model="rowModel.rangeOfDates.from" 
          								   ng-disabled="rowModel.selectedRelation == null"
-         								   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedRangeOfDatesChange')"/>
+         								   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedFromDateChange')"/>
+         								   <!-- ng-model-options="{ timezone: '{{localeTimezoneOffset}}'}" -->
          								   <!-- ng-model-options="{updateOn: 'blur'}" -->
          					<div ng-messages="searchForm['fromDateInput_' + rowModel.id].$error">
          						<div ng-message="valid">Please enter some date</div>
          					</div>
 	       				</md-input-container>
+	       				<!--<div>{{toLocalTimeZone(rowModel.rangeOfDates.from)}}</div>-->
 	      				<md-input-container style="margin:0; padding:2px;" class="shrinked">
 	        				<label>Until Date</label>
 	        				<md-datepicker name="untilDateInput_{{rowModel.id}}" 
 	        							   ng-model="rowModel.rangeOfDates.until"
 	        							   ng-disabled="rowModel.selectedRelation == null"
-	        							   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedRangeOfDatesChange')"/>
+	        							   ng-change="loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedUntilDateChange')"/>
 	        							   <!-- ng-model-options="{updateOn: 'blur'}" -->
 	        				<div ng-messages="searchForm['untilDateInput_' + rowModel.id].$error">
 	         					<div ng-message="valid">Please enter some date</div>

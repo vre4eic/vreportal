@@ -382,6 +382,22 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		backupTargetChips: []
 	}
 	
+	// Used to convert fro UTC (when date is initially null) to local timezone
+	var regexMatchForIso8601Date = /[0-9]T[0-9]/; // ISO 8601
+	var dateFormat = 'YYYY-MM-DDTHH:mm:ss.sssZ';
+	
+	function toLocalTimeZone(value) {
+	//$scope.toLocalTimeZone = function (value) {
+		if(value != null) {
+		    // Check that the date is not in ISO 8601 format, if not - then add postfix so can be converted to UTC
+		    if (!regexMatchForIso8601Date.test(value)) value = value + ' UTC';
+		    if (!moment(value).isValid()) return invalidDateMessage;
+		    return moment(value).format(dateFormat).toLocaleString();
+		}
+		else
+			null;
+	};
+	
 	var autoincrementedRowModelId = 0;
 	
 	// Initial empty row model
@@ -900,16 +916,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				else if(provenanceFunction == 'relatedEntitySelect' || 
 						provenanceFunction == 'relatedChipChange' || 
 						provenanceFunction == 'relatedListOfInstancesChange' ||
-						provenanceFunction == 'relatedRangeOfDatesChange') {
+						provenanceFunction == 'relatedFromDateChange' ||
+						provenanceFunction == 'relatedUntilDateChange') {
 					
-					/*
-					// For each related entity - level 1
-					for(var i=0; i<rowModel.rowModelList.length; i++) {
-						if(rowModel.rowModelList[i].selectedRelatedEntity != null || rowModel.rowModelList[i].selectedRelation != null)
-							isEditAction = true;
-						break;
-					}
-					*/
+					// Fix dates to local timezone
+					if(provenanceFunction == 'relatedFromDateChange')
+						rowModel.rangeOfDates.from = toLocalTimeZone(rowModel.rangeOfDates.from);
+					if(provenanceFunction == 'relatedUntilDateChange')
+						rowModel.rangeOfDates.until = toLocalTimeZone(rowModel.rangeOfDates.until);
+						
+					
 					// Set edit action if there are any children defined
 					if(rowModel.rowModelList.length > 0)
 						isEditAction = true;
@@ -919,7 +935,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					if(isEditAction == false) {
 						if(provenanceFunction == 'relatedEntitySelect' || 
 						   provenanceFunction == 'relatedChipChange' || 
-						   provenanceFunction == 'relatedRangeOfDatesChange') {
+						   provenanceFunction == 'relatedFromDateChange' ||
+							provenanceFunction == 'relatedUntilDateChange') {
 							if(rowModel.selectedRelatedInstanceList.length > 0)
 								isEditAction = true;
 						}
@@ -979,7 +996,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							// (when changing the selected related entity or the related selected chips)
 							if(provenanceFunction == 'relatedEntitySelect' || 
 							   provenanceFunction == 'relatedChipChange' || 
-							   provenanceFunction == 'relatedRangeOfDatesChange') {
+							   provenanceFunction == 'relatedFromDateChange' ||
+								provenanceFunction == 'relatedUntilDateChange') {
 								// Clearing list of Instances and hiding respective panel
 								// If the list of instances to be loaded (from the backup) is empty, then hide the respective panel
 								if(rowModel.selectedRelatedInstanceList.length > 0) {
@@ -989,7 +1007,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							}
 							
 							// Keeping backup of the rangeOfDatesDefined
-							if(provenanceFunction == 'relatedRangeOfDatesChange')
+							if(provenanceFunction == 'relatedFromDateChange' ||
+							   provenanceFunction == 'relatedUntilDateChange')
 								rowModel.backupRangeOfDates = angular.copy(rowModel.rangeOfDates);
 							
 							// Display msg
@@ -1027,7 +1046,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							}
 							
 							// Load previous range of dates (backup)
-							if(provenanceFunction == 'relatedRangeOfDatesChange')
+							if(provenanceFunction == 'relatedFromDateChange' ||
+							   provenanceFunction == 'relatedUntilDateChange')
 								rowModel.rangeOfDates = angular.copy(rowModel.backupRangeOfDates);
 								
 						});
@@ -1049,7 +1069,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						if(provenanceFunction == 'relatedListOfInstancesChange')
 							rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
 				    	/// Keeping backup of the rangeOfDatesDefined
-				    	if(provenanceFunction == 'relatedRangeOfDatesChange')
+				    	if(provenanceFunction == 'relatedFromDateChange' ||
+						   provenanceFunction == 'relatedUntilDateChange')
 				    		rowModel.backupRelatedChips = angular.copy(rowModel.rangeOfDates);
 				    	
 					}
@@ -1144,7 +1165,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						}
 						
 						// I cannot get the parentRowModel, thus prompting a general message
-						$scope.message = 'The selected options for \"Relation\" and "Related Entity" lead to no results.';
+						$scope.message = 'The selected options lead to no results.';
 						$scope.showErrorAlert('Information', $scope.message);
 					}
 					
@@ -2525,9 +2546,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 		
 	    var attribution = new ol.Attribution({
-	        html: explainPinsElement.innerHTML
-	      });
-	        
+	    	html: explainPinsElement.innerHTML
+	    });
+	    
 	    $scope.map = new ol.Map({
 			controls: ol.control.defaults({
 				attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
@@ -2536,6 +2557,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				})
 			})
 		    .extend([mousePositionControl]),
+		    // .extend([mousePositionControl, new searchByBoundingBox()]),
 		    //.extend([new ol.control.FullScreen()]),
 	        layers: [
 				new ol.layer.Tile({
@@ -2551,7 +2573,41 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        }),					// To hide logo use:
 	        logo: logoElement 	//document.createElement('span')
 		});      
+	    
+	    // Bounding Box
+	    
+	    // Setting Bounding Box in the query (button) - Starts
+	    
+	    var boundingBoxIconElement = document.createElement('img');
+	    boundingBoxIconElement.src = '../images/boundingBox.svg';
+	    //logoImageElement.style.fontSize = '200%';
+	    
+	    var button = document.createElement('button');
+	    button.title="Use current view as bounding box filter for this query";
+	    //button.innerHTML = 'N';
+	    
+	    button.appendChild(boundingBoxIconElement);
+	    
+	    var setBoundingBoxInQuery = function(e) {
+	        //map.getView().setRotation(0);
+	    	alert("Setting bounding box is not functional yet.");
+	    	//$scope.message = 'Setting bounding box is not functional yet.';
+			//$scope.showErrorAlert('Information', $scope.message);
+	    };
 
+	    button.addEventListener('click', setBoundingBoxInQuery, false);
+
+	    var element = document.createElement('div');
+	    element.className = 'boundingBoxInQuery ol-unselectable ol-control';
+	    element.appendChild(button);
+
+	    var boundingBoxInQueryControl = new ol.control.Control({
+	        element: element
+	    });
+	    $scope.map.addControl(boundingBoxInQueryControl);
+	    
+	    // Setting Bounding Box in the query (button) - Ends
+        
 	    // Adding "Searching by Toponyms" on the map
 	    
 	    // Code regarding toponyms - Start

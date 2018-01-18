@@ -875,7 +875,7 @@ input[type="checkbox"] {
 
 .customGeocoder div.gcd-gl-control.ol-control {
 	margin-top: 10px;
-	min-width: 2.53em;
+	min-width: 2.52em;
 	height: 2.48em;
 }
 .customGeocoder button.gcd-gl-btn {
@@ -884,6 +884,7 @@ input[type="checkbox"] {
     height: 1.375em;
     width: 1.375em;
     top: .09em;
+    left: .09em;
     background-size: 18px 18px;
     background-image: url(../images/search.svg);
 }
@@ -923,3 +924,10 @@ input[type="checkbox"] {
 
 /* Making code-mirror occupying the whole container */
 .CodeMirror.cm-s-default.CodeMirror-wrap { height: 100%; }
+
+
+
+.boundingBoxInQuery {
+  top: 116px;
+  left: .5em;
+}
