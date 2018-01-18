@@ -6,9 +6,6 @@
 package forth.ics.isl.data.model.parser;
 
 import forth.ics.isl.service.DBService;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -40,6 +37,7 @@ public class RelatedModel {
     private String keywordSearchPattern;
     private List<String> selectedGraphs;
     private JSONArray relatedEntityRelationTuples;
+    private String fromDate, endDate;
 
     @Autowired
     private DBService dbService;
@@ -99,6 +97,9 @@ public class RelatedModel {
             this.keywordSearchPattern = this.keywordSearchPattern.replace("@#$%TERM%$#@", this.relatedEntitySearchText);
         }
         ///
+        this.fromDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("from");
+        this.endDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("until");
+        /////
         JSONArray instances = (JSONArray) jsonModel.get("selectedRelatedInstanceList");
         this.selectedUris = new ArrayList<>();
         for (int i = 0; i < instances.size(); i++) {
@@ -160,6 +161,14 @@ public class RelatedModel {
 
     public String getRelationName() {
         return relationName;
+    }
+
+    public String getFromDate() {
+        return fromDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
     }
 
     public String getRelationUri() {
@@ -312,6 +321,8 @@ public class RelatedModel {
             block.append(")).\n");
         }
         block.append((getKeywordSearchPattern(relVar) + "\n").trim() + "\n");
+        createDateFilterBlock(targetEntity, relVar, block);
+        ////
         List<String> relEntitiesBlocks = new ArrayList<>();
         if (relatedModels != null && !relatedModels.isEmpty()) {
             for (RelatedModel relModel : relatedModels) {
@@ -336,6 +347,25 @@ public class RelatedModel {
         }
 
         return block.toString();
+    }
+
+    private void createDateFilterBlock(String targetEntity, String relVar, StringBuilder block) {
+        ///consider start, end dates
+        if (fromDate != null || endDate != null) {
+            String concStr = targetEntity + "_" + relVar;
+            block.append("?" + targetEntity + " <http://eurocris.org/ontology/cerif#is_source_of> ?" + concStr + ".\n");
+            block.append("?" + relVar + " <http://eurocris.org/ontology/cerif#is_destination_of> ?" + concStr + ".\n");
+            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?start_date.\n");
+            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?end_date.\n");
+            if (fromDate != null) {
+                block.append("filter (xsd:dateTime('" + fromDate + "') >= xsd:dateTime(?start_date) && "
+                        + "xsd:dateTime('" + fromDate + "') <= xsd:dateTime(?end_date)).\n");
+            }
+            if (endDate != null) {
+                block.append("filter (xsd:dateTime('" + endDate + "') >= xsd:dateTime(?start_date) && "
+                        + "xsd:dateTime('" + endDate + "') <= xsd:dateTime(?end_date)).\n");
+            }
+        }
     }
 
     public ArrayList<LinkedHashMap> get(String relatedEntityRelationTuples) {
