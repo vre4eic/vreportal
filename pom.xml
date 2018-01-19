@@ -147,6 +147,14 @@
 			<artifactId>lodash</artifactId>
 			<version>4.17.4</version>
 		</dependency>
+		<!-- 
+		Parse, validate, manipulate, and display dates and times in JavaScript.
+		-->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>momentjs</artifactId>
+			<version>2.20.1</version>
+		</dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
