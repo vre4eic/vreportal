@@ -420,6 +420,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			until: null,
 			untilInputName: ''
 		},
+		//boundingBox: null,
 		selectedRelatedEntity: null,//{name: '', thesaurus: '', queryModel: ''},
 		backupSelectedRelatedEntity: null,
 		relatedEntities: $scope.allEntities,//angular.copy($scope.allEntities),
@@ -2574,6 +2575,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        logo: logoElement 	//document.createElement('span')
 		});      
 	    
+	    //$scope.map.size.h = 300;
+	    //$scope.map.updateSize();
+	    
 	    // Bounding Box
 	    
 	    // Setting Bounding Box in the query (button) - Starts
@@ -2588,13 +2592,49 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 	    button.appendChild(boundingBoxIconElement);
 	    
+	    // Array to hold the drawn bounding boxes (even though I only allow one at a time)
+	    var boundingBoxFeatures = new ol.Collection();
+	    
+	    // Global source for drawn bounding box such that it is easily cleared when necesary
+	    var boxSource = new ol.source.Vector({wrapX: false});
+	    
+	    // Interaction for drawing the bounding box
+	    var drawBoundingBox = new ol.interaction.Draw({
+    		source: boxSource,
+    		type: 'Circle',
+    		geometryFunction: ol.interaction.Draw.createBox()
+    	});
+	    
+	    // Vector for holding the drawn bounding boxes (allowing one per time)
+	    var boxVectorLayer = new ol.layer.Vector({
+    		source: boxSource
+    	});
+	    
+	    $scope.map.addLayer(boxVectorLayer);	// Adding Layer for box
+	    
 	    var setBoundingBoxInQuery = function(e) {
-	        //map.getView().setRotation(0);
-	    	alert("Setting bounding box is not functional yet.");
-	    	//$scope.message = 'Setting bounding box is not functional yet.';
-			//$scope.showErrorAlert('Information', $scope.message);
+	    	polyFeatures.clear();
+			pointFeatures.clear();
+			select.getFeatures().clear();
+	    	boxSource.clear(); // Clearing drawn bounding box
+	    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
 	    };
-
+	    
+	    // When the drawing for the bounding box finish
+	    drawBoundingBox.on('drawend', function(e) {
+	    	$scope.map.removeInteraction(drawBoundingBox);
+	    	
+	    	//var coordinateStr = e.feature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+	    	var boxGeometry = e.feature.getGeometry().clone();
+	    	var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+	    	console.log('coordinateStr: ' + coordinateStr);
+			convertCoordinatesToJson(coordinateStr);
+			
+			// Setting bounding box on rowModel
+			rowModel.boundingBox = $scope.coordinatesRegion;
+		});
+	    
+	    
 	    button.addEventListener('click', setBoundingBoxInQuery, false);
 
 	    var element = document.createElement('div');
@@ -2686,7 +2726,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.dragBox.on('boxend', function() {
 			// Holding all 5 coordinates in a string and transform them to the appropriate projection
 			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
-			//alert (coordinateStr);
+			console.log('coordinateStr: ' + coordinateStr);
 			convertCoordinatesToJson(coordinateStr);
 	    	  
 			// required for immediate update 
@@ -2742,26 +2782,51 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			var north;
 			var south;
 			
-			if(longitude1 > longitude2) {
-				north = longitude1;
-				south = longitude2;
+			if(longitude1 != longitude2) {
+				if(longitude1 > longitude2) {
+					north = longitude1;
+					south = longitude2;
+				}
+				else {
+					north = longitude2;
+					south = longitude1;
+				}
 			}
-			else {
-				north = longitude2;
-				south = longitude1;
+			else { //if(longitude1 == longitude2)
+				if(longitude1 > longitude3) {
+					north = longitude1;
+					south = longitude3;
+				}
+				else {
+					north = longitude3;
+					south = longitude1;
+				}
 			}
 			
 			// Determining west and east
 			var west;
 			var east;
 			
-			if(latitude1 < latitude4) {
-				west = latitude1;
-				east = latitude4;
+			if(latitude1 != latitude4) {
+				if(latitude1 < latitude4) {
+					west = latitude1;
+					east = latitude4;
+				}
+				else {
+					west = latitude4;
+					east = latitude1;
+				}
 			}
-			else {
-				west = latitude4;
-				east = latitude1;
+			
+			else { //if(latitude1 == latitude4) {
+				if(latitude1 < latitude2) {
+					west = latitude1;
+					east = latitude2;
+				}
+				else {
+					west = latitude2;
+					east = latitude1;
+				}
 			}
 			
 			//$scope.coordinatesRegion = {north: latitude1, south: latitude2, west: longitude1, east: longitude4}
@@ -2780,6 +2845,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
     	var polyVectorLayer = new ol.layer.Vector();
     	var pointVectorLayer = new ol.layer.Vector();
+    	
     	var select = new ol.interaction.Select();
     	var popoverElement = document.getElementById('popup');
 		var element = null; // The Popup Element
@@ -2873,8 +2939,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	  
 			if($scope.map.getLayers().getLength() > 1) {
 		    		  
-				// Removing with inverse order all layers apart from that one with index 0 (this is the map) 
-				for (i = $scope.map.getLayers().getLength(); i > 0; i--) {
+				// Removing with inverse order all layers apart from that one with index 0 and 1
+				// (0 is for the map and 1 is for the drawn bounding box) 
+				for (i = $scope.map.getLayers().getLength(); i > 1; i--) {
 		    		$scope.map.removeLayer($scope.map.getLayers().item(i));
 		    	}
 			}
@@ -2913,7 +2980,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			});
 	    	  
 			$scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
-
+			
 			// Adding pop-up
 			$scope.map.addOverlay(popup);
 			
