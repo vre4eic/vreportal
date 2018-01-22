@@ -2053,7 +2053,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		$mdDialog.show(confirm).then(function() { // OK
-			resetWholeQueryModel(true);			
+			resetWholeQueryModel(true);
+			$scope.finalResults = {};
 	    }, function() { // Cancel
 	    	// Do nothing
 	    });
@@ -2575,22 +2576,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        logo: logoElement 	//document.createElement('span')
 		});      
 	    
-	    //$scope.map.size.h = 300;
-	    //$scope.map.updateSize();
-	    
 	    // Bounding Box
 	    
 	    // Setting Bounding Box in the query (button) - Starts
 	    
+	    // Button for setting bounding box
 	    var boundingBoxIconElement = document.createElement('img');
 	    boundingBoxIconElement.src = '../images/boundingBox.svg';
-	    //logoImageElement.style.fontSize = '200%';
 	    
-	    var button = document.createElement('button');
-	    button.title="Use current view as bounding box filter for this query";
-	    //button.innerHTML = 'N';
+	    var boundingBoxButton = document.createElement('button');
+	    boundingBoxButton.title="Set bounding box";
+	    //boundingBoxButton.innerHTML = 'N';
 	    
-	    button.appendChild(boundingBoxIconElement);
+	    boundingBoxButton.appendChild(boundingBoxIconElement);
 	    
 	    // Array to hold the drawn bounding boxes (even though I only allow one at a time)
 	    var boundingBoxFeatures = new ol.Collection();
@@ -2624,6 +2622,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    drawBoundingBox.on('drawend', function(e) {
 	    	$scope.map.removeInteraction(drawBoundingBox);
 	    	
+	    	//Enabling button that clears bounding box
+	    	document.getElementById("clearBoundingBoxButtonId").disabled = false;
+	    	
 	    	//var coordinateStr = e.feature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 	    	var boxGeometry = e.feature.getGeometry().clone();
 	    	var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
@@ -2632,19 +2633,72 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Setting bounding box on rowModel
 			rowModel.boundingBox = $scope.coordinatesRegion;
+			
+			// Display message informing user that bounding box has been set
+			$mdToast.show(
+				$mdToast.simple()
+		        .textContent('Bounding box has been set!')
+		        .position('top right')
+		        .parent(angular.element('#mainContent'))
+		        .hideDelay(3000)
+		    );
 		});
 	    
 	    
-	    button.addEventListener('click', setBoundingBoxInQuery, false);
+	    boundingBoxButton.addEventListener('click', setBoundingBoxInQuery, false);
 
-	    var element = document.createElement('div');
-	    element.className = 'boundingBoxInQuery ol-unselectable ol-control';
-	    element.appendChild(button);
+	    var boundingBoxElement = document.createElement('div');
+	    boundingBoxElement.className = 'boundingBoxInQuery ol-unselectable ol-control';
+	    boundingBoxElement.appendChild(boundingBoxButton);
 
 	    var boundingBoxInQueryControl = new ol.control.Control({
-	        element: element
+	        element: boundingBoxElement
 	    });
 	    $scope.map.addControl(boundingBoxInQueryControl);
+	    
+	    // Button for clearing bounding box
+	    var clearBoundingBoxIconElement = document.createElement('img');
+	    clearBoundingBoxIconElement.src = '../images/clearBoundingBox_150.png';
+	    clearBoundingBoxIconElement.style= 'height:28.88px; width: 28.88px;';
+	    
+	    var clearBoundingBoxButton = document.createElement('button');
+	    clearBoundingBoxButton.id = 'clearBoundingBoxButtonId';
+	    clearBoundingBoxButton.title="Clear currently defined bounding box";
+	    clearBoundingBoxButton.disabled = 'true';
+	    
+	    clearBoundingBoxButton.appendChild(clearBoundingBoxIconElement);
+	    
+	    var clearBoundingBoxInQuery = function(e) {
+	    	polyFeatures.clear();
+			pointFeatures.clear();
+			select.getFeatures().clear();
+	    	boxSource.clear(); // Clearing drawn bounding box
+			delete rowModel.boundingBox; // Removing bounding box from the model
+			
+			//Disabling button that clears bounding box
+			document.getElementById("clearBoundingBoxButtonId").disabled = true;
+			
+			// Display message informing user that bounding box has been set
+			$mdToast.show(
+				$mdToast.simple()
+		        .textContent('Bounding box has been removed!')
+		        .position('top right')
+		        .parent(angular.element('#mainContent'))
+		        .hideDelay(3000)
+		    );
+	    	
+	    };
+	    
+	    clearBoundingBoxButton.addEventListener('click', clearBoundingBoxInQuery, false);
+
+	    var clearBoundingBoxElement = document.createElement('div');
+	    clearBoundingBoxElement.className = 'clearBoundingBoxInQuery ol-unselectable ol-control';
+	    clearBoundingBoxElement.appendChild(clearBoundingBoxButton);
+
+	    var clearBoundingBoxInQueryControl = new ol.control.Control({
+	        element: clearBoundingBoxElement
+	    });
+	    $scope.map.addControl(clearBoundingBoxInQueryControl);
 	    
 	    // Setting Bounding Box in the query (button) - Ends
         
@@ -3031,6 +3085,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// Respectively handle rowModel.allRelatedSearchResultsIsSelected
 					rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
 					$scope.handleSelectAllRelatedSearchResults(rowModel);
+					
+					// Regarding Bounding Box
+					boxSource.clear(); // Clearing drawn bounding box
+					delete rowModel.boundingBox; // Removing bounding box from the model
+					
+					// Display message informing user that bounding box has been set
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent('Bounding box has been removed!')
+				        .position('top right')
+				        .parent(angular.element('#mainContent'))
+				        .hideDelay(3000)
+				    );
 				}
 				
 				else {
