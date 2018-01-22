@@ -931,3 +931,25 @@ input[type="checkbox"] {
   top: 116px;
   left: .5em;
 }
+
+.clearBoundingBoxInQuery {
+  top: 154px;
+  left: .5em;
+}
+
+/* Disable hovering for this div when the child button is disabled */ 
+div.clearBoundingBoxInQuery.ol-unselectable.ol-control {
+  background-color: transparent;
+}
+
+.clearBoundingBoxInQuery button:disabled {
+  opacity: 0.65; 
+  cursor: not-allowed;
+  pointer-events: none !important;
+}
+
+.clearBoundingBoxInQuery button:enabled {
+  opacity: 1; 
+  cursor: allowed;
+  pointer-events: all !important;
+}
