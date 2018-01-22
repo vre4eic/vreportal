@@ -112,6 +112,7 @@ public class DBService {
                 entityJSON.put("geospatial", entities.getBoolean("geospatial"));
                 entityJSON.put("selection_list", entities.getString("selection_list"));
                 entityJSON.put("keyword_search", entities.getString("keyword_search"));
+                entityJSON.put("geo_search", entities.getString("geo_search"));
                 entityJSON.put("var_name", entities.getString("var_name"));
                 entityJSON.put("selection_pattern", entities.getString("selection_pattern"));
             }
@@ -142,6 +143,7 @@ public class DBService {
                 entityJSON.put("geospatial", entities.getBoolean("geospatial"));
                 entityJSON.put("selection_list", entities.getString("selection_list"));
                 entityJSON.put("keyword_search", entities.getString("keyword_search"));
+                entityJSON.put("geo_search", entities.getString("geo_search"));
                 entityJSON.put("var_name", entities.getString("var_name"));
                 entityJSON.put("selection_pattern", entities.getString("selection_pattern"));
             }
@@ -197,6 +199,7 @@ public class DBService {
                 entity.put("geospatial", entities.getString("geospatial"));
                 entity.put("selection_list", entities.getString("selection_list"));
                 entity.put("keyword_search", entities.getString("keyword_search"));
+                entity.put("geo_search", entities.getString("geo_search"));
                 entity.put("var_name", entities.getString("var_name"));
                 entity.put("selection_pattern", entities.getString("selection_pattern"));
                 results.add(entity);

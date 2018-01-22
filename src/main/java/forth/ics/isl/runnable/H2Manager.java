@@ -77,9 +77,9 @@ public class H2Manager {
         return statement.executeUpdate("insert into namedgraph_category (`name`,`description`) values ('" + name + "', '')");
     }
 
-    public int insertEntity(String name, String uri, String thesaurus, String query, String geoQuery, String textGeoQuery, boolean geospatial, String selectionList, String selectionPattern, String keywordSearch, String varName) throws SQLException {
-        return statement.executeUpdate("insert into entity(`name`, `uri`, `thesaurus`, `query`, `geo_query`, `text_geo_query`, `geospatial`, `selection_list`, `selection_pattern`, `keyword_search`, `var_name`)"
-                + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "', '" + textGeoQuery + "', " + geospatial + ", '" + selectionList + "', '" + selectionPattern + "', '" + keywordSearch + "', '" + varName + "')");
+    public int insertEntity(String name, String uri, String thesaurus, String query, String geoQuery, String textGeoQuery, boolean geospatial, String selectionList, String selectionPattern, String keywordSearch, String geoSearch, String varName) throws SQLException {
+        return statement.executeUpdate("insert into entity(`name`, `uri`, `thesaurus`, `query`, `geo_query`, `text_geo_query`, `geospatial`, `selection_list`, `selection_pattern`, `keyword_search`, `geo_search`, `var_name`)"
+                + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "', '" + textGeoQuery + "', " + geospatial + ", '" + selectionList + "', '" + selectionPattern + "', '" + keywordSearch + "', '" + geoSearch + "', '" + varName + "')");
     }
 
     public int insertRelation(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
@@ -137,6 +137,7 @@ public class H2Manager {
                 + "selection_list clob, \n"
                 + "selection_pattern clob, \n"
                 + "keyword_search clob,\n"
+                + "geo_search clob,\n"
                 + "var_name varchar(10),"
                 + "PRIMARY KEY (`id`)\n"
                 + ");");
@@ -215,6 +216,7 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
                 + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "",
                 "pers"
         );
         insertEntity("Project",
@@ -252,6 +254,7 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name.\n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "",
                 "proj"
         );
         insertEntity("Publication",
@@ -283,6 +286,7 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ?@#$%VAR%$#@Date.\n",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
                 + "?@#$%VAR%$#@Title bds:search \"@#$%TERM%$#@\".",
+                "",
                 "pub"
         );
         insertEntity("OrganisationUnit",
@@ -354,6 +358,15 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.\n"
+                + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "org"
         );
         insertEntity("Product",
@@ -468,6 +481,15 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
                 + "?@#$%VAR%$#@Νame bds:search \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.\n"
+                + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "prod"
         );
         insertEntity("Equipment",
@@ -582,6 +604,15 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.\n"
+                + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "eq"
         );
         insertEntity("Facility",
@@ -696,6 +727,15 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.\n"
+                + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "fac"
         );
         insertEntity("Location",
@@ -707,7 +747,7 @@ public class H2Manager {
                 + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
-                + "}", "", false, "", "", "", "");
+                + "}", "", false, "", "", "", "", "");
     }
 
     private void insertRelationsMatUpdates() throws SQLException {

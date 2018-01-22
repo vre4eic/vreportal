@@ -38,6 +38,7 @@ public class RelatedModel {
     private List<String> selectedGraphs;
     private JSONArray relatedEntityRelationTuples;
     private String fromDate, endDate;
+    private String geoSearchPattern;
 
     @Autowired
     private DBService dbService;
@@ -99,7 +100,16 @@ public class RelatedModel {
         ///
         this.fromDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("from");
         this.endDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("until");
-        /////
+        ///
+        this.geoSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("geo_search");
+        if (jsonModel.get("boundingBox") != null) {
+            JSONObject boundingBox = (JSONObject) jsonModel.get("boundingBox");
+            geoSearchPattern = geoSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
+            geoSearchPattern = geoSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
+            geoSearchPattern = geoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east") );
+            geoSearchPattern = geoSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
+        }
+        ///
         JSONArray instances = (JSONArray) jsonModel.get("selectedRelatedInstanceList");
         this.selectedUris = new ArrayList<>();
         for (int i = 0; i < instances.size(); i++) {
@@ -201,6 +211,10 @@ public class RelatedModel {
 
     public String getKeywordSearchPattern(String var) {
         return keywordSearchPattern != null ? keywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
+    }
+
+    public String getGeoSearchPattern(String var) {
+        return geoSearchPattern != null ? geoSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
     }
 
     public String getRelatedVarName() {
@@ -322,6 +336,7 @@ public class RelatedModel {
         }
         block.append((getKeywordSearchPattern(relVar) + "\n").trim() + "\n");
         createDateFilterBlock(targetEntity, relVar, block);
+        block.append((getGeoSearchPattern(relVar) + "\n").trim() + "\n");
         ////
         List<String> relEntitiesBlocks = new ArrayList<>();
         if (relatedModels != null && !relatedModels.isEmpty()) {
