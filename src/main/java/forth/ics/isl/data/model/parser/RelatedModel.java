@@ -101,12 +101,12 @@ public class RelatedModel {
         this.fromDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("from");
         this.endDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("until");
         ///
-        this.geoSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("geo_search");
         if (jsonModel.get("boundingBox") != null) {
+            this.geoSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("geo_search");
             JSONObject boundingBox = (JSONObject) jsonModel.get("boundingBox");
             geoSearchPattern = geoSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
             geoSearchPattern = geoSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
-            geoSearchPattern = geoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east") );
+            geoSearchPattern = geoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
             geoSearchPattern = geoSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
         }
         ///
