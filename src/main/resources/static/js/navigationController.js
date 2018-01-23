@@ -2545,8 +2545,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	       
 	    });
 	    
-	    
-		
 	    var attribution = new ol.Attribution({
 	    	html: explainPinsElement.innerHTML
 	    });
@@ -2586,7 +2584,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 	    var boundingBoxButton = document.createElement('button');
 	    boundingBoxButton.title="Set bounding box";
-	    //boundingBoxButton.innerHTML = 'N';
 	    
 	    boundingBoxButton.appendChild(boundingBoxIconElement);
 	    
@@ -2594,7 +2591,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    var boundingBoxFeatures = new ol.Collection();
 	    
 	    // Global source for drawn bounding box such that it is easily cleared when necesary
-	    var boxSource = new ol.source.Vector({wrapX: false});
+	    var boxSource = new ol.source.Vector({
+	    	wrapX: false,
+	    	features: boundingBoxFeatures
+	    });
 	    
 	    // Interaction for drawing the bounding box
 	    var drawBoundingBox = new ol.interaction.Draw({
@@ -2628,7 +2628,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	//var coordinateStr = e.feature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 	    	var boxGeometry = e.feature.getGeometry().clone();
 	    	var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
-	    	console.log('coordinateStr: ' + coordinateStr);
+	    	//console.log('coordinateStr: ' + coordinateStr);
 			convertCoordinatesToJson(coordinateStr);
 			
 			// Setting bounding box on rowModel
@@ -2643,7 +2643,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		        .hideDelay(3000)
 		    );
 		});
-	    
 	    
 	    boundingBoxButton.addEventListener('click', setBoundingBoxInQuery, false);
 
@@ -2780,7 +2779,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.dragBox.on('boxend', function() {
 			// Holding all 5 coordinates in a string and transform them to the appropriate projection
 			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
-			console.log('coordinateStr: ' + coordinateStr);
+			//console.log('coordinateStr: ' + coordinateStr);
 			convertCoordinatesToJson(coordinateStr);
 	    	  
 			// required for immediate update 
@@ -3087,17 +3086,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					$scope.handleSelectAllRelatedSearchResults(rowModel);
 					
 					// Regarding Bounding Box
-					boxSource.clear(); // Clearing drawn bounding box
-					delete rowModel.boundingBox; // Removing bounding box from the model
 					
-					// Display message informing user that bounding box has been set
-					$mdToast.show(
-						$mdToast.simple()
-				        .textContent('Bounding box has been removed!')
-				        .position('top right')
-				        .parent(angular.element('#mainContent'))
-				        .hideDelay(3000)
-				    );
+					if(rowModel.boundingBox != undefined) {
+						// Display message informing user that bounding box has been set
+						$mdToast.show(
+							$mdToast.simple()
+					        .textContent('Bounding box has been removed!')
+					        .position('top right')
+					        .parent(angular.element('#mainContent'))
+					        .hideDelay(3000)
+					    );
+						
+						boxSource.clear(); // Clearing drawn bounding box
+						delete rowModel.boundingBox; // Removing bounding box from the model
+					}
+					
 				}
 				
 				else {
@@ -3482,6 +3485,53 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			});
 	  		
 	  	}
+		
+		// Pre-drawing the bounding box if exist
+	    
+	    // If the model has bounding box, then display it on the map
+	    if(rowModel.boundingBox != undefined) {
+		    
+	    	//Enabling button that clears bounding box
+	    	document.getElementById("clearBoundingBoxButtonId").disabled = false;
+	    		    	
+	    	// The bounding box to draw
+	    	var currBoundingBoxFeature = new ol.Feature({
+    			geometry: new ol.geom.Polygon([
+					[
+					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)],
+					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.south)],
+					 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.south)],
+					 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.north)],
+					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)]
+					]
+				])
+    		});
+	    	
+	    	// The style of the pre-drawn bounding box
+	    	var boundingBoxStyle = new ol.style.Style({
+	    		stroke: new ol.style.Stroke({
+	    			color: 'blue',
+	    			width: 1
+	    		}),
+	    		fill: new ol.style.Fill({
+	    			color: 'rgba(0, 0, 255, 0.1)'
+	    		})
+	    	});
+	    	
+	    	// Stylng pre-drawn bounding box
+	    	currBoundingBoxFeature.setStyle(boundingBoxStyle);
+	    	
+	    	// Holding Coordinates
+	    	var coordinateStr = currBoundingBoxFeature.clone().getGeometry().getCoordinates();
+	    	
+	    	// Change  coordinate systems to display on the map
+	    	currBoundingBoxFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+	    	boundingBoxFeatures.push(currBoundingBoxFeature);
+	    	
+	    	// Handle the coordinates
+			convertCoordinatesToJson(coordinateStr);
+	    	
+	    }
 		
 	}
 	
