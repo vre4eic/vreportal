@@ -873,34 +873,46 @@ input[type="checkbox"] {
 
 /* geocode style */
 
-.customGeocoder div.gcd-gl-control.ol-control {
-	margin-top: 10px;
-	min-width: 2.52em;
-	height: 2.48em;
+.customGeocoder div.ol-geocoder.gcd-gl-container {
+	top: 64px;
 }
+
 .customGeocoder button.gcd-gl-btn {
-	background-position-x: 58%;
+	background-position-x: 52%;
     background-position-y: 40%;
-    height: 1.375em;
-    width: 1.375em;
-    top: .09em;
-    left: .09em;
+    height: 1.37em;
+    width: 1.37em;
+    top: 2px;
+    left: 2px;
     background-size: 18px 18px;
     background-image: url(../images/search.svg);
 }
+
 .customGeocoder input.gcd-gl-input {
-	top: .29em;
-	left: 2.9em;
+	top: 3px;
+	left: 35px;
+	height:22px;
 }
+
+.customGeocoder div.gcd-gl-control.ol-control {
+	min-width: 28px;
+	height: 28px;
+}
+
 .customGeocoder ul.gcd-gl-result{
 	font-size: 16px;
-	top: 2.58em !important;
+	/*top: 2.58em !important;*/
 }
 .customGeocoder li {
 	line-height: 1.875rem !important;
 }
 .customGeocoder ul.gcd-gl-result>li:nth-child(odd) {
 	background-color: #eeeeee !important;
+}
+
+/* For touchscreen */
+.customGeocoder .ol-touch .ol-control button {
+    font-size: 15.93px;
 }
 
 /* Makes toolbar a little more narrow */
@@ -928,18 +940,18 @@ input[type="checkbox"] {
 
 
 .boundingBoxInQuery {
-  top: 116px;
-  left: .5em;
+  top: 100px;
+  left: 7px;
 }
 
 .clearBoundingBoxInQuery {
-  top: 154px;
-  left: .5em;
+  top: 130px;
+  left: 7px;
 }
 
 /* Disable hovering for this div when the child button is disabled */ 
 div.clearBoundingBoxInQuery.ol-unselectable.ol-control {
-  background-color: transparent;
+  background-color: rgba(255,255,255,.4);
 }
 
 .clearBoundingBoxInQuery button:disabled {

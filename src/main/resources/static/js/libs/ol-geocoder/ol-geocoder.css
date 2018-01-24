@@ -15,7 +15,8 @@
     box-sizing: inherit; }
 
 .ol-geocoder .gcd-gl-control {
-  width: 2.1875em;
+  /*width: 2.1875em;*/
+  width: 28px;
   height: 2.1875em;
   overflow: hidden;
   transition: width 200ms, height 200ms; }

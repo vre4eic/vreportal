@@ -2066,6 +2066,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 		$scope.rowModelList = [$scope.emptyRowModel];
 		
+		// Handling favorites
+		if($scope.currentFavorite.itIsFavorite) {
+			// Re-retrieve all entities
+			constructQueryFrom($scope.namegraphs);
+			initAllEntities($scope.queryFrom, false);
+			
+			// Resetting favorite related options
+			$scope.currentFavorite.itIsFavorite = false;
+			$scope.currentFavorite.dbTableId = null; //$sessionStorage.selectedFavoriteModel.favoriteId;
+			// Making $sessionStorage.selectedQueryModel null, to free up memory
+			$sessionStorage.selectedFavoriteModel = null;
+		}
+		
 		// Resetting target model
 		$scope.targetModel.selectedTargetEntity = null;
 		$scope.targetModel.backupSelectedTargetEntity = null;
@@ -2075,14 +2088,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.targetModel.targetChips = [];
 		$scope.targetModel.backupTargetChips = [];
 		
-		// Handling favorites
-		if($sessionStorage.selectedFavoriteModel != null) {
-			// Resetting favorite related options
-			$scope.currentFavorite.itIsFavorite = false;
-			$scope.currentFavorite.dbTableId = $sessionStorage.selectedFavoriteModel.favoriteId;
-			// Making $sessionStorage.selectedQueryModel null, to free up memory
-			$sessionStorage.selectedFavoriteModel = null;
-		}
 		//console.log($scope.rowModelList);
 		// Setting select inputs untouched
 		//$scope.searchForm.$setPristine();
@@ -2633,6 +2638,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Setting bounding box on rowModel
 			rowModel.boundingBox = $scope.coordinatesRegion;
+			// Setting map's current zoom on rowModel
+			rowModel.map = {zoom: $scope.map.getView().getZoom()};
 			
 			// Display message informing user that bounding box has been set
 			$mdToast.show(
@@ -2649,16 +2656,18 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    var boundingBoxElement = document.createElement('div');
 	    boundingBoxElement.className = 'boundingBoxInQuery ol-unselectable ol-control';
 	    boundingBoxElement.appendChild(boundingBoxButton);
-
+	    /*
 	    var boundingBoxInQueryControl = new ol.control.Control({
 	        element: boundingBoxElement
 	    });
 	    $scope.map.addControl(boundingBoxInQueryControl);
+	    */
 	    
 	    // Button for clearing bounding box
+	    
 	    var clearBoundingBoxIconElement = document.createElement('img');
-	    clearBoundingBoxIconElement.src = '../images/clearBoundingBox_150.png';
-	    clearBoundingBoxIconElement.style= 'height:28.88px; width: 28.88px;';
+	    clearBoundingBoxIconElement.src = '../images/clearBoundingBox.svg';
+	    //clearBoundingBoxIconElement.style= 'height:28.88px; width: 28.88px;';
 	    
 	    var clearBoundingBoxButton = document.createElement('button');
 	    clearBoundingBoxButton.id = 'clearBoundingBoxButtonId';
@@ -2693,11 +2702,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    var clearBoundingBoxElement = document.createElement('div');
 	    clearBoundingBoxElement.className = 'clearBoundingBoxInQuery ol-unselectable ol-control';
 	    clearBoundingBoxElement.appendChild(clearBoundingBoxButton);
-
+	    /*
 	    var clearBoundingBoxInQueryControl = new ol.control.Control({
 	        element: clearBoundingBoxElement
 	    });
 	    $scope.map.addControl(clearBoundingBoxInQueryControl);
+	    */
+	    
+	    var boundingBoxControlsElement = document.createElement('div');
+	    boundingBoxControlsElement.appendChild(boundingBoxElement);
+	    boundingBoxControlsElement.appendChild(clearBoundingBoxElement);
+	    var boundingBoxControl = new ol.control.Control({
+	        element: boundingBoxControlsElement
+	    });
+	    $scope.map.addControl(boundingBoxControl);
 	    
 	    // Setting Bounding Box in the query (button) - Ends
         
@@ -3530,7 +3548,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	
 	    	// Handle the coordinates
 			convertCoordinatesToJson(coordinateStr);
-	    	
+	    				
+			// Re-center the map
+			$scope.map.getView().setCenter(currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
+			
+			// Re-Zooming the map
+			if(rowModel.map != undefined) {
+				if(rowModel.map.zoom != undefined)
+					$scope.map.getView().setZoom(rowModel.map.zoom);
+			}
+			
 	    }
 		
 	}

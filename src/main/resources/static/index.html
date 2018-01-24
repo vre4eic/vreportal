@@ -12,7 +12,7 @@
 		<title>VRE4EIC Triple Store Services UI</title>
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" href="/css/custom.css">
+		
 		<link rel="stylesheet" href="//cdn.materialdesignicons.com/1.7.22/css/materialdesignicons.min.css">
 	</head>
 	
@@ -42,7 +42,7 @@
 							</md-menu-item>
 							<md-menu-item>
 								<md-button ng-click="goToFavoritesView($event)">
-									<md-icon md-font-icon="fa fa-heart"></md-icon>
+									<md-icon md-font-icon="fa fa-star"></md-icon>
 									My Favorites
 								</md-button>
 				        	</md-menu-item>
@@ -89,10 +89,10 @@
 		<link rel="stylesheet" href="/css/beadcrumb.css">
 		
 		<!-- Maps -->
-		<link rel="stylesheet" href="https://openlayers.org/en/v4.1.1/css/ol.css" type="text/css">
+		<link rel="stylesheet" href="https://openlayers.org/en/v4.6.4/css/ol.css" type="text/css">
 		<!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
 		<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
-		<script src="https://openlayers.org/en/v4.1.1/build/ol.js"></script>
+		<script src="https://openlayers.org/en/v4.6.4/build/ol.js"></script>
 		<style>
 		  .ol-dragbox {
 		    background-color: rgba(255,255,255,0.4);
@@ -153,13 +153,15 @@
 		<script src="js/treeViewDirective.js"></script>
 		
 		<!-- ol-geocoder -->
-		<link href="/js/libs/ol-geocoder/ol-geocoder.min.css" rel="stylesheet">
+		<link href="/js/libs/ol-geocoder/ol-geocoder.css" rel="stylesheet">
 		<script src="/js/libs/ol-geocoder/ol-geocoder.js"></script>
 		
 		<!--
 		<script src="https://rawgithub.com/timrwood/moment/2.2.1/min/moment.min.js"></script>
 		-->
 		<script src="/webjars/momentjs/2.20.1/min/moment.min.js"></script>
+		
+		<link rel="stylesheet" href="/css/custom.css">
 		
 	</body>
 </html>
