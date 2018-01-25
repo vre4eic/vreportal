@@ -2402,7 +2402,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$window.open(uri, '_blank');
 	}
 	
-		
+	
 	
 		
 		
