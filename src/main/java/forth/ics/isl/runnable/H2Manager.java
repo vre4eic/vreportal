@@ -763,7 +763,7 @@ public class H2Manager {
                 + "?address bds:relevance ?score.\n"
                 + "##\n"
                 + "} ORDER BY desc(?score)",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) @#$%FROM%$#@ WHERE {\n"
+                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
                 + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
                 + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
                 + "?addr rdfs:label ?address.\n"
@@ -783,7 +783,7 @@ public class H2Manager {
                 + "##\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "}",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) @#$%FROM%$#@ WHERE {\n"
+                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
                 + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
                 + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
                 + "?addr rdfs:label ?address.\n"
