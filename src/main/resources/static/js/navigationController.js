@@ -298,13 +298,15 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if($scope.targetModel.selectedTargetEntity == null) {
 			// Keep Copy of namegraphs to compare next time
 			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
-			$scope.markFavoriteAsChanged(true); // Mark favorite as changed (if favorite)
+			homeStateConfirmService.setQueryUnderConstruction(true);
+			$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 		}
 		
 		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
 			$mdDialog.show(confirm).then(function() {
 		    	resetWholeQueryModel(true);
-		    	$scope.markFavoriteAsChanged(true); // Mark favorite as changed (if favorite)
+		    	homeStateConfirmService.setQueryUnderConstruction(true);
+				$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 		    }, function() { // Cancel
 		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
 		    });
@@ -725,6 +727,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 		}
 		
+		homeStateConfirmService.setQueryUnderConstruction(true);
+		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
+		
 	}
 	
 	// Loading the list of relations and related entities 
@@ -738,11 +743,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// the rowModel is also undefined and the selecteEntity is the selectedTargetEntity)
 	$scope.loadRelatedEntitiesAndRelationsByTarget = function(ev, parentRowModel, rowModel, selectedEntity, provenanceFunction) {
 
-		// Setting flag that makes clear that a query is under construction 
-		// (used to avoid leaving without confirmation)
-		homeStateConfirmService.setQueryUnderConstruction(true);
-		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
-		
 		if(selectedEntity !=null) {
 			
 			// Param-model for the new service
@@ -1105,7 +1105,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			} // Close - else (selection from related entity
 			
 		} // If close - (selectedEntity not null)
-				
+		
+		// Setting flag that makes clear that a query is under construction 
+		// (used to avoid leaving without confirmation)
+		homeStateConfirmService.setQueryUnderConstruction(true);
+		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
+		
 	}
 	
 	// Handling Relations and Related Entity By Target
