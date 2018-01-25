@@ -1,5 +1,5 @@
 <div class="section" style="padding: 20px;" ng-cloak>
-	
+	<!-- Favorite changed: {{currentFavorite.changed}} -->
 	<div class="row">
 		<div class="column inside" style="width:100%">
 			
@@ -44,12 +44,22 @@
 								Add into favorites
 							</md-tooltip>
 				        </md-button>
-				        <md-button ng-click="removeCurrentQueryModelFromFavorites($event);" ng-show="currentFavorite.itIsFavorite" class="md-icon-button" aria-label="Favorites">
+				        <md-button ng-click="removeCurrentQueryModelFromFavorites($event);" ng-show="currentFavorite.itIsFavorite && !currentFavorite.changed" class="md-icon-button" aria-label="Favorites">
 				            <md-icon md-font-icon="fa fa-star" style="font-size:28px;">
 				            <md-tooltip md-delay="1000" md-direction="top">
 								Remove from favorites
 							</md-tooltip>
 				        </md-button>
+				        
+				        <md-button ng-click="saveIntoFavorites();" ng-show="currentFavorite.itIsFavorite && currentFavorite.changed" class="md-icon-button" aria-label="Favorites">
+				            <md-icon md-font-icon="fa fa-star" style="font-size:28px; color:red;">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Save favorite model, updating the current one
+							</md-tooltip>
+				        </md-button>
+				        
+				        
+				        
 						<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
 				            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
 				            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">

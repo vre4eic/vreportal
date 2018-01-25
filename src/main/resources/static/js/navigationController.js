@@ -298,11 +298,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if($scope.targetModel.selectedTargetEntity == null) {
 			// Keep Copy of namegraphs to compare next time
 			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+			$scope.markFavoriteAsChanged(true); // Mark favorite as changed (if favorite)
 		}
 		
 		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
 			$mdDialog.show(confirm).then(function() {
-		    	resetWholeQueryModel(true);			    	
+		    	resetWholeQueryModel(true);
+		    	$scope.markFavoriteAsChanged(true); // Mark favorite as changed (if favorite)
 		    }, function() { // Cancel
 		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
 		    });
@@ -449,8 +451,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.currentFavorite = {
 		itIsFavorite: false,
-		dbTableId: null
+		dbTableId: null,
+		changed: false
 	};
+	
+	// Called very often to mark favorite as changed
+	$scope.markFavoriteAsChanged = function(changed) {
+		if($scope.currentFavorite != undefined) {
+			if($scope.currentFavorite.itIsFavorite)
+				$scope.currentFavorite.changed = changed;
+		}
+	}
 	
 	$scope.finalQuery = "";
 	
@@ -465,7 +476,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Initializing model from favorite (if loaded)
 		if($sessionStorage.selectedFavoriteModel != null) {
-						
+			
 			$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
 			$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
 			$scope.namegraphs = $sessionStorage.selectedFavoriteModel.queryModel.namegraphs;
@@ -473,6 +484,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
 			// Construct the "from" section in the query
 			constructQueryFrom($scope.namegraphsCopy);
+			
+			// Re-retrieve all entities
+			initAllEntities($scope.queryFrom, false);
 			
 			// Let system know that this is already favorite
 			$scope.currentFavorite.itIsFavorite = true;
@@ -600,15 +614,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.removeRowModel = function(outerIndex, rowModel) {
 		// Removes 1 item at position outerIndex
-		//$scope.rowModelList.splice(outerIndex, 1)
 		if(rowModel == null) {
 			$scope.rowModelList.splice(outerIndex, 1)
 		}
 		else { //if(rowModel != null) {
 			rowModel.rowModelList.splice(outerIndex, 1)
 		}
-		
-		//$log.info(JSON.stringify($scope.rowModelList));
+		homeStateConfirmService.setQueryUnderConstruction(true);
+		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 	}
 	
 	$scope.changeLogicalExpressionOfRowModel = function(rowModel) {
@@ -728,6 +741,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Setting flag that makes clear that a query is under construction 
 		// (used to avoid leaving without confirmation)
 		homeStateConfirmService.setQueryUnderConstruction(true);
+		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 		
 		if(selectedEntity !=null) {
 			
@@ -1889,7 +1903,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			targetModel: null,
 			relatedModels: null,
 			namegraphs: []
-		}
+		},
+		id: null
 	};
 	
 	// Save into favorites
@@ -1900,8 +1915,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
 		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
 		$scope.favoriteModel.queryModel.namegraphs = $scope.namegraphs;
-				
-		//queryService.saveIntoFavorites(JSON.stringify($scope.favoriteModel), $scope.credentials.token)
+		
+		// If already favorite, then update it
+		if($scope.currentFavorite.dbTableId != undefined || $scope.currentFavorite.dbTableId != null)
+			$scope.favoriteModel.id = $scope.currentFavorite.dbTableId
+
 		queryService.saveIntoFavorites(angular.toJson($scope.favoriteModel), $scope.credentials.token)
 			.then(function (response) {
     		
@@ -1923,6 +1941,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// Setting flag that makes clear that the query is not under construction any more
 					// (used to allow leaving without confirmation since it is saved)
 					homeStateConfirmService.setQueryUnderConstruction(false);
+					$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 				}
 				else {
 					$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
@@ -2054,6 +2073,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		$mdDialog.show(confirm).then(function() { // OK
 			resetWholeQueryModel(true);
+			
+			// Resetting favorite related options
+			$scope.currentFavorite.itIsFavorite = false;
+			$scope.currentFavorite.dbTableId = null; //$sessionStorage.selectedFavoriteModel.favoriteId;
+			// Making $sessionStorage.selectedQueryModel null, to free up memory
+			$sessionStorage.selectedFavoriteModel = null;
+			
 			$scope.finalResults = {};
 	    }, function() { // Cancel
 	    	// Do nothing
@@ -2071,12 +2097,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Re-retrieve all entities
 			constructQueryFrom($scope.namegraphs);
 			initAllEntities($scope.queryFrom, false);
-			
-			// Resetting favorite related options
-			$scope.currentFavorite.itIsFavorite = false;
-			$scope.currentFavorite.dbTableId = null; //$sessionStorage.selectedFavoriteModel.favoriteId;
-			// Making $sessionStorage.selectedQueryModel null, to free up memory
-			$sessionStorage.selectedFavoriteModel = null;
 		}
 		
 		// Resetting target model
@@ -2110,6 +2130,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Setting flag that makes clear that the query is not under construction any more
 		// (used to allow leaving without confirmation)
 		homeStateConfirmService.setQueryUnderConstruction(false);
+		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 		
 		// Display msg
 		$mdToast.show(
@@ -2638,6 +2659,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Setting bounding box on rowModel
 			rowModel.boundingBox = $scope.coordinatesRegion;
+			// Setting query under construction
+			homeStateConfirmService.setQueryUnderConstruction(true);
+			$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
 			// Setting map's current zoom on rowModel
 			rowModel.map = {zoom: $scope.map.getView().getZoom()};
 			

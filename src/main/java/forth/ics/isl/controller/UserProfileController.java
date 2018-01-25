@@ -53,12 +53,27 @@ public class UserProfileController {
 
     	JSONObject statusObject = new JSONObject();
         JSONObject queryModel = new JSONObject((LinkedHashMap)requestParams.get("queryModel"));
-        statusObject = dbService.saveIntoFavorites(
-                requestParams.get("username").toString(),
-                requestParams.get("title").toString(),
-                requestParams.get("description").toString(),
-                queryModel.toString()
-        );
+        
+        // Update existing favorite
+        if (requestParams.get("id") != null) {
+        	statusObject = dbService.saveIntoFavorites(
+	                requestParams.get("username").toString(),
+	                requestParams.get("title").toString(),
+	                requestParams.get("description").toString(),
+	                queryModel.toString(),
+	                requestParams.get("id").toString()
+	        );
+        }
+        // Save new favorite (passing id as null)
+        else {
+	        statusObject = dbService.saveIntoFavorites(
+	                requestParams.get("username").toString(),
+	                requestParams.get("title").toString(),
+	                requestParams.get("description").toString(),
+	                queryModel.toString(),
+	                null
+	        );
+        }
 
         return statusObject;
     }
