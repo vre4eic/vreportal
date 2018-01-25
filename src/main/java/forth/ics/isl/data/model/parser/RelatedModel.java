@@ -209,8 +209,12 @@ public class RelatedModel {
         return relatedModels;
     }
 
-    public String getKeywordSearchPattern(String var) {
-        return keywordSearchPattern != null ? keywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
+    public String getKeywordSearchPattern(String var, String target) {
+        String result = keywordSearchPattern != null ? keywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
+        if (result != null && result.contains("TARGET")) {
+            return result.replaceAll("@#\\$%TARGET%\\$#@", target);
+        }
+        return result;
     }
 
     public String getGeoSearchPattern(String var) {
@@ -334,7 +338,7 @@ public class RelatedModel {
             }
             block.append(")).\n");
         }
-        block.append((getKeywordSearchPattern(relVar) + "\n").trim() + "\n");
+        block.append((getKeywordSearchPattern(relVar, targetEntity) + "\n").trim() + "\n");
         createDateFilterBlock(targetEntity, relVar, block);
         block.append((getGeoSearchPattern(relVar) + "\n").trim() + "\n");
         ////
