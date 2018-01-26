@@ -5,6 +5,7 @@
  */
 package forth.ics.isl.data.model.suggest;
 
+import forth.ics.isl.data.model.parser.FilterExp;
 import forth.ics.isl.data.model.parser.QueryDataModel;
 import forth.ics.isl.data.model.parser.RelatedModel;
 import forth.ics.isl.data.model.parser.TargetModel;
@@ -103,40 +104,54 @@ public class EntitiesSuggester {
         } else {
             sugRelationRelEntities = testingRelModel.findRelationsRelatedEntities(model.getTargetModel().getName());
         }
-        for (String relation : sugRelationRelEntities.keySet()) {
-            String relEntityUri = sugRelationRelEntities.get(relation);
-            JSONObject entity = entitiesMap.get(relEntityUri);
-            testingRelModel.setRelatedVarName((String) entity.get("var_name"));
-            testingRelModel.setRelatedUri(relEntityUri);
-//            if (row == null) {
-//                testingRelModel.setFilterExp(logicalExpression);
-//            }
-            testingRelModel.setRelationUri(relation);
-            testingRelModel.setRelationName(relations.get(relation));
-            String query = model.toSPARQL().replace("distinct", "") + " limit 1";
-            queries.add(query);
-        }
-        if (!queries.isEmpty()) {
-            // execute the set of queries
-            RestClient client = new RestClient(endpoint, namespace, token);
-            JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
-            int i = 0;
+        if (testingRelModel.getFilterExp() == FilterExp.OR) {
             for (String relation : sugRelationRelEntities.keySet()) {
-                JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
-                JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
-                if (!res.isEmpty()) {
-                    String relatedEntityUri = sugRelationRelEntities.get(relation);
-                    JSONObject obj = new JSONObject();
-                    JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
-                    obj.put("related_entity", relatedEntity);
-                    JSONObject relJSON = new JSONObject();
-                    relJSON.put("uri", relation);
-                    relJSON.put("name", relations.get(relation));
-                    obj.put("relation", relJSON);
-                    result.add(obj);
-                    System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
+                String relatedEntityUri = sugRelationRelEntities.get(relation);
+                JSONObject obj = new JSONObject();
+                JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
+                obj.put("related_entity", relatedEntity);
+                JSONObject relJSON = new JSONObject();
+                relJSON.put("uri", relation);
+                relJSON.put("name", relations.get(relation));
+                obj.put("relation", relJSON);
+                result.add(obj);
+            }
+        } else {
+            for (String relation : sugRelationRelEntities.keySet()) {
+                String relEntityUri = sugRelationRelEntities.get(relation);
+                JSONObject entity = entitiesMap.get(relEntityUri);
+                testingRelModel.setRelatedVarName((String) entity.get("var_name"));
+                testingRelModel.setRelatedUri(relEntityUri);
+                testingRelModel.setRelationUri(relation);
+                testingRelModel.setRelationName(relations.get(relation));
+                String query = model.toSPARQL();
+                if (query != null) {
+                    query = query.replace("distinct", "") + " limit 1";
+                    queries.add(query);
                 }
-                i++;
+            }
+            if (!queries.isEmpty()) {
+                // execute the set of queries
+                RestClient client = new RestClient(endpoint, namespace, token);
+                JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
+                int i = 0;
+                for (String relation : sugRelationRelEntities.keySet()) {
+                    JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
+                    JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
+                    if (!res.isEmpty()) {
+                        String relatedEntityUri = sugRelationRelEntities.get(relation);
+                        JSONObject obj = new JSONObject();
+                        JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
+                        obj.put("related_entity", relatedEntity);
+                        JSONObject relJSON = new JSONObject();
+                        relJSON.put("uri", relation);
+                        relJSON.put("name", relations.get(relation));
+                        obj.put("relation", relJSON);
+                        result.add(obj);
+                        System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
+                    }
+                    i++;
+                }
             }
         }
         return result;
@@ -166,8 +181,11 @@ public class EntitiesSuggester {
                 if (relModel.isNullRelatedModel()) {
                     return findNullRelatedModel(relModel.getRelatedModels(), relModel);
                 }
-                if (!relModel.getRelatedModels().isEmpty()) {
-                    return findNullRelatedModel(relModel.getRelatedModels(), found);
+                if (relModel.getRelatedModels() != null && !relModel.getRelatedModels().isEmpty()) {
+                    RelatedModel result = findNullRelatedModel(relModel.getRelatedModels(), found);
+                    if (result != null) {
+                        return result;
+                    }
                 }
             }
         }

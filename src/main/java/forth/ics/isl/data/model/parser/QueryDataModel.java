@@ -85,7 +85,9 @@ public class QueryDataModel {
                 relCnt++;
             }
         }
-
+        if (relatedModels.size() != relEntitiesBlocks.size()) {
+            return null;
+        }
         StringBuilder query = new StringBuilder();
         query.append("select " + selectionList + " " + getSelectedGraphsClause() + " where {\n");
         query.append(targetModel.getSelectionPattern(targetVar));

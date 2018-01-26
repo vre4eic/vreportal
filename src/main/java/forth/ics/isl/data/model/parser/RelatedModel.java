@@ -260,8 +260,8 @@ public class RelatedModel {
                 append("relatedEntitySearchText=" + relatedEntitySearchText + ",\n ").
                 append("selectedUris=" + selectedUris + ",\n ").
                 append("filterExp=" + filterExp + ",\n ");
-        if (relatedModels.isEmpty()) {
-            sb.append("relatedModels=" + relatedModels + " \n");
+        if (relatedModels ==null || relatedModels.isEmpty()) {
+            sb.append("relatedModels=" + "[ ]" + " \n");
         } else {
             sb.append("relatedModels= [");
             for (RelatedModel model : relatedModels) {
