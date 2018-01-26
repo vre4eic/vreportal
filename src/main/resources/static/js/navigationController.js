@@ -635,9 +635,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 	}
 	
-	$scope.enableFirstRelatedEntity = function() {
+	$scope.enableFirstRelatedEntity = function(ev) {
 		// Enabling rowModel
 		$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
+		$scope.loadRelatedEntitiesAndRelationsByTarget(ev, null, null, $scope.targetModel.selectedTargetEntity, 'addVeryFirstFilter');
 	}
 	
 	// Delete Useless for the back-end properties, occupying a lot of volume
@@ -766,11 +767,27 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				entities: $scope.allEntities,				// The list of all entities
 				model: model
 			}
-						
+
+
+			
+			
 			// Case where entity selection is from target
 			if(rowModel == undefined) {
+				
+				if(provenanceFunction == 'addVeryFirstFilter') {
+					// Will actually loop only once 
+					for(var i=0; i<$scope.rowModelList.length; i++) {
+						handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[i], 
+								paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+					}
+					// Holding Copy Of Selected Target Entity
+					$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+					// Holding Copy Of Selected Target Entity
+					$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
+				}
+				
 				// When adding new filter
-				if(provenanceFunction == 'addFilter') {
+				else if(provenanceFunction == 'addFilter') {
 					
 					// Add logical expression to model
 					paramModelForRelationsAndRelatedEntities.logicalExpression = 
@@ -815,22 +832,24 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							// Create an empty model
 							$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 							// Enable the style for it
-							$scope.emptyRowModel.activeRowModelStyle= 'enabled-style';
+							$scope.emptyRowModel.activeRowModelStyle= 'disabled-style';
 							// Delete all the children and add only one (the empty one just created)
 							$scope.rowModelList = [$scope.emptyRowModel];
 							
 							var rowModelId = $scope.rowModelList[0].id;
-							$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
+							//$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
+							$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setUntouched();
+							$scope.searchForm['relationInput_' + $scope.emptyRowModel.id].$setUntouched();
 							
 							// Reconstructing the model to send
-							paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
+							//paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
 							
 							// Delete Useless for the back-end properties, occupying a lot of volume
-							model = deleteUselessForBackendInformation(model);
+							//model = deleteUselessForBackendInformation(model);
 							
 							// Calling service to load option selections for the empty child
-							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[0], 
-									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
+							//handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[0], 
+							//		paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
 							
 							// Holding Copy Of Selected Target Entity
 							if(provenanceFunction == 'targetEntitySelect')
@@ -858,14 +877,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						*/
 					}
 					else { // if(!isEditAction) {
-						for(var i=0; i<$scope.rowModelList.length; i++) {
-							handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[i], 
-									paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-						}
-						// Holding Copy Of Selected Target Entity
-						$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
-						// Holding Copy Of Selected Target Entity
-						$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
+						// Do nothing
 					}
 					
 				} //if(provenanceFunction == 'targetEntitySelect') - Ends

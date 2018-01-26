@@ -120,7 +120,7 @@
 				<md-button ng-show="rowModel.activeRowModelStyle == 'disabled-style'" 
 						   aria-label="menu" 
 						   class="md-fab blue-button"
-						   ng-click="enableFirstRelatedEntity();"
+						   ng-click="enableFirstRelatedEntity($event);"
 						   ng-disabled="targetModel.selectedTargetEntity == null"
 						   style="margin-top:109px">
 					<md-icon md-font-icon="fa fa-plus" 
