@@ -828,37 +828,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							.cancel('Cancel');
 					
 						$mdDialog.show(confirm).then(function() { // OK
-							
-							// Create an empty model
-							$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
-							// Enable the style for it
-							$scope.emptyRowModel.activeRowModelStyle= 'disabled-style';
-							// Delete all the children and add only one (the empty one just created)
-							$scope.rowModelList = [$scope.emptyRowModel];
-							
-							var rowModelId = $scope.rowModelList[0].id;
-							//$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
-							$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setUntouched();
-							$scope.searchForm['relationInput_' + $scope.emptyRowModel.id].$setUntouched();
-							
-							// Reconstructing the model to send
-							//paramModelForRelationsAndRelatedEntities.model.queryModel.relatedModels = angular.copy($scope.rowModelList);
-							
-							// Delete Useless for the back-end properties, occupying a lot of volume
-							//model = deleteUselessForBackendInformation(model);
-							
-							// Calling service to load option selections for the empty child
-							//handleRelationsAndRelatedEntitiesByTarget(null, $scope.rowModelList[0], 
-							//		paramModelForRelationsAndRelatedEntities, $scope.credentials.token);
-							
-							// Holding Copy Of Selected Target Entity
-							if(provenanceFunction == 'targetEntitySelect')
-								$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
-							
-							// Holding Copy Of Selected Target Entity
-							if(provenanceFunction == 'targetChipChange')
-								$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
-							
+							resetRelatedModel(); // Resetting the whole related model
 						}, function() { // Cancel
 							// Load previous selection (the backup)
 							for(var i=0; i<$scope.targetModel.targetEntities.length; i++) {
@@ -877,7 +847,30 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						*/
 					}
 					else { // if(!isEditAction) {
-						// Do nothing
+						resetRelatedModel(); // Resetting the whole related model
+					}
+					
+					// Initializing the whole related model
+					function resetRelatedModel() {
+						// Create an empty model
+						$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
+						// Enable the style for it
+						$scope.emptyRowModel.activeRowModelStyle= 'disabled-style';
+						// Delete all the children and add only one (the empty one just created)
+						$scope.rowModelList = [$scope.emptyRowModel];
+						
+						var rowModelId = $scope.rowModelList[0].id;
+						//$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
+						$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setUntouched();
+						$scope.searchForm['relationInput_' + $scope.emptyRowModel.id].$setUntouched();
+						
+						// Holding Copy Of Selected Target Entity
+						if(provenanceFunction == 'targetEntitySelect')
+							$scope.targetModel.backupSelectedTargetEntity = angular.copy($scope.targetModel.selectedTargetEntity);
+						
+						// Holding Copy Of Selected Target Entity
+						if(provenanceFunction == 'targetChipChange')
+							$scope.targetModel.backupTargetChips = angular.copy($scope.targetModel.targetChips);
 					}
 					
 				} //if(provenanceFunction == 'targetEntitySelect') - Ends
