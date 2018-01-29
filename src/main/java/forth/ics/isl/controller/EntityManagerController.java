@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -306,8 +308,10 @@ public class EntityManagerController {
      */
     @RequestMapping(value = "/execute_final_query", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONObject executeFinalQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-
+    ResponseEntity<?> executeFinalQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+    	
+    	ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+    	
         restClient = new RestClient(serviceUrl, namespace, authorizationToken);
 
         System.out.println("query:" + requestParams.get("query"));
@@ -343,13 +347,26 @@ public class EntityManagerController {
                 // Setting results for the response (for now we set them all and 
                 // later we will replace them with those at the first page)
                 responseJsonObject.put("results", firstPageQueryResult);
-
+                
+                return ResponseEntity.status(HttpStatus.OK)
+                	       .body(responseJsonObject);
+                
+            }
+            else if (serviceResponce.getStatus() == 401) {
+            	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            else if (serviceResponce.getStatus() == 408) {
+            	return new ResponseEntity<>(HttpStatus.REQUEST_TIMEOUT);
+            }
+            else {
+            	return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return responseJsonObject;
+        //return responseJsonObject;
     }
 
     /**
