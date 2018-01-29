@@ -558,6 +558,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					$scope.showErrorAlert('Error', $scope.message);
 				}
 			}
+			else if(response.status == '408') {
+				$log.info(response.status);
+				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
 			else if(response.status == '400') {
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -1195,6 +1200,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					}
 					
 				}
+				
+				else if(response.status == '408') {
+    				$log.info(response.status);
+    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
+				
 				else if(response.status == '400') {
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -1278,6 +1290,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					console.log('rowModel.backupSelectedRelation.name: ' + rowModel.backupSelectedRelation.name)
 					
 				}
+				else if(response.status == '408') {
+    				$log.info(response.status);
+    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
 				else if(response.status == '400') {
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -1541,6 +1558,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    			    		fullscreen: false // Only for -xs, -sm breakpoints.
         	    			    	});
         	    				}
+        	    				else if(response.status == '408') {
+        	        				$log.info(response.status);
+        	        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+        	        				$scope.showErrorAlert('Error', $scope.message);
+        	        			}
         	    				else if(response.status == '400') {
         	        				$log.info(response.status);
         	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -1572,6 +1594,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    		});
         	        	// Execute query promise - End
     				}
+    				else if(response.status == '408') {
+        				$log.info(response.status);
+        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.showErrorAlert('Error', $scope.message);
+        			}
         			else if(queryCountResponse.status == '400') {
         				$log.info(queryCountResponse.status);
         				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -1691,6 +1718,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						}
 			    	}					
 				}
+				else if(response.status == '408') {
+    				$log.info(response.status);
+    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.showErrorAlert('Error', $scope.message);
+    			}
 				else if(response.status == '400') {
     				$log.info(response.status);
     				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -2348,6 +2380,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    				if(response.status == '200') {
 	    					$scope.finalResults = response.data;
 	    				}
+	    				else if(response.status == '408') {
+	        				$log.info(response.status);
+	        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+	        				$scope.showErrorAlert('Error', $scope.message);
+	        			}
 	    				else if(response.status == '400') {
 	        				$log.info(response.status);
 	        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
@@ -3477,7 +3514,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    					
 		    					modalInstance.close();
 		    				}
-		    				
+		    				else if(response.status == '408') {
+		        				$log.info(response.status);
+		        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+		        				$scope.showErrorAlert('Error', $scope.message);
+		        			}
 		    				else if(response.status == '400') {
 		        				$log.info(response.status);
 		        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
