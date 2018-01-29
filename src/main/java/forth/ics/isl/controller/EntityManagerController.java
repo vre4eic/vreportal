@@ -352,6 +352,9 @@ public class EntityManagerController {
                 	       .body(responseJsonObject);
                 
             }
+            else if (serviceResponce.getStatus() == 400) {
+            	return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             else if (serviceResponce.getStatus() == 401) {
             	return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
