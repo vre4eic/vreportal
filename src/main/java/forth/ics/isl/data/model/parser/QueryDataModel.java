@@ -78,6 +78,7 @@ public class QueryDataModel {
         String selectionList = targetModel.getSelectionList(targetVar);
         int relCnt = 0;
         List<String> relEntitiesBlocks = new ArrayList<>();
+        boolean relatedExist = true;
         for (RelatedModel relModel : relatedModels) {
             if (!relModel.isNullRelatedModel()) {
 //            query.append(relModel.createSPARQLBlock(targetVar, relCnt));
@@ -86,13 +87,13 @@ public class QueryDataModel {
             }
         }
         if (relatedModels.size() != relEntitiesBlocks.size()) {
-            return null;
+            relatedExist = false;
         }
         StringBuilder query = new StringBuilder();
         query.append("select " + selectionList + " " + getSelectedGraphsClause() + " where {\n");
         query.append(targetModel.getSelectionPattern(targetVar));
         query.append((targetModel.getKeywordSearchPattern(targetVar)).trim() + "\n");
-        if (relatedModels.size() > 0 && relEntitiesBlocks.size() > 0) {
+        if (relatedModels.size() > 0 && relEntitiesBlocks.size() > 0 && relatedExist) {
             if (relatedModels.size() == 1 && relEntitiesBlocks.size() == 1) {
                 query.append(relEntitiesBlocks.get(0));
             } else {
