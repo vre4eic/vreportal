@@ -51,6 +51,8 @@ public class EntityManagerController {
 
     @Value("${service.url}")
     private String serviceUrl;
+    @Value("${service.timeout}")
+    private int timeout;
     @Value("${triplestore.namespace}")
     private String namespace;
     // Holding the results of the final query
@@ -121,7 +123,7 @@ public class EntityManagerController {
             for (String graph : graphs) {
                 String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
                 RestClient client = new RestClient(endpoint, namespace, authorizationToken);
-                Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
+                Response response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
                 if (response.getStatus() != 200) {
                     System.out.println(response.readEntity(String.class));
                     finalResult.put("remote_status", response.getStatus());
@@ -314,7 +316,7 @@ public class EntityManagerController {
         responseJsonObject.put("query", requestParams.get("query"));
 
         try {
-            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, "application/json", authorizationToken);
+            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, timeout, "application/json", authorizationToken);
             System.out.println("serviceResponce.getStatus(): " + serviceResponce.getStatusInfo());
 
             // Setting Response status to POJO

@@ -47,8 +47,6 @@ public class QueryGenService {
         String from = "from <http://rcuk-data> from <http://epos-data>";
         //JSONArray initEntitiesJSON = H2Service.retrieveAllEntities("jdbc:h2:~/evre", "sa", "");
 
-
-        
         JSONArray initEntitiesJSON = DBService.retrieveAllEntities(true);
 
         JSONArray resultEntitiesJSON = new JSONArray();
@@ -60,7 +58,7 @@ public class QueryGenService {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
             String query = geoEntityQuery((String) entityJSON.get("uri"), from);
             RestClient client = new RestClient(endpoint, namespace, authorizationToken);
-            Response response = client.executeSparqlQuery(query, namespace, "application/json", authorizationToken);
+            Response response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
             JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
             if (!bindings.isEmpty()) {

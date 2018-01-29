@@ -754,10 +754,10 @@ public class H2Manager {
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
                 + "?loc a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
-//                + "?loc <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
-//                + "?loc <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
-//                + "?loc <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
-//                + "?loc <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                //                + "?loc <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                //                + "?loc <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                //                + "?loc <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                //                + "?loc <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "##\n"
                 + "?address bds:search \"@#$%TERM%$#@\".\n"
                 + "?address bds:relevance ?score.\n"
@@ -1025,7 +1025,7 @@ public class H2Manager {
                             append("?target_inst a <" + targetEntityURI + ">.\n").
                             append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
                             append("}");
-                    String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv").readEntity(String.class);
+                    String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
                     String[] data = response.split("\\n");
                     for (int k = 1; k < data.length; k++) {
                         String relationUri = data[k];
