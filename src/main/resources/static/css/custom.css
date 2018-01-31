@@ -965,3 +965,7 @@ div.clearBoundingBoxInQuery.ol-unselectable.ol-control {
   cursor: allowed;
   pointer-events: all !important;
 }
+
+button.withHover.md-icon-button:hover:enabled > md-icon{
+  color: rgb(63, 81, 181);
+}

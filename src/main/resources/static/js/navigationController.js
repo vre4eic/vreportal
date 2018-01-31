@@ -7,11 +7,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
                                   function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, homeStateConfirmService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
 	
 	$scope.headingTitle = "Metadata Search";
+	$scope.favoriteTitle = '';
 	
 	// Calling service to get the user's credentials (token, userId)
 	function initCredentials() {
 		$scope.credentials = authenticationService.getCredentials();
 		if($scope.credentials == undefined) {
+			$scope.credentials = {token: null};
 			$state.go('login', {});
 		}
 	}
@@ -479,6 +481,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Initializing model from favorite (if loaded)
 		if($sessionStorage.selectedFavoriteModel != null) {
 			
+			$scope.favoriteTitle = $sessionStorage.selectedFavoriteModel.title;
 			$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
 			$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
 			$scope.namegraphs = $sessionStorage.selectedFavoriteModel.queryModel.namegraphs;
@@ -560,7 +563,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			else if(response.status == '408') {
 				$log.info(response.status);
-				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
 			}
 			else if(response.status == '400') {
@@ -1203,7 +1206,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
     			}
 				
@@ -1292,7 +1295,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
     			}
 				else if(response.status == '400') {
@@ -1560,7 +1563,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    				}
         	    				else if(response.status == '408') {
         	        				$log.info(response.status);
-        	        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+        	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
         	        				$scope.showErrorAlert('Error', $scope.message);
         	        			}
         	    				else if(response.status == '400') {
@@ -1596,7 +1599,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				}
     				else if(response.status == '408') {
         				$log.info(response.status);
-        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
         				$scope.showErrorAlert('Error', $scope.message);
         			}
         			else if(queryCountResponse.status == '400') {
@@ -1720,7 +1723,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
     				$scope.showErrorAlert('Error', $scope.message);
     			}
 				else if(response.status == '400') {
@@ -1937,7 +1940,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	// Model to hold current favorite
-	$scope.favoriteModel = {
+	$scope.emptyFavoriteModel = {
 		username: null,
 		title: '',
 		description: '',
@@ -1949,9 +1952,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		id: null
 	};
 	
+	$scope.favoriteModel = angular.copy($scope.emptyFavoriteModel);
+	
 	// Save into favorites
 	$scope.saveIntoFavorites = function() {
-		
+			
 		// Updating model holding current favorite
 		$scope.favoriteModel.username = $sessionStorage.userProfile.userId;
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
@@ -1977,8 +1982,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				        .parent(angular.element('#mainContent'))
 				        .hideDelay(3000)
 				    );
-					$scope.currentFavorite.itIsFavorite = true;
-					$scope.currentFavorite.dbTableId = response.data.generatedId;
+					// If not already favorite, then make it favorite
+					if($scope.currentFavorite.dbTableId == undefined || $scope.currentFavorite.dbTableId == null) {
+						$scope.currentFavorite.itIsFavorite = true;
+						$scope.currentFavorite.dbTableId = response.data.generatedId;
+						$scope.favoriteTitle = $scope.favoriteModel.title;
+					}
 					
 					// Setting flag that makes clear that the query is not under construction any more
 					// (used to allow leaving without confirmation since it is saved)
@@ -2057,6 +2066,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						    );
 							$scope.currentFavorite.itIsFavorite = false;
 							$scope.currentFavorite.dbTableId = null;
+							$scope.favoriteModel = angular.copy($scope.emptyFavoriteModel);
+							// Making $sessionStorage.selectedQueryModel null, to free up memory
+							$sessionStorage.selectedFavoriteModel = null;
+							
+							$scope.finalResults = {};
 						}
 						else {
 							$scope.message = 'I\'m sorry! The query was able to be stored. Try again later and if the same error occures, please contact with the administrator.';
@@ -2118,7 +2132,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 			// Resetting favorite related options
 			$scope.currentFavorite.itIsFavorite = false;
-			$scope.currentFavorite.dbTableId = null; //$sessionStorage.selectedFavoriteModel.favoriteId;
+			$scope.currentFavorite.dbTableId = null;
+			$scope.favoriteModel = angular.copy($scope.emptyFavoriteModel);
 			// Making $sessionStorage.selectedQueryModel null, to free up memory
 			$sessionStorage.selectedFavoriteModel = null;
 			
@@ -2382,7 +2397,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    				}
 	    				else if(response.status == '408') {
 	        				$log.info(response.status);
-	        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
 	        				$scope.showErrorAlert('Error', $scope.message);
 	        			}
 	    				else if(response.status == '400') {
@@ -3516,7 +3531,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    				}
 		    				else if(response.status == '408') {
 		        				$log.info(response.status);
-		        				$scope.message = 'Time out occured. Try again later and if the same error occures again please contact the administrator.';
+		        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
 		        				$scope.showErrorAlert('Error', $scope.message);
 		        			}
 		    				else if(response.status == '400') {

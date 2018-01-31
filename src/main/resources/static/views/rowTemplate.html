@@ -383,7 +383,7 @@
 	        					<span flex></span>
 	        					<div style="margin-right:27px;">
 	         						<md-button layout-align="end end" 
-	         								   class="md-icon-button" 
+	         								   class="withHover md-icon-button" 
 	         								   aria-label="Map" 
 	         								   ng-click="showMapForRelatedResultsDialog($event, rowModel)"
 	         								   style="padding:0; padding-top: 5px;"
@@ -404,6 +404,13 @@
 					            				md-delay="1000" 
 					            				md-direction="top">
 										The selected related entity has no geospatial nature
+									</md-tooltip>
+	        					</div>
+	        					<div ng-show="rowModel.boundingBox" style="margin-left:-27px; padding-top: 11px;">
+	        						<md-icon md-svg-src="../images/boundingBox_blue.svg" style="font-size:24px;"></md-icon>
+	        						<md-tooltip md-delay="1000" 
+					            				md-direction="top">
+										Geographical bounding box has been set for this related entity
 									</md-tooltip>
 	        					</div>
 	       					</div>

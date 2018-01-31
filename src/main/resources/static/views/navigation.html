@@ -24,6 +24,7 @@
 			        <!-- <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="36" style="padding-right:10px;">-->
 			        <md-icon md-font-icon="fa fa-search" style="font-size:36px; padding-right:10px;"></md-icon>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
+					<h2 ng-show="currentFavorite.itIsFavorite"> {{favoriteTitle}} </h2>
 					
 					<div ng-show="!searchForm.$invalid" class="zoom-show-hide">
 						<md-button ng-click="observeSparql($event)" 
