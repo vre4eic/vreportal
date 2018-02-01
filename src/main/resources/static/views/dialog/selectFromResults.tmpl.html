@@ -35,7 +35,7 @@
 			</div>
 		</md-toolbar>
 		<div ng-show="relatedEntityResults.results.bindings.length > 0">
-			<table class="table table-striped table-condensed table-hover scrollTable">
+			<table class="table table-striped table-condensed scrollTable"> <!--  table-hover -->
 				<thead>
 					<tr ng-repeat="item in relatedEntityResults.results.bindings|limitTo:1" class="ng-scope">
 						<th style="vertical-align:middle;">
@@ -87,14 +87,19 @@
 					</tr>
 				</tfoot>
 				<tbody ng-class="currRowModel.activeRelatedSearchResultsStyle">
-					<tr ng-repeat="item in relatedEntityResults.results.bindings" class="ng-scope"> <!-- ng-class="{selected: entity.isChecked}" -->
+					<tr ng-repeat="item in relatedEntityResults.results.bindings" 
+						class="ng-scope" 
+						ng-class="{'disabled-style': (currRowModel.selectedRelatedInstanceList.length >= configuration.relatedEntity.selectedInstancesLimit && !item.isChecked)}">
 						<td style="vertical-align:middle;">
 							<md-checkbox aria-label="Select Row" 
 										 class="md-secondary"
 										 ng-model="item.isChecked"
 										 ng-change="changeSelectedRelatedItem(item)"
-										 ng-disabled="currRowModel.allRelatedSearchResultsIsSelected"
+										 ng-disabled="currRowModel.allRelatedSearchResultsIsSelected || (currRowModel.selectedRelatedInstanceList.length >= configuration.relatedEntity.selectedInstancesLimit && !item.isChecked)"										 
 										 style="margin: 0px;">
+										 <!--
+										 ng-class="{disabled-style: (currRowModel.selectedRelatedInstanceList.length >= configuration.relatedEntity.selectedInstancesLimit && !item.isChecked)}"
+										 -->
 							</md-checkbox>
 						</td>
 						<!-- ng-click="addSelectedFromRelatedResults()" 

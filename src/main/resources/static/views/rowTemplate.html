@@ -132,8 +132,10 @@
 						Add a new filter on target entity "{{targetModel.selectedTargetEntity.name}}"
 					</md-tooltip>
 				</md-button>
-				
-				<div ng-class="rowModel.activeRowModelStyle" ng-show="parent.rowModel == null">
+
+				<div ng-class="rowModel.activeRowModelStyle" 
+					 class="zoom-show-hide" 
+					 ng-show="parent.rowModel == null && configuration.everyRowModel.degreeLimit >= rowModelList.length">
 					
 					<md-fab-speed-dial ng-show="rowModel.activeRowModelStyle == 'enabled-style'"
 									   md-open="false" 
@@ -474,6 +476,8 @@
 			
 			<div>
 				<div style="height:52px; padding-top:12px;" 
+					 class="zoom-show-hide" 
+					 ng-show="configuration.wholeTreeModel.levelLimit == -1 || configuration.wholeTreeModel.levelLimit > rowModel.level"
 					 ng-cloak>
 					 <!-- ng-class="rowModel.activeStyle" -->
 					<div class="lock-size zoom-show-hide" 
@@ -508,7 +512,9 @@
 						</md-tooltip>
 		        	</div>
 				</div>
-				<div style="height:180px;>
+				<div style="height:180px;" 
+					 class="zoom-show-hide" 
+					 ng-show="configuration.everyRowModel.degreeLimit >= rowModel.rowModelList.length">
 					<div ng-class="rowModel.activeRowModelStyle" 
 						 ng-show="rowModel.rowModelList.length>0"
 						 class="zoom-show-hide">

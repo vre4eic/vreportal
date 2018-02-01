@@ -70,6 +70,20 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		)
 	};
 	
+	// Used to inform user (displayed above existing map dialog)
+	$scope.showAlertOnMap = function(title, msg) {
+		$mdDialog.show(
+			$mdDialog.alert()
+				.parent(angular.element(document.querySelector('#popupContainerOnMap')))
+				.clickOutsideToClose(true)
+				.title(title)
+				.textContent(msg)
+				.ariaLabel('Error Message')
+				.ok('OK')
+				.multiple(true)
+		)
+	};
+	
 	// Used to know that the treeMenu was opened and because the user opened the Info it was closed
 	$scope.treeMenuWasOpen = false;
 	
@@ -289,9 +303,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 		//showConfirmDialogForUnavailableEntities(ev, messageContent, queryFrom, checkboxNode)
 		var confirm = $mdDialog.confirm()
-			.title('Important Message')
+			.title('Important Message - Confirmation Required')
 			.htmlContent(messageContent)
-			.ariaLabel('Target Entity Selection - No longer Available')
+			.ariaLabel('Reseting Query - Confirmation')
 			.targetEvent(ev)
 			.ok('Yes Continue')
 			.cancel('Cancel');
@@ -353,11 +367,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.configuration = {
 		wholeTreeModel: {
-			levelLimit: 2, 		// Not applied yet
+			levelLimit: 2,
 			bothAndOr: true 	// Not applied yet
 		},
 		everyRowModel: {
-			degreeLimit: 2 		// Not applied yet
+			degreeLimit: 2
 		},
 		targetEntity: {
 			excludedEntities: [{name: 'Location'}]
@@ -828,9 +842,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							   + 'Are you sure you want to continue with this action?';
 						
 						var confirm = $mdDialog.confirm()
-							.title('Important Message')
+							.title('Important Message - Confirmation Required')
 							.htmlContent(messageContent)
-							.ariaLabel('Target Entity Selection - No longer Available')
+							.ariaLabel('Reseting Query - Confirmation')
 							.targetEvent(ev)
 							.ok('Yes Continue')
 							.cancel('Cancel');
@@ -981,9 +995,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							   + 'Are you sure you want to continue with this action?';
 						
 						var confirm = $mdDialog.confirm()
-							.title('Important Message')
+							.title('Important Message - Confirmation Required')
 							.htmlContent(messageContent)
-							.ariaLabel('Related Entity Selection - No longer Available')
+							.ariaLabel('Reseting Query Partially - Confirmation')
 							.targetEvent(ev)
 							.ok('Yes Continue')
 							.cancel('Cancel');
@@ -1597,7 +1611,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    		});
         	        	// Execute query promise - End
     				}
-    				else if(response.status == '408') {
+        			else if(queryCountResponse.status == '408') {
         				$log.info(response.status);
         				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
         				$scope.showErrorAlert('Error', $scope.message);
@@ -1819,12 +1833,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			rowModel.activeRelatedSearchResultsStyle = 'disabled-style';
 			// The list of selected becomes empty
 			rowModel.selectedRelatedInstanceList = [];
-			// All checked boxes becomes un-checked
-			angular.forEach($scope.relatedEntityResults.results.bindings, function(value, key) {
-				if(value.isChecked === true) {
-					value.isChecked = false;
-				}
-			});
+			// All checked boxes becomes un-checked (if available)
+			if($scope.relatedEntityResults != undefined || $scope.relatedEntityResults != null) {
+				angular.forEach($scope.relatedEntityResults.results.bindings, function(value, key) {
+					if(value.isChecked === true) {
+						value.isChecked = false;
+					}
+				});
+			}
 			rowModel.allRelatedEntitiesSelectedList = [{name: 'Search By Keyword'}];
 		}
 		
@@ -2679,31 +2695,80 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    var boundingBoxFeatures = new ol.Collection();
 	    
 	    // Global source for drawn bounding box such that it is easily cleared when necesary
-	    var boxSource = new ol.source.Vector({
+	    $scope.boxSource = new ol.source.Vector({
 	    	wrapX: false,
 	    	features: boundingBoxFeatures
 	    });
 	    
 	    // Interaction for drawing the bounding box
 	    var drawBoundingBox = new ol.interaction.Draw({
-    		source: boxSource,
+    		source: $scope.boxSource,
     		type: 'Circle',
     		geometryFunction: ol.interaction.Draw.createBox()
     	});
 	    
 	    // Vector for holding the drawn bounding boxes (allowing one per time)
 	    var boxVectorLayer = new ol.layer.Vector({
-    		source: boxSource
+    		source: $scope.boxSource
     	});
 	    
 	    $scope.map.addLayer(boxVectorLayer);	// Adding Layer for box
 	    
 	    var setBoundingBoxInQuery = function(e) {
-	    	polyFeatures.clear();
-			pointFeatures.clear();
-			select.getFeatures().clear();
-	    	boxSource.clear(); // Clearing drawn bounding box
-	    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
+	    	
+	    	var messageContent = 'We noticed that there are certain instances already selected for this related entity. '
+	    					   + '<br/>'
+	    					   + 'By setting a bounding box filter, these instances have to be removed. '
+	    					   + '<br/><br/>'
+	    					   + 'Are you sure you want to continue with this action?';
+	    	
+	    	// If there are instances selected, ask permission to delete them
+	    	// (bounding box should not co-exist along with selected instances)
+	    	if(rowModel.selectedRelatedInstanceList.length > 0) {
+	    		var confirm = $mdDialog.confirm()
+					    		.parent(angular.element(document.querySelector('#popupContainerOnMap')))
+								.title('Important Message - Confirmation Required')
+								.htmlContent(messageContent)
+								.ariaLabel('Remove previously selected instances - Confirmation')
+								.targetEvent(e)
+								.ok('Yes Continue')
+								.cancel('Cancel')
+								.multiple(true);
+		
+				$mdDialog.show(confirm).then(function() { // OK
+					
+					// Setting flag for search by text
+					rowModel.allRelatedSearchResultsIsSelected = true;
+					// Removing all currently selected instances for the related entity of this rowModel
+					//rowModel.selectedRelatedInstanceList = [];
+					// Hide related entity results panel on the respective rowModel
+					rowModel.shownEntitySearchResults = false;
+					
+					// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+					rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+					$scope.handleSelectAllRelatedSearchResults(rowModel);
+					
+					// Dealing with the map
+					$scope.polyFeatures.clear();
+					$scope.pointFeatures.clear();
+					$scope.select.getFeatures().clear();
+			    	$scope.boxSource.clear(); // Clearing drawn bounding box
+			    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
+					
+				}, function() { // Cancel
+					
+				});
+	    	}
+	    	
+	    	else {
+	    		// Dealing with the map
+				$scope.polyFeatures.clear();
+				$scope.pointFeatures.clear();
+				$scope.select.getFeatures().clear();
+		    	$scope.boxSource.clear(); // Clearing drawn bounding box
+		    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
+	    	}
+	    	
 	    };
 	    
 	    // When the drawing for the bounding box finish
@@ -2763,10 +2828,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    clearBoundingBoxButton.appendChild(clearBoundingBoxIconElement);
 	    
 	    var clearBoundingBoxInQuery = function(e) {
-	    	polyFeatures.clear();
-			pointFeatures.clear();
-			select.getFeatures().clear();
-	    	boxSource.clear(); // Clearing drawn bounding box
+	    	$scope.polyFeatures.clear();
+			$scope.pointFeatures.clear();
+			$scope.select.getFeatures().clear();
+	    	$scope.boxSource.clear(); // Clearing drawn bounding box
 			delete rowModel.boundingBox; // Removing bounding box from the model
 			
 			//Disabling button that clears bounding box
@@ -2997,22 +3062,22 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 
 		// Initializing
-		var polyFeatures = new ol.Collection();	// Array to hold the polygons
-    	var pointFeatures = new ol.Collection();	// Array to hold the points
+		$scope.polyFeatures = new ol.Collection();	// Array to hold the polygons
+    	$scope.pointFeatures = new ol.Collection();	// Array to hold the points
 		
     	var polyVectorLayer = new ol.layer.Vector();
     	var pointVectorLayer = new ol.layer.Vector();
     	
-    	var select = new ol.interaction.Select();
+    	$scope.select = new ol.interaction.Select();
     	var popoverElement = document.getElementById('popup');
 		var element = null; // The Popup Element
 		
 		// clear selection when drawing a new box and when clicking on the map
 		$scope.dragBox.on('boxstart', function() {
 			//$scope.infoBox.innerHTML = '&nbsp;';
-			polyFeatures.clear();
-			pointFeatures.clear();
-			select.getFeatures().clear();
+			$scope.polyFeatures.clear();
+			$scope.pointFeatures.clear();
+			$scope.select.getFeatures().clear();
 		});
 		
 		// Styling Pins
@@ -3121,7 +3186,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			polyVectorLayer = new ol.layer.Vector({
 				name: 'polyVectorLayer',
 				source: new ol.source.Vector({
-					features: polyFeatures
+					features: $scope.polyFeatures
 				})
 			});
 	    	  
@@ -3131,7 +3196,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			pointVectorLayer = new ol.layer.Vector({
 				name: 'pointVectorLayer',
 				source: new ol.source.Vector({
-					features: pointFeatures
+					features: $scope.pointFeatures
 				}),
 				style: iconStylePinkUnselected
 			});
@@ -3154,55 +3219,75 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.map.addInteraction(hoverInteraction);
 			
 			// Adding select for pins
-			select = new ol.interaction.Select({
+			$scope.select = new ol.interaction.Select({
 				layers: [pointVectorLayer],
 				style: iconStyleGreenSelected,
 				toggleCondition: ol.events.condition.always
 		    });
-			$scope.map.addInteraction(select);
+			$scope.map.addInteraction($scope.select);
 			
 			// On Select
-			select.on('select', function(evt) {
+			$scope.select.on('select', function(evt) {
 				
 				// Select
 				if(evt.selected.length > 0) {
-					var jsonItem = {};
 					
-					console.log('evt.selected: ');
-					angular.forEach(evt.selected[0].getProperties(), function (property, key) {
-						//console.log(key + ': ' + property.value);
-						if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
-							jsonItem[key] = property
-					});
+					// When the size limit regulation (by configuration) is not yet reached
+					if (rowModel.selectedRelatedInstanceList.length < $scope.configuration.relatedEntity.selectedInstancesLimit) {
 					
-					//if(!containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true).contained)
-					if(!containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri').contained)
-						rowModel.selectedRelatedInstanceList.push(jsonItem);
-					
-					// Show related entity results panel on the respective rowModel
-					if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
-						rowModel.shownEntitySearchResults = true;
-					else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
-						rowModel.shownEntitySearchResults = false;
-					
-					// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-					rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-					$scope.handleSelectAllRelatedSearchResults(rowModel);
-					
-					// Regarding Bounding Box
-					
-					if(rowModel.boundingBox != undefined) {
-						// Display message informing user that bounding box has been set
-						$mdToast.show(
-							$mdToast.simple()
-					        .textContent('Bounding box has been removed!')
-					        .position('top right')
-					        .parent(angular.element('#mainContent'))
-					        .hideDelay(3000)
-					    );
+						var jsonItem = {};
 						
-						boxSource.clear(); // Clearing drawn bounding box
-						delete rowModel.boundingBox; // Removing bounding box from the model
+						// console.log('evt.selected: ');
+						angular.forEach(evt.selected[0].getProperties(), function (property, key) {
+							//console.log(key + ': ' + property.value);
+							if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+								jsonItem[key] = property
+						});
+						
+						if(!containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri').contained)
+							rowModel.selectedRelatedInstanceList.push(jsonItem);
+						
+						// Show related entity results panel on the respective rowModel
+						if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+							rowModel.shownEntitySearchResults = true;
+						else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+							rowModel.shownEntitySearchResults = false;
+						
+						// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+						rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+						$scope.handleSelectAllRelatedSearchResults(rowModel);
+						
+						// Regarding Bounding Box
+						
+						if(rowModel.boundingBox != undefined) {
+							// Display message informing user that bounding box has been set
+							$mdToast.show(
+								$mdToast.simple()
+						        .textContent('Bounding box has been removed!')
+						        .position('top right')
+						        .parent(angular.element('#mainContent'))
+						        .hideDelay(3000)
+						    );
+							
+							$scope.boxSource.clear(); // Clearing drawn bounding box
+							delete rowModel.boundingBox; // Removing bounding box from the model
+							
+							//Disabling button that clears bounding box
+							document.getElementById("clearBoundingBoxButtonId").disabled = true;
+						}
+					
+					} // (rowModel.selectedRelatedInstanceList.length <= $scope.configuration.relatedEntity.selectedInstancesLimit) - Ends
+					
+					// When the size limit regulation (by configuration) is reached
+					else { //if (rowModel.selectedRelatedInstanceList.length >= $scope.configuration.relatedEntity.selectedInstancesLimit)
+						
+						// Remove this feature from the list of selected ones
+						$scope.select.getFeatures().remove(evt.selected[0]);
+						
+						$scope.message = 'You cannot have more than ' 
+									   + $scope.configuration.relatedEntity.selectedInstancesLimit 
+									   + ' instances selected for this related entity';
+	    				$scope.showAlertOnMap('Information', $scope.message);
 					}
 					
 				}
@@ -3215,14 +3300,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				if(evt.deselected.length > 0) {
 					var jsonItem = {};
 					
-					console.log('evt.deselected: ');
+					//console.log('evt.deselected: ');
 					angular.forEach(evt.deselected[0].getProperties(), function (property, key) {
 						//console.log(key + ': ' + property.value);
 						if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
 							jsonItem[key] = property
 					});
 					
-					//var containedObject = containedInList(jsonItem, rowModel.selectedRelatedInstanceList, true);
 					var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
 					if(containedObject.contained)
 						rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
@@ -3257,7 +3341,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    		  
 		    		  
 	    		polyFeature.setStyle(areaStyle);
-	    		polyFeatures.push(polyFeature); // Adding into Array
+	    		$scope.polyFeatures.push(polyFeature); // Adding into Array
     			
     			// Constructing the pointFeature dynamically
     			var pointFeature = new ol.Feature();
@@ -3276,12 +3360,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        	
     			// Marking as checked if already selected
     			if(containedInListBasedOnURI(geoResults[i], rowModel.selectedRelatedInstanceList, 'uri').contained)
-    				select.getFeatures().push(pointFeature);	// DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!
+    				$scope.select.getFeatures().push(pointFeature);	// DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!
     			
     			// Setting unselected style
     			//pointFeature.setStyle(iconStylePinkUnselected);
 	        	          	  
-    			pointFeatures.push(pointFeature); // Adding into Array
+    			$scope.pointFeatures.push(pointFeature); // Adding into Array
 	        	          	          	  
     		} // loop ends
 			
