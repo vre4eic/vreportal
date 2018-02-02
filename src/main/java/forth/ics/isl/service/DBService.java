@@ -5,7 +5,9 @@
  */
 package forth.ics.isl.service;
 
+import forth.ics.isl.triplestore.RestClient;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.ClientErrorException;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.json.simple.JSONArray;
@@ -411,31 +414,29 @@ public class DBService {
         JSONObject statusObject = new JSONObject();
         try {
             Connection conn = initConnection();
-            
+
             String sql = "";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            
-            if(favoriteId == null) {
-            	sql = "INSERT INTO user_favorites (username, title, description, query_model)"
-                    + "VALUES (?, ?, ?, ?)";
-            	
-            	preparedStatement = conn.prepareStatement(sql);
+
+            if (favoriteId == null) {
+                sql = "INSERT INTO user_favorites (username, title, description, query_model)"
+                        + "VALUES (?, ?, ?, ?)";
+
+                preparedStatement = conn.prepareStatement(sql);
                 preparedStatement.setString(1, username);
                 preparedStatement.setString(2, title);
                 preparedStatement.setString(3, description);
                 preparedStatement.setString(4, queryModel);
-            	
-            }
-            
-            else {
-            	sql = "UPDATE user_favorites "
-            		+ "SET query_model=? "
-            		+ "WHERE id=?";
-            	
-            	preparedStatement = conn.prepareStatement(sql);
+
+            } else {
+                sql = "UPDATE user_favorites "
+                        + "SET query_model=? "
+                        + "WHERE id=?";
+
+                preparedStatement = conn.prepareStatement(sql);
                 preparedStatement.setString(1, queryModel);
                 preparedStatement.setString(2, favoriteId);
-            	
+
             }
 
             preparedStatement.executeUpdate();
@@ -537,6 +538,25 @@ public class DBService {
             statusObject.put("dbStatus", "fail");
         }
         return statusObject;
+    }
+
+//    executes the SPARQL update queries stored in table RELATIONS_MATERIAL 
+//    of the H2 database to materialize the relation "shortcuts" between the 
+//    interesting entities for the GUI
+    public static void executeRelationsMatQueries(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, ParseException, ClientErrorException, IOException {
+        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        JSONArray updates = DBService.retrieveAllRelationsMatUpdates();
+        StringBuilder sb = new StringBuilder();
+        sb.append(graphUri + "\n");
+        for (int i = 0; i < updates.size(); i++) {
+            JSONObject obj = (JSONObject) updates.get(i);
+            String update = ((String) obj.get("update")).replace("@#$%FROM%$#@", "<" + graphUri + ">");
+            String relatedEntities = (String) obj.get("related_entities");
+            String response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken).readEntity(String.class);
+            sb.append(relatedEntities + " -> " + ((JSONObject) new JSONParser().parse(response)).get("status") + "\n");
+        }
+        sb.append("-------\n");
+        System.out.println(sb.toString());
     }
 
 }

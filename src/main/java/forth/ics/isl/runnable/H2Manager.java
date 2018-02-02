@@ -980,86 +980,69 @@ public class H2Manager {
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException, ParseException {
         H2Manager h2 = new H2Manager();
 //        h2.init();
-        h2.deleteTable("entity");
-        h2.createTableEntity();
-        h2.insertEntities();
+//        h2.deleteTable("entity");
+//        h2.createTableEntity();
+//        h2.insertEntities();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
 
-        String authorizationToken = "05ca2485-d8b3-4709-b347-ccc3f5f76e4c";
+        String authorizationToken = "56e94821-7c8e-4b77-8d03-4c5830709b04";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
 
-//        executeRelationsMatQueries(endpoint, namespace, authorizationToken);
-//        enrichMatRelationsTable(authorizationToken, endpoint, namespace);
+        /////
+//        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+//        DBService.setConnection(conn);
+//        DBService.setJdbcTemplateUsed(false);
+        List<String> uris = DBService.retrieveAllNamedgraphUris();
+        for (String graphURI : uris) {
+//            executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
+            enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI);
+        }
+
     }
 
-    public static void enrichMatRelationsTable(String authorizationToken, String endpoint, String namespace) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        DBService.setJdbcTemplateUsed(false);
+//    this table contains information about the entities and the materialized relations which connect them 
+//    for each namedgraph. It helps in the performance when we select a target entity from the GUI and we want 
+//    its related entities along with the relations. 
+    public static void enrichMatRelationsTable(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+
+//        DBService.setConnection(conn);
+//        DBService.setJdbcTemplateUsed(false);
         JSONArray entities = DBService.retrieveAllEntities(false);
-        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        List<String> uris = DBService.retrieveAllNamedgraphUris();
         ////////
-        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+//        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+        Connection conn = DBService.initConnection();
         H2Manager h2 = new H2Manager(conn.createStatement(), conn);
         RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         ////////
-        for (String graphURI : uris) {
-            for (int i = 0; i < entities.size(); i++) {
-                JSONObject targetEntity = (JSONObject) entities.get(i);
-                String targetEntityURI = (String) targetEntity.get("uri");
-                int targetEntityID = (int) targetEntity.get("id");
-                int cnt = 0;
-                for (int j = 0; j < entities.size(); j++) {
-                    if (j == i) {
-                        continue;
-                    }
-                    StringBuilder sparqlQuery = new StringBuilder();
-                    JSONObject relatedEntity = (JSONObject) entities.get(j);
-                    String relatedEntityURI = (String) relatedEntity.get("uri");
-                    int relatedEntityID = (int) relatedEntity.get("id");
-                    sparqlQuery.append("select distinct ?relation from <" + graphURI + "> where {\n").
-                            append("?target_inst a <" + targetEntityURI + ">.\n").
-                            append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
-                            append("}");
-                    String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
-                    String[] data = response.split("\\n");
-                    for (int k = 1; k < data.length; k++) {
-                        String relationUri = data[k];
-                        String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
-                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphURI);
-                    }
+        for (int i = 0; i < entities.size(); i++) {
+            JSONObject targetEntity = (JSONObject) entities.get(i);
+            String targetEntityURI = (String) targetEntity.get("uri");
+            int targetEntityID = (int) targetEntity.get("id");
+            int cnt = 0;
+            for (int j = 0; j < entities.size(); j++) {
+                if (j == i) {
+                    continue;
+                }
+                StringBuilder sparqlQuery = new StringBuilder();
+                JSONObject relatedEntity = (JSONObject) entities.get(j);
+                String relatedEntityURI = (String) relatedEntity.get("uri");
+                int relatedEntityID = (int) relatedEntity.get("id");
+                sparqlQuery.append("select distinct ?relation from <" + graphUri + "> where {\n").
+                        append("?target_inst a <" + targetEntityURI + ">.\n").
+                        append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
+                        append("}");
+                String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
+                String[] data = response.split("\\n");
+                for (int k = 1; k < data.length; k++) {
+                    String relationUri = data[k];
+                    String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
+//                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphURI);
                 }
             }
         }
         h2.terminate();
-    }
-
-    public static void executeRelationsMatQueries(String endpoint, String namespace, String authorizationToken) throws SQLException, ParseException, ClientErrorException, IOException {
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        DBService.setJdbcTemplateUsed(false);
-        List<String> graphs = DBService.retrieveAllNamedgraphUris();
-        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        JSONArray updates = DBService.retrieveAllRelationsMatUpdates();
-        StringBuilder sb = new StringBuilder();
-        for (String graph : graphs) {
-            sb.append(graph + "\n");
-            for (int i = 0; i < updates.size(); i++) {
-                JSONObject obj = (JSONObject) updates.get(i);
-                String update = ((String) obj.get("update")).replace("@#$%FROM%$#@", "<" + graph + ">");
-                String relatedEntities = (String) obj.get("related_entities");
-                String response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken).readEntity(String.class);
-                sb.append(relatedEntities + " -> " + ((JSONObject) new JSONParser().parse(response)).get("status") + "\n");
-            }
-            sb.append("-------\n");
-        }
-        System.out.println(sb.toString());
     }
 
     public Connection getConnection() {
