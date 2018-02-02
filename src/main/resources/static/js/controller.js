@@ -45,8 +45,9 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	$scope.importErrorAlerts = [];
 	$scope.importSuccessAlerts = [];
 	
-	$scope.nameGraphs = [];
-	
+	$scope.namedGraphs = [];
+	$scope.namedGraphTree = [];
+	$scope.selectedCategory = null;
 	
 	
 	
@@ -57,10 +58,12 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 		
 		queryService.getAllNamegraphs().then(function (response) {
 			if(response.status == '200') {
+				// Holding the whole tree for future usage
+				$scope.namedGraphTree = response.data;
 				// response.data is an array of children. Each children is an array of named graphs
 				for(var i=0; i<response.data.length; i++) {
 					for(var j=0; j<response.data[i].children.length; j++) {
-						$scope.nameGraphs.push(response.data[i].children[j]);
+						$scope.namedGraphs.push(response.data[i].children[j]);
 					}
 				}
 				console.log();
@@ -96,11 +99,11 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	initNamedGraphs();
 	
 	/**
-     * Search for namegraphs... use $timeout to simulate
+     * Search for namedGraphs... use $timeout to simulate
      * remote dataservice call.
      */
 	$scope.querySearch = function (query) {
-		var results = query ? $scope.nameGraphs.filter( createFilterFor(query) ) : $scope.nameGraphs, deferred;
+		var results = query ? $scope.namedGraphs.filter( createFilterFor(query) ) : $scope.namedGraphs, deferred;
 		return results;
 	}
 	
@@ -177,19 +180,31 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
                                 
             },
             'processing': function (file) {
+            	
+            	// In Case of new named graph
+            	if($scope.selectedNamedGraph.id == null) {
+            		
+        		    
+            		
+            	}
+            	
             	// Setting additional parameter dynamically 
             	// The parameter holds the content-type (i.e. application/rdf+xml)
             	if($scope.selectedFormat == 'Automatic') {
 	            	this.options.params = { 
 	            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
-	            		'namedGraphParam': 'http://' + $scope.searchText,
+	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
+	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
+	            		'selectedCategory': $scope.selectedCategory,
 	            		'authorizationParam': $scope.credentials.token 
 	            	};
             	}
             	else {
             		this.options.params = { 
     	            		'contentTypeParam': $scope.selectedFormat, 
-    	            		'namedGraphParam': 'http://' + $scope.searchText,
+    	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
+    	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
+    	            		'selectedCategory': $scope.selectedCategory,
     	            		'authorizationParam': $scope.credentials.token 
     	            	};
             	}
@@ -315,8 +330,43 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
         }
     };
     
-    $scope.uploadFile = function() {
-    	$scope.processDropzone();
+    $scope.categories = [];
+    	
+	function initCategories() {
+		angular.forEach($scope.namedGraphTree, function(value, key) {
+			$scope.categories.push(value.label);
+		});
+	}
+    
+    $scope.closeNamedGraphSelectCategoryDialog = function() {
+    	$mdDialog.cancel();
+    }
+    
+    // Called when the "Import Data" button is clicked
+    $scope.uploadFile = function(ev) {
+    	
+    	// Checking if it is new namedGraph
+    	if($scope.selectedNamedGraph == null) {
+    		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
+    		
+    		// Initializing the categories to list on the dialog
+    		initCategories();
+    		
+    		// Prompting dialog to select category for the new named graph
+    		$mdDialog.show({
+	    		scope: $scope,
+	    		templateUrl: 'views/dialog/selectNamedGraphCategory.tmpl.html', 
+	    		parent: angular.element(document.body),
+	    		targetEvent: ev,
+	    		preserveScope: true,
+	    		fullscreen: false // Only for -xs, -sm breakpoints.
+	    	});
+    		
+    	}
+    	
+    	else {
+    		$scope.processDropzone();
+    	}
     };
     
     $scope.reset = function() {

@@ -49,11 +49,15 @@ public class ImportController {
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
         System.out.println("Uploading...");
         String contentTypeParam = request.getParameter("contentTypeParam"); // Retrieving param that holds the file's content-type
-        String namedGraphParam = request.getParameter("namedGraphParam"); 	// Retrieving param that holds the namedGraph where to store data
+        String namedGraphLabelParam = request.getParameter("namedGraphLabelParam"); 	// Retrieving param that holds the namedGraph where to store data
+        String namedGraphIdParam = request.getParameter("namedGraphIdParam");
         String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
+        String selectedCategory = request.getParameter("selectedCategory");
         System.out.println("authorizationToken: " + authorizationToken);
         System.out.println("contentTypeParam: " + contentTypeParam);
-        System.out.println("namedGraphParam: " + namedGraphParam);
+        System.out.println("namedGraphLabelParam: " + namedGraphLabelParam);
+        System.out.println("namedGraphIdParam: " + namedGraphIdParam);
+        System.out.println("selectedCategory: " + selectedCategory);
         String importResponseJsonString = null;
         try {
             Iterator<String> itr = request.getFileNames();
@@ -66,7 +70,7 @@ public class ImportController {
                 byte[] bytes = multipartFile.getBytes();
                 
                 String fileContent = new String(bytes);
-                Response importResponse = restClient.importFile(fileContent, contentTypeParam, namespace, namedGraphParam, authorizationToken);
+                Response importResponse = restClient.importFile(fileContent, contentTypeParam, namespace, namedGraphLabelParam, authorizationToken);
                 //System.out.println("Status: " + importResponse.getStatus() + " " + importResponse.getStatusInfo());
                 //System.out.println("Status: " + importResponse.readEntity(String.class).toString());
 

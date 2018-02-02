@@ -91,7 +91,7 @@
         
         	<!-- Input text for namegraph -->
 			<md-autocomplete md-no-cache="true"
-							 md-selected-item="selectedNamegraph" 
+							 md-selected-item="selectedNamedGraph" 
 							 md-search-text="searchText"
 							 md-items="item in querySearch(searchText)"
 							 md-item-text="item.label"
@@ -106,7 +106,7 @@
 	        	</md-not-found>
       		</md-autocomplete>
         
-			<md-button class="md-raised md-primary" ng-click="uploadFile()" ng-disabled="!file">
+			<md-button class="md-raised md-primary" ng-click="uploadFile($event)" ng-disabled="!file">
 				Import Data
 			</md-button>
 	      
