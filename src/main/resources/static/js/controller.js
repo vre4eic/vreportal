@@ -47,7 +47,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	
 	$scope.namedGraphs = [];
 	$scope.namedGraphTree = [];
-	$scope.selectedCategory = null;
+	$scope.selectedCategory = {label: null, id: null};
 	
 	
 	
@@ -195,18 +195,20 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
 	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
 	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-	            		'selectedCategory': $scope.selectedCategory,
+	            		'selectedCategoryLabel': $scope.selectedCategory.label,
+	            		'selectedCategoryId': $scope.selectedCategory.id,
 	            		'authorizationParam': $scope.credentials.token 
 	            	};
             	}
             	else {
             		this.options.params = { 
-    	            		'contentTypeParam': $scope.selectedFormat, 
-    	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
-    	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-    	            		'selectedCategory': $scope.selectedCategory,
-    	            		'authorizationParam': $scope.credentials.token 
-    	            	};
+	            		'contentTypeParam': $scope.selectedFormat, 
+	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
+	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
+	            		'selectedCategoryLabel': $scope.selectedCategory.label,
+	            		'selectedCategoryId': $scope.selectedCategory.id,
+	            		'authorizationParam': $scope.credentials.token 
+    	            };
             	}
             },
             'success': function (file, response) {
@@ -330,11 +332,14 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
         }
     };
     
-    $scope.categories = [];
-    	
+    $scope.categories = [{}];
+    
+    // Initializing the list of categories of the named graphs 
+    // with respect to id and label
 	function initCategories() {
+		$scope.categories = [{}];
 		angular.forEach($scope.namedGraphTree, function(value, key) {
-			$scope.categories.push(value.label);
+			$scope.categories.push({value: value.label, id: value.id});
 		});
 	}
     

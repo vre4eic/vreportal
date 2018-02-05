@@ -15,11 +15,13 @@
 		<div>
 			Please select some category, under which the new named graph will be classified.
 			<md-select ng-model="selectedCategory">
-				<md-option ng-repeat="category in categories" ng-value="category">{{category}}</md-option>
+				<md-option ng-repeat="category in categories" ng-value="category">{{category.value}}</md-option>
 	        </md-select>
 		</div>
 		<div layout="row">
-			<md-button class="md-raised md-primary" ng-click="processDropzone();" ng-disabled="selectedCategory == null">
+			<md-button class="md-raised md-primary" 
+					   ng-click="processDropzone();" 
+					   ng-disabled="selectedCategory.id == null">
 				Continue
 	        </md-button>
 	        <div class="md-flex"></div>

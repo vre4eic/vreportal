@@ -52,12 +52,14 @@ public class ImportController {
         String namedGraphLabelParam = request.getParameter("namedGraphLabelParam"); 	// Retrieving param that holds the namedGraph where to store data
         String namedGraphIdParam = request.getParameter("namedGraphIdParam");
         String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
-        String selectedCategory = request.getParameter("selectedCategory");
+        String selectedCategoryLabel = request.getParameter("selectedCategoryLabel");
+        String selectedCategoryId = request.getParameter("selectedCategoryId");
         System.out.println("authorizationToken: " + authorizationToken);
         System.out.println("contentTypeParam: " + contentTypeParam);
         System.out.println("namedGraphLabelParam: " + namedGraphLabelParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
-        System.out.println("selectedCategory: " + selectedCategory);
+        System.out.println("selectedCategoryLabel: " + selectedCategoryLabel);
+        System.out.println("selectedCategoryId: " + selectedCategoryId);
         String importResponseJsonString = null;
         try {
             Iterator<String> itr = request.getFileNames();
