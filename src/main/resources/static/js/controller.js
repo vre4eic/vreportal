@@ -157,10 +157,10 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
             params: { 'contentTypeParam': $scope.selectedFormat, 'authorizationParam': $scope.credentials.token },
             maxFilesize: 400, // MB
             maxThumbnailFilesize: 10,
-            parallelUploads: 20,
+            parallelUploads: 1, //number of parallel uploads
             acceptedFiles: '.rdfs,.rdf,.owl,.nt,.n3,.nt,.ntriples,.ttl,.jsonld,.trig,.trix',
             autoProcessQueue: false,
-            maxFiles: 20//,
+            maxFiles: 100//,
             //method: "POST"
         },
         'eventHandlers': {
