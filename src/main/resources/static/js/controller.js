@@ -195,7 +195,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
 	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
 	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-	            		'selectedCategoryLabel': $scope.selectedCategory.label,
+	            		'selectedCategoryLabel': $scope.selectedCategory.value,
 	            		'selectedCategoryId': $scope.selectedCategory.id,
 	            		'authorizationParam': $scope.credentials.token 
 	            	};
@@ -205,7 +205,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	            		'contentTypeParam': $scope.selectedFormat, 
 	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
 	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-	            		'selectedCategoryLabel': $scope.selectedCategory.label,
+	            		'selectedCategoryLabel': $scope.selectedCategory.value,
 	            		'selectedCategoryId': $scope.selectedCategory.id,
 	            		'authorizationParam': $scope.credentials.token 
     	            };
@@ -332,18 +332,20 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
         }
     };
     
-    $scope.categories = [{}];
+    //$scope.categories = [{}];
     
     // Initializing the list of categories of the named graphs 
     // with respect to id and label
-	function initCategories() {
+    $scope.initCategories = function() {
 		$scope.categories = [{}];
 		angular.forEach($scope.namedGraphTree, function(value, key) {
 			$scope.categories.push({value: value.label, id: value.id});
 		});
+		//$scope.categories.splice(0, 1)
 	}
     
     $scope.closeNamedGraphSelectCategoryDialog = function() {
+    	$scope.selectedCategory = {label: null, id: null};
     	$mdDialog.cancel();
     }
     
@@ -353,9 +355,6 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
     	// Checking if it is new namedGraph
     	if($scope.selectedNamedGraph == null) {
     		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
-    		
-    		// Initializing the categories to list on the dialog
-    		initCategories();
     		
     		// Prompting dialog to select category for the new named graph
     		$mdDialog.show({
