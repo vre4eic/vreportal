@@ -158,7 +158,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
             maxFilesize: 400, // MB
             maxThumbnailFilesize: 10,
             parallelUploads: 1,
-            acceptedFiles: '.rdfs,.rdf,.owl,.nt,.n3,.nt,.ttl,.jsonld,.trig,.trix',
+            acceptedFiles: '.rdfs,.rdf,.owl,.nt,.n3,.nt,.ntriples,.ttl,.jsonld,.trig,.trix',
             autoProcessQueue: false,
             maxFiles: 100//,
             //method: "POST"
@@ -384,8 +384,11 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
     	if(fileExtension == 'rdfs' || fileExtension == 'rdf' || fileExtension == 'owl') {
     		return "application/rdf+xml";
     	}
-    	else if (fileExtension == 'n3' || fileExtension == 'nt') {
+    	else if (fileExtension == 'n3') {
     		return "text/rdf+n3";
+    	}
+        else if (fileExtension == 'nt' || fileExtension == 'ntriples') {
+    		return "text/plain";
     	}
     	else if (fileExtension == 'ttl') {
     		return "application/x-turtle";
