@@ -977,6 +977,11 @@ public class H2Manager {
         return statement.executeQuery("select * from entity");
     }
 
+    public boolean namedGraphExists(String graphName) throws SQLException {
+        ResultSet result = statement.executeQuery("SELECT * FROM NAMEDGRAPH where NAME='" + graphName + "'");
+        return result.next();
+    }
+
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException, ParseException {
         H2Manager h2 = new H2Manager();
 //        h2.init();

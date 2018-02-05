@@ -76,8 +76,7 @@ public class RestClient {
      */
     public Response importFile(String content, String format, String namespace, String namedGraph, String authorizationToken)
             throws ClientProtocolException, IOException {
-        String restURL = serviceUrl + "/import/namespace/" + namespace;
-
+        String restURL;
         // Taking into account nameSpace in the construction of the URL
         if (namespace != null) {
             restURL = serviceUrl + "/import/namespace/" + namespace;
