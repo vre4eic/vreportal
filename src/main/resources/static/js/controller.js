@@ -332,16 +332,16 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
         }
     };
     
-    //$scope.categories = [{}];
+    $scope.categories = [];
     
     // Initializing the list of categories of the named graphs 
     // with respect to id and label
     $scope.initCategories = function() {
-		$scope.categories = [{}];
-		angular.forEach($scope.namedGraphTree, function(value, key) {
-			$scope.categories.push({value: value.label, id: value.id});
-		});
-		//$scope.categories.splice(0, 1)
+    	if($scope.categories.length <=0) {
+			angular.forEach($scope.namedGraphTree, function(value, key) {
+				$scope.categories.push({value: value.label, id: value.id});
+			});
+    	}
 	}
     
     $scope.closeNamedGraphSelectCategoryDialog = function() {
@@ -372,6 +372,15 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
     		$scope.processDropzone();
     	}
     };
+    
+    // Called when pressing the 'continue' button from the 
+    // dialog shown when selecting category
+    $scope.continueAfterSelectingCategory = function() {
+    	// Close the dialog
+    	$scope.closeNamedGraphSelectCategoryDialog();
+    	// Start processing the files
+    	$scope.processDropzone();
+    }
     
     $scope.reset = function() {
     	$scope.file = null;
