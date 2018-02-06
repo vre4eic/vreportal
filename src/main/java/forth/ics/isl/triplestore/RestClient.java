@@ -1,5 +1,7 @@
 package forth.ics.isl.triplestore;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -10,7 +12,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,9 +21,10 @@ import org.json.simple.JSONObject;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.HashSet;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import org.json.simple.JSONArray;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -53,12 +55,12 @@ public class RestClient {
 
     public RestClient(String serviceUrl, String namespace) throws IOException {
         // Be put in comments due to conflicts with log4j when creating the fat jar
-        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
-        for (String log : loggers) {
-            Logger logger = (Logger) LoggerFactory.getLogger(log);
-            logger.setLevel(Level.INFO);
-            logger.setAdditive(false);
-        }
+//        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+//        for (String log : loggers) {
+//            Logger logger = (Logger) LoggerFactory.getLogger(log);
+//            logger.setLevel(Level.INFO);
+//            logger.setAdditive(false);
+//        }
         ///
         this.serviceUrl = serviceUrl;
         this.namespace = namespace;
@@ -167,14 +169,40 @@ public class RestClient {
                 + "}\n"
                 + "}";
 
-        String authorizationToken = "91f8586a-36e5-4697-a157-9322d757f8";
+        String authorizationToken = "1aa6b0df-c75d-4dc9-bdba-7a871467a64c";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
 //        endpoint = "http://139.91.183.48:8181/EVREMetadataServices";
-        String namespace = "vre4eic";
+        String namespace = "vre4eictest";
         RestClient client = new RestClient(endpoint, namespace, authorizationToken);
-        String response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken).readEntity(String.class);
-        System.out.println(response);
+//        String response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken).readEntity(String.class);
+//        System.out.println(response);
+        String folder = "E:/RdfData/VREData/EKT RDF";
+        Response importResponse = client.importFile(
+                readFileData("C:/Users/rousakis/AppData/Roaming/Skype/My Skype Received Files/organizationUnits2.nt"), //small dataset
+                "text/plain", // content type
+                namespace, // namespace
+                "http://test", // namedGraph
+                authorizationToken);
 
+        System.out.println(importResponse.readEntity(String.class));
+
+    }
+
+    public static String readFileData(String filename) {
+        File f = new File(filename);
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            br.close();
+        } catch (Exception e) {
+            System.out.println("Exception while reading import data occured .");
+            return null;
+        }
+        return sb.toString();
     }
 
 }
