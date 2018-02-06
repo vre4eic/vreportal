@@ -3,7 +3,7 @@
   
 		<md-toolbar layout="row" class="md-primary">
       		<div class="md-toolbar-tools">
-        		<span>Full list of file import status</span>
+        		<span>File(s) import status</span>
       		</div>
 		</md-toolbar>
   	
@@ -19,8 +19,8 @@
 				</md-toolbar>
 		        <md-list-item class="md-2-line" ng-repeat="alert in importSuccessAlerts">
 	          		<div class="md-list-item-text" layout="column">
-	            		<h3 style="color:green;">{{ alert.titleType }}</h3>
-	            		<h4>{{ alert.msg }}</h4>
+	            		<h4 style="color:green; font-weight: bold;">{{alert.titleType}}</h4>
+	            		<h4 ng-bind-html="alert.msg"></h4>
 	          		</div>
 	          		<md-divider ></md-divider>
 	        	</md-list-item>
@@ -35,12 +35,15 @@
 				</md-toolbar>
 	        	<md-list-item class="md-2-line" ng-repeat="alert in importErrorAlerts">
 	          		<div class="md-list-item-text" layout="column">
-	            		<h3 style="color:red;">{{ alert.titleType }}</h3>
-	            		<h4>{{ alert.msg }}</h4>
+	            		<h4 style="color:rgb(255,64,129); font-weight: bold;">{{ alert.titleType }}</h4>
+	            		<h4 ng-bind-html="alert.msg"></h4>
 	          		</div>
 	        	</md-list-item>
 	    	</md-list>
-                
+            <div style="padding:10px 10px 10px 10px;">
+				Please <code style="color:#106CC8;background: rgba(0,0,0,0.065);">click outside</code> 
+				of this dialog in order <code style="color:#106CC8;background: rgba(0,0,0,0.065);">to dismiss it</code>.
+			</<div>
   		</md-content>
   	
 	</form>

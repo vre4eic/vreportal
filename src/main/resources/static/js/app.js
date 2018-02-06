@@ -56,7 +56,7 @@ app.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $htt
 	// Another theme
 	$mdThemingProvider.theme('altTheme')
     	.primaryPalette('green') 	// specify primary color
-    	.accentPalette('red') 		// specify accent color
+    	.accentPalette('pink') 		// specify accent color
     	.warnPalette('orange') 	// specify warn color
 	
 	$urlRouterProvider

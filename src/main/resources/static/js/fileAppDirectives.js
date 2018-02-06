@@ -28,6 +28,10 @@ app.directive('dropzone',[ function(){
         scope.resetDropzone = function() {
             dropzone.removeAllFiles();
         }
+        
+        scope.getDropzoneAcceptedFiles = function() {
+            return dropzone.getAcceptedFiles().length;
+        }
     }
     
 }]);

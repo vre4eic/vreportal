@@ -1,5 +1,7 @@
 <div class="section" style="padding: 20px" ng-cloak>
 
+
+
 <div class="row">
 
 	<div class="column section inside" style="width:100%;" ng-cloak>
@@ -58,10 +60,10 @@
 		</md-sidenav>
 		
 		<div uib-alert ng-repeat="alert in alerts"
-			 ng-class="'alert-' + (alert.type || 'warning')" class='fadeAlert'
+			 ng-class="'alert-' + (alert.type || 'warning')" class="fadeAlert"
 			 close="alerts.splice($index, 1);"
 			 style="margin-top:10px;">
-			{{alert.msg}}
+			<span ng-bind-html="alert.msg"></span>
 			<md-button md-no-ink 
 					   class="md-primary slim"
 					   ng-click="showAdvanced($event)" 
@@ -72,11 +74,12 @@
 		
 		<!-- Dropzone -->
 		<div>
-			<md-progress-linear md-mode="determinate" value="{{progressValue}}"></md-progress-linear>
+			<md-progress-linear md-mode="determinate" value="{{progressValue}}" flex></md-progress-linear>
 			<form class="dropzone" dropzone="dropzoneConfig" id="dropzone">
+				<md-backdrop ng-show="processStarted" class="md-opaque" ng-cloak></md-backdrop>
 				<div class="dz-default dz-message"
 					 style="color: #a0a0a0; font-size: 250%; text-align: center; margin: 2em 0;">
-					Drop file here or click to upload.
+					Drop file(s) here or click to upload.
 				</div>
 			<form>
 		</div>

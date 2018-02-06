@@ -63,7 +63,8 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 	$scope.selectedCategory = {label: null, id: null};
 	
 	$scope.fileCount = 0; // Total count of files to be processed
-	
+	$scope.progressValue = 0; // Initial progress indication
+	$scope.processStarted = false; // Flag indicating that the uploading/file-processing has started
 	
 	
 	// Initializing All available named graphs
@@ -229,10 +230,21 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             	$scope.$apply(function() {
             		
             		if(response == null) {
+            			/*
                 		$scope.alerts.push({
                 			type: 'danger-funky', 
                 			msg: 'There was an internal error while trying to upload the file \"' + file.name + '\".'
                 		});
+                		*/
+            			$mdToast.show(
+    						$mdToast.simple()
+    				        .textContent('There was an internal error while trying to upload the file \"' + file.name + '\".')
+    				        .position('top right')
+    				        .parent(angular.element('#dialogContent'))
+    				        .action('OK')
+    				        .highlightAction(true)
+    				        .hideDelay(10000)
+    				    );
                 		$scope.importErrorAlerts.push({
                 			type: 'danger-funky', 
                 			msg: 'There was an internal error while trying to upload the file \"' + file.name + '\".',
@@ -245,24 +257,48 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             		else {
             			// File parsing errors
             			if(response.response_status == 'FAILED') {
+            				/*
             				$scope.alerts.splice(0);
             				$scope.alerts.push({
                     			type: 'danger-funky', 
-                    			msg: 'The file \"' + file.name + '\" was succefully uploaded, however parsing errors occured.'
+                    			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".'
                     		});
+                    		*/
+            				$mdToast.show(
+        						$mdToast.simple()
+        				        .textContent('Parsing errors occurred while trying to process the file \"' + file.name + '\".')
+        				        .position('top right')
+        				        .parent(angular.element('#dialogContent'))
+        				        .action('OK')
+        				        .highlightAction(true)
+        				        .hideDelay(10000)
+        				    );
                     		$scope.importErrorAlerts.push({
                     			type: 'danger-funky', 
-                    			msg: 'The file \"' + file.name + '\" was succefully uploaded, however parsing errors occured.',
+                    			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".',
                     			titleType: 'Error'
                     		});
             			}
             			// Everything went fine
             			else {
+            				/*
 		            		$scope.alerts.splice(0);
 		            		$scope.alerts.push({
 		            			type: 'success-funky', 
 		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.'
 		            		});
+		            		*/
+            				
+            				$mdToast.show(
+        						$mdToast.simple()
+        				        .textContent('File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.')
+        				        .position('top right')
+        				        .parent(angular.element('#dialogContent'))
+        				        .action('OK')
+        				        .highlightAction(true)
+        				        .highlightClass('md-primary')
+        				        .hideDelay(10000)
+        				    );
 		            		$scope.importSuccessAlerts.push({
 		            			type: 'success-funky', 
 		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.',
@@ -295,33 +331,53 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             
             'complete': function (file, response) {
             	
+            	$scope.progressValue = 100 * (($scope.fileCount-$scope.getDropzoneAcceptedFiles()) / $scope.fileCount);
+            	
             	if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+            		            			            			
+            		$scope.$apply(function() {
+            			$scope.alerts.splice(0);
+            			
+            			// Show warning message when there are both errors and success messages
+            			if($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length > 0) {
+            				$scope.alerts.push({
+            					type: 'warning-funky', 
+            					msg: '<b>Warning</b> - Some of the files have been successfully imported! However there were errors on certain files!', 
+            					showDetails: true
+            				});
+            			}
+            			
+            			else if ($scope.importSuccessAlerts.length <= 0 && $scope.importErrorAlerts.length > 0) {
+            				$scope.alerts.push({
+            					type: 'danger-funky', 
+            					msg: '<b>Error</b> - None of the file(s) was imported successfully!', 
+            					showDetails: true
+            				});
+            			}
+            			
+            			else if ($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length <= 0) {
+            				$scope.alerts.push({
+            					type: 'success-funky', 
+            					msg: '<b>Success</b> - All files have successfully been imported.', 
+            					showDetails: true
+            				});
+            			}
+            			
+            			// Show errors
+            			/*
+            			angular.forEach($scope.importErrorAlerts, function(value, key) {
+            				$scope.alerts.push({type: value.type, msg: value.msg});
+            			});
+            			*/
+            		});
             		
-            		if($scope.importErrorAlerts.length > 0) {
-            			            			
-	            		$scope.$apply(function() {
-	            			$scope.alerts.splice(0);
-	            			
-	            			// Show warning message when there are both errors and success messages
-	            			if($scope.importSuccessAlerts.length > 0) {
-	            				$scope.alerts.push({
-	            					type: 'warning-funky', 
-	            					msg: 'Some of the files have been successfully imported! However there were errors on certain files!', 
-	            					showDetails: true
-	            				});
-	            			}
-	            			
-	            			// Show errors
-	            			angular.forEach($scope.importErrorAlerts, function(value, key) {
-	            				$scope.alerts.push({type: value.type, msg: value.msg});
-	            			});
-	            			
-	            		});
             		
-            		}
             		
             		// Refreshing NamedGraphs list for the auto-complete
             		initNamedGraphs();
+            		
+            		// Setting flag to indicate that the process has finished
+                	$scope.processStarted = false;
             	}
             },
             
@@ -331,7 +387,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 	            		$scope.alerts.splice(0);
 	            		$scope.alerts.push({
 	            			type: 'success-funky', 
-	            			msg: 'All files have been successfully imported.'
+	            			msg: 'All files have successfully been imported.'
 	            		});
 	            	});
             	}
@@ -355,7 +411,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             		//$scope.alerts.push({type: 'danger-funky', msg: response.slice(0, -1) + '  while trying to upload the file \"' + file.name + '\". Maybe that\'s caused due to non matching file\'s content-type.'});
             		$scope.importErrorAlerts.push({
             			type: 'danger-funky', 
-            			msg: response.slice(0, -1) + '  while trying to upload the file \"' + file.name + '\". Maybe that\'s caused due to non matching file\'s content-type.', 
+            			msg: '<i>\"' + response.slice(0, -1) + '\"</i> error occured while trying to import data from the file \"' + file.name + '\".<br/> This was possibly caused due to to non matching content-type.', 
             			titleType: 'Error'
             		});
             		$scope.file = null;
@@ -384,9 +440,13 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
     
     // Called when the "Import Data" button is clicked
     $scope.uploadFile = function(ev) {
-    	
-    	$scope.fileCount = dropzone.childElementCount;
-    	//$scope.reset(); // Clearing everything
+    	 
+    	// Clearing messages
+    	$scope.resetMessages();
+    	// Initializing the progress indication value
+    	$scope.progressValue = 0;
+    	// Getting the total file count
+    	$scope.fileCount = angular.copy($scope.getDropzoneAcceptedFiles());
     	
     	// Checking if it is new namedGraph
     	if($scope.selectedNamedGraph == null) {
@@ -405,6 +465,9 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
     	}
     	
     	else {
+    		// Setting flag to indicate that the process has started
+        	$scope.processStarted = true;
+        	// Initiating the process
     		$scope.processDropzone();
     	}
     };
@@ -412,8 +475,16 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
     // Called when pressing the 'continue' button from the 
     // dialog shown when selecting category
     $scope.continueAfterSelectingCategory = function() {
-    	//$scope.reset(); // Clearing everything
-    	insertMetadata();
+    	
+    	// Clearing messages
+    	$scope.resetMessages();
+    	// Initializing the progress indication value
+    	$scope.progressValue = 0;
+    	// Getting the total file count
+    	$scope.fileCount = angular.copy($scope.getDropzoneAcceptedFiles());
+    	// Setting flag to indicate that the process has started
+    	$scope.processStarted = true;
+    	insertMetadata(); // Inserting meta-data for this uploading procedure
     	// Close the dialog
     	$scope.closeNamedGraphSelectCategoryDialog();
     }
@@ -442,7 +513,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 					
 					$scope.selectedNamedGraph.id = response.data.namedGraphIdParam;
 					
-					//Start processing the files
+					// Initiating the process (file upload & processing)
 					$scope.processDropzone();
 					
 				}
@@ -481,6 +552,12 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
     	$scope.setFormat('Automatic');
     	$scope.setSearchText('');
         $scope.resetDropzone();
+        $scope.alerts.splice(0);
+        $scope.importErrorAlerts.splice(0);
+        $scope.importSuccessAlerts.splice(0);
+    };
+    
+    $scope.resetMessages = function() {
         $scope.alerts.splice(0);
         $scope.importErrorAlerts.splice(0);
         $scope.importSuccessAlerts.splice(0);
