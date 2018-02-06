@@ -294,6 +294,7 @@ angular.module('app.mainServices', [])
 	
 	// TODO: Define importModel in the controller
 	return {
+		/*
 		importRdf : function(importModel, token) {
 
 			return $http({
@@ -308,6 +309,24 @@ angular.module('app.mainServices', [])
 				return success;
 			},function (error) {
 				return error;
+			});
+
+		},
+		*/
+		createMetadataInfo : function(model, token) {
+
+			return $http({
+				'url' : '/createGraphMetadata',
+				'method' : 'POST',
+				'headers' : {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data' : model
+			}).then(function (success) {
+				return success;
+			},function (error) {
+				//error code
 			});
 
 		}
