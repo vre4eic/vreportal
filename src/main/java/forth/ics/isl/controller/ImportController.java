@@ -2,6 +2,7 @@ package forth.ics.isl.controller;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +29,7 @@ import forth.ics.isl.triplestore.RestClient;
 import java.sql.Connection;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.ParseException;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -50,26 +54,42 @@ public class ImportController {
         restClient = new RestClient(serviceUrl, namespace);
     }
 
-    @RequestMapping(value = "/import", method = RequestMethod.POST, produces = {"application/json"})
+    /*
+     * Saving meta-data information for the file to be uploaded in the database
+     */
+	@RequestMapping(value = "/createGraphMetadata", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
-    JSONObject importData(MultipartHttpServletRequest request) {
-        System.out.println("Uploading...");
-//        String contentTypeParam = request.getParameter("contentTypeParam"); // Retrieving param that holds the file's content-type
-        String namedGraphLabelParam = request.getParameter("namedGraphLabelParam"); 	// Retrieving param that holds the namedGraph where to store data
-        String namedGraphIdParam = request.getParameter("namedGraphIdParam");
-//        String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
-        String selectedCategoryLabel = request.getParameter("selectedCategoryLabel");
-        String selectedCategoryId = request.getParameter("selectedCategoryId");
-//        System.out.println("authorizationToken: " + authorizationToken);
-//        System.out.println("contentTypeParam: " + contentTypeParam);
+    JSONObject importData(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+
+        System.out.println("Saving metadata into the database...");
+        
+        String namedGraphLabelParam = null;
+        String namedGraphIdParam = null;
+        String selectedCategoryLabel = null;
+        String selectedCategoryId = null;
+        
+        // Retrieving the label of the named graph
+        if (requestParams.get("namedGraphLabelParam") != null)
+        	namedGraphLabelParam = requestParams.get("namedGraphLabelParam").toString();
+        // Retrieving the id of the named graph
+        if (requestParams.get("namedGraphIdParam") != null)
+        	namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
+        // Retrieving the label of the category of the named graph
+        if (requestParams.get("selectedCategoryLabel") != null)
+        	selectedCategoryLabel = requestParams.get("selectedCategoryLabel").toString();
+        // Retrieving the id of the category of the named graph
+        if (requestParams.get("selectedCategoryId") != null)
+        	selectedCategoryId = requestParams.get("selectedCategoryId").toString();
+
         System.out.println("namedGraphLabelParam: " + namedGraphLabelParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
         System.out.println("selectedCategoryLabel: " + selectedCategoryLabel);
         System.out.println("selectedCategoryId: " + selectedCategoryId);
         String graphUri = null;
+        
         JSONObject responseJsonObject = new JSONObject();
         try {
-            if (namedGraphIdParam.equals("null")) {
+            if (namedGraphIdParam == null) {
                 Connection conn = DBService.initConnection();
                 H2Manager h2 = new H2Manager(conn.createStatement(), conn);
                 if (h2.namedGraphExists(namedGraphLabelParam)) {
@@ -80,7 +100,7 @@ public class ImportController {
                 } else {
                     graphUri = "http://graph/" + System.currentTimeMillis();
                     responseJsonObject.put("success", true);
-                    responseJsonObject.put("message", "The graph was created.");
+                    responseJsonObject.put("message", "The graph was successfully created.");
                     responseJsonObject.put("namedGraphIdParam", graphUri);
                 }
                 h2.insertNamedGraph(graphUri, namedGraphLabelParam, "", Integer.parseInt(selectedCategoryId));
@@ -101,19 +121,14 @@ public class ImportController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
+    	
         System.out.println("Uploading...");
         String contentTypeParam = request.getParameter("contentTypeParam"); // Retrieving param that holds the file's content-type
-//        String namedGraphLabelParam = request.getParameter("namedGraphLabelParam"); 	// Retrieving param that holds the namedGraph where to store data
         String namedGraphIdParam = request.getParameter("namedGraphIdParam");
         String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
-//        String selectedCategoryLabel = request.getParameter("selectedCategoryLabel");
-//        String selectedCategoryId = request.getParameter("selectedCategoryId");
         System.out.println("authorizationToken: " + authorizationToken);
         System.out.println("contentTypeParam: " + contentTypeParam);
-//        System.out.println("namedGraphLabelParam: " + namedGraphLabelParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
-//        System.out.println("selectedCategoryLabel: " + selectedCategoryLabel);
-//        System.out.println("selectedCategoryId: " + selectedCategoryId);
         String importResponseJsonString = null;
         /////
         try {

@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authenticationService', '$state', '$mdSidenav', 
-                               function($scope, queryService, $mdDialog, authenticationService, $state, $mdSidenav) {
+app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDialog', 'authenticationService', '$state', '$mdSidenav', '$mdToast', 
+                               function($scope, queryService, importService, $mdDialog, authenticationService, $state, $mdSidenav, $mdToast) {
 	// Toggles SidePanel
 	$scope.toggleInfo = buildToggler('rightInfo');
 
@@ -38,8 +38,21 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	    ).finally(function() { 
 	    	$state.go('login', {});
 	    });
-	  };
+	};
 	
+	// Used to inform user that error has occurred
+	$scope.showErrorAlert = function(title, msg) {
+		$mdDialog.show(
+			$mdDialog.alert()
+				.parent(angular.element(document.querySelector('#popupContainer')))
+				.clickOutsideToClose(true)
+				.title(title)
+				.textContent(msg)
+				.ariaLabel('Error Message')
+				.ok('OK')
+		)
+	};
+	  
 	// Alert (danger, warning, success)
 	$scope.alerts = [];
 	$scope.importErrorAlerts = [];
@@ -49,7 +62,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
 	$scope.namedGraphTree = [];
 	$scope.selectedCategory = {label: null, id: null};
 	
-	
+	$scope.fileCount = 0; // Total count of files to be processed
 	
 	
 	
@@ -225,18 +238,37 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
                 			msg: 'There was an internal error while trying to upload the file \"' + file.name + '\".',
                 			titleType: 'Error'
                 		});
+                		
+                		$scope.determinateValue = $scope.determinateValue
+                		
             		}
             		else {
-	            		$scope.alerts.splice(0);
-	            		$scope.alerts.push({
-	            			type: 'success-funky', 
-	            			msg: 'File \"' + file.name + '\" was imported successfully in ' + response.message.data.milliseconds + ' milliseconds.'
-	            		});
-	            		$scope.importSuccessAlerts.push({
-	            			type: 'success-funky', 
-	            			msg: 'File \"' + file.name + '\" was imported successfully in ' + response.message.data.milliseconds + ' milliseconds.',
-	            			titleType: 'Success'
-	            		});
+            			// File parsing errors
+            			if(response.response_status == 'FAILED') {
+            				$scope.alerts.splice(0);
+            				$scope.alerts.push({
+                    			type: 'danger-funky', 
+                    			msg: 'The file \"' + file.name + '\" was succefully uploaded, however parsing errors occured.'
+                    		});
+                    		$scope.importErrorAlerts.push({
+                    			type: 'danger-funky', 
+                    			msg: 'The file \"' + file.name + '\" was succefully uploaded, however parsing errors occured.',
+                    			titleType: 'Error'
+                    		});
+            			}
+            			// Everything went fine
+            			else {
+		            		$scope.alerts.splice(0);
+		            		$scope.alerts.push({
+		            			type: 'success-funky', 
+		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.'
+		            		});
+		            		$scope.importSuccessAlerts.push({
+		            			type: 'success-funky', 
+		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.',
+		            			titleType: 'Success'
+		            		});
+            			}
             		}
             		
             		$scope.file = null;
@@ -262,6 +294,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
             },
             
             'complete': function (file, response) {
+            	
             	if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
             		
             		if($scope.importErrorAlerts.length > 0) {
@@ -352,6 +385,9 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
     // Called when the "Import Data" button is clicked
     $scope.uploadFile = function(ev) {
     	
+    	$scope.fileCount = dropzone.childElementCount;
+    	//$scope.reset(); // Clearing everything
+    	
     	// Checking if it is new namedGraph
     	if($scope.selectedNamedGraph == null) {
     		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
@@ -376,10 +412,68 @@ app.controller("importCtrl", [ '$scope', 'queryService', '$mdDialog', 'authentic
     // Called when pressing the 'continue' button from the 
     // dialog shown when selecting category
     $scope.continueAfterSelectingCategory = function() {
+    	//$scope.reset(); // Clearing everything
+    	insertMetadata();
     	// Close the dialog
     	$scope.closeNamedGraphSelectCategoryDialog();
-    	// Start processing the files
-    	$scope.processDropzone();
+    }
+    
+    function insertMetadata() {
+    	
+    	var importModel = {
+			namedGraphLabelParam: $scope.selectedNamedGraph.label,
+			namedGraphIdParam: $scope.selectedNamedGraph.id,
+			selectedCategoryLabel: $scope.selectedCategory.value,
+			selectedCategoryId: $scope.selectedCategory.id
+    	}
+    	
+    	importService.createMetadataInfo(angular.toJson(importModel), $scope.credentials.token)
+		.then(function (response) {
+		
+			if(response.status == '200') {
+				if(response.data.success == true) {
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent(response.data.message)
+				        .position('top right')
+				        .parent(angular.element('#dialogContent'))
+				        .hideDelay(3000)
+				    );
+					
+					$scope.selectedNamedGraph.id = response.data.namedGraphIdParam;
+					
+					//Start processing the files
+					$scope.processDropzone();
+					
+				}
+				else {
+					$scope.message = '';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+    	
     }
     
     $scope.reset = function() {
