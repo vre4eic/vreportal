@@ -134,13 +134,11 @@ public class ImportController {
                     DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
                     H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
                 } else//an error occured
-                {
-                    if (importResponseJsonString.equals("{}")) {
+                 if (importResponseJsonString.equals("{}")) {
                         importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";
                         System.out.println("importResponseJsonString");
                         return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                     } //
-                }
             }
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
