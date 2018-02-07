@@ -108,8 +108,11 @@ public class EntitiesSuggester {
             for (String relation : sugRelationRelEntities.keySet()) {
                 String relatedEntityUri = sugRelationRelEntities.get(relation);
                 JSONObject obj = new JSONObject();
-                JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
-                obj.put("related_entity", relatedEntity);
+                JSONObject relEntity = entitiesMap.get(relatedEntityUri);
+                if (relEntity == null) {
+                    continue;
+                }
+                obj.put("related_entity", relEntity);
                 JSONObject relJSON = new JSONObject();
                 relJSON.put("uri", relation);
                 relJSON.put("name", relations.get(relation));
@@ -119,8 +122,11 @@ public class EntitiesSuggester {
         } else {
             for (String relation : sugRelationRelEntities.keySet()) {
                 String relEntityUri = sugRelationRelEntities.get(relation);
-                JSONObject entity = entitiesMap.get(relEntityUri);
-                testingRelModel.setRelatedVarName((String) entity.get("var_name"));
+                JSONObject relEntity = entitiesMap.get(relEntityUri);
+                if (relEntity == null) {
+                    continue;
+                }
+                testingRelModel.setRelatedVarName((String) relEntity.get("var_name"));
                 testingRelModel.setRelatedUri(relEntityUri);
                 testingRelModel.setRelationUri(relation);
                 testingRelModel.setRelationName(relations.get(relation));

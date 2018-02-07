@@ -99,7 +99,7 @@ public class ImportController {
                 H2Manager h2 = new H2Manager(conn.createStatement(), conn);
                 if (h2.namedGraphExists(namedGraphLabelParam)) {
                     responseJsonObject.put("success", false);
-                    responseJsonObject.put("message", "There already exists a graph with this name.");
+                    responseJsonObject.put("message", "Name: \"" + namedGraphLabelParam + "\" is already assigned.");
                     responseJsonObject.put("namedGraphIdParam", null);
 
                 } else {
@@ -107,8 +107,8 @@ public class ImportController {
                     responseJsonObject.put("success", true);
                     responseJsonObject.put("message", "The graph was successfully created.");
                     responseJsonObject.put("namedGraphIdParam", graphUri);
+                    h2.insertNamedGraph(graphUri, namedGraphLabelParam, "", Integer.parseInt(selectedCategoryId));
                 }
-                h2.insertNamedGraph(graphUri, namedGraphLabelParam, "", Integer.parseInt(selectedCategoryId));
                 conn.close();
             } else {
                 responseJsonObject.put("success", true);
@@ -154,13 +154,11 @@ public class ImportController {
                     Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
                     H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam, matRelationEntities);
                 } else//an error occured
-                {
-                    if (importResponseJsonString.equals("{}")) {
+                 if (importResponseJsonString.equals("{}")) {
                         importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";
                         System.out.println("importResponseJsonString");
                         return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                     } //
-                }
             }
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
