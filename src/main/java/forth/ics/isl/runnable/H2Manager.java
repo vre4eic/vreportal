@@ -81,6 +81,16 @@ public class H2Manager {
                 + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "', '" + textGeoQuery + "', " + geospatial + ", '" + selectionList + "', '" + selectionPattern + "', '" + keywordSearch + "', '" + geoSearch + "', '" + varName + "')");
     }
 
+    public boolean relationExists(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
+        ResultSet result = statement.executeQuery("SELECT * FROM RELATION where "
+                + "URI='" + uri + "' AND "
+                + "NAME = '" + name + "' AND "
+                + "SOURCE_ENTITY = " + sourceEntity + " AND "
+                + "DESTINATION_ENTITY = " + destinationEntity + " AND "
+                + "GRAPH = '" + graph + "'");
+        return result.next();
+    }
+
     public int insertRelation(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
         return statement.executeUpdate("insert into relation(`uri`, `name`, `source_entity`, `destination_entity`, `graph`)"
                 + " values ('" + uri + "','" + name + "', " + sourceEntity + ", " + destinationEntity + ", '" + graph + "')");
@@ -146,7 +156,7 @@ public class H2Manager {
         return statement.executeUpdate("CREATE TABLE relation ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "uri clob, \n"
-                + "name varchar(30), \n"
+                + "name varchar(100), \n"
                 + "source_entity int, \n"
                 + "destination_entity int, \n"
                 + "graph varchar(30),"
@@ -160,7 +170,7 @@ public class H2Manager {
     private int createTableRelationsMatUpdates() throws SQLException {
         return statement.executeUpdate("CREATE TABLE relations_material ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
-                + "related_entities varchar(50),\n"
+                + "related_entities varchar(100),\n"
                 + "update clob,\n"
                 + "PRIMARY KEY (`id`)\n"
                 + ");");
@@ -1091,6 +1101,8 @@ public class H2Manager {
 //        h2.deleteTable("entity");
 //        h2.createTableEntity();
 //        h2.insertEntities();
+        h2.deleteTable("RELATIONS_MATERIAL");
+        h2.createTableRelationsMatUpdates();
         h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
@@ -1153,7 +1165,9 @@ public class H2Manager {
                 for (int k = 1; k < data.length; k++) {
                     String relationUri = data[k];
                     String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
-                    h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri);
+                    if (!h2.relationExists(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri)) {
+                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri);
+                    }
                 }
             }
         }
