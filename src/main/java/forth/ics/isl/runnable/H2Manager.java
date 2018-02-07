@@ -969,7 +969,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Person-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("Project-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -984,7 +984,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Project-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("Publication-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -999,7 +999,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Publication-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Publication-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("OrganisationUnit-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -1014,7 +1014,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("Product-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -1029,7 +1029,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Product-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Product-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("Equipment-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -1044,7 +1044,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Equipment-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Equipment-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
         insertRelationMatUpdate("Facility-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -1059,7 +1059,7 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Facility-Location\") as ?locProp ).\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Facility-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
     }
 
@@ -1091,6 +1091,7 @@ public class H2Manager {
 //        h2.deleteTable("entity");
 //        h2.createTableEntity();
 //        h2.insertEntities();
+        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
 
@@ -1102,10 +1103,10 @@ public class H2Manager {
 //        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
 //        DBService.setConnection(conn);
 //        DBService.setJdbcTemplateUsed(false);
-        List<String> uris = DBService.retrieveAllNamedgraphUris();
+//        List<String> uris = DBService.retrieveAllNamedgraphUris();
 //        for (String graphURI : uris) {
-        Set<String> matRelationEntities = executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
-        enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
+//        Set<String> matRelationEntities = executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
+//        enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
 //        }
 
     }
