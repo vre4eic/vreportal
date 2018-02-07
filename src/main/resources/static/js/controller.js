@@ -195,34 +195,31 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             },
             'processing': function (file) {
             	
-            	// In Case of new named graph
-            	if($scope.selectedNamedGraph.id == null) {
-            		
-        		    
-            		
-            	}
-            	
-            	// Setting additional parameter dynamically 
-            	// The parameter holds the content-type (i.e. application/rdf+xml)
-            	if($scope.selectedFormat == 'Automatic') {
-	            	this.options.params = { 
-	            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
-	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
-	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-	            		'selectedCategoryLabel': $scope.selectedCategory.value,
-	            		'selectedCategoryId': $scope.selectedCategory.id,
-	            		'authorizationParam': $scope.credentials.token 
-	            	};
-            	}
-            	else {
-            		this.options.params = { 
-	            		'contentTypeParam': $scope.selectedFormat, 
-	            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
-	            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
-	            		'selectedCategoryLabel': $scope.selectedCategory.value,
-	            		'selectedCategoryId': $scope.selectedCategory.id,
-	            		'authorizationParam': $scope.credentials.token 
-    	            };
+            	// Named graph is required
+            	if($scope.selectedNamedGraph != null) {
+	            	
+	            	// Setting additional parameter dynamically 
+	            	// The parameter holds the content-type (i.e. application/rdf+xml)
+	            	if($scope.selectedFormat == 'Automatic') {
+		            	this.options.params = { 
+		            		'contentTypeParam': getContentTypeFromFileExtension(file.name.split('.').pop()),
+		            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
+		            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
+		            		'selectedCategoryLabel': $scope.selectedCategory.value,
+		            		'selectedCategoryId': $scope.selectedCategory.id,
+		            		'authorizationParam': $scope.credentials.token 
+		            	};
+	            	}
+	            	else {
+	            		this.options.params = { 
+		            		'contentTypeParam': $scope.selectedFormat, 
+		            		'namedGraphIdParam': $scope.selectedNamedGraph.id,
+		            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
+		            		'selectedCategoryLabel': $scope.selectedCategory.value,
+		            		'selectedCategoryId': $scope.selectedCategory.id,
+		            		'authorizationParam': $scope.credentials.token 
+	    	            };
+	            	}	
             	}
             },
             'success': function (file, response) {
@@ -297,6 +294,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
         				        .action('OK')
         				        .highlightAction(true)
         				        .highlightClass('md-primary')
+        				        .theme("altTheme")
         				        .hideDelay(10000)
         				    );
 		            		$scope.importSuccessAlerts.push({
@@ -332,53 +330,56 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             'complete': function (file, response) {
             	
             	$scope.progressValue = 100 * (($scope.fileCount-$scope.getDropzoneAcceptedFiles()) / $scope.fileCount);
-            	
+            	/*
             	if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-            		            			            			
-            		$scope.$apply(function() {
-            			$scope.alerts.splice(0);
-            			
-            			// Show warning message when there are both errors and success messages
-            			if($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length > 0) {
-            				$scope.alerts.push({
-            					type: 'warning-funky', 
-            					msg: '<b>Warning</b> - Some of the files have been successfully imported! However there were errors on certain files!', 
-            					showDetails: true
-            				});
-            			}
-            			
-            			else if ($scope.importSuccessAlerts.length <= 0 && $scope.importErrorAlerts.length > 0) {
-            				$scope.alerts.push({
-            					type: 'danger-funky', 
-            					msg: '<b>Error</b> - None of the file(s) was imported successfully!', 
-            					showDetails: true
-            				});
-            			}
-            			
-            			else if ($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length <= 0) {
-            				$scope.alerts.push({
-            					type: 'success-funky', 
-            					msg: '<b>Success</b> - All files have successfully been imported.', 
-            					showDetails: true
-            				});
-            			}
-            			
-            			// Show errors
-            			/*
-            			angular.forEach($scope.importErrorAlerts, function(value, key) {
-            				$scope.alerts.push({type: value.type, msg: value.msg});
-            			});
-            			*/
-            		});
-            		
-            		
-            		
-            		// Refreshing NamedGraphs list for the auto-complete
-            		initNamedGraphs();
-            		
-            		// Setting flag to indicate that the process has finished
-                	$scope.processStarted = false;
             	}
+            	*/
+            },
+            
+            'queuecomplete': function (files) {
+            	$scope.$apply(function() {
+        			$scope.alerts.splice(0);
+        			
+        			// Show warning message when there are both errors and success messages
+        			if($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length > 0) {
+        				$scope.alerts.push({
+        					type: 'warning-funky', 
+        					msg: '<b>Warning</b> - Some of the files have been successfully imported! However there were errors on certain files!', 
+        					showDetails: true
+        				});
+        			}
+        			
+        			else if ($scope.importSuccessAlerts.length <= 0 && $scope.importErrorAlerts.length > 0) {
+        				$scope.alerts.push({
+        					type: 'danger-funky', 
+        					msg: '<b>Error</b> - None of the file(s) was imported successfully!', 
+        					showDetails: true
+        				});
+        			}
+        			
+        			else if ($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length <= 0) {
+        				$scope.alerts.push({
+        					type: 'success-funky', 
+        					msg: '<b>Success</b> - All files have successfully been imported.', 
+        					showDetails: true
+        				});
+        			}
+        			
+        			// Show errors
+        			/*
+        			angular.forEach($scope.importErrorAlerts, function(value, key) {
+        				$scope.alerts.push({type: value.type, msg: value.msg});
+        			});
+        			*/
+        		});
+        		
+        		
+        		
+        		// Refreshing NamedGraphs list for the auto-complete
+        		initNamedGraphs();
+        		
+        		// Setting flag to indicate that the process has finished
+            	$scope.processStarted = false;
             },
             
             'successmultiple': function (files, response) {
@@ -414,7 +415,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             			msg: '<i>\"' + response.slice(0, -1) + '\"</i> error occured while trying to import data from the file \"' + file.name + '\".<br/> This was possibly caused due to to non matching content-type.', 
             			titleType: 'Error'
             		});
-            		$scope.file = null;
+            		//$scope.file = null;
             	});
             }
             
@@ -595,7 +596,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
     	$mdDialog.show({
     		//controller: 'importCtrl',
     		scope: $scope,
-    		templateUrl: 'views/dialog/successImportFileList.html',
+    		templateUrl: 'views/dialog/importStatusFileList.html',
     		parent: angular.element(document.body),
     		targetEvent: ev,
     		clickOutsideToClose:true,

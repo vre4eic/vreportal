@@ -110,7 +110,7 @@
 	        	</md-not-found>
       		</md-autocomplete>
         
-			<md-button class="md-raised md-primary" ng-click="uploadFile($event)" ng-disabled="!file">
+			<md-button class="md-raised md-primary" ng-click="uploadFile($event)" ng-disabled="!file || !searchText">
 				Import Data
 			</md-button>
 	      
