@@ -27,6 +27,7 @@ import forth.ics.isl.service.DBService;
 
 import forth.ics.isl.triplestore.RestClient;
 import java.sql.Connection;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -57,36 +58,40 @@ public class ImportController {
     /*
      * Saving meta-data information for the file to be uploaded in the database
      */
-	@RequestMapping(value = "/createGraphMetadata", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/createGraphMetadata", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONObject importData(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 
         System.out.println("Saving metadata into the database...");
-        
+
         String namedGraphLabelParam = null;
         String namedGraphIdParam = null;
         String selectedCategoryLabel = null;
         String selectedCategoryId = null;
-        
+
         // Retrieving the label of the named graph
-        if (requestParams.get("namedGraphLabelParam") != null)
-        	namedGraphLabelParam = requestParams.get("namedGraphLabelParam").toString();
+        if (requestParams.get("namedGraphLabelParam") != null) {
+            namedGraphLabelParam = requestParams.get("namedGraphLabelParam").toString();
+        }
         // Retrieving the id of the named graph
-        if (requestParams.get("namedGraphIdParam") != null)
-        	namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
+        if (requestParams.get("namedGraphIdParam") != null) {
+            namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
+        }
         // Retrieving the label of the category of the named graph
-        if (requestParams.get("selectedCategoryLabel") != null)
-        	selectedCategoryLabel = requestParams.get("selectedCategoryLabel").toString();
+        if (requestParams.get("selectedCategoryLabel") != null) {
+            selectedCategoryLabel = requestParams.get("selectedCategoryLabel").toString();
+        }
         // Retrieving the id of the category of the named graph
-        if (requestParams.get("selectedCategoryId") != null)
-        	selectedCategoryId = requestParams.get("selectedCategoryId").toString();
+        if (requestParams.get("selectedCategoryId") != null) {
+            selectedCategoryId = requestParams.get("selectedCategoryId").toString();
+        }
 
         System.out.println("namedGraphLabelParam: " + namedGraphLabelParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
         System.out.println("selectedCategoryLabel: " + selectedCategoryLabel);
         System.out.println("selectedCategoryId: " + selectedCategoryId);
         String graphUri = null;
-        
+
         JSONObject responseJsonObject = new JSONObject();
         try {
             if (namedGraphIdParam == null) {
@@ -121,7 +126,7 @@ public class ImportController {
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
-    	
+
         System.out.println("Uploading...");
         String contentTypeParam = request.getParameter("contentTypeParam"); // Retrieving param that holds the file's content-type
         String namedGraphIdParam = request.getParameter("namedGraphIdParam");
@@ -146,14 +151,16 @@ public class ImportController {
                 int status = importResponse.getStatus();
                 importResponseJsonString = importResponse.readEntity(String.class);
                 if (status == 200) {
-                    DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
-                    H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
+                    Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
+                    H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam, matRelationEntities);
                 } else//an error occured
-                 if (importResponseJsonString.equals("{}")) {
+                {
+                    if (importResponseJsonString.equals("{}")) {
                         importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";
                         System.out.println("importResponseJsonString");
                         return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                     } //
+                }
             }
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);

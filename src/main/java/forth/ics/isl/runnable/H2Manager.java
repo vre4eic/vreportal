@@ -6,6 +6,7 @@
 package forth.ics.isl.runnable;
 
 import forth.ics.isl.service.DBService;
+import static forth.ics.isl.service.DBService.executeRelationsMatQueries;
 import forth.ics.isl.triplestore.RestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,12 +16,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.List;
-import javax.ws.rs.ClientErrorException;
+import java.util.Set;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
@@ -957,7 +956,111 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-OrganisationUnit/\",encode_for_uri(?role) )) as ?project_org ).\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Project/\",encode_for_uri(?role_opposite) )) as ?org_project ).\n"
                 + "}");
-
+        insertRelationMatUpdate("Person-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Person-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("Project-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Project>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Project-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("Publication-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Publication>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Publication-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("OrganisationUnit-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("Product-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Product>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Product-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("Equipment-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Equipment>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Equipment-Location\") as ?locProp ).\n"
+                + "}");
+        insertRelationMatUpdate("Facility-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Facility>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(\"http://eurocris.org/ontology/cerif#Facility-Location\") as ?locProp ).\n"
+                + "}");
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -991,49 +1094,55 @@ public class H2Manager {
 //        h2.createTableUserFavorites();
 //        h2.terminate();
 
-        String authorizationToken = "56e94821-7c8e-4b77-8d03-4c5830709b04";
+        String authorizationToken = "8b59df10-3c75-4642-90c8-2808c1fc9b95";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
-        String namespace = "vre4eic";
-
+        String namespace = "vre4eictest";
+        String graphURI = "http://ekt-data";
         /////
 //        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
 //        DBService.setConnection(conn);
 //        DBService.setJdbcTemplateUsed(false);
         List<String> uris = DBService.retrieveAllNamedgraphUris();
-        for (String graphURI : uris) {
-//            executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
-            enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI);
-        }
+//        for (String graphURI : uris) {
+        Set<String> matRelationEntities = executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
+        enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
+//        }
 
     }
 
 //    this table contains information about the entities and the materialized relations which connect them 
 //    for each namedgraph. It helps in the performance when we select a target entity from the GUI and we want 
 //    its related entities along with the relations. 
-    public static void enrichMatRelationsTable(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
-
-//        DBService.setConnection(conn);
-//        DBService.setJdbcTemplateUsed(false);
-        JSONArray entities = DBService.retrieveAllEntities(false);
-        ////////
-//        conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+    public static void enrichMatRelationsTable(String endpoint, String namespace, String authorizationToken, String graphUri, Set<String> matRelEntityNames) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+        if (matRelEntityNames.isEmpty()) {
+            return;
+        }
+        JSONArray matRelEntities = DBService.retrieveAllEntities(false);
         Connection conn = DBService.initConnection();
         H2Manager h2 = new H2Manager(conn.createStatement(), conn);
         RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         ////////
-        for (int i = 0; i < entities.size(); i++) {
-            JSONObject targetEntity = (JSONObject) entities.get(i);
+        for (int i = 0; i < matRelEntities.size(); i++) {
+            JSONObject targetEntity = (JSONObject) matRelEntities.get(i);
             String targetEntityURI = (String) targetEntity.get("uri");
             int targetEntityID = (int) targetEntity.get("id");
+            String targetEntityName = (String) targetEntity.get("name");
+            if (!matRelEntityNames.contains(targetEntityName)) {
+                continue;
+            }
             int cnt = 0;
-            for (int j = 0; j < entities.size(); j++) {
+            for (int j = 0; j < matRelEntities.size(); j++) {
                 if (j == i) {
                     continue;
                 }
                 StringBuilder sparqlQuery = new StringBuilder();
-                JSONObject relatedEntity = (JSONObject) entities.get(j);
+                JSONObject relatedEntity = (JSONObject) matRelEntities.get(j);
                 String relatedEntityURI = (String) relatedEntity.get("uri");
                 int relatedEntityID = (int) relatedEntity.get("id");
+                String relatedEntityName = (String) relatedEntity.get("name");
+                if (!matRelEntityNames.contains(relatedEntityName)) {
+                    continue;
+                }
                 sparqlQuery.append("select distinct ?relation from <" + graphUri + "> where {\n").
                         append("?target_inst a <" + targetEntityURI + ">.\n").
                         append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
@@ -1043,7 +1152,7 @@ public class H2Manager {
                 for (int k = 1; k < data.length; k++) {
                     String relationUri = data[k];
                     String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
-//                        h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphURI);
+                    h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri);
                 }
             }
         }

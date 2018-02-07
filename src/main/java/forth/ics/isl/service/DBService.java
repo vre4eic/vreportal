@@ -16,20 +16,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.core.Response;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -543,7 +548,8 @@ public class DBService {
 //    executes the SPARQL update queries stored in table RELATIONS_MATERIAL 
 //    of the H2 database to materialize the relation "shortcuts" between the 
 //    interesting entities for the GUI
-    public static void executeRelationsMatQueries(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, ParseException, ClientErrorException, IOException {
+    public static Set<String> executeRelationsMatQueries(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, ParseException, ClientErrorException, IOException {
+        Set<String> matRelationsEntities = new HashSet<>();
         RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         JSONArray updates = DBService.retrieveAllRelationsMatUpdates();
         StringBuilder sb = new StringBuilder();
@@ -552,11 +558,20 @@ public class DBService {
             JSONObject obj = (JSONObject) updates.get(i);
             String update = ((String) obj.get("update")).replace("@#$%FROM%$#@", "<" + graphUri + ">");
             String relatedEntities = (String) obj.get("related_entities");
-            String response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken).readEntity(String.class);
-            sb.append(relatedEntities + " -> " + ((JSONObject) new JSONParser().parse(response)).get("status") + "\n");
+            Response response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken);
+            int status = response.getStatus();
+            String respString = response.readEntity(String.class);
+            //the update query added new triples
+            if (status == 200 && !respString.contains("mutationCount=0")) {
+                String[] entit = relatedEntities.split("-");
+                matRelationsEntities.add(entit[0]);
+                matRelationsEntities.add(entit[1]);
+            }
+            sb.append(relatedEntities + " -> " + ((JSONObject) new JSONParser().parse(respString)).get("status") + "\n");
         }
         sb.append("-------\n");
         System.out.println(sb.toString());
+        return matRelationsEntities;
     }
 
 }
