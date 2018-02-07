@@ -59,12 +59,33 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 		)
 	};
 	
+	// Regarding roles
+	
+	$scope.hasRoleOfAdministrator = false;
+	$scope.userProfile = authenticationService.getUserProfile();
+	$scope.isAdmin = function() {
+		
+		if($scope.userProfile != null) {
+			if($scope.userProfile.role != null) {
+				if($scope.userProfile.role == 'ADMIN')
+					return true;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+		
+	$scope.hasRoleOfAdministrator = $scope.isAdmin();
+	
 	$scope.cards = [{ 
 	 	   index:"0", 
 	 	   title:"Search Metadata", 
 	 	   description:"Data navigation through a simple and user friendly interface, enriched with auxiliary functionality. Simplifies the \"data acquisition\" process by splitting it in small easy to follow steps", 
 	 	   icon:"mdi-magnify", 
-	 	   disabled:"false",
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
@@ -76,19 +97,17 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   title:"Import Data", 
 	 	   description:"An easy to use tool for data import, organized into VREs. Just drag & drop the data files you need and start adding new data in minutes.", 
 	 	   icon:"mdi-database-plus", 
-	 	   disabled:"false",
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"import",
-	 	   disabled:false, 
+	 	   disabled: !$scope.hasRoleOfAdministrator, 
 	 	   view:""
 	    }, { 
 	 	   index:"2", 
 	 	   title:"My Favorites", 
 	 	   description:"Data navigation might require a few steps to be achieved. However, as soon as important findings are achieved, they can be stored for direct feature access.", 
 	 	   icon:"mdi-star", 
-	 	   disabled:"false",
 	 	   size:"150px",
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",

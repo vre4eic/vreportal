@@ -58,7 +58,7 @@ app.controller("loginCtrl", ['$scope', 'authenticationService', '$location', '$t
 	        			if (profileResponse.name !== null) {
 	        				console.log("profileResponse", profileResponse);
 	        				$sessionStorage.userProfile = profileResponse;
-	        				//updateUserProfile();
+	        				$state.go('welcome', {});
 	        	        } else {
 	        	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.message + "! Cannot retrieve user's profile. "});	        	            
 	        	        }
@@ -66,9 +66,7 @@ app.controller("loginCtrl", ['$scope', 'authenticationService', '$location', '$t
 	        			$scope.message = 'There was a network error. Try again later.';
 	        			alert("failure message: There was a network error. Try again later");
 	        		});
-	                
-	                $state.go('welcome', {});
-	                
+	                	                
 		        } else {
 		        	$scope.alerts.splice(0); // Close alerts
 		        	$scope.alerts.push({type: 'danger-funky', msg: response.message + "! Authendication failed, please check your credentials and try again. "});

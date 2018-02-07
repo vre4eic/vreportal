@@ -969,3 +969,8 @@ div.clearBoundingBoxInQuery.ol-unselectable.ol-control {
 button.withHover.md-icon-button:hover:enabled > md-icon{
   color: rgb(63, 81, 181);
 }
+
+/* z-index fix for progress bar of each file */
+div.dz-progress {
+	z-index:10 !important;
+}

@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDialog', 'authenticationService', '$state', '$mdSidenav', '$mdToast', 
-                               function($scope, queryService, importService, $mdDialog, authenticationService, $state, $mdSidenav, $mdToast) {
+app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'importService', '$mdDialog', 'authenticationService', '$state', '$mdSidenav', '$mdToast', 
+                               function($scope, $sessionStorage, queryService, importService, $mdDialog, authenticationService, $state, $mdSidenav, $mdToast) {
 	// Toggles SidePanel
 	$scope.toggleInfo = buildToggler('rightInfo');
 
@@ -19,8 +19,38 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 	// Calling service to get the user's credentials (token, userId)
 	function initCredentials() {
 		$scope.credentials = authenticationService.getCredentials();
+		if($scope.credentials == undefined) {
+			$state.go('login', {});
+		}
 	}
 	initCredentials();
+	
+	// Regarding roles
+	$scope.userProfile = authenticationService.getUserProfile();
+	$scope.isAdmin = function() {
+		
+		if($scope.userProfile != null) {
+			if($scope.userProfile.role != null) {
+				if($scope.userProfile.role == 'ADMIN')
+					return true;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+	
+	// If not admin then redirect to welcome
+	function checkIfAllowedByRole() {
+		if(!$scope.isAdmin()) {
+			$state.go('welcome', {});
+		}
+	}
+	checkIfAllowedByRole();
+	
 	
 	// Used to inform user that his token is no longer valid and will be logged out
 	$scope.showLogoutAlert = function() {
@@ -74,6 +104,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 			if(response.status == '200') {
 				// Holding the whole tree for future usage
 				$scope.namedGraphTree = response.data;
+				$scope.namedGraphs = []; // Clearing the list of named graphs
 				// response.data is an array of children. Each children is an array of named graphs
 				for(var i=0; i<response.data.length; i++) {
 					for(var j=0; j<response.data[i].children.length; j++) {
@@ -183,6 +214,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             	$scope.$apply(function() {
 	            	$scope.alerts.splice(0);
 	        		$scope.importErrorAlerts.splice(0);
+	                $scope.importSuccessAlerts.splice(0);
             	});
             },
             'addedfile': function (file,response) {
@@ -251,65 +283,39 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
                 		$scope.determinateValue = $scope.determinateValue
                 		
             		}
-            		else {
-            			// File parsing errors
-            			if(response.response_status == 'FAILED') {
-            				/*
-            				$scope.alerts.splice(0);
-            				$scope.alerts.push({
-                    			type: 'danger-funky', 
-                    			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".'
-                    		});
-                    		*/
-            				$mdToast.show(
-        						$mdToast.simple()
-        				        .textContent('Parsing errors occurred while trying to process the file \"' + file.name + '\".')
-        				        .position('top right')
-        				        .parent(angular.element('#dialogContent'))
-        				        .action('OK')
-        				        .highlightAction(true)
-        				        .hideDelay(10000)
-        				    );
-                    		$scope.importErrorAlerts.push({
-                    			type: 'danger-funky', 
-                    			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".',
-                    			titleType: 'Error'
-                    		});
-            			}
-            			// Everything went fine
-            			else {
-            				/*
-		            		$scope.alerts.splice(0);
-		            		$scope.alerts.push({
-		            			type: 'success-funky', 
-		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.'
-		            		});
-		            		*/
+            		else { // Everything went fine
+            			
+        				/*
+	            		$scope.alerts.splice(0);
+	            		$scope.alerts.push({
+	            			type: 'success-funky', 
+	            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.'
+	            		});
+	            		*/
             				
-            				$mdToast.show(
-        						$mdToast.simple()
-        				        .textContent('File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.')
-        				        .position('top right')
-        				        .parent(angular.element('#dialogContent'))
-        				        .action('OK')
-        				        .highlightAction(true)
-        				        .highlightClass('md-primary')
-        				        .theme("altTheme")
-        				        .hideDelay(10000)
-        				    );
-		            		$scope.importSuccessAlerts.push({
-		            			type: 'success-funky', 
-		            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.',
-		            			titleType: 'Success'
-		            		});
-            			}
+        				$mdToast.show(
+    						$mdToast.simple()
+    				        .textContent('File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.')
+    				        .position('top right')
+    				        .parent(angular.element('#dialogContent'))
+    				        .action('OK')
+    				        .highlightAction(true)
+    				        .highlightClass('md-primary')
+    				        .theme("altTheme")
+    				        .hideDelay(10000)
+    				    );
+	            		$scope.importSuccessAlerts.push({
+	            			type: 'success-funky', 
+	            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.',
+	            			titleType: 'Success'
+	            		});
             		}
             		
             		$scope.file = null;
             		            		
             	});
             	
-            	this.removeFile(file);
+            	//////this.removeFile(file);
             	
             	if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
                 	$scope.alerts.splice(0);
@@ -329,7 +335,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             
             'complete': function (file, response) {
             	
-            	$scope.progressValue = 100 * (($scope.fileCount-$scope.getDropzoneAcceptedFiles()) / $scope.fileCount);
+            	////$scope.progressValue = 100 * (($scope.fileCount-$scope.getDropzoneAcceptedFiles()) / $scope.fileCount);
             	/*
             	if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
             	}
@@ -344,7 +350,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
         			if($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length > 0) {
         				$scope.alerts.push({
         					type: 'warning-funky', 
-        					msg: '<b>Warning</b> - Some of the files have been successfully imported! However there were errors on certain files!', 
+        					msg: '<b>Warning</b> - ' + $scope.importSuccessAlerts.length + ' files have been successfully imported! However errors occured on ' + $scope.importErrorAlerts.length + ' files!', 
         					showDetails: true
         				});
         			}
@@ -352,7 +358,7 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
         			else if ($scope.importSuccessAlerts.length <= 0 && $scope.importErrorAlerts.length > 0) {
         				$scope.alerts.push({
         					type: 'danger-funky', 
-        					msg: '<b>Error</b> - None of the file(s) was imported successfully!', 
+        					msg: '<b>Error</b> - ' + $scope.importErrorAlerts.length + ' file(s) had errors!', 
         					showDetails: true
         				});
         			}
@@ -360,10 +366,13 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
         			else if ($scope.importSuccessAlerts.length > 0 && $scope.importErrorAlerts.length <= 0) {
         				$scope.alerts.push({
         					type: 'success-funky', 
-        					msg: '<b>Success</b> - All files have successfully been imported.', 
+        					msg: '<b>Success</b> - All ' + $scope.importSuccessAlerts.length + 'files have successfully been imported.', 
         					showDetails: true
         				});
         			}
+        			
+        			// Remove all files
+        			$scope.resetDropzone();
         			
         			// Show errors
         			/*
@@ -406,17 +415,38 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
             },
             
             'error': function (file, response) {
+            	//console.log(response);
             	
             	$scope.$apply(function() {
-            		//$scope.importErrorAlerts.splice(0);
-            		//$scope.alerts.push({type: 'danger-funky', msg: response.slice(0, -1) + '  while trying to upload the file \"' + file.name + '\". Maybe that\'s caused due to non matching file\'s content-type.'});
-            		$scope.importErrorAlerts.push({
-            			type: 'danger-funky', 
-            			msg: '<i>\"' + response.slice(0, -1) + '\"</i> error occured while trying to import data from the file \"' + file.name + '\".<br/> This was possibly caused due to to non matching content-type.', 
-            			titleType: 'Error'
-            		});
-            		//$scope.file = null;
+            		if(response != null) {
+        				/*
+        				$scope.alerts.splice(0);
+        				$scope.alerts.push({
+                			type: 'danger-funky', 
+                			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".'
+                		});
+                		*/
+        				$mdToast.show(
+    						$mdToast.simple()
+    				        .textContent('Parsing errors occurred while trying to process the file \"' + file.name + '\".')
+    				        .position('top right')
+    				        .parent(angular.element('#dialogContent'))
+    				        .action('OK')
+    				        .highlightAction(true)
+    				        .hideDelay(10000)
+    				    );
+                		$scope.importErrorAlerts.push({
+                			type: 'danger-funky', 
+                			msg: 'Parsing errors occurred while trying to process the file \"' + file.name + '\".',
+                			titleType: 'Error'
+                		});
+                	}
             	});
+            },
+            
+            'totaluploadprogress': function (progress) {
+            	
+            	//$scope.progressValue = progress;
             }
             
         }
@@ -519,8 +549,9 @@ app.controller("importCtrl", [ '$scope', 'queryService', 'importService', '$mdDi
 					
 				}
 				else {
-					$scope.message = '';
+					$scope.message = response.data.message;
 					$scope.showErrorAlert('Error', $scope.message);
+					$scope.searchText = ''; // Initialize named graph input
 				}
 			}
 			else if(response.status == '400') {
