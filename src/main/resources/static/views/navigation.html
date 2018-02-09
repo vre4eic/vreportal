@@ -21,14 +21,12 @@
 				        </md-button>
 					</div>
 			        
-			        <!-- <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="36" style="padding-right:10px;">-->
 			        <md-icon md-font-icon="fa fa-search" style="font-size:36px; padding-right:10px;"></md-icon>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 					<h2 ng-show="currentFavorite.itIsFavorite"> {{favoriteTitle}} </h2>
 					
 					<div ng-show="!searchForm.$invalid" class="zoom-show-hide">
 						<md-button ng-click="observeSparql($event)" 
-								   
 								   class="md-icon-button" 
 								   aria-label="Observe Sparql">
 				            <img src="/images/SPARQL_ICON.png" alt="SPARQL_ICON" height="28">
@@ -59,7 +57,12 @@
 							</md-tooltip>
 				        </md-button>
 				        
-				        
+				        <md-button ng-click="openConfigurationDialog($event)" class="md-icon-button" aria-label="Show Help">
+				            <md-icon md-font-icon="fa fa-cogs" style="font-size:28px;">
+				            <md-tooltip md-delay="1000" md-direction="top">
+								Configuration
+							</md-tooltip>
+				        </md-button>
 				        
 						<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
 				            <!-- <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"></md-icon> -->
