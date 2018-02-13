@@ -15,6 +15,7 @@
               				   ng-class="targetSpeedDialMode">
 				 	<md-fab-trigger>
 						<md-button class="md-fab md-mini md-primary" 
+								   ng-disabled="!configuration.wholeTreeModel.bothAndOr" 
 								   style="margin-top:115px;">
 							{{ rowModel.outerSelectedFilterExpression }}
 							<md-tooltip md-delay="1000" md-direction="top">
@@ -150,19 +151,14 @@
 		 								 style="font-size:24px"></md-icon>
 							</md-button>
 						</md-fab-trigger>
-		
-						<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'">
+						
+						<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'"
+										ng-repeat="filterExpression in targetModel.availableFilterExpressions">
 							<md-button aria-label="Any of the folowing" 
 									   class="md-fab md-primary md-raised md-mini" 
 									   style="background-color: rgb(179, 174, 176);"
-									   ng-click="addNewEmptyRowModel(parent.rowModel, rowModel, 'OR')">
-								OR
-							</md-button>
-							<md-button aria-label="All the following" 
-									   class="md-fab md-primary md-raised md-mini" 
-									   style="background-color: rgb(179, 174, 176);"
-									   ng-click="addNewEmptyRowModel(parent.rowModel, rowModel, 'AND')">
-								AND
+									   ng-click="addNewEmptyRowModel(parent.rowModel, filterExpression.expression)">
+								{{filterExpression.expression}}
 							</md-button>
 						</md-fab-actions>
 						<md-tooltip md-delay="1000" md-direction="top">
@@ -532,19 +528,14 @@
 			 								 style="font-size:24px"></md-icon>
 								</md-button>
 							</md-fab-trigger>
-			
-							<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'">
-								<md-button aria-label="Any of the folowing" 
-										   class="md-fab md-primary md-raised md-mini" 
-										   style="background-color: rgb(179, 174, 176);"
-										   ng-click="addNewEmptyRowModel(rowModel, rowModel, 'OR')">
-									OR
-								</md-button>
-								<md-button aria-label="All the following" 
-										   class="md-fab md-primary md-raised md-mini" 
-										   style="background-color: rgb(179, 174, 176);"
-										   ng-click="addNewEmptyRowModel(rowModel, rowModel, 'AND')">
-									AND
+							
+							<md-fab-actions ng-hide="rowModel.activeRowModelStyle == 'disabled-style'"
+										ng-repeat="filterExpression in rowModel.availableFilterExpressions">
+							<md-button aria-label="Any of the folowing" 
+									   class="md-fab md-primary md-raised md-mini" 
+									   style="background-color: rgb(179, 174, 176);"
+									   ng-click="addNewEmptyRowModel(rowModel, filterExpression.expression)">
+									{{filterExpression.expression}}
 								</md-button>
 							</md-fab-actions>
 							<md-tooltip md-delay="1000" md-direction="top">
@@ -553,11 +544,7 @@
 						</md-fab-speed-dial>
 					</div>
 				</div>
-			</div>
-			
-			
-			
-			<!-- <md-divider></md-divider> -->
+			</div>			
 		</div>
 			
 			

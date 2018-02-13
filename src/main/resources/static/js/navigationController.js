@@ -368,7 +368,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.configuration = {
 		wholeTreeModel: {
 			levelLimit: 2,
-			bothAndOr: true 	// Not applied yet
+			bothAndOr: false
 		},
 		everyRowModel: {
 			degreeLimit: 2
@@ -381,7 +381,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				maxResoultCountForShowingPinsOnInit: 200
 			},
 			excludedEntities: [],
-			selectedInstancesLimit:10 	// Not applied yet
+			selectedInstancesLimit:10
 		}
 	}
 	
@@ -399,7 +399,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		searchTargetKeywords: '',
 		selectedTargetRecomentation: null,
 		targetChips: [],
-		backupTargetChips: []
+		backupTargetChips: [],
+		availableFilterExpressions: [{expression: 'OR'}, {expression: 'AND'}],
 	}
 	
 	// Used to convert fro UTC (when date is initially null) to local timezone
@@ -425,6 +426,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		id: autoincrementedRowModelId,
 		level: 0,
 		outerSelectedFilterExpression: '',
+		availableFilterExpressions: [{expression: 'OR'}, {expression: 'AND'}],
 		selectedRelation: null,
 		backupSelectedRelation: null,
 		relations: [],//angular.copy($scope.relations),
@@ -604,11 +606,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			
 	}
 		
-	$scope.addNewEmptyRowModel = function(parentRowModel,  rowModel, str) {
-		
+	$scope.addNewEmptyRowModel = function(parentRowModel, str) {
+				
 		autoincrementedRowModelId++;
 		
 		if(parentRowModel == null) {
+			
+			if($scope.configuration.wholeTreeModel.bothAndOr == false) {
+				$scope.targetModel.availableFilterExpressions = [{expression: str}];
+			}
+			
 			$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 			$scope.rowModelList[$scope.rowModelList.length-1].outerSelectedFilterExpression = str;
 			$scope.rowModelList[$scope.rowModelList.length-1].id = autoincrementedRowModelId;
@@ -620,6 +627,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.rowModelList[$scope.rowModelList.length-1].activeRowModelStyle = 'enabled-style';
 		}
 		else { //if(parentRowModel != null) {
+			
+			if($scope.configuration.wholeTreeModel.bothAndOr == false) {
+				parentRowModel.availableFilterExpressions = [{expression: str}];
+			}
+			
 			parentRowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].outerSelectedFilterExpression = str;
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].id =  autoincrementedRowModelId;
@@ -639,10 +651,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.removeRowModel = function(outerIndex, rowModel) {
 		// Removes 1 item at position outerIndex
 		if(rowModel == null) {
-			$scope.rowModelList.splice(outerIndex, 1)
+			$scope.rowModelList.splice(outerIndex, 1);
+			if($scope.rowModelList.length < 2) // Restore logical options if only one left
+				$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 		}
 		else { //if(rowModel != null) {
-			rowModel.rowModelList.splice(outerIndex, 1)
+			rowModel.rowModelList.splice(outerIndex, 1);
+			if(rowModel.rowModelList.length < 2) // Restore logical options if only one left
+				rowModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 		}
 		homeStateConfirmService.setQueryUnderConstruction(true);
 		$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
@@ -880,6 +896,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						$scope.emptyRowModel.activeRowModelStyle= 'disabled-style';
 						// Delete all the children and add only one (the empty one just created)
 						$scope.rowModelList = [$scope.emptyRowModel];
+						// Initialize available logical expressions
+						$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 						
 						var rowModelId = $scope.rowModelList[0].id;
 						//$scope.searchForm['relatedEntityInput_' + $scope.emptyRowModel.id].$setTouched();
@@ -1202,13 +1220,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 					else { //if(response.data.length <= 0)
 						
-						if(parentRowModel != null) // Parent is some entityModel
+						if(parentRowModel != null)  {// Parent is some entityModel
 							parentRowModel.rowModelList.splice(parentRowModel.rowModelList.length-1, 1);
+							if(parentRowModel.rowModelList.length < 2) // Restore logical options if only one left
+								parentRowModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
+						}
 						else { // Parent is target
 							if($scope.rowModelList.length == 1) // This is the only rowmodel
 								resetWholeQueryModel(false);
 							else // /There are more than one row models (target has many children)
 								$scope.rowModelList.splice($scope.rowModelList.length-1, 1);
+							
+							if($scope.rowModelList.length < 2) // Restore logical options if only one left
+								$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 						}
 						
 						// I cannot get the parentRowModel, thus prompting a general message
@@ -2175,11 +2199,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Resetting target model
 		$scope.targetModel.selectedTargetEntity = null;
 		$scope.targetModel.backupSelectedTargetEntity = null;
-		$scope.targetModel.targetEntities = $scope.allEntities;
+		//$scope.targetModel.targetEntities = $scope.allAvailableEntities;
 		$scope.targetModel.searchTargetKeywords = '';
 		$scope.targetModel.selectedTargetRecomentation = null;
 		$scope.targetModel.targetChips = [];
 		$scope.targetModel.backupTargetChips = [];
+		$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 		
 		//console.log($scope.rowModelList);
 		// Setting select inputs untouched
@@ -2343,6 +2368,66 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	$scope.closeSparqlObserve = function() {
 		// Hide dialog
 		$mdDialog.cancel();
+	}
+	
+	// Opens dialog for the configuration
+	$scope.openConfigurationDialog = function(ev) {
+		
+		// Using this for configuration only
+		$scope.allAvailableEntities = angular.copy($scope.allEntities);
+		
+		$mdDialog.show({
+    		scope: $scope,
+    		templateUrl: 'views/dialog/configuration.tmpl.html', 
+    		parent: angular.element(document.body),
+    		targetEvent: ev,
+    		autoWrap: false, // Solves the error "Controller 'mdSelectMenu', required by directive 'mdOption', can't be found!"
+    		preserveScope: true,
+    		fullscreen: false // Only for -xs, -sm breakpoints.
+		});
+	}
+	
+	$scope.closeConfigurationDialog = function() {
+		
+		if($scope.targetModel.selectedTargetEntity != null) {
+			
+			var containedInListObject = containedInListBasedOnFieldPath($scope.targetModel.selectedTargetEntity, $scope.configuration.targetEntity.excludedEntities, 'name');
+			if(containedInListObject.contained) {
+				var message = 'The entity ' 
+							   + '<code>' +
+							   $scope.configuration.targetEntity.excludedEntities[containedInListObject.index].name
+							   + '</code> '
+							   + 'cannot be set as excluded, since it has already been selected as target entity. '
+							   + 'Hence, it will be removed from the list of excluded entities.';
+				$mdDialog.show(
+					$mdDialog.alert()
+				      	.parent(angular.element(document.querySelector('#popupContainerOnConfiguration')))
+				        .title('Warning')
+				        .htmlContent(message)
+				        .ariaLabel('Logout Message')
+				        .ok('OK')
+				        .multiple(true)
+			    ).finally(function() {
+			    	
+			    	// Removing already selected target entity from excluded list for target entities
+			    	$scope.configuration.targetEntity.excludedEntities.splice(containedInListObject.index, 1);
+			    	
+			    	$mdDialog.cancel(); // Hide dialog
+			    	// Initializing AllEntities
+					initAllEntities($scope.queryFrom, false);
+			    });
+			}
+			
+			else {
+				$mdDialog.cancel(); // Hide dialog
+				initAllEntities($scope.queryFrom, false);
+			}
+		}
+		
+		else {
+			$mdDialog.cancel(); // Hide dialog
+			initAllEntities($scope.queryFrom, false);
+		}		
 	}
 	
 	$scope.applySearch = function() {

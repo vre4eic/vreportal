@@ -76,7 +76,6 @@
 		<div>
 			<md-progress-linear md-mode="determinate" value="{{progressValue}}" flex></md-progress-linear>
 			<form class="dropzone" dropzone="dropzoneConfig" id="dropzone">
-				<md-backdrop ng-show="processStarted" class="md-opaque" ng-cloak></md-backdrop>
 				<div class="dz-default dz-message"
 					 style="color: #a0a0a0; font-size: 250%; text-align: center; margin: 2em 0;">
 					Drop file(s) here or click to upload.
@@ -86,7 +85,7 @@
 		
 		<!-- Components for content-type, upload and reset -->
 		<section layout="row" layout-sm="column" layout-align="end center" layout-wrap>
-			
+			<md-backdrop ng-show="processStarted" class="md-opaque" ng-cloak></md-backdrop>
 			<md-select ng-model="selectedFormat" class="md-no-underline" placeholder="File's Content-Type">
 				<md-option ng-repeat="format in formats" ng-value="format" >
 					{{format}}
