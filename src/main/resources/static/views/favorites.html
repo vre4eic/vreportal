@@ -5,10 +5,13 @@
 	
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-icon md-font-icon="fa fa-heart" style="padding-right:10px; font-size:28px;"/>
+					<md-icon md-font-icon="fa fa-star" style="padding-right:10px; font-size:36px;"/>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
-					<md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Toggle Info">
-			            <md-icon md-font-icon="fa fa-info-circle" style="font-size:28px;"/>
+			        <md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
+			            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
+			            <md-tooltip md-delay="1000" md-direction="top">
+							Help
+						</md-tooltip>
 			        </md-button>
 				</div>
 			</md-toolbar>
@@ -22,12 +25,13 @@
 				<md-toolbar class="md-accent">
 					<div class="md-toolbar-tools">
 						<md-button class="md-icon-button" aria-label="Hide Help" ng-click="toggleInfo()">
-		         				<md-icon md-font-icon="fa fa-chevron-circle-right" style="font-size:24px"></md-icon>
-		       			</md-button>
+	          				<md-icon md-font-icon="fa fa-chevron-circle-right" style="font-size:24px"></md-icon>
+	        			</md-button>
 						
-						<h2 class="md-flex">Information</h2>
+						<h2 class="md-flex">Help</h2>
 						<span flex></span>
-						<md-icon md-font-icon="fa fa-info" style="font-size:32px;"></md-icon>
+						<!-- <md-icon md-font-icon="fa fa-info" style="font-size:24px;"></md-icon>-->
+						<md-icon md-font-icon="fa fa-question" style="font-size:24px;"></md-icon>
 					</div>
 				</md-toolbar>
 		

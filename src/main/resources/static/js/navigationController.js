@@ -497,6 +497,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// Initializing model from favorite (if loaded)
 		if($sessionStorage.selectedFavoriteModel != null) {
 			
+			// Loading configuration
+			if($sessionStorage.selectedFavoriteModel.queryModel.configuration !=null)
+				$scope.configuration = $sessionStorage.selectedFavoriteModel.queryModel.configuration;
+			
 			$scope.favoriteTitle = $sessionStorage.selectedFavoriteModel.title;
 			$scope.rowModelList = $sessionStorage.selectedFavoriteModel.queryModel.relatedModels;
 			$scope.targetModel = $sessionStorage.selectedFavoriteModel.queryModel.targetModel;
@@ -605,16 +609,63 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		});
 			
 	}
-		
+	
+	// When clicking on "Using always both regular expressions ('AND' & 'OR')" switcher
+	// through the configuration options
+	$scope.changeAvailabilityOfRegExpressions = function(bothAndOr) {
+		if(bothAndOr) {
+			
+			// Changing reg expr options for the target entity
+			$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
+			
+			// Changing options for all the related entities
+			for(var i=0; i<$scope.rowModelList.length; i++) {
+				changeAvailabilityOfRegExpressionsRecursively(bothAndOr, $scope.rowModelList[i]);
+			}
+		}
+		else {
+			if($scope.targetModel.selectedTargetEntity != null) {
+				var message = 'Restricting the available regular expressions while the construction '
+						    + 'of the query is under progress is not allowed.'
+						    + '<br/><br/>'
+						    + 'This action will be rolled back. You can either continue with using all the available regular expressions '
+						    + 'or start from scratch by resetting the existing cunstruction.';
+				$mdDialog.show(
+						$mdDialog.alert()
+					      	.parent(angular.element(document.querySelector('#popupContainerOnConfiguration')))
+					        .title('Forbiddance')
+					        .htmlContent(message)
+					        .ariaLabel('Forbiddance Message')
+					        .ok('OK')
+					        .multiple(true)
+			    ).finally(function() {
+			    	//Rolling back setting
+			    	$scope.configuration.wholeTreeModel.bothAndOr = true;
+			    });
+			}
+		}
+	}
+	
+	// Recursively changing the Changing the reg expr options for each node of the tree 
+	function changeAvailabilityOfRegExpressionsRecursively(bothAndOr, rowModel) {
+		if(bothAndOr) {
+			rowModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
+			for(var i=0; i<rowModel.rowModelList.length; i++) {
+				changeAvailabilityOfRegExpressionsRecursively(bothAndOr, rowModel.rowModelList[i]);
+			}
+		}
+	}
+	
 	$scope.addNewEmptyRowModel = function(parentRowModel, str) {
 				
 		autoincrementedRowModelId++;
 		
 		if(parentRowModel == null) {
 			
-			if($scope.configuration.wholeTreeModel.bothAndOr == false) {
+			if($scope.configuration.wholeTreeModel.bothAndOr == false)
 				$scope.targetModel.availableFilterExpressions = [{expression: str}];
-			}
+			//else
+			//	$scope.targetModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 			
 			$scope.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 			$scope.rowModelList[$scope.rowModelList.length-1].outerSelectedFilterExpression = str;
@@ -628,9 +679,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		}
 		else { //if(parentRowModel != null) {
 			
-			if($scope.configuration.wholeTreeModel.bothAndOr == false) {
+			if($scope.configuration.wholeTreeModel.bothAndOr == false)
 				parentRowModel.availableFilterExpressions = [{expression: str}];
-			}
+			//else
+			//	parentRowModel.availableFilterExpressions = [{expression: 'OR'}, {expression: 'AND'}];
 			
 			parentRowModel.rowModelList.push(angular.copy($scope.initEmptyRowModel));
 			parentRowModel.rowModelList[parentRowModel.rowModelList.length-1].outerSelectedFilterExpression = str;
@@ -2002,6 +2054,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$scope.favoriteModel.queryModel.targetModel = $scope.targetModel;
 		$scope.favoriteModel.queryModel.relatedModels = $scope.rowModelList;
 		$scope.favoriteModel.queryModel.namegraphs = $scope.namegraphs;
+		$scope.favoriteModel.queryModel.configuration = angular.copy($scope.configuration);
 		
 		// If already favorite, then update it
 		if($scope.currentFavorite.dbTableId != undefined || $scope.currentFavorite.dbTableId != null)
@@ -2211,8 +2264,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//$scope.searchForm.$setPristine();
 		$scope.searchForm['targetEntityInput'].$setUntouched();
 		var rowModelId = $scope.rowModelList[0].id;
-		$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
-		$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
+		if($scope.searchForm['relatedEntityInput_' + rowModelId] != null)
+			$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
+		if($scope.searchForm['relationInput_' + rowModelId] != null)
+			$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
 		
 		// Open tree menu again
 		if(openTreeMenu) {
@@ -2290,7 +2345,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			}
     			
     			// Delete Useless for the back-end properties, occupying a lot of volume
-    			
+    			    			
     			// Target
     			delete model.queryModel.targetModel.backupSelectedTargetEntity;
     			delete model.queryModel.targetModel.targetEntities;
@@ -2370,8 +2425,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$mdDialog.cancel();
 	}
 	
+	// Solves the error "Controller 'mdSelectMenu', required by directive 'mdOption', can't be found!"
+	$scope.canShowConfigDialog = true;
+	
 	// Opens dialog for the configuration
 	$scope.openConfigurationDialog = function(ev) {
+		
+		$scope.canShowConfigDialog = true;
 		
 		// Using this for configuration only
 		$scope.allAvailableEntities = angular.copy($scope.allEntities);
@@ -2388,6 +2448,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	$scope.closeConfigurationDialog = function() {
+		
+		// Solves the error "Controller 'mdSelectMenu', required 
+		// by directive 'mdOption', can't be found!"
+		$scope.canShowConfigDialog = false;
+		
+		$scope.configGeneralHelpShown = false; // Hide help if shown
+		$scope.configEntityOptionsHelpShown = false; // Hide help if shown
 		
 		if($scope.targetModel.selectedTargetEntity != null) {
 			
@@ -2429,7 +2496,25 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			initAllEntities($scope.queryFrom, false);
 		}		
 	}
-	
+		/*
+	$scope.dynamicPopover = {
+		levelLimit: {
+		    content: '',
+		    templateUrl: 'levelLimitTemplate',
+		    title: 'Level Limit - Help'
+		},
+		degreeLimit: {
+		    content: '',
+		    templateUrl: 'degreeLimitTemplate',
+		    title: 'Degree Limit - Help'
+		},
+		bothAndOr: {
+		    content: '',
+		    templateUrl: 'bothAndOrTemplate',
+		    title: 'Regular Expr. - Help'
+		}
+	};
+	*/
 	$scope.applySearch = function() {
 		
 		// Setting the first page to be the current one
