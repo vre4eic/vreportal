@@ -197,6 +197,33 @@
 		      	</div>
 			</div>
 			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:70px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					When activated, pins representing coordinates will be shown instantly within 
+					each drawing box drawn. When deactivated the drawn bounding box will appear 
+					empty. 
+					<br/>
+					You can always hold down <code>Ctrl + left mouse click</code> while selecting some area on the map to display pins.
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+				<div flex="40" layout layout-align="left center">
+					Show pins when drawing a bounding box on the map
+				</div>
+	      		<md-switch ng-model="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox" 
+	      				   aria-label="Show pins when drawing a bounding box on the map" 
+	      				   class="md-primary">
+ 					</md-switch>
+ 					<div layout layout-align="right center" style=width:100px;>
+  					<span ng-show="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+   						Activated 
+   					</span> 
+   					<span ng-show="!configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+   						Deactivated 
+   					</span>
+   				</div>
+			</div>
+			
 		</div>
 	</md-dialog-content>
 	

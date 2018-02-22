@@ -311,26 +311,33 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			.cancel('Cancel');
 		
 		// If target is selected and there are changes on the tree then ask for confirmation
-		if($scope.targetModel.selectedTargetEntity == null) {
-			// Keep Copy of namegraphs to compare next time
-			$scope.namegraphsCopy = angular.copy($scope.namegraphs);
-			homeStateConfirmService.setQueryUnderConstruction(true);
-			$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
-		}
-		
 		if(JSON.stringify($scope.namegraphs, stringifyReplacerForMenuTree) != JSON.stringify($scope.namegraphsCopy, stringifyReplacerForMenuTree)) {
-			$mdDialog.show(confirm).then(function() {
-		    	resetWholeQueryModel(true);
-		    	homeStateConfirmService.setQueryUnderConstruction(true);
+			
+			if($scope.targetModel.selectedTargetEntity != null) {
+			
+				$mdDialog.show(confirm).then(function() {
+			    	resetWholeQueryModel(true);
+			    	homeStateConfirmService.setQueryUnderConstruction(true);
+					$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
+					$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+			    }, function() { // Cancel
+			    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
+			    });
+			}
+			
+			else {
+				initAllEntities($scope.queryFrom, false);
+				homeStateConfirmService.setQueryUnderConstruction(true);
 				$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
-		    }, function() { // Cancel
-		    	$scope.namegraphs = angular.copy($scope.namegraphsCopy);
-		    });
+				$scope.namegraphsCopy = angular.copy($scope.namegraphs);
+				$scope.toggleTreeMenu();
+			}
+			
 		}
 		else { // No changes
 	    	$scope.toggleTreeMenu();
 		}
-		
+				
 	}
 	
 	$scope.breadcrumbItems = 
@@ -378,7 +385,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		},
 		relatedEntity: {
 			map: {
-				maxResoultCountForShowingPinsOnInit: 200
+				maxResoultCountForShowingPinsOnInit: 200,
+				showPinsWhenDrawingBoundingBox: false
 			},
 			excludedEntities: [],
 			selectedInstancesLimit:10
@@ -2246,8 +2254,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		if($scope.currentFavorite.itIsFavorite) {
 			// Re-retrieve all entities
 			constructQueryFrom($scope.namegraphs);
-			initAllEntities($scope.queryFrom, false);
 		}
+		
+		initAllEntities($scope.queryFrom, false);
 		
 		// Resetting target model
 		$scope.targetModel.selectedTargetEntity = null;
@@ -2948,11 +2957,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	//Enabling button that clears bounding box
 	    	document.getElementById("clearBoundingBoxButtonId").disabled = false;
 	    	
-	    	//var coordinateStr = e.feature.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
-	    	var boxGeometry = e.feature.getGeometry().clone();
-	    	var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
-	    	//console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr);
+		    var boxGeometry = e.feature.getGeometry().clone();
+		    var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+		    //console.log('coordinateStr: ' + coordinateStr);
+			convertCoordinatesToJson(coordinateStr, false);
 			
 			// Setting bounding box on rowModel
 			rowModel.boundingBox = $scope.coordinatesRegion;
@@ -3119,7 +3127,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Holding all 5 coordinates in a string and transform them to the appropriate projection
 			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 			//console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr);
+			convertCoordinatesToJson(coordinateStr, true);
 	    	  
 			// required for immediate update 
 			//$scope.$apply();
@@ -3142,7 +3150,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// (2,3)		(4,5)
 		//	
 	      
-		function convertCoordinatesToJson(coordinateStr) {
+		function convertCoordinatesToJson(coordinateStr, showPins) {
 			
 			var thebox = coordinateStr.toString().split(",");
 			// Using parseFloat in order to convert the strings to floats
@@ -3226,9 +3234,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			console.log(longitude1 + ", " + latitude1 + ", " + longitude2 + ", " + latitude2 + ", " + longitude3 + ", " + latitude3 + ", " + longitude4 + ", " + latitude4 + ", " + longitude5 + ", " + latitude5);
 			console.log("north: " + north + ", south: " + south + ", west: " + west + ", east: " + east);
 			
-			// Calling the service
-			$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
-			
+			// Calling the service to retrieve the pins
+			if(showPins) {
+				$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+			}
+			else {
+				if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
+					$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+			}
 		}
 
 		// Initializing
@@ -3573,7 +3586,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// is the same as the previous one
 					// (hovering over the pixels of the same pin)
 					if(previousFeature != null) {
-						if(previousFeature.get('name') == newFeature.get('name'))
+						if(previousFeature.get('uri') == newFeature.get('uri'))
 							isDisplayed = true;
 						else
 							isDisplayed = false;
@@ -3583,7 +3596,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					// (hovering over some pin then go out and then 
 					// hover immediately over the same pin)
 					else if(oldFeature != null) {
-						if (oldFeature.get('name') == newFeature.get('name'))
+						if (oldFeature.get('uri') == newFeature.get('uri'))
 							isDisplayed = true;
 						else
 							isDisplayed = false;
@@ -3891,7 +3904,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	boundingBoxFeatures.push(currBoundingBoxFeature);
 	    	
 	    	// Handle the coordinates
-			convertCoordinatesToJson(coordinateStr);
+	    	convertCoordinatesToJson(coordinateStr, false);
 	    				
 			// Re-center the map
 			$scope.map.getView().setCenter(currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
