@@ -386,7 +386,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		relatedEntity: {
 			map: {
 				maxResoultCountForShowingPinsOnInit: 200,
-				showPinsWhenDrawingBoundingBox: false
+				showPinsWhenDrawingBoundingBox: true
 			},
 			excludedEntities: [],
 			selectedInstancesLimit:10
