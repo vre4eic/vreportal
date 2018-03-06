@@ -218,7 +218,8 @@ public class H2Manager {
                 "",
                 false,
                 "distinct (?@#$%VAR%$#@Name as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
-                "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
@@ -305,26 +306,28 @@ public class H2Manager {
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
-                + "?org a cerif:OrganisationUnit.\n"
-                + "?org cerif:has_name ?orgName.\n"
-                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "}\n"
+                + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
                 + "?orgName bds:search \"@#$%TERM%$#@\".\n"
                 + "?orgName bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                + "?org a cerif:OrganisationUnit.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
-                + "?org a cerif:OrganisationUnit.\n"
-                + "?org cerif:has_name ?orgName.\n"
-                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "}\n"
+                + "OPTIONAL {?org cerif:has_acronym ?orgAcronym. }\n"
                 + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -338,13 +341,14 @@ public class H2Manager {
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                + "?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "?org cerif:has_name ?orgName.\n"
+                + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
-                + "?org a cerif:OrganisationUnit.\n"
-                + "?org cerif:has_name ?orgName.\n"
-                + "?org cerif:has_acronym ?orgAcronym.\n"
+                + "}\n"
+                + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
                 + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -359,13 +363,14 @@ public class H2Manager {
                 + "}ORDER BY desc(?score) \n",
                 false,
                 "distinct (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.",
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.}",
                 "OPTIONAL {?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label}. \n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name. \n"
                 + "bind(if(bound(?@#$%VAR%$#@Label), ?@#$%VAR%$#@Label, ?@#$%VAR%$#@Name) as ?@#$%VAR%$#@FinalName). \n"
@@ -596,7 +601,7 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) \n",
                 false,
-                "distinct ?@#$%VAR%$#@Name  ?Responsible ?Service (?object as ?uri)",
+                "distinct ?@#$%VAR%$#@Νame  ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Equipment>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
@@ -719,7 +724,7 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ORDER BY desc(?score) \n",
                 false,
-                "distinct ?@#$%VAR%$#@Name  ?Responsible ?Service (?object as ?uri)",
+                "distinct ?@#$%VAR%$#@Νame  ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Facility>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
@@ -853,6 +858,34 @@ public class H2Manager {
     }
 
     private void insertRelationsMatUpdates() throws SQLException {
+        insertRelationMatUpdate("has_source",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?s <http://eurocris.org/ontology/cerif#has_source> ?o.  \n"
+                + "} WHERE {\n"
+                + "  ?o <http://eurocris.org/ontology/cerif#is_source_of> ?s.\n"
+                + "}");
+        insertRelationMatUpdate("is_source_of",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?s <http://eurocris.org/ontology/cerif#is_source_of> ?o.  \n"
+                + "} WHERE {\n"
+                + "  ?o <http://eurocris.org/ontology/cerif#has_source> ?s.\n"
+                + "}");
+        insertRelationMatUpdate("has_destination",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?s <http://eurocris.org/ontology/cerif#has_destination> ?o.  \n"
+                + "} WHERE {\n"
+                + "  ?o <http://eurocris.org/ontology/cerif#is_destination_of> ?s.\n"
+                + "}");
+        insertRelationMatUpdate("is_destination_of",
+                "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?s <http://eurocris.org/ontology/cerif#is_destination_of> ?o.  \n"
+                + "} WHERE {\n"
+                + "  ?o <http://eurocris.org/ontology/cerif#has_destination> ?s.\n"
+                + "}");
         insertRelationMatUpdate("OrganisationUnit-Publication",
                 "WITH @#$%FROM%$#@ \n"
                 + "INSERT { \n"
@@ -862,20 +895,11 @@ public class H2Manager {
                 + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>. \n"
                 + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>. \n"
                 + "\n"
-                + "  {?org <http://eurocris.org/ontology/cerif#is_source_of> ?op.} \n"
-                + "  UNION \n"
-                + "  {?op <http://eurocris.org/ontology/cerif#has_source> ?org} \n"
-                + "  { \n"
-                + "    ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?op. \n"
-                + "    ?op <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } UNION { \n"
-                + "    ?op <http://eurocris.org/ontology/cerif#has_destination> ?pub. \n"
-                + "    ?op <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  } \n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?op. \n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?op. \n"
+                + "  ?op <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
                 + "\n"
                 + "  Bind( IRI( concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Publication/\",encode_for_uri(?role) )) as ?orgunit_pub ). \n"
                 + "  Bind( IRI( concat(\"http://eurocris.org/ontology/cerif#Publication-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?pub_orgunit ). \n"
@@ -889,20 +913,11 @@ public class H2Manager {
                 + "  ?pers a <http://eurocris.org/ontology/cerif#Person>. \n"
                 + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>. \n"
                 + "\n"
-                + "  {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.} \n"
-                + "  UNION \n"
-                + "  {?pou <http://eurocris.org/ontology/cerif#has_source> ?pers} \n"
-                + "  { \n"
-                + "    ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } UNION { \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_destination> ?org. \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  } \n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
                 + "\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-OrganisationUnit/\",encode_for_uri(?role) )) as ?person_orgunit ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Person/\",encode_for_uri(?role_opposite) )) as ?orgunit_person ) \n"
@@ -915,22 +930,13 @@ public class H2Manager {
                 + "} WHERE { \n"
                 + "  ?pers a <http://eurocris.org/ontology/cerif#Person>. \n"
                 + "  ?proj a <http://eurocris.org/ontology/cerif#Project>. \n"
-                + "    \n"
-                + "  {?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp.} \n"
-                + "  UNION \n"
-                + "  {?pp <http://eurocris.org/ontology/cerif#has_source> ?proj} \n"
-                + "  { \n"
-                + "    ?pers <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } UNION { \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_destination> ?pers. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  } \n"
-                + "   \n"
+                + "\n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp. \n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
+                + "\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Project/\",encode_for_uri(?role) )) as ?person_project ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Person/\",encode_for_uri(?role_opposite) )) as ?project_person ). \n"
                 + "}");
@@ -942,22 +948,13 @@ public class H2Manager {
                 + "} WHERE { \n"
                 + "  ?pers a <http://eurocris.org/ontology/cerif#Person>. \n"
                 + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>. \n"
-                + "    \n"
-                + "  {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pp.} \n"
-                + "  UNION \n"
-                + "  {?pp <http://eurocris.org/ontology/cerif#has_source> ?pers.} \n"
-                + "  { \n"
-                + "    ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } UNION { \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_destination> ?pub. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  } \n"
-                + "  \n"
+                + "\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pp. \n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
+                + "\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Publication/\",encode_for_uri(?role) )) as ?person_publication ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Publication-Person/\",encode_for_uri(?role_opposite) )) as ?publication_person ). \n"
                 + "}");
@@ -970,20 +967,11 @@ public class H2Manager {
                 + "  ?pub a <http://eurocris.org/ontology/cerif#Publication>. \n"
                 + "  ?proj a <http://eurocris.org/ontology/cerif#Project>. \n"
                 + "\n"
-                + "  {?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp.} \n"
-                + "  UNION \n"
-                + "  {?pp <http://eurocris.org/ontology/cerif#has_source> ?proj.} \n"
-                + "  { \n"
-                + "    ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } UNION { \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_destination> ?pub. \n"
-                + "    ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  }   \n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pp. \n"
+                + "  ?pub <http://eurocris.org/ontology/cerif#is_destination_of> ?pp. \n"
+                + "  ?pp <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
                 + "\n"
                 + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-Publication/\",encode_for_uri(?role) )) as ?project_pub ). \n"
@@ -998,23 +986,12 @@ public class H2Manager {
                 + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>. \n"
                 + "  ?proj a <http://eurocris.org/ontology/cerif#Project>. \n"
                 + "\n"
-                + "  {?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pou.} \n"
-                + "  UNION \n"
-                + "  {?pou <http://eurocris.org/ontology/cerif#has_source> ?proj} \n"
-                + "  { \n"
-                + "    ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.    \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
-                + "  } \n"
-                + "  UNION \n"
-                + "  { \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_destination> ?org. \n"
-                + "    ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.    \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role. \n"
-                + "    ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite. \n"
-                + "  } \n"
-                + "   \n"
+                + "  ?proj <http://eurocris.org/ontology/cerif#is_source_of> ?pou. \n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.    \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite. \n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role. \n"
+                + "\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Project-OrganisationUnit/\",encode_for_uri(?role) )) as ?project_org ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Project/\",encode_for_uri(?role_opposite) )) as ?org_project ). \n"
                 + "}");
@@ -1123,6 +1100,108 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Facility-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
+        insertRelationMatUpdate("OrganisationUnit-Product", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?org ?org_product ?prod. \n"
+                + "  ?prod ?product_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?prod a <http://eurocris.org/ontology/cerif#Product>.\n"
+                + "\n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?prod <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Product/\",encode_for_uri(?role) )) as ?org_product ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Product-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?product_org ). \n"
+                + "}");
+        insertRelationMatUpdate("Person-Product", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_product ?prod. \n"
+                + "  ?prod ?product_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?prod a <http://eurocris.org/ontology/cerif#Product>.\n"
+                + "\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?prod <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Product/\",encode_for_uri(?role) )) as ?pers_product ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Product-Person/\",encode_for_uri(?role_opposite) )) as ?product_pers ). \n"
+                + "}");
+        insertRelationMatUpdate("OrganisationUnit-Facility", "WITH <http://epos-data>\n"
+                + "INSERT { \n"
+                + "  ?org ?org_fac ?fac. \n"
+                + "  ?fac ?fac_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?fac a <http://eurocris.org/ontology/cerif#Facility>.\n"
+                + "\n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?fac <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Facility/\",encode_for_uri(?role) )) as ?org_fac ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Facility-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?fac_org ). \n"
+                + "}");
+        insertRelationMatUpdate("Person-Facility", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_fac ?fac. \n"
+                + "  ?fac ?fac_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?fac a <http://eurocris.org/ontology/cerif#Facility>.\n"
+                + "\n"
+                + "  ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?fac <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Facility/\",encode_for_uri(?role) )) as ?pers_fac ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Facility-Person/\",encode_for_uri(?role_opposite) )) as ?fac_pers ). \n"
+                + "}");
+        insertRelationMatUpdate("OrganisationUnit-Equipment", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?org ?org_eq ?eq. \n"
+                + "  ?eq ?eq_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?eq a <http://eurocris.org/ontology/cerif#Equipment>.\n"
+                + "\n"
+                + "  ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "  ?eq <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "  ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Equipment/\",encode_for_uri(?role) )) as ?org_eq ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Equipment-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?eq_org ). \n"
+                + "}");
+        insertRelationMatUpdate("Person-Equipment", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_eq ?eq. \n"
+                + "  ?eq ?eq_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?eq a <http://eurocris.org/ontology/cerif#Equipment>.\n"
+                + "\n"
+                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?eq <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role_opposite.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Equipment/\",encode_for_uri(?role) )) as ?pers_eq ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Equipment-Person/\",encode_for_uri(?role_opposite) )) as ?eq_pers ). \n"
+                + "}");
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -1153,27 +1232,34 @@ public class H2Manager {
 //        h2.deleteTable("entity");
 //        h2.createTableEntity();
 //        h2.insertEntities();
-//        h2.deleteTable("RELATIONS_MATERIAL");
-//        h2.createTableRelationsMatUpdates();
-//        h2.insertRelationsMatUpdates();
+//        h2.deleteTable("RELATION");
+        h2.deleteTable("RELATIONS_MATERIAL");
+//        h2.createTableRelation();
+        h2.createTableRelationsMatUpdates();
+        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
 
-        String authorizationToken = "83f8dc45-dc51-455e-b1ab-29657a8f1d5b";
+        String authorizationToken = "07956cf7-739e-415a-9769-efbf810e2d41";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
-        String graphURI = "http://ekt-data";
+//        String graphURI = "http://epos-data";
         /////
 //        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
 //        DBService.setConnection(conn);
 //        DBService.setJdbcTemplateUsed(false);
 //        List<String> uris = DBService.retrieveAllNamedgraphUris();
 //        for (String graphURI : uris) {
-        Set<String> matRelationEntities = new HashSet<>();
-//        matRelationEntities = executeRelationsMatQueries(endpoint, namespace, authorizationToken, graphURI);
-        matRelationEntities.add("Person");
-        matRelationEntities.add("OrganisationUnit");
-        enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
+//            Set<String> matRelationEntities = new HashSet<>();
+//            matRelationEntities.add("OrganisationUnit");
+//            matRelationEntities.add("Person");
+//            matRelationEntities.add("Equipment");
+//            matRelationEntities.add("Facility");
+//            matRelationEntities.add("Product");
+//            matRelationEntities.add("Location");
+//            matRelationEntities.add("Publication");
+//            matRelationEntities.add("Project");
+////            enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
 //        }
 
     }
