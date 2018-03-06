@@ -197,6 +197,29 @@
 		      	</div>
 			</div>
 			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:110px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					The max number of results that are instantly shown on the map when opened. 
+					If the number of results is more than this number, then you have to search 
+					on the map for them to be shown.
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+        		<div flex="40" layout layout-align="left center">
+		        	Select Instantly The Pins That Are Contained within the Drawn Bounding Box And They Are Less than 
+		      	</div>
+        		<md-slider flex md-discrete ng-model="configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox" 
+        				   class="md-primary"
+        				   step="10" 
+        				   min="0" 
+        				   max="100" 
+        				   aria-label="Min Number of Pins to Autoselect on Bounding Box Draw">
+    				</md-slider>
+    				<div layout layout-align="center center" style="padding-left:10px;">
+		        	({{configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox}})
+		      	</div>
+			</div>
+			
 			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:150px;">
 				<div class="triangle-isosceles" style="max-width:514px">
 					When activated, pins representing coordinates will be shown instantly within 

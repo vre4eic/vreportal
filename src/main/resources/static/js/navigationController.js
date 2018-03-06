@@ -386,10 +386,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		relatedEntity: {
 			map: {
 				maxResoultCountForShowingPinsOnInit: 200,
-				showPinsWhenDrawingBoundingBox: true
+				showPinsWhenDrawingBoundingBox: true,
+				minResoultCountForAutoSelectingPinsOnDrawingBox: 20,
 			},
 			excludedEntities: [],
-			selectedInstancesLimit:10
+			selectedInstancesLimit:20
 		}
 	}
 	
@@ -2765,7 +2766,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	            $scope.coordinatesRegion.west = -180.0000;
 	            $scope.coordinatesRegion.east = 180.0000;
     			// Calling the service to load results on the map, when their count is less than a max allowed number
-    			$scope.retrieveGeoData(true); // true is for considering "maxResoultCountForShowingPinsOnInit" as max allowed number
+    			$scope.retrieveGeoData(true, false); 	// true is for considering "maxResoultCountForShowingPinsOnInit" as max allowed number
+    													// and false is for denoting that this action is not applied by drawing bounding box
     		},
     		//fullscreen: true,
     		preserveScope: true,
@@ -2873,7 +2875,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    // Array to hold the drawn bounding boxes (even though I only allow one at a time)
 	    var boundingBoxFeatures = new ol.Collection();
 	    
-	    // Global source for drawn bounding box such that it is easily cleared when necesary
+	    // Global source for drawn bounding box such that it is easily cleared when necessary
 	    $scope.boxSource = new ol.source.Vector({
 	    	wrapX: false,
 	    	features: boundingBoxFeatures
@@ -2960,24 +2962,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    var boxGeometry = e.feature.getGeometry().clone();
 		    var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 		    //console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr, false);
+			convertCoordinatesToJson(coordinateStr, true); // True stands for drawingBox action
 			
-			// Setting bounding box on rowModel
-			rowModel.boundingBox = $scope.coordinatesRegion;
-			// Setting query under construction
-			homeStateConfirmService.setQueryUnderConstruction(true);
-			$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
-			// Setting map's current zoom on rowModel
-			rowModel.map = {zoom: $scope.map.getView().getZoom()};
-			
-			// Display message informing user that bounding box has been set
-			$mdToast.show(
-				$mdToast.simple()
-		        .textContent('Bounding box has been set!')
-		        .position('top right')
-		        .parent(angular.element('#mainContent'))
-		        .hideDelay(3000)
-		    );
 		});
 	    
 	    boundingBoxButton.addEventListener('click', setBoundingBoxInQuery, false);
@@ -3015,12 +3001,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			//Disabling button that clears bounding box
 			document.getElementById("clearBoundingBoxButtonId").disabled = true;
 			
-			// Display message informing user that bounding box has been set
+			// Display message informing user that bounding box has been removed
 			$mdToast.show(
 				$mdToast.simple()
 		        .textContent('Bounding box has been removed!')
 		        .position('top right')
-		        .parent(angular.element('#mainContent'))
+		        .parent(angular.element('#mapDialogMainContent'))
 		        .hideDelay(3000)
 		    );
 	    	
@@ -3127,7 +3113,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Holding all 5 coordinates in a string and transform them to the appropriate projection
 			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 			//console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr, true);
+			convertCoordinatesToJson(coordinateStr, false); // False stands for drawingBox action (set to false)
 	    	  
 			// required for immediate update 
 			//$scope.$apply();
@@ -3149,8 +3135,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		//		---------
 		// (2,3)		(4,5)
 		//	
-	      
-		function convertCoordinatesToJson(coordinateStr, showPins) {
+	    
+		// boundingBoxAction is a boolean denoting whether this is an 
+		// action to be applied when drawing bounding box
+		function convertCoordinatesToJson(coordinateStr, boundingBoxAction) {
 			
 			var thebox = coordinateStr.toString().split(",");
 			// Using parseFloat in order to convert the strings to floats
@@ -3235,13 +3223,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			console.log("north: " + north + ", south: " + south + ", west: " + west + ", east: " + east);
 			
 			// Calling the service to retrieve the pins
-			if(showPins) {
-				$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
-			}
-			else {
-				if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
-					$scope.retrieveGeoData(false); // false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
-			}
+			$scope.retrieveGeoData(false, boundingBoxAction); 	// false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+																// and boundingBoxAction is a boolean denoting that this action will be applied due to
+																// bounding box drawing action
 		}
 
 		// Initializing
@@ -3340,7 +3324,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		});
     	
 		// Displaying on map
-		function handleGeoResultsForMap(geoResults) {
+		function handleGeoResultsForMap(geoResults, selectThemAll) {
 	    	  
 			if($scope.map.getLayers().getLength() > 1) {
 		    		  
@@ -3362,9 +3346,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    			color: 'rgba(0, 0, 255, 0.1)'
 	    		})
 	    	});
-	    
-	    	
-	    	
+	    	    	
 	    	// A vector layer holding the polygon features
 			polyVectorLayer = new ol.layer.Vector({
 				name: 'polyVectorLayer',
@@ -3409,6 +3391,34 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    });
 			$scope.map.addInteraction($scope.select);
 			
+			// Function called to make the passed item as selected
+			function selectPin(item) {
+				
+				var jsonItem = {};
+				
+				// console.log('evt.selected: ');
+				angular.forEach(item.getProperties(), function (property, key) {
+					//console.log(key + ': ' + property.value);
+					if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+						jsonItem[key] = property
+				});
+				
+				// Adding into list of selected instances of the rowModel if not already there
+				if(!containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri').contained)
+					rowModel.selectedRelatedInstanceList.push(jsonItem);
+				
+				// Show related entity results panel on the respective rowModel
+				if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+					rowModel.shownEntitySearchResults = true;
+				else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+					rowModel.shownEntitySearchResults = false;
+				
+				// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+				rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+				$scope.handleSelectAllRelatedSearchResults(rowModel);
+				
+			}
+			
 			// On Select
 			$scope.select.on('select', function(evt) {
 				
@@ -3417,38 +3427,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					
 					// When the size limit regulation (by configuration) is not yet reached
 					if (rowModel.selectedRelatedInstanceList.length < $scope.configuration.relatedEntity.selectedInstancesLimit) {
-					
-						var jsonItem = {};
-						
-						// console.log('evt.selected: ');
-						angular.forEach(evt.selected[0].getProperties(), function (property, key) {
-							//console.log(key + ': ' + property.value);
-							if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
-								jsonItem[key] = property
-						});
-						
-						if(!containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri').contained)
-							rowModel.selectedRelatedInstanceList.push(jsonItem);
-						
-						// Show related entity results panel on the respective rowModel
-						if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
-							rowModel.shownEntitySearchResults = true;
-						else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
-							rowModel.shownEntitySearchResults = false;
-						
-						// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-						rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-						$scope.handleSelectAllRelatedSearchResults(rowModel);
+						selectPin(evt.selected[0]);
 						
 						// Regarding Bounding Box
-						
 						if(rowModel.boundingBox != undefined) {
-							// Display message informing user that bounding box has been set
+							// Display message informing user that bounding box has been removed
 							$mdToast.show(
 								$mdToast.simple()
 						        .textContent('Bounding box has been removed!')
 						        .position('top right')
-						        .parent(angular.element('#mainContent'))
+						        .parent(angular.element('#mapDialogMainContent'))
 						        .hideDelay(3000)
 						    );
 							
@@ -3458,8 +3446,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							//Disabling button that clears bounding box
 							document.getElementById("clearBoundingBoxButtonId").disabled = true;
 						}
-					
-					} // (rowModel.selectedRelatedInstanceList.length <= $scope.configuration.relatedEntity.selectedInstancesLimit) - Ends
+						
+					}
 					
 					// When the size limit regulation (by configuration) is reached
 					else { //if (rowModel.selectedRelatedInstanceList.length >= $scope.configuration.relatedEntity.selectedInstancesLimit)
@@ -3541,9 +3529,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
     			pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
 	        	
+    			// Selecting them all (case that they are too little and we prefer to select
+    			// instances rather than setting bounding box due to performance )
+    			if(selectThemAll) {
+    				selectPin(pointFeature);
+    				$scope.select.getFeatures().push(pointFeature);
+    			}
+    			
     			// Marking as checked if already selected
-    			if(containedInListBasedOnURI(geoResults[i], rowModel.selectedRelatedInstanceList, 'uri').contained)
-    				$scope.select.getFeatures().push(pointFeature);	// DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!
+    			else if(containedInListBasedOnURI(geoResults[i], rowModel.selectedRelatedInstanceList, 'uri').contained)
+    				$scope.select.getFeatures().push(pointFeature);
+    			
     			
     			// Setting unselected style
     			//pointFeature.setStyle(iconStylePinkUnselected);
@@ -3551,6 +3547,39 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			$scope.pointFeatures.push(pointFeature); // Adding into Array
 	        	          	          	  
     		} // loop ends
+						
+			if(selectThemAll) {
+				
+				// Regarding Bounding Box
+				$scope.boxSource.clear(); // Clearing drawn bounding box
+				if(rowModel.boundingBox != undefined)
+					delete rowModel.boundingBox; // Removing bounding box from the model
+				
+				//Disabling button that clears bounding box
+				document.getElementById("clearBoundingBoxButtonId").disabled = true;
+				
+				// Display message informing user that bounding box has been set
+				$mdToast.show(
+					$mdToast.simple()
+			        .textContent('All instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the drawn bounding box were auto-selected instead, due to system\'s performance improvement.')
+			        .position('top right')
+			        .parent(angular.element('#mapDialogMainContent'))
+			        .hideDelay(60000)
+			        .action('OK')
+			        .theme("important-toast")
+			    );
+				
+				/*
+				$mdToast.show({
+			        template: '<md-toast>' + 'All instances of entity \'' + rowModel.selectedRelatedEntity.name + '\' within the drawn bounding box, were selected instead, due to system\'s performance improvement.' + '</md-toast>',
+			        position: 'top right',
+			        parent: angular.element('#mainContent'),
+			        hideDelay: 60000,
+			        action: 'OK',
+			        theme: 'important-toast'
+			    });
+			    */
+			}
 			
 		}
 		
@@ -3704,7 +3733,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		// considerTotalResultCount: Boolean used to decide whether to consider "maxResoultCountForShowingPinsOnInit" 
 		// or not. Basically we use false to display pins when drawing rectangle and true to display pins when opening 
 		// the dialog if their count is less than "maxResoultCountForShowingPinsOnInit"
-		$scope.retrieveGeoData = function(considerTotalResultCount) {
+		// boundingBoxAction: Boolean denoting whether this is an action to be applied when drawing bounding box
+		$scope.retrieveGeoData = function(considerTotalResultCount, boundingBoxAction) {
 			
 			// Modal
 			var modalOptions = {
@@ -3785,16 +3815,66 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    					
 		    					// Case where results should be loaded when opening the map
 		    					if(considerTotalResultCount) {
+		    						
 		    						// Checking if count is less or equal to the allowed limit
-		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit)
-		    							handleGeoResultsForMap(response.data.results.bindings);
+		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit) {
+		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
+		    							// Reset zoom level and center to default
+		    							$scope.map.getView().setCenter([0, 0]);
+		    							$scope.map.getView().setZoom(2);
+		    						}
+		    						
 		    					}
 		    					
-		    					// Case where results are loaded by drawing rectangle
-		    					else // if(!considerTotalResultCount) {
-		    						handleGeoResultsForMap(response.data.results.bindings);
+		    					// Case where results are loaded by drawing rectangle or bounding box
+		    					else {// if(!considerTotalResultCount) {
+		    						
+		    						// Case drawing Bounding box
+		    						if (boundingBoxAction) {
+		    							
+		    							// If there is at least one pin apply the following, otherwise don't do anything
+		    							if(response.data.results.bindings.length > 0) {
+			    						
+		    								// Force showing pins and selecting them if very few (less than or equal to 20)
+				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox)
+				    							handleGeoResultsForMap(response.data.results.bindings, true); // true stands for selecting them all
+				    						
+				    						// Otherwise check flag configuration for showing pins and act accordingly
+				    						else { // (response.data.results.bindings.length > 20)
+				    							// Show the pins if configured, otherwise don't (the drawn bounding box stays empty)
+				    							if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
+				    								handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
+				    							
+				    							// Setting bounding box on rowModel
+					    						rowModel.boundingBox = $scope.coordinatesRegion;
+					    						// Setting map's current zoom on rowModel
+					    						rowModel.map = {zoom: $scope.map.getView().getZoom()};
+					    						// Display message informing user that bounding box has been set
+					    						$mdToast.show(
+					    							$mdToast.simple()
+					    					        .textContent('Bounding box has been set!')
+					    					        .position('top right')
+					    					        .parent(angular.element('#mapDialogMainContent'))
+					    					        .hideDelay(3000)
+					    					    );
+				    						}
+				    						
+				    						// Setting query under construction
+				    						homeStateConfirmService.setQueryUnderConstruction(true);
+				    						$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
+		    							}
+		    							
+		    						}
+		    						
+		    						// Case drawing rectangle
+		    						else {
+		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
+		    						}
+		    						
+		    					}
 		    					
 		    					modalInstance.close();
+		    					
 		    				}
 		    				else if(response.status == '408') {
 		        				$log.info(response.status);
@@ -3904,7 +3984,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	boundingBoxFeatures.push(currBoundingBoxFeature);
 	    	
 	    	// Handle the coordinates
-	    	convertCoordinatesToJson(coordinateStr, false);
+	    	convertCoordinatesToJson(coordinateStr, true);  // True stands for drawingBox action (loaded on init)
 	    				
 			// Re-center the map
 			$scope.map.getView().setCenter(currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
