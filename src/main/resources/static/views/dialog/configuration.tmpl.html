@@ -1,141 +1,236 @@
 
 <md-dialog aria-label="Configuration Dialog"> <!-- style="width:600px;" -->
-	<form name="configurationForm" ng-cloak>
-		<md-toolbar>
-			<div class="md-toolbar-tools">
-				<md-icon md-font-icon="fa fa-cogs" style="font-size:36px; padding-right:10px;"></md-icon>
-				<h2 class="md-flex">Configuration Options</h2>
-				<span flex></span>
-		        <md-button class="md-icon-button" ng-click="closeConfigurationDialog();">
-			        <md-icon class="md-icon-button" 
-							 aria-label="Close dialog" 
-							 md-font-icon="fa fa-times" style="font-size:24px;">
-					</md-icon>
-				</md-button>
-			</div>
-		</md-toolbar>
-
-		<md-dialog-content>
-			
-			<div id="popupContainerOnConfiguration"></div>
-			
-			<div class="md-dialog-content">
-			
-				<div>
-					<h4>General Settings</h4>
-				</div>
-        		<div layout="row" style="margin-left:20px;">
-	        		<div flex="40" layout layout-align="left center">
-			        	Level Limit
-			      	</div>
-	        		<md-slider flex md-discrete ng-model="configuration.wholeTreeModel.levelLimit" 
-	        				   class="md-primary"
-	        				   step="1" 
-	        				   min="1" 
-	        				   max="10" 
-	        				   aria-label="Level Limit">
-     				</md-slider>
-     				<div layout layout-align="center center" style="padding-left:10px;">
-			        	({{configuration.wholeTreeModel.levelLimit}})
-			      	</div>
-				</div>
-				
-				<div layout="row" style="margin-left:20px;">
-	        		<div flex="40" layout layout-align="left center">
-			        	Degree Limit
-			      	</div>
-	        		<md-slider flex md-discrete ng-model="configuration.everyRowModel.degreeLimit" 
-	        				   class="md-primary"
-	        				   step="1" 
-	        				   min="1" 
-	        				   max="10" 
-	        				   aria-label="Degree Limit">
-     				</md-slider>
-     				<div layout layout-align="center center" style="padding-left:10px;">
-			        	({{configuration.everyRowModel.degreeLimit}})
-			      	</div>
-				</div>
-				
-				<div layout="row" style="margin-left:20px;">
-					<div flex="40" layout layout-align="left center">
-						Using always both regular expressions ('AND' & 'OR')
-					</div>
-		      		<md-switch ng-model="configuration.wholeTreeModel.bothAndOr" 
-		      				   aria-label="Using Both And & OR Expressions" 
-		      				   class="md-primary">
-  					</md-switch>
-  					<div layout layout-align="right center" style=width:100px;>
-	  					<span ng-show="configuration.wholeTreeModel.bothAndOr">
-	   						Activated 
-	   					</span> 
-	   					<span ng-show="!configuration.wholeTreeModel.bothAndOr">
-	   						Deactivated 
-	   					</span>
-	   				</div>
-				</div>
-				
-				<md-divider></md-divider>
-								
-				<div>
-					<h4>Entity Options</h4>
-				</div>
-				
-				<div layout="row" style="margin-left:20px;">
-		      		<md-input-container>
-		        		<label for="queryModelTitleId">Exclude Entities From List of Target Entities</label>
-		        		<md-select ng-model="configuration.targetEntity.excludedEntities" 
-								   ng-model-options="{trackBy: '$value.name'}"
-								   flex style="min-width:inherit; width:400px;"
-								   multiple>
-							<md-optgroup label="Entities">
-								<md-option ng-repeat="entity in allAvailableEntities" ng-value="entity" >
-									{{entity.name}}
-								</md-option>
-							</md-optgroup>	
-						</md-select>
-		      		</md-input-container>
-				</div>
-				
-				<div layout="row" style="margin-left:20px;">
-	        		<div flex="40" layout layout-align="left center">
-			        	Related Instances Limit 
-			      	</div>
-	        		<md-slider flex md-discrete ng-model="configuration.relatedEntity.selectedInstancesLimit" 
-	        				   class="md-primary"
-	        				   step="1" 
-	        				   min="1" 
-	        				   max="100" 
-	        				   aria-label="Related Instances Limit">
-     				</md-slider>
-     				<div layout layout-align="center center" style="padding-left:10px;">
-			        	({{configuration.relatedEntity.selectedInstancesLimit}})
-			      	</div>
-				</div>
-				
-				<div layout="row" style="margin-left:20px;">
-	        		<div flex="40" layout layout-align="left center">
-			        	Show Pins Instantly When Result Count Is Less than 
-			      	</div>
-	        		<md-slider flex md-discrete ng-model="configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit" 
-	        				   class="md-primary"
-	        				   step="10" 
-	        				   min="0" 
-	        				   max="1000" 
-	        				   aria-label="Related Instances Limit">
-     				</md-slider>
-     				<div layout layout-align="center center" style="padding-left:10px;">
-			        	({{configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit}})
-			      	</div>
-				</div>
-				
-			</div>
-		</md-dialog-content>
-		
-		<md-dialog-actions layout="row">
+	
+	<div id="popupContainerOnConfiguration"></div>
+	
+	<md-toolbar>
+		<div class="md-toolbar-tools">
+			<md-icon md-font-icon="fa fa-cogs" style="font-size:36px; padding-right:10px;"></md-icon>
+			<h2 class="md-flex">Configuration Options</h2>
 			<span flex></span>
-			<md-button class="md-raised md-primary" ng-click="closeConfigurationDialog();">
-				Close
+	        <md-button class="md-icon-button" ng-click="closeConfigurationDialog();">
+		        <md-icon class="md-icon-button" 
+						 aria-label="Close dialog" 
+						 md-font-icon="fa fa-times" style="font-size:24px;">
+				</md-icon>
 			</md-button>
-		</md-dialog-actions>
-	</form>
+		</div>
+	</md-toolbar>
+
+	<md-dialog-content> <!-- style="overflow:hidden;" -->
+		
+		<div class="md-dialog-content" style="padding-top:10px;" ng-cloak>
+			
+			<div layout="row">
+				<h4 layout layout-align="left center">General Settings</h4>
+				<span flex></span>
+				<span layout layout-align="left center" style="padding-right:10px;">
+		        	<h4>Help Please</h4>
+		      	</span>
+				<md-switch ng-model="configGeneralHelpShown" 
+		     				   aria-label="Show Help" 
+		     				   class="md-accent">
+		     		<md-tooltip md-direction="top">
+						Enables help tooltips for these settings
+					</md-tooltip>
+		    	</md-switch>
+			</div>
+			
+			<div ng-show="configGeneralHelpShown" class="zoom-show-hide transform-height" style="height:90px;">
+				<div class="triangle-isosceles" layout="row" style="max-width:514px">
+					<span>
+						Limits the max allowed number of filters applied on the same level
+						<br/>
+						(i.e. Level Limit: 2)
+					</span>
+					<img src="../images/LevelLimit.png" 
+						 style="height:42px;"></img>
+				</div>
+			</div>
+       		<div layout="row" style="margin-left:20px;">
+        		<div flex="40" layout layout-align="left center">
+					Level Limit
+		      	</div>
+        		<md-slider flex md-discrete ng-model="configuration.wholeTreeModel.levelLimit" 
+        				   class="md-primary"
+        				   step="1" 
+        				   min="1" 
+        				   max="10" 
+        				   aria-label="Level Limit">
+    				</md-slider>
+    				<div layout layout-align="center center" style="padding-left:10px;">
+		        	({{configuration.wholeTreeModel.levelLimit}})
+		      	</div>
+			</div>
+			
+			<div ng-show="configGeneralHelpShown" class="zoom-show-hide transform-height" style="height:90px;">
+				<div class="triangle-isosceles" layout="row" style="max-width:514px">
+					<span>
+						Limits the max allowed number set as depth of the whole tree
+						<br/>
+						(i.e. Degree Limit: 2)
+					</span>
+					<img src="../images/DegreeLimit.png" 
+						 style="height:42px;"></img>
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+        		<div flex="40" layout layout-align="left center">
+					Degree Limit
+		      	</div>
+        		<md-slider flex md-discrete ng-model="configuration.everyRowModel.degreeLimit" 
+        				   class="md-primary"
+        				   step="1" 
+        				   min="1" 
+        				   max="10" 
+        				   aria-label="Degree Limit">
+    				</md-slider>
+    				<div layout layout-align="center center" style="padding-left:10px;">
+		        	({{configuration.everyRowModel.degreeLimit}})
+		      	</div>
+			</div>
+			
+			<div ng-show="configGeneralHelpShown" class="zoom-show-hide transform-height" style="height:70px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					When deactivated, the first chosen reg. expr. will be used (applied per level)
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+				<div flex="40" layout layout-align="left center">
+					Using always both regular expressions ('AND' & 'OR')
+				</div>
+	      		<md-switch ng-model="configuration.wholeTreeModel.bothAndOr" 
+	      				   aria-label="Using Both And & OR Expressions" 
+	      				   class="md-primary"
+	      				   ng-change="changeAvailabilityOfRegExpressions(configuration.wholeTreeModel.bothAndOr)">
+ 					</md-switch>
+ 					<div layout layout-align="right center" style=width:100px;>
+  					<span ng-show="configuration.wholeTreeModel.bothAndOr">
+   						Activated 
+   					</span> 
+   					<span ng-show="!configuration.wholeTreeModel.bothAndOr">
+   						Deactivated 
+   					</span>
+   				</div>
+			</div>
+			
+			<md-divider></md-divider>
+							
+			<div layout="row">
+				<h4 layout layout-align="left center">Entity Options</h4>
+				<span flex></span>
+				<span layout layout-align="left center" style="padding-right:10px;">
+		        	<h4>Help Please</h4>
+		      	</span>
+				<md-switch ng-model="configEntityOptionsHelpShown" 
+		     				   aria-label="Show Help" 
+		     				   class="md-accent">
+		     		<md-tooltip md-direction="top">
+						Enables help tooltips for these settings
+					</md-tooltip>
+		    	</md-switch>
+			</div>
+			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:70px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					Selected entities should be hidden from the available options when selecting target entity
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;" ng-if="canShowConfigDialog">
+	      		<md-input-container>
+	        		<label for="queryModelTitleId">Exclude Entities From List of Target Entities</label>
+	        		<md-select ng-model="configuration.targetEntity.excludedEntities" 
+							   ng-model-options="{trackBy: '$value.name'}"
+							   flex style="min-width:inherit; width:400px;"
+							   multiple>
+						<md-optgroup label="Entities">
+							<md-option ng-repeat="entity in allAvailableEntities" ng-value="entity" >
+								{{entity.name}}
+							</md-option>
+						</md-optgroup>	
+					</md-select>
+	      		</md-input-container>
+			</div>
+			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:90px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					The max allowed number of instances to be selected as filter. 
+					Instances can be selected from the search or the map at each related entity
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+        		<div flex="40" layout layout-align="left center">
+		        	Related Instances Limit 
+		      	</div>
+        		<md-slider flex md-discrete ng-model="configuration.relatedEntity.selectedInstancesLimit" 
+        				   class="md-primary"
+        				   step="1" 
+        				   min="1" 
+        				   max="100" 
+        				   aria-label="Related Instances Limit">
+    				</md-slider>
+    				<div layout layout-align="center center" style="padding-left:10px;">
+		        	({{configuration.relatedEntity.selectedInstancesLimit}})
+		      	</div>
+			</div>
+			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:110px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					The max number of results that are instantly shown on the map when opened. 
+					If the number of results is more than this number, then you have to search 
+					on the map for them to be shown.
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+        		<div flex="40" layout layout-align="left center">
+		        	Show Pins Instantly When Result Count Is Less than 
+		      	</div>
+        		<md-slider flex md-discrete ng-model="configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit" 
+        				   class="md-primary"
+        				   step="10" 
+        				   min="0" 
+        				   max="1000" 
+        				   aria-label="Related Instances Limit">
+    				</md-slider>
+    				<div layout layout-align="center center" style="padding-left:10px;">
+		        	({{configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit}})
+		      	</div>
+			</div>
+			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:150px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					When activated, pins representing coordinates will be shown instantly within 
+					each drawing box drawn. When deactivated the drawn bounding box will appear 
+					empty. 
+					<br/>
+					You can always hold down <code>Ctrl + left mouse click</code> while selecting some area on the map to display pins.
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+				<div flex="40" layout layout-align="left center">
+					Show pins when drawing a bounding box on the map
+				</div>
+	      		<md-switch ng-model="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox" 
+	      				   aria-label="Show pins when drawing a bounding box on the map" 
+	      				   class="md-primary">
+ 					</md-switch>
+ 					<div layout layout-align="right center" style=width:100px;>
+  					<span ng-show="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+   						Activated 
+   					</span> 
+   					<span ng-show="!configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+   						Deactivated 
+   					</span>
+   				</div>
+			</div>
+			
+		</div>
+	</md-dialog-content>
+	
+	<md-dialog-actions layout="row">
+		<span flex></span>
+		<md-button class="md-raised md-primary" ng-click="closeConfigurationDialog();">
+			Close
+		</md-button>
+	</md-dialog-actions>
 </md-dialog>

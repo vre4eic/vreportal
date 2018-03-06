@@ -21,150 +21,12 @@ tags-input .tags .tag-item.selected {
   background: #ff4081 !important;
 }
 
-/*tags-input {
-  display: block;
+/* Overwriting Border Radius of $uibModal (Bootstrap's Modal) */
+.modal-content  {
+    -webkit-border-radius: 5px !important;
+    -moz-border-radius: 5px !important;
+    border-radius: 5px !important;
 }
-tags-input *, tags-input *:before, tags-input *:after {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-tags-input .host {
-  position: relative;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  height: 100%;
-}
-tags-input .host:active {
-  outline: none;
-}
-
-tags-input .tags {
-  -moz-appearance: textfield;
-  -webkit-appearance: textfield;
-  padding: 1px;
-  overflow: hidden;
-  word-wrap: break-word;
-  cursor: text;
-  background-color: #fff;
-  border: 1px solid darkgray;
-  box-shadow: 1px 1px 1px 0 lightgray inset;
-  height: 100%;
-}
-tags-input .tags.focused {
-  outline: none;
-  -webkit-box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
-  -moz-box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
-  box-shadow: 0 0 3px 1px rgba(5, 139, 242, 0.6);
-}
-tags-input .tags .tag-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-}
-*/
-
-/*tags-input .tags .tag-item .remove-button {
-  margin: 0 0 0 5px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  vertical-align: middle;
-  font: bold 16px Arial, sans-serif;
-  color: #585858;
-}
-tags-input .tags .tag-item .remove-button:active {
-  color: #ff0000;
-}
-tags-input .tags .input {
-  border: 0;
-  outline: none;
-  margin: 2px;
-  padding: 0;
-  padding-left: 5px;
-  float: left;
-  height: 26px;
-  font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-tags-input .tags .input.invalid-tag {
-  color: #ff0000;
-}
-tags-input .tags .input::-ms-clear {
-  display: none;
-}
-tags-input.ng-invalid .tags {
-  -webkit-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
-  -moz-box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
-  box-shadow: 0 0 3px 1px rgba(255, 0, 0, 0.6);
-}
-tags-input[disabled] .host:focus {
-  outline: none;
-}
-tags-input[disabled] .tags {
-  background-color: #eee;
-  cursor: default;
-}
-tags-input[disabled] .tags .tag-item {
-  opacity: 0.65;
-  background: -webkit-linear-gradient(top, #f0f9ff 0%, rgba(203, 235, 255, 0.75) 47%, rgba(161, 219, 255, 0.62) 100%);
-  background: linear-gradient(to bottom, #f0f9ff 0%, rgba(203, 235, 255, 0.75) 47%, rgba(161, 219, 255, 0.62) 100%);
-}
-tags-input[disabled] .tags .tag-item .remove-button {
-  cursor: default;
-}
-tags-input[disabled] .tags .tag-item .remove-button:active {
-  color: #585858;
-}
-tags-input[disabled] .tags .input {
-  background-color: #eee;
-  cursor: default;
-}
-
-tags-input .autocomplete {
-  margin-top: 5px;
-  position: absolute;
-  padding: 5px 0;
-  z-index: 999;
-  width: 100%;
-  background-color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-}
-tags-input .autocomplete .suggestion-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  max-height: 280px;
-  overflow-y: auto;
-  position: relative;
-}
-tags-input .autocomplete .suggestion-item {
-  padding: 5px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #000;
-  background-color: #fff;
-}
-tags-input .autocomplete .suggestion-item.selected {
-  color: #fff;
-  background-color: #0097cf;
-}
-tags-input .autocomplete .suggestion-item.selected em {
-  color: #fff;
-  background-color: #0097cf;
-}
-tags-input .autocomplete .suggestion-item em {
-  font: normal bold 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #000;
-  background-color: #fff;
-}
-
 
 /*******************user defined css **********************/
 .radioclass{
@@ -545,23 +407,23 @@ md-autocomplete.shrinked input.ng-scope {
 
 /* funky-show-hide - Animation*/
 .funky-show-hide.ng-hide-add {
-  transform: rotateZ(0);
-  transform-origin: right;
-  transition: all 0.5s ease-in-out;
+	transform: rotateZ(0);
+	transform-origin: right;
+	transition: all 0.5s ease-in-out;
 }
 
 .funky-show-hide.ng-hide-add.ng-hide-add-active {
-  transform: rotateZ(-135deg);
+	transform: rotateZ(-135deg);
 }
 
 .funky-show-hide.ng-hide-remove {
-  transform: rotateY(90deg);
-  transform-origin: left;
-  transition: all 0.5s ease;
+	transform: rotateY(90deg);
+	transform-origin: left;
+	transition: all 0.5s ease;
 }
 
 .funky-show-hide.ng-hide-remove.ng-hide-remove-active {
-  transform: rotateY(0);
+	transform: rotateY(0);
 }
 
 /* zoom-show-hide - Animation*/
@@ -574,9 +436,9 @@ md-autocomplete.shrinked input.ng-scope {
 }
 
 .zoom-show-hide.ng-hide-add.ng-hide-add-active {
-  -webkit-transform: scale(0);
-  -ms-transform: scale(0);
-  transform: scale(0);
+	-webkit-transform: scale(0);
+	-ms-transform: scale(0);
+	transform: scale(0);
 }
 
 .zoom-show-hide.ng-hide-remove {
@@ -589,74 +451,37 @@ md-autocomplete.shrinked input.ng-scope {
 }
 
 .zoom-show-hide.ng-hide-remove.ng-hide-remove-active {
-  -webkit-transform: scale(1);
-  -ms-transform: scale(1);
-  transform: scale(1);
+	-webkit-transform: scale(1);
+	-ms-transform: scale(1);
+	transform: scale(1);
 }
 
-
-
-
-
-
-
-
-
-
-/*
-.animate-cross-fade {
-    animation-name: cross-fade;
-    animation-duration: 4s;
-    animation-iteration-count: 1;
-    animation-delay: 2s;
+/* transform-height - Animation*/
+.transform-height {
+	max-height:200px;
+	overflow: hidden;
+	-webkit-transition-property: max-height, opacity;
+   -moz-transition-property: max-height, opacity;
+   -o-transition-property: max-height, opacity;
+   transition-property: max-height, opacity;
+  -webkit-transition-duration: 100ms;
+   -moz-transition-duration: 100ms;
+   -o-transition-duration: 100ms;
+   transition-duration: 100ms;
 }
 
-@keyframes cross-fade {
-    0% {font-size:100%; opacity:1;}
-    50% {font-size:0; opacity:0;}
-    100% {font-size:100%;opacity:1;}
+.transform-height.ng-hide-add, 
+.transform-height.ng-hide-remove {
+  max-height: 200px;
 }
-*/
 
-
-
-
-
-
-
-
-/*
-
-md-list-item.removed-item {
-    animation: removed-item-animation 1s cubic-bezier(0.55, -0.04, 0.91, 0.94) forwards;
-    transform-origin: 0% 100%;
+.transform-height.ng-hide {
+	max-height: 0;
+	opacity: 0;
 }
- 
-@keyframes removed-item-animation {
-    0% {
-        opacity: 1;
-        transform: rotateZ(0);
-}
- 
-    100% {
-        opacity: 0;
-        transform: translateY(600px) rotateZ(90deg);
-    }
-}
-*/
-
-
-
-
-
-
-
-
-
 
 
 /* Animation when hiding search results of related entity */ 
-
 .transformWidth {
 	-webkit-transition: width 1s ease-out; 
 	-moz-transition: width 1s ease-out; 
@@ -667,7 +492,7 @@ md-list-item.removed-item {
 
 /* changes width */
 .transformWidth.ng-hide  {
-  width: 0px;
+	width: 0px;
 }
 
 /* Initial size */
@@ -712,23 +537,7 @@ md-list-item.removed-item {
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* --- material checkbox and radio for bootswatch --- */
-
 
 .material-like-checkbox span.ivh-treeview-node-label.ng-binding.ivh-treeview-toggle {
     padding-left: 15px;
@@ -772,21 +581,6 @@ input[type="checkbox"] {
     background-color: rgba(0, 0, 0, 0.26);
     border-color: transparent;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* --- material-like checkbox Style - Start --- */
 
@@ -973,4 +767,33 @@ button.withHover.md-icon-button:hover:enabled > md-icon{
 /* z-index fix for progress bar of each file */
 div.dz-progress {
 	z-index:10 !important;
+}
+
+/* Speech Bubble */
+.triangle-isosceles {
+	position:relative;
+	padding:15px;
+	/*margin:1em 0 3em;*/
+	margin-bottom: 5px;
+	color:#000;
+	background:rgba(0,0,0,0.87); /* default background for browsers without gradient support */
+	color: rgb(250,250,250);
+	/* css3 */
+	-webkit-border-radius:10px;
+	-moz-border-radius:10px;
+	border-radius:10px;
+}
+
+/* creates triangle */
+.triangle-isosceles:after {
+  content:"";
+  position:absolute;
+  bottom:-15px; /* value = - border-top-width - border-bottom-width */
+  left:40px; /* controls horizontal position */
+  border-width:15px 15px 0; /* vary these values to change the angle of the vertex */
+  border-style:solid;
+  border-color:rgba(0,0,0,0.87) transparent;
+  /* reduce the damage in FF3.0 */
+  display:block;
+  width:0;
 }
