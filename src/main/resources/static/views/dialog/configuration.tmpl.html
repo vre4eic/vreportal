@@ -183,7 +183,7 @@
 			</div>
 			<div layout="row" style="margin-left:20px;">
         		<div flex="40" layout layout-align="left center">
-		        	Show Pins Instantly When Result Count Is Less than 
+		        	Show pins instantly when results' count is less than 
 		      	</div>
         		<md-slider flex md-discrete ng-model="configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit" 
         				   class="md-primary"
@@ -197,16 +197,18 @@
 		      	</div>
 			</div>
 			
-			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:110px;">
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:170px;">
 				<div class="triangle-isosceles" style="max-width:514px">
-					The max number of results that are instantly shown on the map when opened. 
-					If the number of results is more than this number, then you have to search 
-					on the map for them to be shown.
+					The maximum number of results contained within a user drawn bounding box to be instantly auto-selected as instances.
+					</br> 
+					Thus, if the result count (within the drawn bounding box) is less than this number, instead of setting bounding box, the respectively contained instances are selected (automatically).
+					</br> 
+					If this number is set to "0" then this feature will never be applied.
 				</div>
 			</div>
 			<div layout="row" style="margin-left:20px;">
         		<div flex="40" layout layout-align="left center">
-		        	Select Instantly The Pins That Are Contained within the Drawn Bounding Box And They Are Less than 
+		        	Select instantly the pins that are contained within the user drawn bounding box and their count is less than 
 		      	</div>
         		<md-slider flex md-discrete ng-model="configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox" 
         				   class="md-primary"

@@ -734,13 +734,18 @@ input[type="checkbox"] {
 
 
 .boundingBoxInQuery {
-  top: 100px;
-  left: 7px;
+	top: 100px;
+	left: 7px;
 }
 
 .clearBoundingBoxInQuery {
-  top: 130px;
-  left: 7px;
+	top: 130px;
+	left: 7px;
+}
+
+.clearSelectedPinsInQuery {
+	top: 160px;
+	left: 7px;
 }
 
 /* Disable hovering for this div when the child button is disabled */ 
@@ -755,6 +760,23 @@ div.clearBoundingBoxInQuery.ol-unselectable.ol-control {
 }
 
 .clearBoundingBoxInQuery button:enabled {
+  opacity: 1; 
+  cursor: allowed;
+  pointer-events: all !important;
+}
+
+/* Disable hovering for this div when the child button is disabled */ 
+div.clearSelectedPinsInQuery.ol-unselectable.ol-control {
+  background-color: rgba(255,255,255,.4);
+}
+
+.clearSelectedPinsInQuery button:disabled {
+  opacity: 0.65; 
+  cursor: not-allowed;
+  pointer-events: none !important;
+}
+
+.clearSelectedPinsInQuery button:enabled {
   opacity: 1; 
   cursor: allowed;
   pointer-events: all !important;

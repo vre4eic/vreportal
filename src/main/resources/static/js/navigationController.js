@@ -2982,7 +2982,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 	    var clearBoundingBoxIconElement = document.createElement('img');
 	    clearBoundingBoxIconElement.src = '../images/clearBoundingBox.svg';
-	    //clearBoundingBoxIconElement.style= 'height:28.88px; width: 28.88px;';
 	    
 	    var clearBoundingBoxButton = document.createElement('button');
 	    clearBoundingBoxButton.id = 'clearBoundingBoxButtonId';
@@ -3017,12 +3016,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    var clearBoundingBoxElement = document.createElement('div');
 	    clearBoundingBoxElement.className = 'clearBoundingBoxInQuery ol-unselectable ol-control';
 	    clearBoundingBoxElement.appendChild(clearBoundingBoxButton);
-	    /*
-	    var clearBoundingBoxInQueryControl = new ol.control.Control({
-	        element: clearBoundingBoxElement
-	    });
-	    $scope.map.addControl(clearBoundingBoxInQueryControl);
-	    */
 	    
 	    var boundingBoxControlsElement = document.createElement('div');
 	    boundingBoxControlsElement.appendChild(boundingBoxElement);
@@ -3034,6 +3027,85 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 	    // Setting Bounding Box in the query (button) - Ends
         
+	    
+	    // Button for clearing all selected pins
+	    var clearSelectedPinsIconElement = document.createElement('img');
+	    clearSelectedPinsIconElement.src = '../images/clearSelectedPins_150.svg';
+	    clearSelectedPinsIconElement.height = 18;
+	    clearSelectedPinsIconElement.width  = 18;
+	    
+	    var clearSelectedPinsButton = document.createElement('button');
+	    clearSelectedPinsButton.id = 'clearSelectedPinsButtonId';
+	    clearSelectedPinsButton.title="Clear all currently selected pins";
+	    clearSelectedPinsButton.disabled = 'true';
+	    
+	    clearSelectedPinsButton.appendChild(clearSelectedPinsIconElement);
+	    
+	    // Function called to make the passed pin as de-selected
+	    // Used when clicking on a selected pin
+	    function deselectPin(item) {
+			
+			var jsonItem = {};
+			
+			angular.forEach(item.getProperties(), function (property, key) {
+				if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+					jsonItem[key] = property
+			});
+			
+			var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
+			if(containedObject.contained)
+				rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
+			
+			// Show related entity results panel on the respective rowModel
+			if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+				rowModel.shownEntitySearchResults = true;
+			else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+				rowModel.shownEntitySearchResults = false;
+			
+			// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+			$scope.handleSelectAllRelatedSearchResults(rowModel);
+			
+		}
+	    
+	    // Clearing all the selected pins
+	    var clearSelectedPinsInQuery = function() {
+	    	
+	    	// De-selecting the respective pins (items) from the list of instances
+	    	for(var i=0; i<$scope.select.getFeatures().getArray().length; i++) {
+	    		deselectPin($scope.select.getFeatures().getArray()[i]);
+	    	}
+			// Making Pins unselected
+	    	$scope.select.getFeatures().clear();
+	    	
+			//Disabling button that clears selected pins
+			document.getElementById("clearSelectedPinsButtonId").disabled = true;
+			
+			// Display message informing user that bounding box has been removed
+			$mdToast.show(
+				$mdToast.simple()
+		        .textContent('All the pins have been deselected!')
+		        .position('top right')
+		        .parent(angular.element('#mapDialogMainContent'))
+		        .hideDelay(3000)
+		    );
+	    	
+	    };
+	    
+	    clearSelectedPinsButton.addEventListener('click', clearSelectedPinsInQuery, false);
+
+	    var clearSelectedPinsElement = document.createElement('div');
+	    clearSelectedPinsElement.className = 'clearSelectedPinsInQuery ol-unselectable ol-control';
+	    clearSelectedPinsElement.appendChild(clearSelectedPinsButton);
+	    
+	    var clearSelectedPinsControlsElement = document.createElement('div');
+	    clearSelectedPinsControlsElement.appendChild(clearSelectedPinsElement);
+	    var clearSelectedPinsControl = new ol.control.Control({
+	        element: clearSelectedPinsControlsElement
+	    });
+	    $scope.map.addControl(clearSelectedPinsControl);
+
+
 	    // Adding "Searching by Toponyms" on the map
 	    
 	    // Code regarding toponyms - Start
@@ -3042,30 +3114,33 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    // location: coordinates
 	    // Example: https://openlayers.org/en/latest/examples/animation.html
 	    function flyTo(location, done) {
-	        var duration = 3000;
-	        var zoom = 11;//$scope.map.getView().getZoom();
-	        var parts = 2;
-	        var called = false;
-	        function callback(complete) {
-	          --parts;
-	          if (called) {
-	            return;
-	          }
-	          if (parts === 0 || !complete) {
-	            called = true;
-	            done(complete);
-	          }
-	        }
-	        $scope.map.getView().animate({
-	          center: location,
-	          duration: duration
+	    	
+	    	var duration = 3000;
+	    	var zoom = 11;//$scope.map.getView().getZoom();
+	    	var parts = 2;
+	    	var called = false;
+	    	
+	    	function callback(complete) {
+	    		--parts;
+	    		if (called) {
+	    			return;
+	    		}
+	    		if (parts === 0 || !complete) {
+	    			called = true;
+	    			done(complete);
+	    		}
+	    	}
+	    	
+	    	$scope.map.getView().animate({
+	    		center: location,
+	    		duration: duration
 	        }, callback);
-	        $scope.map.getView().animate({
-	          zoom: zoom - 3,
-	          duration: duration / 2
+	    	$scope.map.getView().animate({
+	    		zoom: zoom - 3,
+	    		duration: duration / 2
 	        }, {
-	          zoom: zoom,
-	          duration: duration / 2
+	        	zoom: zoom,
+	        	duration: duration / 2
 	        }, callback);
 	      }
 	    
@@ -3419,8 +3494,40 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 			}
 			
+			// Function called to make the passed item as de-selected
+			/*
+			function deselectPin(item) {
+				
+				var jsonItem = {};
+				
+				//console.log('evt.deselected: ');
+				angular.forEach(item.getProperties(), function (property, key) {
+					//console.log(key + ': ' + property.value);
+					if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+						jsonItem[key] = property
+				});
+				
+				var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
+				if(containedObject.contained)
+					rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
+				
+				// Show related entity results panel on the respective rowModel
+				if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
+					rowModel.shownEntitySearchResults = true;
+				else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
+					rowModel.shownEntitySearchResults = false;
+				
+				// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+				rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+				$scope.handleSelectAllRelatedSearchResults(rowModel);
+				
+			}
+			*/
+			
 			// On Select
 			$scope.select.on('select', function(evt) {
+				
+				//console.log('$scope.select: ' + $scope.select.getFeatures().getArray());
 				
 				// Select
 				if(evt.selected.length > 0) {
@@ -3431,6 +3538,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						
 						// Regarding Bounding Box
 						if(rowModel.boundingBox != undefined) {
+							
 							// Display message informing user that bounding box has been removed
 							$mdToast.show(
 								$mdToast.simple()
@@ -3443,9 +3551,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							$scope.boxSource.clear(); // Clearing drawn bounding box
 							delete rowModel.boundingBox; // Removing bounding box from the model
 							
-							//Disabling button that clears bounding box
+							// Disabling button that clears bounding box
 							document.getElementById("clearBoundingBoxButtonId").disabled = true;
+														
 						}
+						
+						// Enabling button that clears selected pins
+						document.getElementById("clearSelectedPinsButtonId").disabled = false;
 						
 					}
 					
@@ -3469,29 +3581,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				// Deselect
 				if(evt.deselected.length > 0) {
-					var jsonItem = {};
-					
-					//console.log('evt.deselected: ');
-					angular.forEach(evt.deselected[0].getProperties(), function (property, key) {
-						//console.log(key + ': ' + property.value);
-						if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
-							jsonItem[key] = property
-					});
-					
-					var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
-					if(containedObject.contained)
-						rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
-					
-					// Show related entity results panel on the respective rowModel
-					if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
-						rowModel.shownEntitySearchResults = true;
-					else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
-						rowModel.shownEntitySearchResults = false;
-					
-					// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-					rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-					$scope.handleSelectAllRelatedSearchResults(rowModel);
+					deselectPin(evt.deselected[0]);
 				}
+				
+				// Disabling button that clears selected pins if no pin is selected
+				if($scope.select.getFeatures().getArray().length <= 0)
+					document.getElementById("clearSelectedPinsButtonId").disabled = true;
 				
 			});
 			
@@ -3819,9 +3914,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    						// Checking if count is less or equal to the allowed limit
 		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit) {
 		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
-		    							// Reset zoom level and center to default
-		    							$scope.map.getView().setCenter([0, 0]);
-		    							$scope.map.getView().setZoom(2);
+		    							
+		    							// Only reset if there is not any bounding box already set
+		    							if(rowModel.boundingBox == undefined) {
+			    							// Reset zoom level and center to default
+			    							$scope.map.getView().setCenter([0, 0]);
+			    							$scope.map.getView().setZoom(2);
+		    							}
 		    						}
 		    						
 		    					}
@@ -3836,8 +3935,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    							if(response.data.results.bindings.length > 0) {
 			    						
 		    								// Force showing pins and selecting them if very few (less than or equal to 20)
-				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox)
+				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox) {
 				    							handleGeoResultsForMap(response.data.results.bindings, true); // true stands for selecting them all
+				    							//Enabling button that clears selected pins
+				    							document.getElementById("clearSelectedPinsButtonId").disabled = false;
+				    						}
 				    						
 				    						// Otherwise check flag configuration for showing pins and act accordingly
 				    						else { // (response.data.results.bindings.length > 20)
