@@ -2759,15 +2759,67 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		targetEvent: ev,
     		//clickOutsideToClose:true,
     		onComplete:function(){
+    			// Loading Map
     			loadMapForRelatedEntity(rowModel);
-    			// Capturing the whole map
-    			$scope.coordinatesRegion.north = 90.0000;
-	            $scope.coordinatesRegion.south = -90.0000;
-	            $scope.coordinatesRegion.west = -180.0000;
-	            $scope.coordinatesRegion.east = 180.0000;
+    			
+    			// If the model has bounding box, then display it on the map
+				if(rowModel.boundingBox != undefined) {
+				    
+			    	//Enabling button that clears bounding box
+			    	document.getElementById("clearBoundingBoxButtonId").disabled = false;
+			    		    	
+			    	// The bounding box to draw
+			    	$scope.currBoundingBoxFeature = new ol.Feature({
+		    			geometry: new ol.geom.Polygon([
+							[
+							 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)],
+							 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.south)],
+							 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.south)],
+							 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.north)],
+							 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)]
+							]
+						])
+		    		});			    	
+			    	/*
+			    	// The style of the pre-drawn bounding box
+			    	var boundingBoxStyle = new ol.style.Style({
+			    		stroke: new ol.style.Stroke({
+			    			color: 'blue',
+			    			width: 1
+			    		}),
+			    		fill: new ol.style.Fill({
+			    			color: 'rgba(0, 0, 255, 0.1)'
+			    		})
+			    	});
+			    	
+			    	// Stylng pre-drawn bounding box
+			    	$scope.currBoundingBoxFeature.setStyle(boundingBoxStyle);
+			    	*/
+			    	
+			    	// Holding Coordinates
+			    	var coordinateStr = $scope.currBoundingBoxFeature.clone().getGeometry().getCoordinates();
+			    	
+			    	// Change  coordinate systems to display on the map
+			    	$scope.currBoundingBoxFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+			    	
+			    	// Handle the coordinates
+			    	$scope.convertCoordinatesToJson(coordinateStr);  // (loaded on init)
+					
+			    }
+    			
+				else { // (rowModel.boundingBox == undefined)
+	    			// Capturing the whole map
+	    			$scope.coordinatesRegion.north = 90.0000;
+		            $scope.coordinatesRegion.south = -90.0000;
+		            $scope.coordinatesRegion.west = -180.0000;
+		            $scope.coordinatesRegion.east = 180.0000;
+				}
+				
     			// Calling the service to load results on the map, when their count is less than a max allowed number
-    			$scope.retrieveGeoData(true, false); 	// true is for considering "maxResoultCountForShowingPinsOnInit" as max allowed number
-    													// and false is for denoting that this action is not applied by drawing bounding box
+    			$scope.retrieveGeoData(true, false); 	// First boolean stands for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+														// and boundingBoxAction is a boolean denoting that this action will be applied due to
+														// bounding box drawing action
+														// Second boolean stands for drawingBox action (if we are drawing a bounding box)
     		},
     		//fullscreen: true,
     		preserveScope: true,
@@ -2962,7 +3014,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    var boxGeometry = e.feature.getGeometry().clone();
 		    var coordinateStr = boxGeometry.transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 		    //console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr, true); // True stands for drawingBox action
+		    $scope.convertCoordinatesToJson(coordinateStr);
+			
+			// Calling the service to retrieve the pins
+			$scope.retrieveGeoData(false, true); 	// First boolean stands for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+													// and boundingBoxAction is a boolean denoting that this action will be applied due to
+													// bounding box drawing action
+													// Second boolean stands for drawingBox action (if we are drawing a bounding box)
 			
 		});
 	    
@@ -3188,8 +3246,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			// Holding all 5 coordinates in a string and transform them to the appropriate projection
 			var coordinateStr = $scope.dragBox.getGeometry().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
 			//console.log('coordinateStr: ' + coordinateStr);
-			convertCoordinatesToJson(coordinateStr, false); // False stands for drawingBox action (set to false)
-	    	  
+			$scope.convertCoordinatesToJson(coordinateStr);
+	    	
+			// Calling the service to retrieve the pins
+			$scope.retrieveGeoData(false, false); 	// First boolean stands for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
+													// and boundingBoxAction is a boolean denoting that this action will be applied due to
+													// bounding box drawing action
+													// Second boolean stands for drawingBox action (if we are drawing a bounding box)
+			
 			// required for immediate update 
 			//$scope.$apply();
 		});
@@ -3213,7 +3277,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 		// boundingBoxAction is a boolean denoting whether this is an 
 		// action to be applied when drawing bounding box
-		function convertCoordinatesToJson(coordinateStr, boundingBoxAction) {
+		$scope.convertCoordinatesToJson = function(coordinateStr) {
 			
 			var thebox = coordinateStr.toString().split(",");
 			// Using parseFloat in order to convert the strings to floats
@@ -3297,10 +3361,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			console.log(longitude1 + ", " + latitude1 + ", " + longitude2 + ", " + latitude2 + ", " + longitude3 + ", " + latitude3 + ", " + longitude4 + ", " + latitude4 + ", " + longitude5 + ", " + latitude5);
 			console.log("north: " + north + ", south: " + south + ", west: " + west + ", east: " + east);
 			
-			// Calling the service to retrieve the pins
-			$scope.retrieveGeoData(false, boundingBoxAction); 	// false is for ignoring "maxResoultCountForShowingPinsOnInit" (when drawing rectangle)
-																// and boundingBoxAction is a boolean denoting that this action will be applied due to
-																// bounding box drawing action
 		}
 
 		// Initializing
@@ -3493,36 +3553,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				$scope.handleSelectAllRelatedSearchResults(rowModel);
 				
 			}
-			
-			// Function called to make the passed item as de-selected
-			/*
-			function deselectPin(item) {
-				
-				var jsonItem = {};
-				
-				//console.log('evt.deselected: ');
-				angular.forEach(item.getProperties(), function (property, key) {
-					//console.log(key + ': ' + property.value);
-					if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
-						jsonItem[key] = property
-				});
-				
-				var containedObject = containedInListBasedOnURI(jsonItem, rowModel.selectedRelatedInstanceList, 'uri');
-				if(containedObject.contained)
-					rowModel.selectedRelatedInstanceList.splice(containedObject.index, 1);
-				
-				// Show related entity results panel on the respective rowModel
-				if(rowModel.shownEntitySearchResults == false && rowModel.selectedRelatedInstanceList.length > 0)
-					rowModel.shownEntitySearchResults = true;
-				else if (rowModel.shownEntitySearchResults == true && rowModel.selectedRelatedInstanceList.length < 1)
-					rowModel.shownEntitySearchResults = false;
-				
-				// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-				rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-				$scope.handleSelectAllRelatedSearchResults(rowModel);
-				
-			}
-			*/
 			
 			// On Select
 			$scope.select.on('select', function(evt) {
@@ -3911,17 +3941,41 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    					// Case where results should be loaded when opening the map
 		    					if(considerTotalResultCount) {
 		    						
-		    						// Checking if count is less or equal to the allowed limit
-		    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit) {
-		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
-		    							
-		    							// Only reset if there is not any bounding box already set
-		    							if(rowModel.boundingBox == undefined) {
-			    							// Reset zoom level and center to default
-			    							$scope.map.getView().setCenter([0, 0]);
-			    							$scope.map.getView().setZoom(2);
-		    							}
+		    						if(rowModel.boundingBox == undefined) {
+		    						
+			    						// Checking if count is less or equal to the allowed limit
+			    						if(response.data.results.bindings.length < $scope.configuration.relatedEntity.map.maxResoultCountForShowingPinsOnInit) {
+			    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
+			    							
+			    							// Only reset if there is not any bounding box already set
+			    							if(rowModel.boundingBox == undefined) {
+				    							// Reset zoom level and center to default
+				    							$scope.map.getView().setCenter([0, 0]);
+				    							$scope.map.getView().setZoom(2);
+			    							}
+			    						}
+		    						
 		    						}
+		    						
+		    						// Pre-drawing the bounding box if exist
+		    					    
+		    					    // If the model has bounding box, then display it on the map
+		    						else {//(rowModel.boundingBox != undefined) {
+		    						    
+		    							boundingBoxFeatures.push($scope.currBoundingBoxFeature);
+		    							
+		    					    	handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
+		    					    	
+		    							// Re-center the map
+		    							$scope.map.getView().setCenter($scope.currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
+		    							
+		    							// Re-Zooming the map
+		    							if(rowModel.map != undefined) {
+		    								if(rowModel.map.zoom != undefined)
+		    									$scope.map.getView().setZoom(rowModel.map.zoom);
+		    							}
+		    							
+		    					    }
 		    						
 		    					}
 		    					
@@ -4043,61 +4097,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	  		
 	  	}
 		
-		// Pre-drawing the bounding box if exist
-	    
-	    // If the model has bounding box, then display it on the map
-	    if(rowModel.boundingBox != undefined) {
-		    
-	    	//Enabling button that clears bounding box
-	    	document.getElementById("clearBoundingBoxButtonId").disabled = false;
-	    		    	
-	    	// The bounding box to draw
-	    	var currBoundingBoxFeature = new ol.Feature({
-    			geometry: new ol.geom.Polygon([
-					[
-					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)],
-					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.south)],
-					 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.south)],
-					 	[parseFloat(rowModel.boundingBox.east), parseFloat(rowModel.boundingBox.north)],
-					 	[parseFloat(rowModel.boundingBox.west), parseFloat(rowModel.boundingBox.north)]
-					]
-				])
-    		});
-	    	
-	    	// The style of the pre-drawn bounding box
-	    	var boundingBoxStyle = new ol.style.Style({
-	    		stroke: new ol.style.Stroke({
-	    			color: 'blue',
-	    			width: 1
-	    		}),
-	    		fill: new ol.style.Fill({
-	    			color: 'rgba(0, 0, 255, 0.1)'
-	    		})
-	    	});
-	    	
-	    	// Stylng pre-drawn bounding box
-	    	currBoundingBoxFeature.setStyle(boundingBoxStyle);
-	    	
-	    	// Holding Coordinates
-	    	var coordinateStr = currBoundingBoxFeature.clone().getGeometry().getCoordinates();
-	    	
-	    	// Change  coordinate systems to display on the map
-	    	currBoundingBoxFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-	    	boundingBoxFeatures.push(currBoundingBoxFeature);
-	    	
-	    	// Handle the coordinates
-	    	convertCoordinatesToJson(coordinateStr, true);  // True stands for drawingBox action (loaded on init)
-	    				
-			// Re-center the map
-			$scope.map.getView().setCenter(currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
-			
-			// Re-Zooming the map
-			if(rowModel.map != undefined) {
-				if(rowModel.map.zoom != undefined)
-					$scope.map.getView().setZoom(rowModel.map.zoom);
-			}
-			
-	    }
+		
 		
 	}
 	
