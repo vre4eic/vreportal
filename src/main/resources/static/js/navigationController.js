@@ -592,8 +592,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			else if(response.status == '408') {
 				$log.info(response.status);
-				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-				$scope.showErrorAlert('Error', $scope.message);
+				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+				$scope.showErrorAlert('Important', $scope.message);
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
@@ -1305,8 +1305,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-    				$scope.showErrorAlert('Error', $scope.message);
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+    				$scope.showErrorAlert('Important', $scope.message);
     			}
 				
 				else if(response.status == '400') {
@@ -1394,8 +1394,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-    				$scope.showErrorAlert('Error', $scope.message);
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+    				$scope.showErrorAlert('Important', $scope.message);
     			}
 				else if(response.status == '400') {
     				$log.info(response.status);
@@ -1662,8 +1662,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    				}
         	    				else if(response.status == '408') {
         	        				$log.info(response.status);
-        	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-        	        				$scope.showErrorAlert('Error', $scope.message);
+        	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+    		        				$scope.showErrorAlert('Important', $scope.message);
         	        			}
         	    				else if(response.status == '400') {
         	        				$log.info(response.status);
@@ -1698,8 +1698,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     				}
         			else if(queryCountResponse.status == '408') {
         				$log.info(response.status);
-        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-        				$scope.showErrorAlert('Error', $scope.message);
+        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+        				$scope.showErrorAlert('Important', $scope.message);
         			}
         			else if(queryCountResponse.status == '400') {
         				$log.info(queryCountResponse.status);
@@ -1822,8 +1822,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				else if(response.status == '408') {
     				$log.info(response.status);
-    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-    				$scope.showErrorAlert('Error', $scope.message);
+    				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+    				$scope.showErrorAlert('Important', $scope.message);
     			}
 				else if(response.status == '400') {
     				$log.info(response.status);
@@ -2593,8 +2593,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    				}
 	    				else if(response.status == '408') {
 	        				$log.info(response.status);
-	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-	        				$scope.showErrorAlert('Error', $scope.message);
+	        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+	        				$scope.showErrorAlert('Important', $scope.message);
 	        			}
 	    				else if(response.status == '400') {
 	        				$log.info(response.status);
@@ -3686,12 +3686,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Display message informing user that bounding box has been set
 				$mdToast.show(
 					$mdToast.simple()
-			        .textContent('The available instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the bounding box set are very few and thus are automatically selected.')
+			        .textContent('The available instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the bounding box set are very few and thus automatically selected.')
 			        .position('top right')
 			        .parent(angular.element('#mapDialogMainContent'))
 			        .hideDelay(60000)
 			        .action('OK')
-			        .theme("important-toast")
+			        //.theme("important-toast")
 			    );
 				
 				/*
@@ -4036,8 +4036,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    				}
 		    				else if(response.status == '408') {
 		        				$log.info(response.status);
-		        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please try again later and if the same error occures again contact the administrator.';
-		        				$scope.showErrorAlert('Error', $scope.message);
+		        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+		        				$scope.showErrorAlert('Important', $scope.message);
 		        			}
 		    				else if(response.status == '400') {
 		        				$log.info(response.status);
