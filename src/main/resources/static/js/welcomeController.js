@@ -62,12 +62,16 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	// Regarding roles
 	
 	$scope.hasRoleOfAdministrator = false;
+	$scope.hasRoleOfResearcher = false;
+	$scope.hasRoleOfOperator = false;
+	$scope.hasRoleOfController = false;
+	
 	$scope.userProfile = authenticationService.getUserProfile();
-	$scope.isAdmin = function() {
-		
+	
+	$scope.hasRole = function(role) {
 		if($scope.userProfile != null) {
 			if($scope.userProfile.role != null) {
-				if($scope.userProfile.role == 'ADMIN')
+				if($scope.userProfile.role == role)
 					return true;
 				else
 					return false;
@@ -79,7 +83,10 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 			return false;
 	}
 		
-	$scope.hasRoleOfAdministrator = $scope.isAdmin();
+	$scope.hasRoleOfAdministrator = $scope.hasRole('ADMIN');
+	$scope.hasRoleOfResearcher = $scope.hasRole('RESEARCHER');
+	$scope.hasRoleOfController = $scope.hasRole('OPERATOR');
+	$scope.hasRoleOfController = $scope.hasRole('CONTROLLER');
 	
 	$scope.cards = [{ 
 	 	   index:"0", 
@@ -112,7 +119,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"favorites",
-	 	   disabled:false, 
+	 	   disabled: !$scope.hasRoleOfAdministrator && !$scope.hasRoleOfResearcher && !$scope.hasRoleOfController, 
 	 	   view:""
 	    }
 	];

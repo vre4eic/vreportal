@@ -41,7 +41,7 @@
 									My Profile
 								</md-button>
 							</md-menu-item>
-							<md-menu-item>
+							<md-menu-item ng-hide="!hasRoleOfAdministrator && !hasRoleOfResearcher && !hasRoleOfController">
 								<md-button ng-click="goToFavoritesView($event)">
 									<md-icon md-font-icon="fa fa-star"></md-icon>
 									My Favorites

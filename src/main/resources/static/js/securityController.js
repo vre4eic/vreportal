@@ -179,7 +179,35 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 	
 	// Calling service to get the user's profile
 	$scope.updateUserProfile = function() {
+		
 		$scope.userProfile = authenticationService.getUserProfile();
+		
+		// Regarding roles
+		
+		$scope.hasRoleOfAdministrator = false;
+		$scope.hasRoleOfResearcher = false;
+		$scope.hasRoleOfOperator = false;
+		$scope.hasRoleOfController = false;
+				
+		$scope.hasRole = function(role) {
+			if($scope.userProfile != null) {
+				if($scope.userProfile.role != null) {
+					if($scope.userProfile.role == role)
+						return true;
+					else
+						return false;
+				}
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+			
+		$scope.hasRoleOfAdministrator = $scope.hasRole('ADMIN');
+		$scope.hasRoleOfResearcher = $scope.hasRole('RESEARCHER');
+		$scope.hasRoleOfController = $scope.hasRole('OPERATOR');
+		$scope.hasRoleOfController = $scope.hasRole('CONTROLLER');
 	}
 	
 	$scope.$watch($scope.updateUserProfile, function() {
@@ -235,7 +263,7 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 			// do nothing
 		});
 	}
-	
+		
 } ]);
 
 app.controller("registrationCtrl", ['$scope', 'authenticationService', '$timeout', '$state', 

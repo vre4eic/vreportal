@@ -72,6 +72,11 @@
 				</div>
 				<div style="display: inline-block; font-style:italic;" id="mouse-position" flex></div>
 			</span>
+			
+			selectedRelatedInstanceList: {{select.getFeatures().getArray().length}}
+			bounding box {{currRowModel.boundingBox}}
+			
+			
 			<!--
 			<span flex></span>
 			<span layout-padding style="padding-bottom:0px;">
@@ -87,7 +92,9 @@
 	<md-dialog-actions layout="row" style="padding-top:0px; padding-bottom:10px;">
 		<md-button class="md-raised md-primary" ng-click="closeSelectedFromMapDialogDialog($event, currRowModel)">
 			<md-icon md-font-icon="fa fa-times" style="font-size:18px"></md-icon>
-			Close
+			<span ng-show="(select.getFeatures().getArray().length <= 0) && !currRowModel.boundingBox">Close</span>
+			<span ng-show="select.getFeatures().getArray().length > 0">Use Selected Pins</span>
+			<span ng-show="currRowModel.boundingBox">Use Region Set</span>
 		</md-button>
 		<span flex></span>
 	</md-dialog-actions>

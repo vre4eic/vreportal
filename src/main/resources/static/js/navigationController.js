@@ -387,7 +387,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			map: {
 				maxResoultCountForShowingPinsOnInit: 200,
 				showPinsWhenDrawingBoundingBox: true,
-				minResoultCountForAutoSelectingPinsOnDrawingBox: 20,
+				minResoultCountForAutoSelectingPinsOnDrawingBox: 10,
 			},
 			excludedEntities: [],
 			selectedInstancesLimit:20
@@ -2574,7 +2574,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			
         		var params = {
         				format: "application/json",
-        				query: queryResponse.data.query,// + ' limit 100', // final Search Query
+        				query: queryResponse.data.query + ' limit 300', // final Search Query
         				itemsPerPage: 100
         		}
     			// Calling service to executing Query - Promise
@@ -3686,7 +3686,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Display message informing user that bounding box has been set
 				$mdToast.show(
 					$mdToast.simple()
-			        .textContent('All instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the drawn bounding box were auto-selected instead, due to system\'s performance improvement.')
+			        .textContent('The available instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the bounding box set are very few and thus are automatically selected.')
 			        .position('top right')
 			        .parent(angular.element('#mapDialogMainContent'))
 			        .hideDelay(60000)
@@ -3964,7 +3964,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    						    
 		    							boundingBoxFeatures.push($scope.currBoundingBoxFeature);
 		    							
-		    					    	handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
+		    							// If showPinsWhenDrawingBoundingBox is set in the configuration setup
+		    							if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
+		    								handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting them all
 		    					    	
 		    							// Re-center the map
 		    							$scope.map.getView().setCenter($scope.currBoundingBoxFeature.getGeometry().getInteriorPoint().getCoordinates());
