@@ -308,14 +308,15 @@ public class H2Manager {
                 + "where {\n"
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
+                + "?org rdfs:label ?orgLabel.\n"
                 + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
                 + "}\n"
                 + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
-                + "?orgName bds:search \"@#$%TERM%$#@\".\n"
-                + "?orgName bds:relevance ?score.\n"
+                + "?orgLabel bds:search \"@#$%TERM%$#@\".\n"
+                + "?orgLabel bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
                 + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
@@ -343,6 +344,7 @@ public class H2Manager {
                 + "where {\n"
                 + "?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
                 + "?org cerif:has_name ?orgName.\n"
+                + "?org rdfs:label ?orgLabel.\n"
                 + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -358,23 +360,28 @@ public class H2Manager {
                 + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
-                + "?orgName bds:search \"@#$%TERM%$#@\".\n"
-                + "?orgName bds:relevance ?score.\n"
+                + "?orgLabel bds:search \"@#$%TERM%$#@\".\n"
+                + "?orgLabel bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
                 false,
                 "distinct (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "OPTIONAL {"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "}\n"
                 //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
+                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.}",
-                "OPTIONAL {?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label}. \n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name. \n"
-                + "bind(if(bound(?@#$%VAR%$#@Label), ?@#$%VAR%$#@Label, ?@#$%VAR%$#@Name) as ?@#$%VAR%$#@FinalName). \n"
-                + "?@#$%VAR%$#@FinalName bds:search \"@#$%TERM%$#@\".",
+                //                "OPTIONAL {?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label}. \n"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name. \n"
+                //                + "bind(if(bound(?@#$%VAR%$#@Label), ?@#$%VAR%$#@Label, ?@#$%VAR%$#@Name) as ?@#$%VAR%$#@FinalName). \n"
+                //                + "?@#$%VAR%$#@FinalName bds:search \"@#$%TERM%$#@\"."
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
+                + "?@#$%VAR%$#@Label bds:search \"@#$%TERM%$#@\".",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -780,7 +787,7 @@ public class H2Manager {
                 + "?address bds:relevance ?score.\n"
                 + "##\n"
                 + "} ORDER BY desc(?score)",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
+                "SELECT DISTINCT ?address ?Service (?loc as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
                 + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
                 + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
                 + "?addr rdfs:label ?address.\n"
@@ -800,7 +807,7 @@ public class H2Manager {
                 + "##\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "}",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
+                "SELECT DISTINCT ?address ?Service (?loc as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
                 + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
                 + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
                 + "?addr rdfs:label ?address.\n"
@@ -1229,14 +1236,14 @@ public class H2Manager {
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException, ParseException {
         H2Manager h2 = new H2Manager();
 //        h2.init();
-//        h2.deleteTable("entity");
-//        h2.createTableEntity();
-//        h2.insertEntities();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
+        h2.insertEntities();
 //        h2.deleteTable("RELATION");
-        h2.deleteTable("RELATIONS_MATERIAL");
+//        h2.deleteTable("RELATIONS_MATERIAL");
 //        h2.createTableRelation();
-        h2.createTableRelationsMatUpdates();
-        h2.insertRelationsMatUpdates();
+//        h2.createTableRelationsMatUpdates();
+//        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
 
