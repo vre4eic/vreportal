@@ -283,6 +283,23 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 
+		},
+		
+		retrieveserviceModel : function(token) {
+
+			return $http({
+				'url' : '/retrieve_service_model',
+				'method' : 'POST',
+				'headers' : {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				}
+			}).then(function (success) {
+				return success;
+			},function (error) {
+				//error code
+			});
+
 		}//,
 		
 	}

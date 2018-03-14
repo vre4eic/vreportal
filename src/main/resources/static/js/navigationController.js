@@ -19,7 +19,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	}
 	
 	initCredentials();
-	
+		
 	// Regarding user roles
 	$scope.hasRoleOfAdministrator = false;
 	$scope.hasRoleOfResearcher = false;
@@ -533,8 +533,42 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.finalQuery = "";
 	
+	// Calling service to retrieve service model
+	function retrieveserviceModel() {
+		queryService.retrieveserviceModel($scope.credentials.token)
+		.then(function (response) {
+		
+			if(response.status == '200') {
+				$scope.serviceModel = response.data;
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+	}
+	
 	this.$onInit = function () {
-				
+
+	    retrieveserviceModel();
+		
 		//Initializing empty row model (new instance)
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 		$scope.rowModelList = [$scope.emptyRowModel];
@@ -1594,11 +1628,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     
     $scope.currRowModel = null;
     
-    $scope.serviceModel = { 
-		url: 'http://139.91.183.70:8080/EVREMetadataServices-1.0-SNAPSHOT',
-		namespace: 'vre4eic'
-	}
-	
+    
     $scope.relatedEntityResultsCount = 0;
     
     $scope.showRelatedResultsDialog = function(ev, rowModel) {
