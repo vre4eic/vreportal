@@ -20,6 +20,34 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	initCredentials();
 	
+	// Regarding user roles
+	$scope.hasRoleOfAdministrator = false;
+	$scope.hasRoleOfResearcher = false;
+	$scope.hasRoleOfOperator = false;
+	$scope.hasRoleOfController = false;
+	
+	$scope.userProfile = $sessionStorage.userProfile;//authenticationService.getUserProfile();
+	
+	$scope.hasRole = function(role) {
+		if($scope.userProfile != null) {
+			if($scope.userProfile.role != null) {
+				if($scope.userProfile.role == role)
+					return true;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+		
+	$scope.hasRoleOfAdministrator = $scope.hasRole('ADMIN');
+	$scope.hasRoleOfResearcher = $scope.hasRole('RESEARCHER');
+	$scope.hasRoleOfController = $scope.hasRole('OPERATOR');
+	$scope.hasRoleOfController = $scope.hasRole('CONTROLLER');
+	
 	function checkAuthorization() {
 		
 	}
@@ -107,6 +135,17 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		};
     }
 	
+	// Toggles SidePanel for map's dialog panel
+	$scope.mapInfoIsOpen = false; // Used for showing the backdrop
+	$scope.toggleMapInfo = infoMapToggler('mapInfo');
+	function infoMapToggler(componentId) {
+		return function() {
+			$mdSidenav(componentId).toggle();
+			$scope.mapInfoIsOpen = $mdSidenav(componentId).isOpen()
+		};
+    }
+	
+	// Toggles SidePanel for tree menu (VREs)
 	$scope.toggleTreeMenu = treeMenuBuildToggler('treeMenu');
 	function treeMenuBuildToggler(componentId) {
 		return function() {
