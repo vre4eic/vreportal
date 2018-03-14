@@ -199,7 +199,8 @@ public class EntityManagerController {
                 String southClause = "" + requestParams.get("south");
                 String eastClause = "" + requestParams.get("east");
                 String westClause = "" + requestParams.get("west");
-                geoQuery = geoQuery.replace("@#$%FROM%$#@", fromClause).replace("@#$%NORTH%$#@", northClause).
+                geoQuery = geoQuery.replace("@#$%FROM%$#@", fromClause).
+                        replace("@#$%NORTH%$#@", northClause).
                         replace("@#$%SOUTH%$#@", southClause).
                         replace("@#$%EAST%$#@", eastClause).
                         replace("@#$%WEST%$#@", westClause);
