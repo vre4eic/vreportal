@@ -451,9 +451,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		availableFilterExpressions: [{expression: 'OR'}, {expression: 'AND'}],
 	}
 	
-	// Used to convert fro UTC (when date is initially null) to local timezone
+	// Used to convert from UTC (when date is initially null) to local timezone
 	var regexMatchForIso8601Date = /[0-9]T[0-9]/; // ISO 8601
-	var dateFormat = 'YYYY-MM-DDTHH:mm:ss.sssZ';
+	var dateFormat = 'YYYY-MM-DD'; // 'YYYY-MM-DDTHH:mm:ss.sssZ'
 	
 	function toLocalTimeZone(value) {
 	//$scope.toLocalTimeZone = function (value) {
