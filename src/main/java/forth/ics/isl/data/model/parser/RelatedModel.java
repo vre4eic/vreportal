@@ -39,6 +39,7 @@ public class RelatedModel {
     private JSONArray relatedEntityRelationTuples;
     private String fromDate, endDate;
     private String geoSearchPattern;
+    private String geoKeywordSearchPattern;
 
     @Autowired
     private DBService dbService;
@@ -91,7 +92,7 @@ public class RelatedModel {
         }
         sb.append((String) jsonModel.get("relatedEntitySearchText"));
         this.relatedEntitySearchText = sb.toString().trim();
-        this.keywordSearchPattern = "";
+        this.keywordSearchPattern = null;
         if (!this.relatedEntitySearchText.equals("")) {
             this.keywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("keyword_search");
 //            this.keywordSearchPattern = getKeywordSearchPattern(relatedVarName);
@@ -108,6 +109,15 @@ public class RelatedModel {
             geoSearchPattern = geoSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
             geoSearchPattern = geoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
             geoSearchPattern = geoSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
+        }
+        if (keywordSearchPattern != null && geoSearchPattern != null) {
+            this.geoKeywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("keyword_geo_search");
+            JSONObject boundingBox = (JSONObject) jsonModel.get("boundingBox");
+            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
+            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
+            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
+            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
+            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%TERM%$#@", this.relatedEntitySearchText);
         }
         ///
         JSONArray instances = (JSONArray) jsonModel.get("selectedRelatedInstanceList");
@@ -219,6 +229,10 @@ public class RelatedModel {
 
     public String getGeoSearchPattern(String var) {
         return geoSearchPattern != null ? geoSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
+    }
+
+    public String getKeywordGeoSearchPattern(String var) {
+        return geoKeywordSearchPattern != null ? geoKeywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
     }
 
     public String getRelatedVarName() {
@@ -338,6 +352,12 @@ public class RelatedModel {
             }
             block.append(")).\n");
         }
+        if (this.geoKeywordSearchPattern != null) {
+            this.keywordSearchPattern = null;
+            this.geoSearchPattern = null;
+            block.append((getKeywordGeoSearchPattern(relVar) + "\n").trim() + "\n");
+        }
+
         block.append((getKeywordSearchPattern(relVar, targetEntity) + "\n").trim() + "\n");
         createDateFilterBlock(targetEntity, relVar, block);
         block.append((getGeoSearchPattern(relVar) + "\n").trim() + "\n");
@@ -377,10 +397,10 @@ public class RelatedModel {
             block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?" + concStr + "_start_date.\n");
             block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?" + concStr + "_end_date.\n");
             if (fromDate != null) {
-                block.append("filter (xsd:dateTime('" + fromDate + "') >= xsd:dateTime(?" + concStr + "_start_date)).\n");
+                block.append("filter (xsd:dateTime(?" + concStr + "_start_date) >= xsd:dateTime('" + fromDate + "T00:00:00')).\n");
             }
             if (endDate != null) {
-                block.append("filter (xsd:dateTime('" + endDate + "') <= xsd:dateTime(?" + concStr + "_end_date)).\n");
+                block.append("filter (xsd:dateTime(?" + concStr + "_end_date) <= xsd:dateTime('" + endDate + "T00:00:00')).\n");
             }
         }
     }
