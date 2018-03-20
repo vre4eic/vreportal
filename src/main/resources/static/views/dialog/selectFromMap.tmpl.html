@@ -130,11 +130,43 @@
 	</md-dialog-content>
 	
 	<md-dialog-actions layout="row" style="padding-top:0px; padding-bottom:10px;">
+		<!--
 		<md-button class="md-raised md-primary" ng-click="closeSelectedFromMapDialogDialog($event, currRowModel)">
-			<!-- <md-icon md-font-icon="fa fa-times" style="font-size:18px"></md-icon> -->
 			Use Region set / Selected Pins (if any)
 		</md-button>
+		-->
+		<span ng-show="fewPinsInsideBoundingBox.length<=0">
+			<md-button class="md-raised md-primary" 
+					   ng-disabled="!currRowModel.boundingBox"
+					   ng-click="setRegionInQueryAndcloseMapDialogDialog($event, currRowModel)">
+				Add Marked Region
+			</md-button>
+			<md-button class="md-raised md-primary" 
+					   ng-disabled="select.getFeatures().getLength() <= 0"
+					   ng-click="setSelectedPinsInQueryAndcloseMapDialogDialog($event, currRowModel)">
+				Add Selected Pins ({{select.getFeatures().getLength()}})
+			</md-button>
+		</span>
+		<span ng-show="fewPinsInsideBoundingBox.length>0">
+			<md-button class="md-raised md-primary" 
+					   ng-disabled="!currRowModel.boundingBox"
+					   ng-click="setPinsInsideBoundingBoxInQueryAndcloseMapDialogDialog($event, currRowModel)">
+				Add All Pins Inside The Marked Region ({{fewPinsInsideBoundingBox.length}})
+			</md-button>
+		</span>
 		<span flex></span>
+		<span>
+			<md-button class="md-raised md-primary" 
+					   ng-click="closeSelectedFromMapDialogDialog($event, currRowModel)">
+				Cancel & Don't Apply Anything
+			</md-button>
+		</span>
+		<span>
+			<md-button class="md-raised md-accent" 
+					   ng-click="resetAndcloseMapDialogDialog($event, currRowModel)">
+				Reset And Close
+			</md-button>
+		</span>
 	</md-dialog-actions>
 	
 </md-dialog>
