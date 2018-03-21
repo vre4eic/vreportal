@@ -5,9 +5,6 @@
  */
 package forth.ics.isl.data.model.parser;
 
-import forth.ics.isl.service.DBService;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +44,7 @@ public class QueryDataModel {
         targetModel = new TargetModel((JSONObject) queryModel.get("targetModel"));
         this.relatedModels = new ArrayList<>();
         JSONArray related = (JSONArray) queryModel.get("relatedModels");
+        boolean containsKeywordFilters = false;
         for (int i = 0; i < related.size(); i++) {
             RelatedModel relModel = new RelatedModel((JSONObject) related.get(i), selectedGraphs);
             //I have not selected any related models
@@ -54,7 +52,18 @@ public class QueryDataModel {
 //                break;
 //            }
             relatedModels.add(relModel);
+            if (relModel.getKeywordSearchPattern() != null || relModel.containsKeywordSearch()) {
+                containsKeywordFilters = true;
+            }
         }
+        //check if I have related entities with both keyword and geofilters
+        //if so, then use only the filter geosearch.
+        if (containsKeywordFilters) {
+            for (RelatedModel relModel : relatedModels) {
+                relModel.setGeoSearchPattern(relModel.getFilterGeoSearchPattern());
+            }
+        }
+
     }
 
     public TargetModel getTargetModel() {

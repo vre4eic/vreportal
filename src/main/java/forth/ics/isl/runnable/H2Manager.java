@@ -77,9 +77,9 @@ public class H2Manager {
         return statement.executeUpdate("insert into namedgraph_category (`name`,`description`) values ('" + name + "', '')");
     }
 
-    public int insertEntity(String name, String uri, String thesaurus, String query, String geoQuery, String textGeoQuery, boolean geospatial, String selectionList, String selectionPattern, String keywordSearch, String geoSearch, String keywordGeoSearch, String varName) throws SQLException {
-        return statement.executeUpdate("insert into entity(`name`, `uri`, `thesaurus`, `query`, `geo_query`, `text_geo_query`, `geospatial`, `selection_list`, `selection_pattern`, `keyword_search`, `geo_search`, `keyword_geo_search`, `var_name`)"
-                + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "', '" + textGeoQuery + "', " + geospatial + ", '" + selectionList + "', '" + selectionPattern + "', '" + keywordSearch + "', '" + geoSearch + "', '" + keywordGeoSearch + "', '" + varName + "')");
+    public int insertEntity(String name, String uri, String thesaurus, String query, String geoQuery, String textGeoQuery, boolean geospatial, String selectionList, String selectionPattern, String keywordSearch, String geoSearch, String filterGeoSearch, String varName) throws SQLException {
+        return statement.executeUpdate("insert into entity(`name`, `uri`, `thesaurus`, `query`, `geo_query`, `text_geo_query`, `geospatial`, `selection_list`, `selection_pattern`, `keyword_search`, `geo_search`, `filter_geo_search`, `var_name`)"
+                + " values ('" + name + "','" + uri + "','" + thesaurus + "','" + query + "','" + geoQuery + "', '" + textGeoQuery + "', " + geospatial + ", '" + selectionList + "', '" + selectionPattern + "', '" + keywordSearch + "', '" + geoSearch + "', '" + filterGeoSearch + "', '" + varName + "')");
     }
 
     public boolean relationExists(String uri, String name, int sourceEntity, int destinationEntity, String graph) throws SQLException {
@@ -148,7 +148,7 @@ public class H2Manager {
                 + "selection_pattern clob, \n"
                 + "keyword_search clob,\n"
                 + "geo_search clob,\n"
-                + "keyword_geo_search clob,\n"
+                + "filter_geo_search clob,\n"
                 + "var_name varchar(10),"
                 + "PRIMARY KEY (`id`)\n"
                 + ");");
@@ -437,9 +437,7 @@ public class H2Manager {
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleSouthWest> \"@#$%SOUTH%$#@#@#$%WEST%$#@\" .\n"
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleNorthEast> \"@#$%NORTH%$#@#@#$%EAST%$#@\" .\n"
                 + "}\n",
-                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
-                + "?@#$%VAR%$#@Label bds:search \"@#$%TERM%$#@\".\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
                 + "?@#$%VAR%$#@FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
                 + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
                 + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@GBB.\n"
@@ -612,9 +610,7 @@ public class H2Manager {
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleSouthWest> \"@#$%SOUTH%$#@#@#$%WEST%$#@\" .\n"
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleNorthEast> \"@#$%NORTH%$#@#@#$%EAST%$#@\" .\n"
                 + "}\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
-                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
                 + "?@#$%VAR%$#@FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
                 + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
                 + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@GBB.\n"
@@ -790,9 +786,7 @@ public class H2Manager {
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleSouthWest> \"@#$%SOUTH%$#@#@#$%WEST%$#@\" .\n"
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleNorthEast> \"@#$%NORTH%$#@#@#$%EAST%$#@\" .\n"
                 + "}\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
-                + "?@#$%VAR%$#@Name bds:search \"@#$%TERM%$#@\".\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
                 + "?@#$%VAR%$#@FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
                 + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
                 + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@GBB.\n"
@@ -967,8 +961,7 @@ public class H2Manager {
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleSouthWest> \"@#$%SOUTH%$#@#@#$%WEST%$#@\" .\n"
                 + " ?@#$%VAR%$#@GBB <http://www.bigdata.com/rdf/geospatial#spatialRectangleNorthEast> \"@#$%NORTH%$#@#@#$%EAST%$#@\" .\n"
                 + "}\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
                 + "?@#$%VAR%$#@FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
                 + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
                 + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@GBB.\n"
@@ -1120,9 +1113,7 @@ public class H2Manager {
                 + " ?@#$%VAR%$#@ <http://www.bigdata.com/rdf/geospatial#spatialRectangleSouthWest> \"@#$%SOUTH%$#@#@#$%WEST%$#@\" .\n"
                 + " ?@#$%VAR%$#@ <http://www.bigdata.com/rdf/geospatial#spatialRectangleNorthEast> \"@#$%NORTH%$#@#@#$%EAST%$#@\" .\n"
                 + "}\n",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
-                + "?@#$%VAR%$#@Νame bds:search \"@#$%TERM%$#@\".\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.\n"

@@ -39,7 +39,8 @@ public class RelatedModel {
     private JSONArray relatedEntityRelationTuples;
     private String fromDate, endDate;
     private String geoSearchPattern;
-    private String geoKeywordSearchPattern;
+    private String filterGeoSearchPattern;
+    private boolean containsKeywordSearch;
 
     @Autowired
     private DBService dbService;
@@ -94,6 +95,7 @@ public class RelatedModel {
         this.relatedEntitySearchText = sb.toString().trim();
         this.keywordSearchPattern = null;
         if (!this.relatedEntitySearchText.equals("")) {
+            this.containsKeywordSearch = true;
             this.keywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("keyword_search");
 //            this.keywordSearchPattern = getKeywordSearchPattern(relatedVarName);
             this.keywordSearchPattern = this.keywordSearchPattern.replace("@#$%TERM%$#@", this.relatedEntitySearchText);
@@ -109,15 +111,12 @@ public class RelatedModel {
             geoSearchPattern = geoSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
             geoSearchPattern = geoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
             geoSearchPattern = geoSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
-        }
-        if (keywordSearchPattern != null && geoSearchPattern != null) {
-            this.geoKeywordSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("keyword_geo_search");
-            JSONObject boundingBox = (JSONObject) jsonModel.get("boundingBox");
-            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
-            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
-            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
-            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
-            geoKeywordSearchPattern = geoKeywordSearchPattern.replace("@#$%TERM%$#@", this.relatedEntitySearchText);
+            ////
+            this.filterGeoSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("filter_geo_search");
+            filterGeoSearchPattern = filterGeoSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
+            filterGeoSearchPattern = filterGeoSearchPattern.replace("@#$%SOUTH%$#@", "" + boundingBox.get("south"));
+            filterGeoSearchPattern = filterGeoSearchPattern.replace("@#$%EAST%$#@", "" + boundingBox.get("east"));
+            filterGeoSearchPattern = filterGeoSearchPattern.replace("@#$%WEST%$#@", "" + boundingBox.get("west"));
         }
         ///
         JSONArray instances = (JSONArray) jsonModel.get("selectedRelatedInstanceList");
@@ -231,8 +230,8 @@ public class RelatedModel {
         return geoSearchPattern != null ? geoSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
     }
 
-    public String getKeywordGeoSearchPattern(String var) {
-        return geoKeywordSearchPattern != null ? geoKeywordSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
+    public String getFilterGeoSearchPattern(String var) {
+        return filterGeoSearchPattern != null ? filterGeoSearchPattern.replaceAll("@#\\$%VAR%\\$#@", var) : "";
     }
 
     public String getRelatedVarName() {
@@ -299,7 +298,15 @@ public class RelatedModel {
 //                }
                 RelatedModel relModel = new RelatedModel(obj, selectedGraphs);
                 relModel.setParentModel(this);
+                if (this.containsKeywordSearch) {
+//                    relModel.setContainsKeywordSearch();
+                    relModel.setGeoSearchPattern(relModel.getFilterGeoSearchPattern());
+                }
                 this.relatedModels.add(relModel);
+                if (relModel.getKeywordSearchPattern() != null) {
+                    containsKeywordSearch = true;
+                    setGeoSearchPattern(getFilterGeoSearchPattern());
+                }
             }
         }
     }
@@ -352,15 +359,14 @@ public class RelatedModel {
             }
             block.append(")).\n");
         }
-        if (this.geoKeywordSearchPattern != null) {
-            this.keywordSearchPattern = null;
-            this.geoSearchPattern = null;
-            block.append((getKeywordGeoSearchPattern(relVar) + "\n").trim() + "\n");
+        if (keywordSearchPattern == null) {
+            block.append((getGeoSearchPattern(relVar) + "\n").trim() + "\n");
+        } else {
+            String keywordBlock = (getKeywordSearchPattern(relVar, targetEntity) + "\n").trim() + "\n";
+            block.append(keywordBlock);
+            block.append((getFilterGeoSearchPattern(relVar) + "\n").trim() + "\n");
         }
-
-        block.append((getKeywordSearchPattern(relVar, targetEntity) + "\n").trim() + "\n");
         createDateFilterBlock(targetEntity, relVar, block);
-        block.append((getGeoSearchPattern(relVar) + "\n").trim() + "\n");
         ////
         List<String> relEntitiesBlocks = new ArrayList<>();
         if (relatedModels != null && !relatedModels.isEmpty()) {
@@ -407,6 +413,38 @@ public class RelatedModel {
 
     public ArrayList<LinkedHashMap> get(String relatedEntityRelationTuples) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void setKeywordSearchPattern(String keywordSearchPattern) {
+        this.keywordSearchPattern = keywordSearchPattern;
+    }
+
+    public void setGeoSearchPattern(String geoSearchPattern) {
+        this.geoSearchPattern = geoSearchPattern;
+    }
+
+    public void setFilterGeoSearchPattern(String geoKeywordSearchPattern) {
+        this.filterGeoSearchPattern = geoKeywordSearchPattern;
+    }
+
+    public String getKeywordSearchPattern() {
+        return keywordSearchPattern;
+    }
+
+    public String getGeoSearchPattern() {
+        return geoSearchPattern;
+    }
+
+    public String getFilterGeoSearchPattern() {
+        return filterGeoSearchPattern;
+    }
+
+    public boolean containsKeywordSearch() {
+        return containsKeywordSearch;
+    }
+
+    public void setContainsKeywordSearch() {
+        this.containsKeywordSearch = true;
     }
 
 }

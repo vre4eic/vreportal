@@ -8,7 +8,6 @@ package forth.ics.isl.data.model.suggest;
 import forth.ics.isl.data.model.parser.FilterExp;
 import forth.ics.isl.data.model.parser.QueryDataModel;
 import forth.ics.isl.data.model.parser.RelatedModel;
-import forth.ics.isl.data.model.parser.TargetModel;
 import forth.ics.isl.data.model.parser.Utils;
 import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
