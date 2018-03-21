@@ -864,9 +864,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		// Delete Useless for the back-end properties, occupying a lot of volume
 		model = deleteUselessForBackendInformation(model);
-		
-		//@@@loadRelatedEntitiesAndRelationsByTarget($event, parent.rowModel, rowModel, rowModel.selectedRelatedEntity, 'relatedEntitySelect');
-		
+				
 		if(rowModel.selectedRelation != null && rowModel.selectedRelation != undefined) {
 			if(rowModel.selectedRelation.relatedEntity != null && rowModel.selectedRelation.relatedEntity != undefined) {
 				//console.log('selectedRelation.relatedEntity' + angular.toJson(rowModel.selectedRelation.relatedEntity));
@@ -874,7 +872,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					if(relatedEntity.uri == rowModel.selectedRelation.relatedEntity.uri) {
 						
 						// Setting in the UI the selected related entity
-						rowModel.selectedRelatedEntity = relatedEntity; // Not needed for the servise that uses model
+						rowModel.selectedRelatedEntity = relatedEntity; // Not needed for the service that uses model
 						
 						// Setting in the model parameter the selected relatedEntity
 						model.rowModel.selectedRelatedEntity = relatedEntity;
@@ -2643,7 +2641,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			
         		var params = {
         				format: "application/json",
-        				query: queryResponse.data.query + ' limit 300', // final Search Query
+        				query: queryResponse.data.query,// + ' limit 300', // final Search Query
         				itemsPerPage: 100
         		}
     			// Calling service to executing Query - Promise
@@ -2818,6 +2816,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		
 	$scope.showMapForRelatedResultsDialog = function(ev, rowModel) {
+		
+		// Keep Backup for selected pins and bounding box set
+		rowModel.backupSelectedRelatedInstanceList = angular.copy(rowModel.selectedRelatedInstanceList);
+		rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
+		
+		// Initializing array holding the pins when they are few (defined by: 
+		// configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox)
+		$scope.fewPinsInsideBoundingBox = [];
 		
 		// Used for capturing the current row and thus knowing where to put selected items
     	$scope.currRowModel = rowModel;
@@ -3016,61 +3022,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    
 	    $scope.map.addLayer(boxVectorLayer);	// Adding Layer for box
 	    
+	    // Handling bounding box drawn
 	    var setBoundingBoxInQuery = function(e) {
-	    	
-	    	var messageContent = 'We noticed that there are certain instances already selected for this related entity. '
-	    					   + '<br/>'
-	    					   + 'By setting a bounding box filter, these instances have to be removed. '
-	    					   + '<br/><br/>'
-	    					   + 'Are you sure you want to continue with this action?';
-	    	
-	    	// If there are instances selected, ask permission to delete them
-	    	// (bounding box should not co-exist along with selected instances)
-	    	if(rowModel.selectedRelatedInstanceList.length > 0) {
-	    		var confirm = $mdDialog.confirm()
-					    		.parent(angular.element(document.querySelector('#popupContainerOnMap')))
-								.title('Important Message - Confirmation Required')
-								.htmlContent(messageContent)
-								.ariaLabel('Remove previously selected instances - Confirmation')
-								.targetEvent(e)
-								.ok('Yes Continue')
-								.cancel('Cancel')
-								.multiple(true);
-		
-				$mdDialog.show(confirm).then(function() { // OK
-					
-					// Setting flag for search by text
-					rowModel.allRelatedSearchResultsIsSelected = true;
-					// Removing all currently selected instances for the related entity of this rowModel
-					//rowModel.selectedRelatedInstanceList = [];
-					// Hide related entity results panel on the respective rowModel
-					rowModel.shownEntitySearchResults = false;
-					
-					// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-					rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-					$scope.handleSelectAllRelatedSearchResults(rowModel);
-					
-					// Dealing with the map
-					$scope.polyFeatures.clear();
-					$scope.pointFeatures.clear();
-					$scope.select.getFeatures().clear();
-			    	$scope.boxSource.clear(); // Clearing drawn bounding box
-			    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
-					
-				}, function() { // Cancel
-					
-				});
-	    	}
-	    	
-	    	else {
-	    		// Dealing with the map
-				$scope.polyFeatures.clear();
-				$scope.pointFeatures.clear();
-				$scope.select.getFeatures().clear();
-		    	$scope.boxSource.clear(); // Clearing drawn bounding box
-		    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
-	    	}
-	    	
+    		// Dealing with the map
+			$scope.polyFeatures.clear();
+			$scope.pointFeatures.clear();
+			$scope.select.getFeatures().clear();
+	    	$scope.boxSource.clear(); // Clearing drawn bounding box
+	    	$scope.map.addInteraction(drawBoundingBox); // Initiating interaction for drawing
 	    };
 	    
 	    // When the drawing for the bounding box finish
@@ -3123,6 +3082,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.select.getFeatures().clear();
 	    	$scope.boxSource.clear(); // Clearing drawn bounding box
 			delete rowModel.boundingBox; // Removing bounding box from the model
+			$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
 			
 			//Disabling button that clears bounding box
 			document.getElementById("clearBoundingBoxButtonId").disabled = true;
@@ -3217,6 +3177,14 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		        .hideDelay(3000)
 		    );
 	    	
+			// Disabling button that clears selected pins if no pin is selected
+			if($scope.select.getFeatures().getLength() <= 0)
+				$scope.pinsAreSelected = false;
+			else
+				$scope.pinsAreSelected = true;
+			document.getElementById("clearSelectedPinsButtonId").disabled = !$scope.pinsAreSelected;
+			$scope.$apply();
+			
 	    };
 	    
 	    clearSelectedPinsButton.addEventListener('click', clearSelectedPinsInQuery, false);
@@ -3635,26 +3603,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					if (rowModel.selectedRelatedInstanceList.length < $scope.configuration.relatedEntity.selectedInstancesLimit) {
 						selectPin(evt.selected[0]);
 						
-						// Regarding Bounding Box
-						if(rowModel.boundingBox != undefined) {
-							
-							// Display message informing user that bounding box has been removed
-							$mdToast.show(
-								$mdToast.simple()
-						        .textContent('Bounding box has been removed!')
-						        .position('top right')
-						        .parent(angular.element('#mapDialogMainContent'))
-						        .hideDelay(3000)
-						    );
-							
-							$scope.boxSource.clear(); // Clearing drawn bounding box
-							delete rowModel.boundingBox; // Removing bounding box from the model
-							
-							// Disabling button that clears bounding box
-							document.getElementById("clearBoundingBoxButtonId").disabled = true;
-														
-						}
-						
 						// Enabling button that clears selected pins
 						document.getElementById("clearSelectedPinsButtonId").disabled = false;
 						
@@ -3684,8 +3632,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				}
 				
 				// Disabling button that clears selected pins if no pin is selected
-				if($scope.select.getFeatures().getArray().length <= 0)
-					document.getElementById("clearSelectedPinsButtonId").disabled = true;
+				if($scope.select.getFeatures().getLength() <= 0)
+					$scope.pinsAreSelected = false;
+				else
+					$scope.pinsAreSelected = true;
+				document.getElementById("clearSelectedPinsButtonId").disabled = !$scope.pinsAreSelected;
+				$scope.$apply();
 				
 			});
 			
@@ -3746,8 +3698,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 				// Regarding Bounding Box
 				$scope.boxSource.clear(); // Clearing drawn bounding box
-				if(rowModel.boundingBox != undefined)
+				if(rowModel.boundingBox != undefined) {
 					delete rowModel.boundingBox; // Removing bounding box from the model
+					$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+				}
 				
 				//Disabling button that clears bounding box
 				document.getElementById("clearBoundingBoxButtonId").disabled = true;
@@ -3763,16 +3717,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			        //.theme("important-toast")
 			    );
 				
-				/*
-				$mdToast.show({
-			        template: '<md-toast>' + 'All instances of entity \'' + rowModel.selectedRelatedEntity.name + '\' within the drawn bounding box, were selected instead, due to system\'s performance improvement.' + '</md-toast>',
-			        position: 'top right',
-			        parent: angular.element('#mainContent'),
-			        hideDelay: 60000,
-			        action: 'OK',
-			        theme: 'important-toast'
-			    });
-			    */
 			}
 			
 		}
@@ -4056,39 +4000,36 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    						// Case drawing Bounding box
 		    						if (boundingBoxAction) {
 		    							
+		    							$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+		    							
 		    							// If there is at least one pin apply the following, otherwise don't do anything
 		    							if(response.data.results.bindings.length > 0) {
-			    						
-		    								// Force showing pins and selecting them if very few (less than or equal to 20)
-				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox) {
-				    							handleGeoResultsForMap(response.data.results.bindings, true); // true stands for selecting them all
-				    							//Enabling button that clears selected pins
-				    							document.getElementById("clearSelectedPinsButtonId").disabled = false;
-				    						}
-				    						
-				    						// Otherwise check flag configuration for showing pins and act accordingly
-				    						else { // (response.data.results.bindings.length > 20)
-				    							// Show the pins if configured, otherwise don't (the drawn bounding box stays empty)
-				    							if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
-				    								handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
-				    							
-				    							// Setting bounding box on rowModel
-					    						rowModel.boundingBox = $scope.coordinatesRegion;
-					    						// Setting map's current zoom on rowModel
-					    						rowModel.map = {zoom: $scope.map.getView().getZoom()};
-					    						// Display message informing user that bounding box has been set
-					    						$mdToast.show(
-					    							$mdToast.simple()
-					    					        .textContent('Bounding box has been set!')
-					    					        .position('top right')
-					    					        .parent(angular.element('#mapDialogMainContent'))
-					    					        .hideDelay(3000)
-					    					    );
-				    						}
+		    								
+		    								// Show the pins if configured, otherwise don't (the drawn bounding box stays empty)
+			    							if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
+			    								handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
+			    							
+			    							// Setting bounding box on rowModel
+				    						rowModel.boundingBox = $scope.coordinatesRegion;
+				    						// Setting map's current zoom on rowModel
+				    						rowModel.map = {zoom: $scope.map.getView().getZoom()};
+				    						// Display message informing user that bounding box has been set
+				    						$mdToast.show(
+				    							$mdToast.simple()
+				    					        .textContent('Bounding box has been set!')
+				    					        .position('top right')
+				    					        .parent(angular.element('#mapDialogMainContent'))
+				    					        .hideDelay(3000)
+				    					    );
 				    						
 				    						// Setting query under construction
 				    						homeStateConfirmService.setQueryUnderConstruction(true);
 				    						$scope.markFavoriteAsChanged(homeStateConfirmService.isQueryUnderConstruction()); // Mark favorite as changed (if favorite)
+				    						
+				    						// If the number of pins is few, then hold them in scope
+				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox) {
+				    							$scope.fewPinsInsideBoundingBox = response.data.results.bindings;
+				    						}
 		    							}
 		    							
 		    						}
@@ -4097,6 +4038,13 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    						else {
 		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
 		    						}
+		    						
+		    						// Disabling button that clears selected pins if no pin is selected
+		    						if($scope.select.getFeatures().getLength() <= 0)
+		    							$scope.pinsAreSelected = false;
+		    						else
+		    							$scope.pinsAreSelected = true;
+		    						document.getElementById("clearSelectedPinsButtonId").disabled = !$scope.pinsAreSelected;
 		    						
 		    					}
 		    					
@@ -4174,15 +4122,265 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	$scope.closeSelectedFromMapDialogDialog = function(ev, rowModel) {
 		
+		// Retrieve from backup
+		rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
+		rowModel.boundingBox = angular.copy(rowModel.backupBoundingBox); // Keep backup of bounding box
+		
+		// Handle whether to show or hide related entity results panel on the respective rowModel
+		if(rowModel.selectedRelatedInstanceList.length > 0)
+			rowModel.shownEntitySearchResults = true;
+		else
+			rowModel.shownEntitySearchResults = false;
+		
+		// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+		rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+		$scope.handleSelectAllRelatedSearchResults(rowModel);
+		
+		// Check if the list of instances is changed and call service to reload option lists
+		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+		$mdDialog.cancel();
+	}
+	
+	// Triggered when pressing the respective button on the map
+	// It actually removes the selected pins and keeps the region set (bounding box) 
+	$scope.setRegionInQueryAndcloseMapDialogDialog = function(ev, rowModel) {
+		
+		var messageContent = 'There are certain instances already selected for this related entity. '
+			   + '<br/>'
+			   + 'By setting a geographical bounding box filter, these instances will be removed. '
+			   + '<br/><br/>'
+			   + 'Are you sure you want to continue with this action?';
+
+		// If there are instances selected, ask permission to delete them
+		// (bounding box should not co-exist along with selected instances)
+		if(rowModel.selectedRelatedInstanceList.length > 0) {
+			var confirm = $mdDialog.confirm()
+				    		.parent(angular.element(document.querySelector('#popupContainerOnMap')))
+							.title('Important Message - Confirmation Required')
+							.htmlContent(messageContent)
+							.ariaLabel('Remove previously selected instances - Confirmation')
+							.targetEvent(ev)
+							.ok('Yes Continue')
+							.cancel('Cancel')
+							.multiple(true);
+		
+			$mdDialog.show(confirm).then(function() { // OK
+				
+				// Hide related entity results panel on the respective rowModel
+				rowModel.shownEntitySearchResults = false;
+				// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+				rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+				$scope.handleSelectAllRelatedSearchResults(rowModel);
+				
+				// Dealing with the map
+				$scope.polyFeatures.clear();
+				$scope.pointFeatures.clear();
+				$scope.select.getFeatures().clear();
+				
+				// Check if the list of instances is changed and call service to reload option lists
+				if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+					$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+				
+				$mdDialog.cancel();
+				
+			}, function() { // Cancel
+				// Do nothing
+			});
+		}
+		
+		else {
+			// Setting flag for search by text
+			rowModel.allRelatedSearchResultsIsSelected = true;
+			// Removing all currently selected instances for the related entity of this rowModel
+			//rowModel.selectedRelatedInstanceList = [];
+			// Hide related entity results panel on the respective rowModel
+			rowModel.shownEntitySearchResults = false;
+			
+			// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+			$scope.handleSelectAllRelatedSearchResults(rowModel);
+			
+			// Dealing with the map
+			$scope.polyFeatures.clear();
+			$scope.pointFeatures.clear();
+			$scope.select.getFeatures().clear();
+			
+			// Check if the list of instances is changed and call service to reload option lists
+			if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+				$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+			
+			$mdDialog.cancel();
+			
+		}
+				
+	}
+	
+	// Triggered when pressing the respective button on the map
+	// It actually removes the bounding box set and keeps the selected pins
+	$scope.setSelectedPinsInQueryAndcloseMapDialogDialog = function(ev, rowModel) {
+		
+		var messageContent = 'There is certain region marked on the map. '
+			   + '<br/>'
+			   + 'By Choosing to add the selected pins in the query, that region will be cleared. '
+			   + '<br/><br/>'
+			   + 'Are you sure you want to continue with this action?';
+
+		// If there region marked, ask permission to delete it
+		// (bounding box should not co-exist along with selected instances)
+		if(rowModel.boundingBox != undefined) {
+			var confirm = $mdDialog.confirm()
+				    		.parent(angular.element(document.querySelector('#popupContainerOnMap')))
+							.title('Important Message - Confirmation Required')
+							.htmlContent(messageContent)
+							.ariaLabel('Remove selected bounding box - Confirmation')
+							.targetEvent(ev)
+							.ok('Yes Continue')
+							.cancel('Cancel')
+							.multiple(true);
+		
+			$mdDialog.show(confirm).then(function() { // OK
+				
+				// Removing flag for search by text
+				rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+				// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+				$scope.handleSelectAllRelatedSearchResults(rowModel);
+				
+				// Clearing bounding box
+				$scope.boxSource.clear(); // Clearing drawn bounding box
+				rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
+				delete rowModel.boundingBox; // Removing bounding box from the model
+				$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+				
+				// Check if the list of instances is changed and call service to reload option lists
+				if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+					$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+				
+				$mdDialog.cancel();
+				
+			}, function() { // Cancel
+				// Do nothing
+			});
+		}
+		
+		else {
+			// Removing flag for search by text
+			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+			// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+			$scope.handleSelectAllRelatedSearchResults(rowModel);
+			
+			// Clearing bounding box
+			$scope.boxSource.clear(); // Clearing drawn bounding box
+			rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
+			delete rowModel.boundingBox; // Removing bounding box from the model
+			$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+			
+			// Check if the list of instances is changed and call service to reload option lists
+			if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+				$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+			
+			$mdDialog.cancel();
+			
+		}
+		
+	}
+	
+	// Triggered when pressing the respective button on the map
+	// It actually removes the bounding box set and keeps the selected pins
+	$scope.setPinsInsideBoundingBoxInQueryAndcloseMapDialogDialog = function(ev, rowModel) {
+
+		// Add them all in the list of selected instances of the rowModel (no duplicates)
+		for (i = 0; i < $scope.fewPinsInsideBoundingBox.length; i++) {
+			// Adding into list of selected instances of the rowModel if not already there
+			if(!containedInListBasedOnURI($scope.fewPinsInsideBoundingBox[i], rowModel.selectedRelatedInstanceList, 'uri').contained) {
+				// Delete a few properties before inserting it
+				delete $scope.fewPinsInsideBoundingBox[i].geometry;
+				delete $scope.fewPinsInsideBoundingBox[i].featureType;
+				delete $scope.fewPinsInsideBoundingBox[i].east;
+				delete $scope.fewPinsInsideBoundingBox[i].west;
+				delete $scope.fewPinsInsideBoundingBox[i].north;
+				delete $scope.fewPinsInsideBoundingBox[i].south;
+				rowModel.selectedRelatedInstanceList.push($scope.fewPinsInsideBoundingBox[i]);
+			}
+		}
+		
+		// Removing flag for search by text
+		rowModel.shownEntitySearchResults = true;
+		rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+		// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+		$scope.handleSelectAllRelatedSearchResults(rowModel); // This clears the fewPinsInsideBoundingBox Array as well
+		
+		// Clearing bounding box
+		$scope.boxSource.clear(); // Clearing drawn bounding box
+		rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
+		delete rowModel.boundingBox; // Removing bounding box from the model
+						
 		// Check if the list of instances is changed and call service to reload option lists
 		if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
 			$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
 		
-		
 		$mdDialog.cancel();
+			
 	}
 	
+	// Reseting map and then closing it.
+	// By resetting is mainly meant clearing the bounding box and de-selecting 
+	// the selected pins from those currently displayed (Any instances in the 
+	// list of related instances that are not displayed and shown currently on 
+	// the map will be retained)
+	$scope.resetAndcloseMapDialogDialog = function(ev, rowModel) {
+		
+		var messageContent = 'Please note that any actions performed on the map will be reset. '
+			   + 'Any previously selected instances will be retaied. '
+			   + '<br/><br/>'
+			   + 'Are you sure you want to continue with this action?';
+
+		// If there region marked, ask permission to delete it
+		// (bounding box should not co-exist along with selected instances)
+		var confirm = $mdDialog.confirm()
+			    		.parent(angular.element(document.querySelector('#popupContainerOnMap')))
+						.title('Important Message - Confirmation Required')
+						.htmlContent(messageContent)
+						.ariaLabel('Reset Map actions - Confirmation')
+						.targetEvent(ev)
+						.ok('Yes Continue')
+						.cancel('Cancel')
+						.multiple(true);
 	
+		$mdDialog.show(confirm).then(function() { // OK
+			
+			rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
+			
+			if(rowModel.selectedRelatedInstanceList.length > 0) {
+				// Hide related entity results panel on the respective rowModel
+				rowModel.shownEntitySearchResults = true;
+			}
+			else {
+				// Hide related entity results panel on the respective rowModel
+				rowModel.shownEntitySearchResults = false;
+			}
+			
+			// Respectively handle rowModel.allRelatedSearchResultsIsSelected
+			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
+			$scope.handleSelectAllRelatedSearchResults(rowModel);
+			
+			// Clearing bounding box
+			$scope.boxSource.clear(); // Clearing drawn bounding box
+			rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
+			delete rowModel.boundingBox; // Removing bounding box from the model
+			$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+			
+			// Check if the list of instances is changed and call service to reload option lists
+			if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))
+				$scope.loadRelatedEntitiesAndRelationsByTarget(ev, 'Not-Needed', rowModel, rowModel.selectedRelatedEntity, 'relatedListOfInstancesChange');
+			
+			$mdDialog.cancel();
+			
+		}, function() { // Cancel
+			// Do nothing
+		});
+		
+	}
 	/*
 	angular.forEach(list, function(value, key) {
 		//if()
