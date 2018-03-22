@@ -237,13 +237,41 @@
 				</div>
 	      		<md-switch ng-model="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox" 
 	      				   aria-label="Show pins when drawing a bounding box on the map" 
-	      				   class="md-primary">
+	      				   class="md-primary"
+	      				   ng-change="showPinsWhenDrawingBoundingBoxAction()">
  					</md-switch>
  					<div layout layout-align="right center" style=width:100px;>
   					<span ng-show="configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
    						Activated 
    					</span> 
    					<span ng-show="!configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+   						Deactivated 
+   					</span>
+   				</div>
+			</div>
+			
+			<div ng-show="configEntityOptionsHelpShown" class="zoom-show-hide transform-height" style="height:150px;">
+				<div class="triangle-isosceles" style="max-width:514px">
+					When activated, already selected instances are always shown on the map (pins) even when they are 
+					located outside of the potential rectangle or bounding box drawn.
+					<br/>
+					It requires that <code>Show pins when drawing a bounding box on the map</code> is <code>activated</code>
+				</div>
+			</div>
+			<div layout="row" style="margin-left:20px;">
+				<div flex="40" layout layout-align="left center">
+					Always show pins for the selected instances on the map no mater what
+				</div>
+	      		<md-switch ng-model="configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances" 
+	      				   aria-label="Always show pins for selected instances on the map" 
+	      				   class="md-primary"
+	      				   ng-disabled="!configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox">
+ 					</md-switch>
+ 					<div layout layout-align="right center" style=width:100px;>
+  					<span ng-show="configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances">
+   						Activated 
+   					</span> 
+   					<span ng-show="!configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances">
    						Deactivated 
    					</span>
    				</div>

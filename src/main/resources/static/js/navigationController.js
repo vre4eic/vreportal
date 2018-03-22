@@ -427,10 +427,19 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				maxResoultCountForShowingPinsOnInit: 200,
 				showPinsWhenDrawingBoundingBox: true,
 				minResoultCountForAutoSelectingPinsOnDrawingBox: 10,
+				alwaysShowPinsForSelectedInstances: true
 			},
 			excludedEntities: [],
 			selectedInstancesLimit:20
 		}
+	}
+	
+	// Action applied when changing the "showPinsWhenDrawingBoundingBox" configuration option
+	$scope.showPinsWhenDrawingBoundingBoxAction = function() {
+		// Deactivates the "alwaysShowPinsForSelectedInstances" configuration option
+		// when deactivated
+		if(!$scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
+			$scope.configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances = false;
 	}
 	
 	// To be used for constructing the simple related entity query dynamically
@@ -2973,7 +2982,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    //.extend([new ol.control.FullScreen()]),
 	        layers: [
 				new ol.layer.Tile({
-					source: new ol.source.OSM({attributions: [attribution]})
+					source: new ol.source.OSM({
+						attributions: [
+							attribution//,
+							//new ol.Attribution({ html: '<br/>© Google' }),
+			                //new ol.Attribution({ html: '<a href="https://developers.google.com/maps/terms">Terms of Use.</a>' })
+						],
+						//url: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png", // Not bad
+						//url: "http://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", // Too gray
+						//url: "http://{a-c}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png", // API Key Required
+						//url: "http://tile2.opencyclemap.org/transport/{z}/{x}/{y}.png", // API Key Required
+						//url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png", // Default (no need to enter it at all)
+						//url: "http://mt{0-3}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", // Google needs to uncoment attributions
+						//url: "none",
+						crossOrigin: null
+					})
 				})
 	        ],
 	        target: 'map',
@@ -3087,6 +3110,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			//Disabling button that clears bounding box
 			document.getElementById("clearBoundingBoxButtonId").disabled = true;
 			
+			// Re-Retrieving selected instances
+			handleGeoResultsForMap(rowModel.selectedRelatedInstanceList, true); // true stands for selecting them all
+			
+			
 			// Display message informing user that bounding box has been removed
 			$mdToast.show(
 				$mdToast.simple()
@@ -3199,7 +3226,12 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	        element: clearSelectedPinsControlsElement
 	    });
 	    $scope.map.addControl(clearSelectedPinsControl);
-
+	    
+	    // If the "alwaysShowPinsForSelectedInstances" configuration option is enabled and 
+	    // there is at least one selected instance, then enable the "clearSelectedPinsButton" button
+	    if($scope.configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances && rowModel.selectedRelatedInstanceList.length > 0)
+			document.getElementById("clearSelectedPinsButtonId").disabled = false;
+	    
 
 	    // Adding "Searching by Toponyms" on the map
 	    
@@ -3571,7 +3603,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// console.log('evt.selected: ');
 				angular.forEach(item.getProperties(), function (property, key) {
 					//console.log(key + ': ' + property.value);
-					if(key != 'geometry' && key != 'featureType'&& key != 'east'&& key != 'west'&& key != 'north'&& key != 'south')
+					//if(key != 'geometry' && key != 'featureType' && key != 'east' && key != 'west' && key != 'north' && key != 'south')
+					if(key != 'geometry' && key != 'featureType')
 						jsonItem[key] = property
 				});
 				
@@ -3641,6 +3674,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				
 			});
 			
+			// Handling Results on the map
 			for (i = 0; i < geoResults.length; i++) {
 	    		  
 	    		// Polygon Feature (rectangular)
@@ -3674,9 +3708,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			// Change  coordinate systems to display on the map
     			polyFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
     			pointFeature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-	        	
-    			// Selecting them all (case that they are too little and we prefer to select
-    			// instances rather than setting bounding box due to performance )
+
+    			
     			if(selectThemAll) {
     				selectPin(pointFeature);
     				$scope.select.getFeatures().push(pointFeature);
@@ -3686,11 +3719,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     			else if(containedInListBasedOnURI(geoResults[i], rowModel.selectedRelatedInstanceList, 'uri').contained)
     				$scope.select.getFeatures().push(pointFeature);
     			
+    			$scope.pointFeatures.push(pointFeature); // Adding into Array
     			
     			// Setting unselected style
     			//pointFeature.setStyle(iconStylePinkUnselected);
-	        	          	  
-    			$scope.pointFeatures.push(pointFeature); // Adding into Array
 	        	          	          	  
     		} // loop ends
 						
@@ -3707,6 +3739,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				document.getElementById("clearBoundingBoxButtonId").disabled = true;
 				
 				// Display message informing user that bounding box has been set
+				/*
 				$mdToast.show(
 					$mdToast.simple()
 			        .textContent('The available instances of the entity \'' + rowModel.selectedRelatedEntity.name + '\' within the bounding box set are very few and thus automatically selected.')
@@ -3716,7 +3749,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			        .action('OK')
 			        //.theme("important-toast")
 			    );
-				
+				*/
 			}
 			
 		}
@@ -3888,7 +3921,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			}
 			
 			var modalInstance = modalService.showModal(modalDefaults, modalOptions);
-			
+						
 			// Some dynamically defined preparation
 			
 			// The search text to feed the query
@@ -3951,6 +3984,28 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    				if(response.status == '200') {
 		    					// handling results
 		    					
+		    					// Adding existing instances on the results such that they are loaded as well 
+		    					// (configurable: alwaysShowPinsForSelectedInstances)
+		    					if($scope.configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances) {
+		    						rowModel.selectedRelatedInstanceList
+		    						response.data.results.bindings
+		    						
+		    						// Array to hold those already selected instances that 
+		    						// do not exist in results (avoiding duplicated pins)
+		    						var currentInstancesNotInResults = [];
+		    						
+		    						for (i = 0; i < rowModel.selectedRelatedInstanceList.length; i++) {
+		    							if(!containedInListBasedOnURI(rowModel.selectedRelatedInstanceList[i], response.data.results.bindings, 'uri').contained)
+		    								currentInstancesNotInResults.push(rowModel.selectedRelatedInstanceList[i]);
+		    						}
+		    						
+		    						// Adding the not contained instances from the selected ones to the results
+		    						for (i = 0; i < currentInstancesNotInResults.length; i++) {
+		    							response.data.results.bindings.push(currentInstancesNotInResults[i]);
+		    						}
+		    						
+		    					}
+		    					
 		    					// Case where results should be loaded when opening the map
 		    					if(considerTotalResultCount) {
 		    						
@@ -3966,6 +4021,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				    							$scope.map.getView().setCenter([0, 0]);
 				    							$scope.map.getView().setZoom(2);
 			    							}
+			    						}
+			    						
+			    						// Just show the selected instances
+			    						else if($scope.configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances) {
+			    							handleGeoResultsForMap(rowModel.selectedRelatedInstanceList, false); // false stands for not selecting them all
 			    						}
 		    						
 		    						}
@@ -3996,7 +4056,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    					
 		    					// Case where results are loaded by drawing rectangle or bounding box
 		    					else {// if(!considerTotalResultCount) {
-		    						
+		    								    						
 		    						// Case drawing Bounding box
 		    						if (boundingBoxAction) {
 		    							
@@ -4004,6 +4064,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    							
 		    							// If there is at least one pin apply the following, otherwise don't do anything
 		    							if(response.data.results.bindings.length > 0) {
+		    								
+		    								// Holding their count into the rowModel
+		    								rowModel.boundingBoxResultsCount = response.data.results.bindings.length;
 		    								
 		    								// Show the pins if configured, otherwise don't (the drawn bounding box stays empty)
 			    							if($scope.configuration.relatedEntity.map.showPinsWhenDrawingBoundingBox)
@@ -4030,6 +4093,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				    						if(response.data.results.bindings.length <= $scope.configuration.relatedEntity.map.minResoultCountForAutoSelectingPinsOnDrawingBox) {
 				    							$scope.fewPinsInsideBoundingBox = response.data.results.bindings;
 				    						}
+		    							}
+		    							else {
+		    								rowModel.boundingBoxResultsCount = 0;
 		    							}
 		    							
 		    						}
@@ -4296,10 +4362,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				// Delete a few properties before inserting it
 				delete $scope.fewPinsInsideBoundingBox[i].geometry;
 				delete $scope.fewPinsInsideBoundingBox[i].featureType;
-				delete $scope.fewPinsInsideBoundingBox[i].east;
-				delete $scope.fewPinsInsideBoundingBox[i].west;
-				delete $scope.fewPinsInsideBoundingBox[i].north;
-				delete $scope.fewPinsInsideBoundingBox[i].south;
+				//delete $scope.fewPinsInsideBoundingBox[i].east;
+				//delete $scope.fewPinsInsideBoundingBox[i].west;
+				//delete $scope.fewPinsInsideBoundingBox[i].north;
+				//delete $scope.fewPinsInsideBoundingBox[i].south;
 				rowModel.selectedRelatedInstanceList.push($scope.fewPinsInsideBoundingBox[i]);
 			}
 		}
@@ -4328,10 +4394,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	// the selected pins from those currently displayed (Any instances in the 
 	// list of related instances that are not displayed and shown currently on 
 	// the map will be retained)
-	$scope.resetAndcloseMapDialogDialog = function(ev, rowModel) {
+	$scope.applyAndcloseMapDialogDialog = function(ev, rowModel) {
 		
-		var messageContent = 'Please note that any actions performed on the map will be reset. '
-			   + 'Any previously selected instances will be retaied. '
+		var messageContent = 'Please note that any changes applied on the map will be finalized. '
 			   + '<br/><br/>'
 			   + 'Are you sure you want to continue with this action?';
 
@@ -4348,27 +4413,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						.multiple(true);
 	
 		$mdDialog.show(confirm).then(function() { // OK
-			
-			rowModel.selectedRelatedInstanceList = angular.copy(rowModel.backupSelectedRelatedInstanceList);
-			
-			if(rowModel.selectedRelatedInstanceList.length > 0) {
-				// Hide related entity results panel on the respective rowModel
-				rowModel.shownEntitySearchResults = true;
-			}
-			else {
-				// Hide related entity results panel on the respective rowModel
-				rowModel.shownEntitySearchResults = false;
-			}
-			
-			// Respectively handle rowModel.allRelatedSearchResultsIsSelected
-			rowModel.allRelatedSearchResultsIsSelected = !angular.copy(rowModel.shownEntitySearchResults);
-			$scope.handleSelectAllRelatedSearchResults(rowModel);
-			
-			// Clearing bounding box
-			$scope.boxSource.clear(); // Clearing drawn bounding box
-			rowModel.backupBoundingBox = angular.copy(rowModel.boundingBox); // Keep backup of bounding box
-			delete rowModel.boundingBox; // Removing bounding box from the model
-			$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
 			
 			// Check if the list of instances is changed and call service to reload option lists
 			if(angular.toJson(rowModel.selectedRelatedInstanceList) != angular.toJson(rowModel.backupSelectedRelatedInstanceList))

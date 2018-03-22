@@ -436,7 +436,7 @@
 									  ng-repeat="item in rowModel.selectedRelatedInstanceList">
 							<div class="md-list-item-text">
 								<span ng-repeat="(key,val) in item" class="ng-binding">
-									<span ng-if="key != 'isChecked' && key != 'uri'">
+									<span ng-if="key != 'isChecked' && key != 'uri' && key != 'north' && key != 'south' && key != 'west' && key != 'east'">
 										<h3 ng-if="$first">
 											{{val.value}}
 										</h3>
@@ -457,6 +457,27 @@
 						</md-list-item>
 						
 					</md-list>
+				</div>
+				
+				<!-- Region Set -->
+				<div layout="column" 
+					 ng-show="rowModel.boundingBox && !rowModel.shownEntitySearchResults" 
+					 class="searchResultsRelatedEntityInit transformWidth">
+					
+					<md-toolbar class="md-primary narrow-toolbar">
+						<div class="md-toolbar-tools" layout-align="start center">
+							<h2>Region Set</h2>
+						</div>
+					</md-toolbar>
+					<div ng-show="rowModel.boundingBoxResultsCount < 1" >
+						Marked Region containing not even one pin has been set
+					</div>
+					<div ng-show="rowModel.boundingBoxResultsCount == 1" >
+						Marked Region containing {{rowModel.boundingBoxResultsCount}} pin has been set
+					</div>
+					<div ng-show="rowModel.boundingBoxResultsCount > 1" >
+						Marked Region containing {{rowModel.boundingBoxResultsCount}} pins has been set
+					</div>
 				</div>
 				
 				<div style="z-index:2" ng-show="!($first && $last) || parent.rowModel!=null">
