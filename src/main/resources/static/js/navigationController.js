@@ -3111,7 +3111,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			document.getElementById("clearBoundingBoxButtonId").disabled = true;
 			
 			// Re-Retrieving selected instances
-			handleGeoResultsForMap(rowModel.selectedRelatedInstanceList, true); // true stands for selecting them all
+			if($scope.configuration.relatedEntity.map.alwaysShowPinsForSelectedInstances)
+				handleGeoResultsForMap(rowModel.selectedRelatedInstanceList, true); // true stands for selecting them all
 			
 			
 			// Display message informing user that bounding box has been removed
