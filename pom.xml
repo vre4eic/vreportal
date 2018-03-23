@@ -54,13 +54,13 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>angularjs</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>angular-resource</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
@@ -70,22 +70,22 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>angular-animate</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>angular-aria</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>angular-messages</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>angular-cookies</artifactId>
-            <version>1.6.4</version>
+            <version>1.6.9</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
@@ -120,7 +120,7 @@
         <dependency>
 		    <groupId>org.webjars.npm</groupId>
 		    <artifactId>angular-material</artifactId>
-		    <version>1.1.6</version>
+		    <version>1.1.7</version>
 		</dependency>
         <!--
         <dependency>

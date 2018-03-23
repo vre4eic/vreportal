@@ -1,4 +1,4 @@
-		<div layout="row"> <!-- rowModel.disabled-style -->
+		<div layout="row" ng-cloak> <!-- rowModel.disabled-style -->
 			
 			<!--<md-subheader class="md-no-sticky">SubHeader</md-subheader> -->
 		
@@ -173,8 +173,9 @@
 				 style="height:296px; 
 				 		padding:5px 5px; 
 				 		border:1px solid #ccc;
-				 		border-radius: 5px;" 
-				 		ng-class="rowModel.activeRowModelStyle">
+				 		border-radius: 5px;"
+				 class="animate-show animate-hide" 
+				 ng-class="rowModel.activeRowModelStyle">
 			
 				<div layout="column" style="max-width:260px;min-width:230px;">
 				
@@ -470,13 +471,25 @@
 						</div>
 					</md-toolbar>
 					<div ng-show="rowModel.boundingBoxResultsCount < 1" >
-						Marked Region containing not even one pin has been set
+						<i>
+							Marked Region containing 
+							<code>no</code> 
+							pin(s) has been set
+						</i>
 					</div>
 					<div ng-show="rowModel.boundingBoxResultsCount == 1" >
-						Marked Region containing {{rowModel.boundingBoxResultsCount}} pin has been set
+						<i>
+							Marked Region containing 
+							<code style="color:#106CC8;background: rgba(0,0,0,0.065);">{{rowModel.boundingBoxResultsCount}}</code> 
+							pin has been set
+							</i>
 					</div>
 					<div ng-show="rowModel.boundingBoxResultsCount > 1" >
-						Marked Region containing {{rowModel.boundingBoxResultsCount}} pins has been set
+						<i>
+							Marked Region containing 
+							<code style="color:#106CC8;background: rgba(0,0,0,0.065);">{{rowModel.boundingBoxResultsCount}}</code> 
+							pins has been set
+						</i>
 					</div>
 				</div>
 				

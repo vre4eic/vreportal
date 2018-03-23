@@ -1718,7 +1718,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         	    					
         	    					// Iterating response that doesn't have 'isChecked' element
         	    					for(var i=0; i<response.data.results.bindings.length; i++) { // Iterating response that doesn't have 'isChecked' element
-        	    						if(containedInList($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, true).contained) {
+        	    						if(containedInListBasedOnURI($scope.relatedEntityResults.results.bindings[i], rowModel.selectedRelatedInstanceList, 'uri').contained) {
         	    							$scope.relatedEntityResults.results.bindings[i].isChecked = true;
         	    						}
         	    			    	}

@@ -55,12 +55,12 @@ app.controller("loginCtrl", ['$scope', 'authenticationService', '$location', '$t
 	                // Retrieve User's profile
 	                authenticationService.retrieveUserProfile(response.token, $scope.credentials.username)
 	                .then(function (profileResponse) {
-	        			if (profileResponse.name !== null) {
-	        				console.log("profileResponse", profileResponse);
-	        				$sessionStorage.userProfile = profileResponse;
+	        			if (profileResponse.data.name !== null) {
+	        				console.log("profileResponse", profileResponse.data);
+	        				$sessionStorage.userProfile = profileResponse.data;
 	        				$state.go('welcome', {});
 	        	        } else {
-	        	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.message + "! Cannot retrieve user's profile. "});	        	            
+	        	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.data.message + "! Cannot retrieve user's profile. "});	        	            
 	        	        }
 	        		},function (error){
 	        			$scope.message = 'There was a network error. Try again later.';
@@ -121,8 +121,8 @@ app.controller("loginCtrl", ['$scope', 'authenticationService', '$location', '$t
 	  	  
 } ]);
 
-app.controller("mfaDialogController", ['$scope', 'authenticationService', '$mdDialog', '$state', 
-                                   function($scope, authenticationService, $mdDialog, $state) {
+app.controller("mfaDialogController", ['$scope', 'authenticationService', '$mdDialog', '$state', '$sessionStorage', 
+                                   function($scope, authenticationService, $mdDialog, $state, $sessionStorage) {
 	
 	$scope.dialogAlerts = [];
 	
@@ -141,17 +141,17 @@ app.controller("mfaDialogController", ['$scope', 'authenticationService', '$mdDi
                 // Retrieve User's profile
                 authenticationService.retrieveUserProfile(response.token, $scope.credentials.username)
 	            .then(function (profileResponse) {
-	            	if (profileResponse.name !== null) {
-	            		console.log("profileResponse", profileResponse);
+	            	if (profileResponse.data.name !== null) {
+	            		console.log("profileResponse", profileResponse.data);
+        				$sessionStorage.userProfile = profileResponse.data;
+        				$state.go('welcome', {});
 	            	} else {
-	            		$scope.dialogAlerts.push({type: 'danger-funky', msg: profileResponse.message + "! Cannot retrieve user's profile. "});	        	            
+	            		$scope.dialogAlerts.push({type: 'danger-funky', msg: profileResponse.data.message + "! Cannot retrieve user's profile. "});	        	            
 	            	}
 	            },function (error){
 	            	$scope.message = 'There was a network error. Try again later.';
 	            	alert("failure message: There was a network error. Try again later");
 	            });
-                
-                $state.go('tabs.queryTab', {});
                 
 	        } else {
 	        	$scope.dialogAlerts.splice(0); // Close alerts
@@ -244,6 +244,15 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 			confirmLeavingFromQueryBuilder(ev, 'favorites');
 		else
 			$state.go('favorites', {});
+	}
+	
+	$scope.goToUserProfileView = function(ev) {
+		// Checks if there is any query currently under construction
+		// and prompts message or just navigate to the new page
+		if(homeStateConfirmService.isQueryUnderConstruction())
+			confirmLeavingFromQueryBuilder(ev, 'userProfile');
+		else
+			$state.go('userProfile', {});
 	}
 	
 	// Ask confirmation before leaving query builder if you are there

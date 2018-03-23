@@ -88,6 +88,11 @@ app.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $htt
 			templateUrl: 'views/favorites.html',
         	controller: 'favoritesCtrl'
 		})
+		.state('userProfile', {
+			url: '/userProfile',
+			templateUrl: 'views/userProfile.html',
+        	controller: 'userProfileCtrl'
+		})
 		.state('import', {
 			url: '/import',
 			templateUrl: 'views/import.html',

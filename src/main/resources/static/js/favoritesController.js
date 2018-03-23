@@ -1,5 +1,5 @@
 /**
- * The main angularJS controllers (handling tabs, the query submission and serverside paginator and the file importing
+ * AngularJS controller for handling user's favorites interactions
  * 
  * @author Vangelis Kritsotakis
  */
@@ -144,7 +144,7 @@ app.controller("favoritesCtrl", ['$state', '$scope', '$timeout', '$parse', '$ses
 			$timeout(function(){
 				modalInstance.close();
 			});//, 500);
-		});;
+		});
 		
 	}
 	

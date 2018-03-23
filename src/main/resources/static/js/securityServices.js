@@ -147,7 +147,7 @@ angular.module('app.securityServices', [])
 			}).then(function (response) {
 				userProfile = response.data;
 				$sessionStorage.userProfile = userProfile;
-				return response.data;
+				return response;
 			},function (error) {
 				alert("err: " + err);
 			});
@@ -187,6 +187,28 @@ angular.module('app.securityServices', [])
 				alert("err: " + err);
 			});
 
+		},
+        
+        updateProfile: function(token, userProfile) {
+        	
+        	// Adding token
+        	userProfile.token = token;
+        	
+			return $http({
+				'url' : 'http://v4e-lab.isti.cnr.it:8080/NodeService/user/updateprofile',
+				'method' : 'POST',
+				
+				'headers' : {
+					'Content-Type' : 'application/json'
+				},
+				'params' : userProfile
+			}).then(function (response) {
+				return response;
+			},function (error) {
+				alert("err: " + err);
+			});
+
 		}
+        
 	}
 });
