@@ -1,4 +1,4 @@
-<md-dialog  style="width:100%; max-height:680px;">
+<md-dialog  style="width:100%; max-height:710px;">
 	<md-dialog-content style="padding-bottom:0;">
 		
 		<div id="popupContainerOnMap"></div>
@@ -63,13 +63,20 @@
 		<div id="mapDialogMainContent"></div>
 		
 		<div layout-padding>
-			<span>
-				Please hold down <code>Ctrl + left mouse click</code> while selecting some area on the map.
-				<span ng-show="currRowModel != null">
-					Then <code>click on any pin</code> to select / de-select any 
-					<code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{currRowModel.selectedRelatedEntity.name}}"</code>.
-				</span>
+			<div>
+				Please <code>use the buttons to interact with the map</code> (Zoom in/out, search toponymies, set region, etc).
+			</div>
+			<div ng-show="currRowModel.boundingBoxResultsCount > 0" class="animate-show animate-hide">
+				As soon as there are pins displayed on the map click on them to select / deselect 
+			 	<code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{currRowModel.selectedRelatedEntity.name}}"</code> 
+			 	instances
+			</div>
+			<!-- Please hold down <code>Ctrl + left mouse click</code> while selecting some area on the map.
+			<span ng-show="currRowModel != null">
+				Then <code>click on any pin</code> to select / de-select any 
+				<code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{currRowModel.selectedRelatedEntity.name}}"</code>.
 			</span>
+			-->
 		</div>
 		
 		<div uib-alert ng-repeat="alert in alerts"

@@ -3106,6 +3106,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    	$scope.boxSource.clear(); // Clearing drawn bounding box
 			delete rowModel.boundingBox; // Removing bounding box from the model
 			$scope.fewPinsInsideBoundingBox = []; // Initializing array holding pins inside bounding box if they are few
+			rowModel.boundingBoxResultsCount = 0;
 			
 			//Disabling button that clears bounding box
 			document.getElementById("clearBoundingBoxButtonId").disabled = true;
@@ -4103,6 +4104,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    						
 		    						// Case drawing rectangle
 		    						else {
+		    							// Holding their count into the rowModel
+	    								rowModel.boundingBoxResultsCount = response.data.results.bindings.length;
 		    							handleGeoResultsForMap(response.data.results.bindings, false); // false stands for not selecting any of them
 		    						}
 		    						
