@@ -251,7 +251,8 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 		            		'selectedCategoryId': $scope.selectedCategory.id,
 		            		'authorizationParam': $scope.credentials.token 
 	    	            };
-	            	}	
+	            	}
+	            		            	
             	}
             },
             'success': function (file, response) {
@@ -478,29 +479,8 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	$scope.progressValue = 0;
     	// Getting the total file count
     	$scope.fileCount = angular.copy($scope.getDropzoneAcceptedFiles());
-    	
-    	// Checking if it is new namedGraph
-    	if($scope.selectedNamedGraph == null) {
-    		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
-    		
-    		// Prompting dialog to select category for the new named graph
-    		$mdDialog.show({
-	    		scope: $scope,
-	    		templateUrl: 'views/dialog/selectNamedGraphCategory.tmpl.html', 
-	    		parent: angular.element(document.body),
-	    		targetEvent: ev,
-	    		preserveScope: true,
-	    		fullscreen: false // Only for -xs, -sm breakpoints.
-	    	});
-    		
-    	}
-    	
-    	else {
-    		// Setting flag to indicate that the process has started
-        	$scope.processStarted = true;
-        	// Initiating the process
-    		$scope.processDropzone();
-    	}
+    	// Calling service for handling user profile data before starting the upload
+    	insertUserProfileMetadata(ev);
     };
     
     // Called when pressing the 'continue' button from the 
@@ -578,6 +558,101 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 		});
     	
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // Calling service to add user profile metadata in the triplestore if not already there
+    function insertUserProfileMetadata(ev) {
+    	
+    	importService.insertUserProfileMetadataInfo(angular.toJson($scope.userProfile), $scope.credentials.token)
+		.then(function (response) {
+		
+			if(response.status == '200') {
+				if(response.data.success == true) {
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent(response.data.message)
+				        .position('top right')
+				        .parent(angular.element('#dialogContent'))
+				        .hideDelay(3000)
+				    );
+					
+					// Initiating the process (file upload & processing)
+					// Checking if it is new namedGraph
+			    	if($scope.selectedNamedGraph == null) {
+			    		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
+			    		
+			    		// Prompting dialog to select category for the new named graph
+			    		$mdDialog.show({
+				    		scope: $scope,
+				    		templateUrl: 'views/dialog/selectNamedGraphCategory.tmpl.html', 
+				    		parent: angular.element(document.body),
+				    		targetEvent: ev,
+				    		preserveScope: true,
+				    		fullscreen: false // Only for -xs, -sm breakpoints.
+				    	});
+			    		
+			    	}
+			    	
+			    	else {
+			    		// Setting flag to indicate that the process has started
+			        	$scope.processStarted = true;
+			        	// Initiating the process
+			    		$scope.processDropzone();
+			    	}
+					
+				}
+				else {
+					$scope.message = response.data.message;
+					$scope.showErrorAlert('Error', $scope.message);
+					$scope.searchText = ''; // Initialize named graph input
+				}
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		});
+    	
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     $scope.reset = function() {
     	$scope.file = null;

@@ -346,6 +346,25 @@ angular.module('app.mainServices', [])
 				//error code
 			});
 
+		},
+	
+		insertUserProfileMetadataInfo : function(model, token) {
+	
+			return $http({
+				'url' : '/insertUserProfileMetadata',
+				'method' : 'POST',
+				'headers' : {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data' : model
+			}).then(function (success) {
+				return success;
+			},function (error) {
+				//error code
+			});
+	
 		}
+	
 	}
 });

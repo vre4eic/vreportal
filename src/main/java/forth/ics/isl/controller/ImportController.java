@@ -123,7 +123,87 @@ public class ImportController {
 
         return responseJsonObject;
     }
+    
+    /*
+     * Saving meta-data information for the file to be uploaded in the database
+     */
+    @RequestMapping(value = "/insertUserProfileMetadata", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject insertUserProfileMetadata(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 
+        System.out.println("Saving user-profile metadata into the database...");
+
+        String userIdStr = null;
+        String emailStr = null;
+        String roleStr = null;
+        String organizationNameStr = null;
+        String organizationUrlStr = null;
+
+        // Retrieving user's ID (username)
+        if (requestParams.get("userId") != null) {
+        	userIdStr = requestParams.get("userId").toString();
+        }
+        if (requestParams.get("email") != null) {
+        	emailStr = requestParams.get("email").toString();
+        }
+        if (requestParams.get("role") != null) {
+        	roleStr = requestParams.get("role").toString();
+        }
+        if (requestParams.get("organization") != null) {
+        	organizationNameStr = requestParams.get("organization").toString();
+        }
+        if (requestParams.get("organizationURL") != null) {
+        	organizationUrlStr = requestParams.get("organizationURL").toString();
+        }
+        // Dummy hard coded organization URL (temporarily)
+        organizationUrlStr = "https://www.ics.forth.gr/";
+
+        System.out.println("userIdStr: " + userIdStr);
+        System.out.println("emailStr: " + emailStr);
+        System.out.println("roleStr: " + roleStr);
+        System.out.println("organizationNameStr: " + organizationNameStr);
+        System.out.println("organizationUrlStr: " + organizationUrlStr);
+
+        JSONObject responseJsonObject = new JSONObject();
+        // Dummy response (under development) always success
+        responseJsonObject.put("success", true);
+        responseJsonObject.put("message", "User Profile metadata inserted successfully!");
+        
+        // Below is the respective code for creating new namedgraph 
+        // (left here for guideline for the new code)
+        
+        /*
+        try {
+            if (namedGraphIdParam == null) {
+                Connection conn = DBService.initConnection();
+                H2Manager h2 = new H2Manager(conn.createStatement(), conn);
+                if (h2.namedGraphExists(namedGraphLabelParam)) {
+                    responseJsonObject.put("success", false);
+                    responseJsonObject.put("message", "Name: \"" + namedGraphLabelParam + "\" is already assigned.");
+                    responseJsonObject.put("namedGraphIdParam", null);
+
+                } else {
+                    graphUri = "http://graph/" + System.currentTimeMillis();
+                    responseJsonObject.put("success", true);
+                    responseJsonObject.put("message", "The graph was successfully created.");
+                    responseJsonObject.put("namedGraphIdParam", graphUri);
+                    h2.insertNamedGraph(graphUri, namedGraphLabelParam, "", Integer.parseInt(selectedCategoryId));
+                }
+                conn.close();
+            } else {
+                responseJsonObject.put("success", true);
+                responseJsonObject.put("message", "The graph will be enriched with new data.");
+                responseJsonObject.put("namedGraphIdParam", namedGraphIdParam);
+            }
+        } catch (Exception e) {
+            responseJsonObject.put("success", false);
+            responseJsonObject.put("message", e.getMessage());
+            responseJsonObject.put("namedGraphIdParam", namedGraphIdParam);
+        }
+        */
+        return responseJsonObject;
+    }
+    
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
 

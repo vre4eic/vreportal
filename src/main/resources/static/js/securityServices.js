@@ -201,6 +201,7 @@ angular.module('app.securityServices', [])
 				'headers' : {
 					'Content-Type' : 'application/json'
 				},
+				'data' : {},
 				'params' : userProfile
 			}).then(function (response) {
 				return response;
