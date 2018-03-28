@@ -154,6 +154,15 @@ public class RestClient {
                 header("Authorization", token).post(Entity.json(json.toJSONString()));
     }
 
+    public Response executeUpdatePOSTJSON(String updateQuery) throws ClientErrorException {
+        Client client = ClientBuilder.newClient();
+        JSONObject json = new JSONObject();
+        json.put("query", updateQuery);
+        WebTarget webTarget = client.target(serviceUrl + "/update/namespace/" + namespace);
+        return webTarget.request(MediaType.APPLICATION_JSON).
+                header("Authorization", authorizationToken).post(Entity.json(json.toJSONString()));
+    }
+
     public static void main(String[] args) throws IOException {
         String query = "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>  where {\n"
                 + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"

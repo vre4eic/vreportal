@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import forth.ics.isl.provenance.ProvInfo;
 import forth.ics.isl.runnable.H2Manager;
 import forth.ics.isl.service.DBService;
 
@@ -123,7 +124,7 @@ public class ImportController {
 
         return responseJsonObject;
     }
-    
+
     /*
      * Saving meta-data information for the file to be uploaded in the database
      */
@@ -133,45 +134,55 @@ public class ImportController {
 
         System.out.println("Saving user-profile metadata into the database...");
 
-        String userIdStr = null;
+        String nameStr = null;
         String emailStr = null;
         String roleStr = null;
         String organizationNameStr = null;
         String organizationUrlStr = null;
+        String graphUri = null;
 
         // Retrieving user's ID (username)
-        if (requestParams.get("userId") != null) {
-        	userIdStr = requestParams.get("userId").toString();
+        if (requestParams.get("name") != null) {
+            nameStr = requestParams.get("name").toString();
         }
         if (requestParams.get("email") != null) {
-        	emailStr = requestParams.get("email").toString();
+            emailStr = requestParams.get("email").toString();
         }
         if (requestParams.get("role") != null) {
-        	roleStr = requestParams.get("role").toString();
+            roleStr = requestParams.get("role").toString();
         }
         if (requestParams.get("organization") != null) {
-        	organizationNameStr = requestParams.get("organization").toString();
+            organizationNameStr = requestParams.get("organization").toString();
         }
         if (requestParams.get("organizationURL") != null) {
-        	organizationUrlStr = requestParams.get("organizationURL").toString();
+            organizationUrlStr = requestParams.get("organizationURL").toString();
         }
+
         // Dummy hard coded organization URL (temporarily)
         organizationUrlStr = "https://www.ics.forth.gr/";
 
-        System.out.println("userIdStr: " + userIdStr);
+        System.out.println("nameStr: " + nameStr);
         System.out.println("emailStr: " + emailStr);
         System.out.println("roleStr: " + roleStr);
         System.out.println("organizationNameStr: " + organizationNameStr);
         System.out.println("organizationUrlStr: " + organizationUrlStr);
+        //////
+//        ProvInfo info = new ProvInfo(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
+//                serviceUrl, namespace, authorizationToken);
+//
+//        String q1 = info.createProvTriplesInsertQuery(graphUri);
+//        String q2 = info.createLinkingInsertQuery(graphUri);
+//        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+//        Response resp = client.executeUpdatePOSTJSON(q1);
+//        resp = client.executeUpdatePOSTJSON(q2);
 
         JSONObject responseJsonObject = new JSONObject();
         // Dummy response (under development) always success
         responseJsonObject.put("success", true);
         responseJsonObject.put("message", "User Profile metadata inserted successfully!");
-        
+
         // Below is the respective code for creating new namedgraph 
         // (left here for guideline for the new code)
-        
         /*
         try {
             if (namedGraphIdParam == null) {
@@ -200,10 +211,10 @@ public class ImportController {
             responseJsonObject.put("message", e.getMessage());
             responseJsonObject.put("namedGraphIdParam", namedGraphIdParam);
         }
-        */
+         */
         return responseJsonObject;
     }
-    
+
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity uploadFile(MultipartHttpServletRequest request) {
 

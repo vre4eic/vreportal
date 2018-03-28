@@ -308,7 +308,7 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#OrganisationUnit",
                 "thesaurus/organizationUnits-acronyms.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) @#$%FROM%$#@ \n"
+                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
@@ -319,6 +319,14 @@ public class H2Manager {
                 + "?Ser cerif:has_acronym ?Service.\n"
                 + "}\n"
                 + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
+                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "?orgLabel bds:search \"@#$%TERM%$#@\".\n"
                 + "?orgLabel bds:relevance ?score.\n"
                 + "}ORDER BY desc(?score) \n",
@@ -452,7 +460,7 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Product",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Product.\n"
@@ -461,6 +469,14 @@ public class H2Manager {
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "?name bds:search \"@#$%TERM%$#@\".\n"
                 + "?name bds:relevance ?score.\n"
                 + "Optional {\n"
@@ -625,7 +641,7 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Equipment",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Equipment.\n"
@@ -634,6 +650,14 @@ public class H2Manager {
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "?name bds:search \"@#$%TERM%$#@\".\n"
                 + "?name bds:relevance ?score.\n"
                 + "Optional {\n"
@@ -801,7 +825,7 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Facility",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) \n"
+                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Facility.\n"
@@ -810,6 +834,14 @@ public class H2Manager {
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
                 + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "?name bds:search \"@#$%TERM%$#@\".\n"
                 + "?name bds:relevance ?score.\n"
                 + "Optional {\n"
@@ -975,7 +1007,7 @@ public class H2Manager {
         insertEntity("Location",
                 "http://eurocris.org/ontology/cerif#GeographicBoundingBox",
                 "",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) @#$%FROM%$#@ WHERE {\n"
+                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ WHERE {\n"
                 + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
                 + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
                 + "?addr rdfs:label ?address.\n"
