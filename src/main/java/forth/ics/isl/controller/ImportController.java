@@ -140,6 +140,7 @@ public class ImportController {
         String organizationNameStr = null;
         String organizationUrlStr = null;
         String graphUri = null;
+        String namedGraphIdStr = null;
 
         // Retrieving user's ID (username)
         if (requestParams.get("name") != null) {
@@ -157,15 +158,18 @@ public class ImportController {
         if (requestParams.get("organizationURL") != null) {
             organizationUrlStr = requestParams.get("organizationURL").toString();
         }
-
         // Dummy hard coded organization URL (temporarily)
         organizationUrlStr = "https://www.ics.forth.gr/";
+        if (requestParams.get("namedGraphId") != null) {
+        	namedGraphIdStr = requestParams.get("namedGraphId").toString();
+        }
 
         System.out.println("nameStr: " + nameStr);
         System.out.println("emailStr: " + emailStr);
         System.out.println("roleStr: " + roleStr);
         System.out.println("organizationNameStr: " + organizationNameStr);
         System.out.println("organizationUrlStr: " + organizationUrlStr);
+        System.out.println("namedGraphIdStr: " + namedGraphIdStr);
         //////
 //        ProvInfo info = new ProvInfo(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
 //                serviceUrl, namespace, authorizationToken);

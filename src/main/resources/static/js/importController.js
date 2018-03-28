@@ -479,13 +479,32 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	$scope.progressValue = 0;
     	// Getting the total file count
     	$scope.fileCount = angular.copy($scope.getDropzoneAcceptedFiles());
-    	// Calling service for handling user profile data before starting the upload
-    	insertUserProfileMetadata(ev);
+    	
+    	// Checking if it is new namedGraph
+    	if($scope.selectedNamedGraph == null) {
+    		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
+    		
+    		// Prompting dialog to select category for the new named graph
+    		$mdDialog.show({
+	    		scope: $scope,
+	    		templateUrl: 'views/dialog/selectNamedGraphCategory.tmpl.html', 
+	    		parent: angular.element(document.body),
+	    		targetEvent: ev,
+	    		preserveScope: true,
+	    		fullscreen: false // Only for -xs, -sm breakpoints.
+	    	});
+    		
+    	}
+    	
+    	else {
+    		// Calling service for handling user profile data before starting the upload
+        	insertUserProfileMetadata(ev);
+    	}
     };
     
     // Called when pressing the 'continue' button from the 
     // dialog shown when selecting category
-    $scope.continueAfterSelectingCategory = function() {
+    $scope.continueAfterSelectingCategory = function(ev) {
     	
     	// Clearing messages
     	$scope.resetMessages();
@@ -495,12 +514,12 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	$scope.fileCount = angular.copy($scope.getDropzoneAcceptedFiles());
     	// Setting flag to indicate that the process has started
     	$scope.processStarted = true;
-    	insertMetadata(); // Inserting meta-data for this uploading procedure
+    	insertMetadata(ev); // Inserting meta-data for this uploading procedure
     	// Close the dialog
-    	$scope.closeNamedGraphSelectCategoryDialog();
+    	$scope.closeNamedGraphSelectCategoryDialog();    	
     }
     
-    function insertMetadata() {
+    function insertMetadata(ev) {
     	
     	var importModel = {
 			namedGraphLabelParam: $scope.selectedNamedGraph.label,
@@ -524,30 +543,38 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 					
 					$scope.selectedNamedGraph.id = response.data.namedGraphIdParam;
 					
-					// Initiating the process (file upload & processing)
-					$scope.processDropzone();
+					// Insert user profile meta-data into the triple-store
+					insertUserProfileMetadata(ev);
 					
 				}
 				else {
 					$scope.message = response.data.message;
 					$scope.showErrorAlert('Error', $scope.message);
 					$scope.searchText = ''; // Initialize named graph input
+					// Setting flag to indicate that the process has been stopped
+			    	$scope.processStarted = false;
 				}
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
 			}
 			else if(response.status == '401') {
 				$log.info(response.status);
 				$scope.showLogoutAlert();
 				authenticationService.clearCredentials();
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
 			}
 			else {
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
 			}
 			
 		}, function (error) {
@@ -555,22 +582,19 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
+			// Setting flag to indicate that the process has been stopped
+	    	$scope.processStarted = false;
 		});
     	
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
     // Calling service to add user profile metadata in the triplestore if not already there
     function insertUserProfileMetadata(ev) {
     	
-    	importService.insertUserProfileMetadataInfo(angular.toJson($scope.userProfile), $scope.credentials.token)
+    	var userProfileDataModel = angular.copy($scope.userProfile);
+    	userProfileDataModel.namedGraphId = angular.copy($scope.selectedNamedGraph.id);
+    	
+    	importService.insertUserProfileMetadataInfo(angular.toJson(userProfileDataModel), $scope.credentials.token)
 		.then(function (response) {
 		
 			if(response.status == '200') {
@@ -584,50 +608,41 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 				    );
 					
 					// Initiating the process (file upload & processing)
-					// Checking if it is new namedGraph
-			    	if($scope.selectedNamedGraph == null) {
-			    		$scope.selectedNamedGraph = {id: null, label: $scope.searchText}
-			    		
-			    		// Prompting dialog to select category for the new named graph
-			    		$mdDialog.show({
-				    		scope: $scope,
-				    		templateUrl: 'views/dialog/selectNamedGraphCategory.tmpl.html', 
-				    		parent: angular.element(document.body),
-				    		targetEvent: ev,
-				    		preserveScope: true,
-				    		fullscreen: false // Only for -xs, -sm breakpoints.
-				    	});
-			    		
-			    	}
-			    	
-			    	else {
-			    		// Setting flag to indicate that the process has started
-			        	$scope.processStarted = true;
-			        	// Initiating the process
-			    		$scope.processDropzone();
-			    	}
+					
+					// Setting flag to indicate that the process has started
+		        	$scope.processStarted = true;
+		        	// Initiating the process
+		    		$scope.processDropzone();
 					
 				}
 				else {
 					$scope.message = response.data.message;
 					$scope.showErrorAlert('Error', $scope.message);
 					$scope.searchText = ''; // Initialize named graph input
+					// Setting flag to indicate that the process has been stoped
+			    	$scope.processStarted = false;
 				}
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stoped
+		    	$scope.processStarted = false;
 			}
 			else if(response.status == '401') {
 				$log.info(response.status);
 				$scope.showLogoutAlert();
 				authenticationService.clearCredentials();
+				// Setting flag to indicate that the process has been stoped
+		    	$scope.processStarted = false;
 			}
 			else {
 				$log.info(response.status);
 				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
 				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stoped
+		    	$scope.processStarted = false;
 			}
 			
 		}, function (error) {
@@ -635,6 +650,8 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
 				data : error
 			}));
+			// Setting flag to indicate that the process has been stoped
+	    	$scope.processStarted = false;
 		});
     	
     }
