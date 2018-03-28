@@ -177,9 +177,10 @@ public class ProvInfo {
 
     public String createLinkingInsertQuery(String dstGraph) {
         StringBuilder query = new StringBuilder();
-        query.append("insert into <" + dstGraph + "> {\n")
+        query.append("with <" + dstGraph + "> \n")
+                .append("insert {\n")
                 .append("?prov_service <" + CERIFPrefix + "is_source_of> <" + importedByUUID + ">. \n")
-                .append("where {\n ")
+                .append("} where {\n ")
                 .append("?s <" + CERIFPrefix + "is_source_of> ?FLE1.\n")
                 .append("?FLE1 <" + CERIFPrefix + "has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n")
                 .append("?FLE1 <" + CERIFPrefix + "has_destination> ?ProvService.\n")

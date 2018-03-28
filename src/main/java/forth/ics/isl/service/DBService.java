@@ -567,8 +567,10 @@ public class DBService {
             //the update query added new triples
             if (status == 200 && !respString.contains("mutationCount=0")) {
                 String[] entit = relatedEntities.split("-");
-                matRelationsEntities.add(entit[0]);
-                matRelationsEntities.add(entit[1]);
+                if (entit.length > 1) {
+                    matRelationsEntities.add(entit[0]);
+                    matRelationsEntities.add(entit[1]);
+                }
             }
             sb.append(relatedEntities + " -> " + ((JSONObject) new JSONParser().parse(respString)).get("status") + "\n");
         }

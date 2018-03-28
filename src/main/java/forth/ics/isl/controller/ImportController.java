@@ -227,12 +227,12 @@ public class ImportController {
         String namedGraphIdParam = request.getParameter("namedGraphIdParam");
         String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
         String linkingUpdateQueryParam = request.getParameter("linkingUpdateQuery");
-        
+
         System.out.println("authorizationToken: " + authorizationToken);
         System.out.println("contentTypeParam: " + contentTypeParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
         System.out.println("linkingUpdateQueryParam: " + linkingUpdateQueryParam);
-        
+
         String importResponseJsonString = null;
         /////
         try {
@@ -252,17 +252,17 @@ public class ImportController {
                 if (status == 200) {
                     Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
                     H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam, matRelationEntities);
+                    // Executing linking update query (links these data with provenance metadata)
                 } else if (status == 500) {
                     importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";
                     System.out.println("importResponseJsonString");
                     return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                 } //
             }
-            
-            // Executing linking update query (links these data with provenance metadata)
             RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
             Response resp = client.executeUpdatePOSTJSON(linkingUpdateQueryParam);
-            
+            System.out.println("linking data with provdata ->> " + resp.getStatus());
+            System.out.println("");
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
         }
