@@ -125,7 +125,8 @@ public class ProvInfo {
 
     private String findClassifFromTerm(String term) throws IOException, ParseException {
         String query = "select ?classif from <" + VREClassifications + "> where {\n"
-                + "  ?classif <" + CERIFPrefix + "has_term> \"" + term + "\".\n"
+                + "?classif <" + CERIFPrefix + "has_term> ?term. \n"
+                + "filter (lcase(?term) = lcase(\"" + term + "\")).\n"
                 + "}";
         System.out.println(query);
         RestClient client = new RestClient(endpoint, namespace, authorizationToken);
@@ -179,11 +180,10 @@ public class ProvInfo {
         query.append("insert into <" + dstGraph + "> {\n")
                 .append("?prov_service <" + CERIFPrefix + "is_source_of> <" + importedByUUID + ">. \n")
                 .append("where {\n ")
-                .append("?s cerif:is_source_of ?FLE1.\n")
-                .append("?FLE1 cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n")
-                .append("?FLE1 cerif:has_destination ?ProvService.\n")
+                .append("?s <" + CERIFPrefix + "is_source_of> ?FLE1.\n")
+                .append("?FLE1 <" + CERIFPrefix + "has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n")
+                .append("?FLE1 <" + CERIFPrefix + "has_destination> ?ProvService.\n")
                 .append("}");
-
         return query.toString();
     }
 

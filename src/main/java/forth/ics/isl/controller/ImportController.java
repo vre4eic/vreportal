@@ -139,7 +139,6 @@ public class ImportController {
         String roleStr = null;
         String organizationNameStr = null;
         String organizationUrlStr = null;
-        String graphUri = null;
         String namedGraphIdStr = null;
 
         // Retrieving user's ID (username)
@@ -161,7 +160,7 @@ public class ImportController {
         // Dummy hard coded organization URL (temporarily)
         organizationUrlStr = "https://www.ics.forth.gr/";
         if (requestParams.get("namedGraphId") != null) {
-        	namedGraphIdStr = requestParams.get("namedGraphId").toString();
+            namedGraphIdStr = requestParams.get("namedGraphId").toString();
         }
 
         System.out.println("nameStr: " + nameStr);
@@ -171,14 +170,14 @@ public class ImportController {
         System.out.println("organizationUrlStr: " + organizationUrlStr);
         System.out.println("namedGraphIdStr: " + namedGraphIdStr);
         //////
-//        ProvInfo info = new ProvInfo(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
-//                serviceUrl, namespace, authorizationToken);
+        ProvInfo info = new ProvInfo(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
+                serviceUrl, namespace, authorizationToken);
 //
-//        String q1 = info.createProvTriplesInsertQuery(graphUri);
-//        String q2 = info.createLinkingInsertQuery(graphUri);
-//        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
-//        Response resp = client.executeUpdatePOSTJSON(q1);
-//        resp = client.executeUpdatePOSTJSON(q2);
+        String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
+        String q2 = info.createLinkingInsertQuery(namedGraphIdStr);
+        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+        Response resp = client.executeUpdatePOSTJSON(q1);
+        resp = client.executeUpdatePOSTJSON(q2);
 
         JSONObject responseJsonObject = new JSONObject();
         // Dummy response (under development) always success
