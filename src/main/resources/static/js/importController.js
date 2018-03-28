@@ -239,6 +239,7 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 		            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
 		            		'selectedCategoryLabel': $scope.selectedCategory.value,
 		            		'selectedCategoryId': $scope.selectedCategory.id,
+		            		'linkingUpdateQuery': $scope.provenaceQuery,
 		            		'authorizationParam': $scope.credentials.token 
 		            	};
 	            	}
@@ -249,6 +250,7 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 		            		'namedGraphLabelParam': $scope.selectedNamedGraph.label,
 		            		'selectedCategoryLabel': $scope.selectedCategory.value,
 		            		'selectedCategoryId': $scope.selectedCategory.id,
+		            		'linkingUpdateQuery': $scope.provenaceQuery,
 		            		'authorizationParam': $scope.credentials.token 
 	    	            };
 	            	}
@@ -611,8 +613,20 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 					
 					// Setting flag to indicate that the process has started
 		        	$scope.processStarted = true;
+		        	
 		        	// Initiating the process
-		    		$scope.processDropzone();
+		        	if(response.data.linkingUpdateQuery != null) {
+		        		$scope.provenaceQuery = response.data.linkingUpdateQuery;
+		        		$scope.processDropzone();
+		        	}
+		        	else {
+						$scope.message = "Provenance information is missing";
+						$scope.showErrorAlert('Error', $scope.message);
+						$scope.searchText = ''; // Initialize named graph input
+						// Setting flag to indicate that the process has been stoped
+				    	$scope.processStarted = false;
+					}
+		        		
 					
 				}
 				else {

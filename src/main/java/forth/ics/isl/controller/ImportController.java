@@ -174,15 +174,16 @@ public class ImportController {
                 serviceUrl, namespace, authorizationToken);
 //
         String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
-        String q2 = info.createLinkingInsertQuery(namedGraphIdStr);
+        String q2 = info.createLinkingInsertQuery(namedGraphIdStr); // Linking Update Query
         RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
         Response resp = client.executeUpdatePOSTJSON(q1);
-        resp = client.executeUpdatePOSTJSON(q2);
+        //resp = client.executeUpdatePOSTJSON(q2);
 
         JSONObject responseJsonObject = new JSONObject();
         // Dummy response (under development) always success
         responseJsonObject.put("success", true);
         responseJsonObject.put("message", "User Profile metadata inserted successfully!");
+        responseJsonObject.put("linkingUpdateQuery", q2);
 
         // Below is the respective code for creating new namedgraph 
         // (left here for guideline for the new code)
@@ -225,9 +226,13 @@ public class ImportController {
         String contentTypeParam = request.getParameter("contentTypeParam"); // Retrieving param that holds the file's content-type
         String namedGraphIdParam = request.getParameter("namedGraphIdParam");
         String authorizationToken = request.getParameter("authorizationParam");//.getHeader("Authorization");		// Retrieving the authorization token
+        String linkingUpdateQueryParam = request.getParameter("linkingUpdateQuery");
+        
         System.out.println("authorizationToken: " + authorizationToken);
         System.out.println("contentTypeParam: " + contentTypeParam);
         System.out.println("namedGraphIdParam: " + namedGraphIdParam);
+        System.out.println("linkingUpdateQueryParam: " + linkingUpdateQueryParam);
+        
         String importResponseJsonString = null;
         /////
         try {
@@ -253,6 +258,11 @@ public class ImportController {
                     return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                 } //
             }
+            
+            // Executing linking update query (links these data with provenance metadata)
+            RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+            Response resp = client.executeUpdatePOSTJSON(linkingUpdateQueryParam);
+            
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
         }
