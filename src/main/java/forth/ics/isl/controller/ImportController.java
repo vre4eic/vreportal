@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import forth.ics.isl.provenance.ProvInfo;
+import forth.ics.isl.service.ProvInfoGeneratorService;
 import forth.ics.isl.runnable.H2Manager;
 import forth.ics.isl.service.DBService;
 
@@ -170,7 +170,7 @@ public class ImportController {
         System.out.println("organizationUrlStr: " + organizationUrlStr);
         System.out.println("namedGraphIdStr: " + namedGraphIdStr);
         //////
-        ProvInfo info = new ProvInfo(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
+        ProvInfoGeneratorService info = new ProvInfoGeneratorService(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
                 serviceUrl, namespace, authorizationToken);
 //
         String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);

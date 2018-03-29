@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package forth.ics.isl.provenance;
+package forth.ics.isl.service;
 
 import forth.ics.isl.triplestore.RestClient;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import org.json.simple.parser.ParseException;
  *
  * @author rousakis
  */
-public class ProvInfo {
+public class ProvInfoGeneratorService {
 
     private static final String VREPrefix = "http://139.91.183.70:8090/vre4eic/";
     private static final String CERIFPrefix = "http://eurocris.org/ontology/cerif#";
@@ -45,7 +45,7 @@ public class ProvInfo {
     private final String personUri;
     private final String orgUnitUri;
 
-    public ProvInfo(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String namespace, String authorizationToken) throws UnsupportedEncodingException {
+    public ProvInfoGeneratorService(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String namespace, String authorizationToken) throws UnsupportedEncodingException {
         this.personName = personName;
         this.emailString = emailString;
         this.roleString = roleString;
@@ -197,7 +197,7 @@ public class ProvInfo {
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "rous";
         String token = "05d7e21c-0fab-453f-857c-d4282fcd4d50";
-        ProvInfo info = new ProvInfo(personName, emailString, role, orgName, orgUrl,
+        ProvInfoGeneratorService info = new ProvInfoGeneratorService(personName, emailString, role, orgName, orgUrl,
                 endpoint, namespace, token);
 
 //        System.out.println(info.orgTriples());
