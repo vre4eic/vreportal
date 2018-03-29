@@ -189,6 +189,21 @@ angular.module('app.mainServices', [])
 			});
 		},
 		
+		retrieveEntityInfo : function(paramModel, token) {
+			return $http({
+				'url': '/retrieve_entity_info',
+				'method': 'POST',
+				'headers': {
+					'Content-Type' : 'application/json',
+				    'Authorization': token
+				},
+				'data': paramModel
+			}).then(function (success){
+				return success;
+			},function (error) {
+				return error;
+			});
+		},
 		
 		
 		

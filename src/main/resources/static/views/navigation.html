@@ -355,19 +355,55 @@
 			<!-- Displaying Results -->
 			<md-content>
 				<div style="padding-left:30px;" class="row" ng-show="finalResults.results.bindings.length > 0">
+					
+					<md-sidenav class="md-sidenav-right"
+						        md-component-id="resultItemInfoSidenav"
+						        md-whiteframe="4"
+						        md-disable-backdrop="true"
+						        style="margin-top:30px; min-width:50%; width:50%;">
+				
+						<md-toolbar class="md-theme-indigo">
+							<div class="md-toolbar-tools">
+								<h1 class="md-toolbar-tools">Info Regarding</h1>
+								<md-button class="md-icon-button" 
+										   aria-label="Hide result item" 
+										   ng-click="closeResultItemInfo();">
+									<md-icon md-font-icon="fa fa-chevron-circle-left" 
+											 style="font-size:24px"></md-icon>
+			          				<md-tooltip md-delay="1000" 
+			            						md-direction="top">
+										Hide this sidenav
+									</md-tooltip>
+			        			</md-button>
+		        			</div>
+						</md-toolbar>
+						
+						<md-content layout-padding>
+							<div>
+								{{currSelectedResultItem.uri}}
+							</div>
+							<md-button ng-click="closeResultItemInfo();" class="md-primary" hide-gt-md>
+								Close This Sidenav
+							</md-button>
+						</md-content>
+				
+					</md-sidenav>
+					
 					<md-toolbar class="md-primary">
 						<div class="md-toolbar-tools">
 							<h2 class="md-flex">Data Results</h2>
 							<span flex></span>
 						</div>
 					</md-toolbar>
+					
+					<div layout-padding>
+						To resolve any of the <code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{targetModel.selectedTargetEntity.name}}"</code> 
+						results listed below, please <code>click on the</code> respective <code>row</code>.
+					</div>
+					
 					<div>
 						<table class="table table-striped table-condensed table-hover scrollTable">
 							<thead>
-								<div layout-padding>
-									To resolve any of the <code style="color:#106CC8;background: rgba(0,0,0,0.065);">"{{targetModel.selectedTargetEntity.name}}"</code> 
-									results listed below, please <code>click on the</code> respective <code>row</code>.
-								</div>
 								<tr ng-repeat="item in finalResults.results.bindings|limitTo:1" class="ng-scope">
 									<th ng-repeat="(key,val) in item" 
 										class="ng-binding" 
@@ -378,9 +414,10 @@
 								</tr>
 							</thead>
 							<tbody>
+							<!--
 								<tr ng-repeat="item in finalResults.results.bindings" 
 									class="ng-scope"
-									ng-click="handleClickedRowFromFinalResults(item.uri.value);"> <!-- ng-class="{selected: entity.isChecked}" -->
+									ng-click="handleClickedRowFromFinalResults(item.uri.value);">
 									<td ng-repeat="(key,val) in item" 
 										class="ng-binding" 
 										ng-if="key != 'isChecked' && key != 'uri'"
@@ -388,6 +425,18 @@
 										{{val.value}}
 									</td>
 								</tr>
+							-->
+							<!-- ng-class="{selected: entity.isChecked}" -->
+							<tr ng-repeat="item in finalResults.results.bindings" 
+								class="ng-scope"
+								ng-click="handleSelectedResultItem(item.uri.value);">
+								<td ng-repeat="(key,val) in item" 
+									class="ng-binding" 
+									ng-if="key != 'isChecked' && key != 'uri'"
+									style="vertical-align:middle; padding:0;">
+									{{val.value}}
+								</td>
+							</tr>
 							</tbody>
 						</table>
 					</div>
@@ -410,7 +459,6 @@
 							Number of Results: <b>{{finalResults.totalItems}}</b>
 						</div>
 					</div>
-					
 				</div>
 				
 				<div ng-show="finalResults.results.bindings.length < 1" 

@@ -12,11 +12,13 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+//import org.springframework.stereotype.Repository;
 
 /**
  *
  * @author rousakis
  */
+//@Repository
 public class BeautifyQueryResultsService {
 
     private static final String VREPrefix = "http://139.91.183.70:8090/vre4eic/";

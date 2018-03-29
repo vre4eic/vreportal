@@ -2757,12 +2757,77 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		$window.open(uri, '_blank');
 	}
 	
+	// Pretty Print
+	
+	// Closing result item info sidenav
+	$scope.closeResultItemInfo = function () {
+      // Component lookup should always be available since we are not using `ng-if`
+      $mdSidenav('resultItemInfoSidenav').close()
+        .then(function () {
+          //$log.debug("close LEFT is done");
+        });
+
+    };
+    
+    $scope.currSelectedResultItem = {
+		uri: null
+	}
+    
+    // Called when clicking on a result item (to toggle sidenav)
+	$scope.handleSelectedResultItem = function(itemUri) {
+		
+		$scope.currSelectedResultItem.uri = itemUri;
+		console.log("itemUri clicked: " + $scope.currSelectedResultItem.uri);
+		
+		var params = {
+				fromSearch: $scope.queryFrom,
+				entityUri: itemUri
+		}
+		
+		var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Retrieving Information Data for this entity...'
+		};
+    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		
+		// Calling Service to retrieve item's details
+		queryService.retrieveEntityInfo(params, $scope.credentials.token).then(function (response) {
+			if(response.status == '200') {
+				$scope.currSelectedResultItem.info = response.data;
+				console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
+				modalInstance.close();
+				$mdSidenav('resultItemInfoSidenav').open()
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		}).finally(function(){
+			
+		});
+			
+	}
 	
 	
-		
-		
-		
-		
 		
 		
 		
