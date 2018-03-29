@@ -188,10 +188,10 @@ public class BeautifyQueryResultsService {
 
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
-        String token = "a7846cdb-50c1-4681-828d-168a3a537e74";
-        String entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Person.20155";
-        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.OrgUnit.105201";
-        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Project.7602";
+        String token = "3d791107-6bb4-4e7b-9efd-38e1e33af05b";
+        String entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Person.1908";
+//        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.OrgUnit.105201";
+//        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Project.7602";
         String fromClause = "from <http://ekt-data>";
 
         BeautifyQueryResultsService beauty = new BeautifyQueryResultsService(token, endpoint, namespace);

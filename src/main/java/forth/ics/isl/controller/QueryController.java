@@ -58,7 +58,7 @@ public class QueryController {
     private String namespace;
     private JsonNode currQueryResult;
     private RestClient restClient;
-    
+
     //@Autowired
     private BeautifyQueryResultsService beautifyQueryResultsService;
 
@@ -74,36 +74,35 @@ public class QueryController {
         responseJsonObject.put("query", model.toSPARQL());
         return responseJsonObject;
     }
-    
+
     @RequestMapping(value = "/retrieve_entity_info", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     JSONObject retrieveEntityInfo(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-    	
-    	// Handling request parameters
-    	String entityUriStr = null;
-    	String fromSearchStr = null;
-    	
+
+        // Handling request parameters
+        String entityUriStr = null;
+        String fromSearchStr = null;
+
         if (requestParams.get("entityUri") != null) {
-        	entityUriStr = requestParams.get("entityUri").toString();
+            entityUriStr = requestParams.get("entityUri").toString();
         }
-    	if (requestParams.get("fromSearch") != null) {
-    		fromSearchStr = requestParams.get("fromSearch").toString();
+        if (requestParams.get("fromSearch") != null) {
+            fromSearchStr = requestParams.get("fromSearch").toString();
         }
-        
+
         System.out.println("entityUriStr: " + entityUriStr);
         System.out.println("fromSearchStr: " + fromSearchStr);
-        
+
         // Initializing service
-    	beautifyQueryResultsService = new BeautifyQueryResultsService(authorizationToken, serviceUrl, namespace);
-    	// Calling service
-    	beautifyQueryResultsService.enrichEntityResults(entityUriStr, fromSearchStr);
-    	JSONObject responseJsonObject = new JSONObject(); // JSON Object to hold response
-    	// Getting JSON output and place it into response JSON Object
-    	responseJsonObject = beautifyQueryResultsService.getInstanceInfo();
-        
+        beautifyQueryResultsService = new BeautifyQueryResultsService(authorizationToken, serviceUrl, namespace);
+        // Calling service
+        beautifyQueryResultsService.enrichEntityResults(entityUriStr, fromSearchStr);
+        beautifyQueryResultsService.enrichDstEntityResults(entityUriStr, fromSearchStr);
+        beautifyQueryResultsService.enrichSrcEntityResults(entityUriStr, fromSearchStr);
+        JSONObject responseJsonObject = new JSONObject(); // JSON Object to hold response
+        // Getting JSON output and place it into response JSON Object
+        responseJsonObject = beautifyQueryResultsService.getInstanceInfo();
         return responseJsonObject;
     }
-    
-    
-    
+
 }
