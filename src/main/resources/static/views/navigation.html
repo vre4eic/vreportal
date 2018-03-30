@@ -362,27 +362,27 @@
 						        md-whiteframe="4"
 						        md-disable-backdrop="true"
 						        style="margin-top:30px; min-width:50%; width:50%;">
-				
+						
 						<md-toolbar class="md-theme-indigo">
 							<div class="md-toolbar-tools">
-								<h1 class="md-toolbar-tools">Info Regarding</h1>
 								<md-button class="md-icon-button" 
 										   aria-label="Hide result item" 
 										   ng-click="closeResultItemInfo();">
-									<md-icon md-font-icon="fa fa-chevron-circle-left" 
+									<md-icon md-font-icon="fa fa-chevron-circle-right" 
 											 style="font-size:24px"></md-icon>
 			          				<md-tooltip md-delay="1000" 
 			            						md-direction="top">
 										Hide this sidenav
 									</md-tooltip>
 			        			</md-button>
+			        			<h2 class="md-flex">Info Regarding</h2>
 		        			</div>
 						</md-toolbar>
 						
 						<md-content layout-padding>
 							<div ng-include="'views/info/selectedResultItemInfo.html'"></div>
 							<md-button ng-click="closeResultItemInfo();" class="md-primary" hide-gt-md>
-								Close This Sidenav
+								Hide this sidenav
 							</md-button>
 						</md-content>
 				
