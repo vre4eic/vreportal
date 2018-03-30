@@ -35,7 +35,7 @@
 					    
 							<md-list-item ng-repeat="itemProperty in item.related_entities_of_type" 
 										  class="md-3-line" 
-										  ng-click="null">
+										  ng-click="handleSelectedResultItem(itemProperty.related_entity_uri)">
 								<div class="md-list-item-text" layout="column" flex>
 									<h3 style="white-space:normal; text-align:justify;">{{ itemProperty.relation }}</h3>
 									<h4 style="white-space:normal; text-align:justify;">{{ itemProperty.related_entity_label }}</h4>
