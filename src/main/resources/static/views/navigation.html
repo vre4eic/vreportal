@@ -212,7 +212,7 @@
 								 		padding:5px; 
 								 		border: 1px solid #ccc; 
 								 		border-radius: 5px;" 
-								 layout-wrap">
+								 layout-wrap>
 								<!-- width:255px; -->
 								
 								<md-toolbar class="md-primary narrow-toolbar">
@@ -356,6 +356,7 @@
 			<md-content>
 				<div style="padding-left:30px;" class="row" ng-show="finalResults.results.bindings.length > 0">
 					
+					<!-- Displaying Selected Item -->
 					<md-sidenav class="md-sidenav-right"
 						        md-component-id="resultItemInfoSidenav"
 						        md-whiteframe="4"
@@ -379,9 +380,7 @@
 						</md-toolbar>
 						
 						<md-content layout-padding>
-							<div>
-								{{currSelectedResultItem.uri}}
-							</div>
+							<div ng-include="'views/info/selectedResultItemInfo.html'"></div>
 							<md-button ng-click="closeResultItemInfo();" class="md-primary" hide-gt-md>
 								Close This Sidenav
 							</md-button>
@@ -414,18 +413,6 @@
 								</tr>
 							</thead>
 							<tbody>
-							<!--
-								<tr ng-repeat="item in finalResults.results.bindings" 
-									class="ng-scope"
-									ng-click="handleClickedRowFromFinalResults(item.uri.value);">
-									<td ng-repeat="(key,val) in item" 
-										class="ng-binding" 
-										ng-if="key != 'isChecked' && key != 'uri'"
-										style="vertical-align:middle; padding:0;">
-										{{val.value}}
-									</td>
-								</tr>
-							-->
 							<!-- ng-class="{selected: entity.isChecked}" -->
 							<tr ng-repeat="item in finalResults.results.bindings" 
 								class="ng-scope"

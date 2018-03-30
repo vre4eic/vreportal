@@ -1,0 +1,62 @@
+<div>
+	
+	<md-content>
+		
+		<md-card>
+			
+			<md-card-title>
+				<md-card-title-text>
+					<span class="md-headline">{{currSelectedResultItem.instance_label}}</span>
+					<div layout="row">
+						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
+						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
+					</div>
+				</md-card-title-text>
+			</md-card-title>
+			
+			<md-card-content>
+				
+				<div ng-repeat="item in currSelectedResultItem.related_entity_types"
+					 layout="column" 
+					 flex>
+				
+						<!--
+						<md-subheader class="md-no-sticky" style="width: 100%;">
+					    	{{item.related_entity_type}}
+					    </md-subheader>
+					    -->
+					    <md-toolbar class="md-accent narrow-toolbar">
+							<div class="md-toolbar-tools" layout-align="start center">
+								<h2>{{item.related_entity_type}}</h2>
+							</div>
+						</md-toolbar>
+					    
+					    <md-list>
+					    
+							<md-list-item ng-repeat="itemProperty in item.related_entities_of_type" 
+										  class="md-3-line" 
+										  ng-click="null">
+								<div class="md-list-item-text" layout="column" flex>
+									<h3 style="white-space:normal; text-align:justify;">{{ itemProperty.relation }}</h3>
+									<h4 style="white-space:normal; text-align:justify;">{{ itemProperty.related_entity_label }}</h4>
+									<p style="white-space:normal; text-align:justify;" 
+									   ng-show="itemProperty.related_entity_acronym != null">
+										{{ itemProperty.related_entity_acronym }}
+									</p>
+								</div>
+								<md-divider ></md-divider>
+							</md-list-item>
+							
+						</md-list>
+					    
+						<!-- <md-subheader class="md-no-sticky">3 line item (with hover)</md-subheader>-->
+					
+				</div>
+				
+			</md-card-content>
+			
+		</md-card>
+		
+	</md-content>
+	
+</div>

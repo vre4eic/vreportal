@@ -2651,7 +2651,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         		var params = {
         				format: "application/json",
         				query: queryResponse.data.query,// + ' limit 300', // final Search Query
-        				itemsPerPage: 100
+        				itemsPerPage: $scope.itemsPerPage
         		}
     			// Calling service to executing Query - Promise
 	    		//queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
@@ -2731,7 +2731,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Put them into the configuration
 	$scope.currentPage = 1;
-	$scope.itemsPerPage = 100;
+	$scope.itemsPerPage = 30;//100;
 	
 	
 	// Server-Side Pagination for query
@@ -2769,34 +2769,35 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 
     };
     
-    $scope.currSelectedResultItem = {
-		uri: null
-	}
+    $scope.currSelectedResultItem = {};
     
     // Called when clicking on a result item (to toggle sidenav)
 	$scope.handleSelectedResultItem = function(itemUri) {
 		
-		$scope.currSelectedResultItem.uri = itemUri;
-		console.log("itemUri clicked: " + $scope.currSelectedResultItem.uri);
+    	console.log("itemUri clicked: " + itemUri);
 		
+    	// Parameters for the service to call
 		var params = {
 				fromSearch: $scope.queryFrom,
 				entityUri: itemUri
 		}
 		
+		// Modal Options
 		var modalOptions = {
 			headerText: 'Loading Please Wait...',
 			bodyText: 'Retrieving Information Data for this entity...'
 		};
+		
+		// Start modal
     	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
 		
 		// Calling Service to retrieve item's details
 		queryService.retrieveEntityInfo(params, $scope.credentials.token).then(function (response) {
 			if(response.status == '200') {
-				$scope.currSelectedResultItem.info = response.data;
+				$scope.currSelectedResultItem = response.data;
 				console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
 				modalInstance.close();
-				$mdSidenav('resultItemInfoSidenav').open()
+				$mdSidenav('resultItemInfoSidenav').open();
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
