@@ -416,7 +416,7 @@
 							<!-- ng-class="{selected: entity.isChecked}" -->
 							<tr ng-repeat="item in finalResults.results.bindings" 
 								class="ng-scope"
-								ng-click="handleSelectedResultItem(item.uri.value);">
+								ng-click="handleSelectedResultItem(item.uri.value, true, false);">
 								<td ng-repeat="(key,val) in item" 
 									class="ng-binding" 
 									ng-if="key != 'isChecked' && key != 'uri'"

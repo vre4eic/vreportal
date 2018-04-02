@@ -4,6 +4,18 @@
 		
 		<md-card>
 			
+			<div ng-show="resultItemNavHistory.length > 1" class="zoom-show-hide">
+				<md-button class="md-primary md-hue-1" 
+						   aria-label="Hide Help" 
+						   ng-click="handlePreviousSelectedResultItem();">
+	   				<md-icon md-font-icon="fa fa-angle-left" style="font-size:24px; margin-top:-4px;"></md-icon>
+	   				<span>Previous Entity ({{previousResultItemNavHistory.type}})</span>
+	   				<md-tooltip md-delay="1000" 
+								md-direction="top">
+						Previous
+					</md-tooltip>
+	      		</md-button>
+			</div>
 			<md-card-title>
 				<md-card-title-text>
 					<span class="md-headline">{{currSelectedResultItem.instance_label}}</span>
@@ -35,7 +47,7 @@
 					    
 							<md-list-item ng-repeat="itemProperty in item.related_entities_of_type" 
 										  class="md-3-line" 
-										  ng-click="handleSelectedResultItem(itemProperty.related_entity_uri)">
+										  ng-click="handleSelectedResultItem(itemProperty.related_entity_uri, false, false)">
 								<div class="md-list-item-text" layout="column" flex>
 									<h3 style="white-space:normal; text-align:justify;">{{ itemProperty.relation }}</h3>
 									<h4 style="white-space:normal; text-align:justify;">{{ itemProperty.related_entity_label }}</h4>

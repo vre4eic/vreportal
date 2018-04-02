@@ -2769,17 +2769,37 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 
     };
     
+    // The currently selected result item
     $scope.currSelectedResultItem = {};
     
+    // The history of the selected result item
+    // (only URI and type properties)
+    $scope.resultItemNavHistory = [];
+    
+    // The previous item in the history list for the selected result item
+    // (only URI and type properties)
+    $scope.previousResultItemNavHistory = {};
+    
+    
+    
+    $scope.handlePreviousSelectedResultItem = function() {
+    	var itemUri = angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri);
+    	$scope.handleSelectedResultItem(itemUri, false, true); // True stands that this is a "back from history" call
+    }
+    
     // Called when clicking on a result item (to toggle sidenav)
-	$scope.handleSelectedResultItem = function(itemUri) {
+    // rootUri: boolean - means that this function is called by clicking on an result item and not on
+    // a related entity within info for a result item
+    // backFromHistory: boolean - means that this function is called when clicking the back button
+    // (to observe the previous URI)
+	$scope.handleSelectedResultItem = function(itemUri, rootUri, backFromHistory) {
 		
-    	console.log("itemUri clicked: " + itemUri);
+		console.log("itemUri clicked: " + itemUri);
 		
     	// Parameters for the service to call
 		var params = {
-				fromSearch: $scope.queryFrom,
-				entityUri: itemUri
+			fromSearch: $scope.queryFrom,
+			entityUri: itemUri
 		}
 		
 		// Modal Options
@@ -2795,9 +2815,42 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		queryService.retrieveEntityInfo(params, $scope.credentials.token).then(function (response) {
 			if(response.status == '200') {
 				$scope.currSelectedResultItem = response.data;
-				console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
+				//console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
 				modalInstance.close();
 				$mdSidenav('resultItemInfoSidenav').open();
+				
+				// Handling history
+				
+				// Case: Click from the results
+				if(rootUri) {
+					// Initializing history in case of clicking on a result item
+					$scope.resultItemNavHistory = [];
+					// Initializing previous item from the history of the selected result item
+					$scope.previousResultItemNavHistory = {};
+				}
+				
+				// Case: Click either from the results or from links inside the selected result
+				if(!backFromHistory) // Adding URI into history
+					$scope.resultItemNavHistory.push(
+						{
+							uri: itemUri, 
+							type: angular.copy($scope.currSelectedResultItem.instance_type)
+						}
+					);
+				
+				// Case: Click from the "Back to previous entity" button
+				else // Removing URI from history
+					$scope.resultItemNavHistory.splice(-1,$scope.resultItemNavHistory.length - 1);
+				// Case: Click only from links inside the selected result
+				if(!rootUri && !backFromHistory) {
+					// Holding previous
+					$scope.previousResultItemNavHistory = {
+						uri: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri), 
+						type: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].type)
+					};
+					
+				}
+				
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);
@@ -2823,7 +2876,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				data : error
 			}));
 		}).finally(function(){
-			
+			console.log($scope.resultItemNavHistory);
 		});
 			
 	}
