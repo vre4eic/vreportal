@@ -361,7 +361,7 @@
 						        md-component-id="resultItemInfoSidenav"
 						        md-whiteframe="4"
 						        md-disable-backdrop="true"
-						        style="margin-top:30px; min-width:50%; width:50%;">
+						        ng-class="resultsModel.selectedViewStyle.value">
 						
 						<md-toolbar class="md-theme-indigo">
 							<div class="md-toolbar-tools">
@@ -381,7 +381,7 @@
 						
 						<md-content layout-padding>
 							<div ng-include="'views/info/selectedResultItemInfo.html'"></div>
-							<md-button ng-click="closeResultItemInfo();" class="md-primary" hide-gt-md>
+							<md-button ng-click="closeResultItemInfo();" class="md-primary">
 								Hide this sidenav
 							</md-button>
 						</md-content>
@@ -390,8 +390,29 @@
 					
 					<md-toolbar class="md-primary">
 						<div class="md-toolbar-tools">
-							<h2 class="md-flex">Data Results</h2>
+							<h2>Data Results</h2>
 							<span flex></span>
+					        <md-menu md-position-mode="target-right target">
+					        	<md-button ng-click="$mdMenu.open()" 
+					        			   class="md-icon-button" 
+					        			   aria-label="results view options">
+					        			   <!-- ng-mouseenter="$mdMenu.open()" -->
+						            <md-icon md-font-icon="fa fa-cogs" style="font-size:28px;">
+						            <md-tooltip md-delay="1000" md-direction="top">
+										Choose observation view option
+									</md-tooltip>
+						        </md-button>
+      							<md-menu-content width="4" ng-mouseleave="$mdMenu.close()">
+        							<md-menu-item ng-repeat="item in resultsModel.viewStyleOptions">
+          								<md-button ng-click="setResultViewStyle(item)">
+            								{{item.name}}
+          								</md-button>
+        							</md-menu-item>
+      							</md-menu-content>
+    						</md-menu>
+					        
+					        
+					        
 						</div>
 					</md-toolbar>
 					

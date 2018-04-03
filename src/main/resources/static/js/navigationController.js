@@ -2780,7 +2780,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     // (only URI and type properties)
     $scope.previousResultItemNavHistory = {};
     
+    // Used for holding settings regarding "observing a result item"
+    $scope.resultsModel = {
+    	viewStyleOptions: [
+			{name: 'side Navigation', value: 'results-sidenav-style'},
+			{name: 'sticky Navigation', value: 'results-sticky-style'}
+    	],
+    	selectedViewStyle: {
+    		name: 'side Navigation', 
+    		value: 'results-sidenav-style'
+    	}
+    }
     
+    $scope.setResultViewStyle = function(viewStyle) {
+    	$scope.resultsModel.selectedViewStyle = viewStyle;
+    }
     
     $scope.handlePreviousSelectedResultItem = function() {
     	var itemUri = angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri);

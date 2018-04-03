@@ -537,6 +537,19 @@ md-autocomplete.shrinked input.ng-scope {
 	}
 }
 
+/* Look and feel sidenav or sticky for results */
+.results-sidenav-style {
+	margin-top:30px;
+	min-width: 50%;
+    width: 50%;
+}
+
+.results-sticky-style {
+	position: fixed;
+	min-width: 50%;
+    width: 50%;
+}
+
 /* --- material checkbox and radio for bootswatch --- */
 
 .material-like-checkbox span.ivh-treeview-node-label.ng-binding.ivh-treeview-toggle {
