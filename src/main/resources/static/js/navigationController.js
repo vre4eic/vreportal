@@ -2842,7 +2842,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				else // Removing URI from history
 					$scope.resultItemNavHistory.splice(-1,$scope.resultItemNavHistory.length - 1);
 				// Case: Click only from links inside the selected result
-				if(!rootUri && !backFromHistory) {
+				if(!rootUri) {
 					// Holding previous
 					$scope.previousResultItemNavHistory = {
 						uri: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri), 
