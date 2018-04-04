@@ -381,7 +381,7 @@
 						
 						<md-content layout-padding>
 							<div ng-include="'views/info/selectedResultItemInfo.html'"></div>
-							<md-button ng-click="closeResultItemInfo();" class="md-primary">
+							<md-button ng-click="closeResultItemInfo();" class="md-accent">
 								Hide this sidenav
 							</md-button>
 						</md-content>
@@ -395,8 +395,8 @@
 					        <md-menu md-position-mode="target-right target">
 					        	<md-button ng-click="$mdMenu.open()" 
 					        			   class="md-icon-button" 
+					        			   style="margin-right:8px;"
 					        			   aria-label="results view options">
-					        			   <!-- ng-mouseenter="$mdMenu.open()" -->
 						            <md-icon md-font-icon="fa fa-cogs" style="font-size:28px;">
 						            <md-tooltip md-delay="1000" md-direction="top">
 										Choose observation view option

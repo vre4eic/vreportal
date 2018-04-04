@@ -114,6 +114,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Used to know that the treeMenu was opened and because the user opened the Info it was closed
 	$scope.treeMenuWasOpen = false;
+	$scope.resultItemInfoSidenavWasOpen = false;
 	
 	// Toggles SidePanel
 	$scope.toggleInfo = infoBuildToggler('rightInfo');
@@ -122,14 +123,24 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$mdSidenav(componentId).toggle();
 			$scope.infoNavIsOpen = $mdSidenav(componentId).isOpen();
 			
+			// Regarding Tree Menu SideNav (how to handle when opening the info SideNav at the same time)
 			if($scope.treeMenuIsOpen) {
 				$scope.toggleTreeMenu();
 				$scope.treeMenuWasOpen = true;
 			}
-			
 			else if($scope.treeMenuWasOpen) {
 				$scope.toggleTreeMenu();
 				$scope.treeMenuWasOpen = false;
+			}
+			
+			// Regarding result item info SideNav (how to handle when opening the info SideNav at the same time)
+			if($mdSidenav('resultItemInfoSidenav').isOpen()) {
+				$mdSidenav('resultItemInfoSidenav').close();
+				$scope.resultItemInfoSidenavWasOpen  = true;
+			}
+			else if($scope.resultItemInfoSidenavWasOpen) {
+				$mdSidenav('resultItemInfoSidenav').open();
+				$scope.resultItemInfoSidenavWasOpen = false;
 			}
 			 
 		};
@@ -2323,6 +2334,11 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	
 	// Resets the whole query model
 	function resetWholeQueryModel(openTreeMenu) {
+		
+		// Close sideNav for selected result item (if opened)
+		if($mdSidenav('resultItemInfoSidenav').isOpen())
+			$mdSidenav('resultItemInfoSidenav').close();
+		
 		//Initializing empty row model (new instance)
 		$scope.emptyRowModel = angular.copy($scope.initEmptyRowModel);
 		$scope.rowModelList = [$scope.emptyRowModel];
@@ -2354,7 +2370,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 			$scope.searchForm['relatedEntityInput_' + rowModelId].$setUntouched();
 		if($scope.searchForm['relationInput_' + rowModelId] != null)
 			$scope.searchForm['relationInput_' + rowModelId].$setUntouched();
-		
+				
 		// Open tree menu again
 		if(openTreeMenu) {
 			// Initial value for the flag
