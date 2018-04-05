@@ -1,10 +1,5 @@
 <style>
 
-	md-dialog {
-		max-height: 640px;
-		height: 640px;
-	}
-	
 	tbody {
 	    display:block;
 	    height: 315px;
@@ -21,6 +16,9 @@
 </style>
 
 <md-dialog-content>
+	
+	<div id="popupContainerEntityInstanceSearch"></div>
+
 	<div style="padding-left:30px;" class="row">
 		<md-toolbar class="md-primary">
 			<div class="md-toolbar-tools">
@@ -94,7 +92,7 @@
 							<md-checkbox aria-label="Select Row" 
 										 class="md-secondary"
 										 ng-model="item.isChecked"
-										 ng-change="changeSelectedRelatedItem(item)"
+										 ng-change="changeSelectedRelatedItem(item, currRowModel, $event)"
 										 ng-disabled="currRowModel.allRelatedSearchResultsIsSelected || (currRowModel.selectedRelatedInstanceList.length >= configuration.relatedEntity.selectedInstancesLimit && !item.isChecked)"										 
 										 style="margin: 0px;">
 										 <!--
