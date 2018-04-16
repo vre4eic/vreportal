@@ -94,7 +94,7 @@ public class QueryController {
         System.out.println("fromSearchStr: " + fromSearchStr);
 
         // Initializing service
-        beautifyQueryResultsService = new BeautifyQueryResultsService(authorizationToken, serviceUrl, namespace);
+        beautifyQueryResultsService = new BeautifyQueryResultsService(authorizationToken, serviceUrl);
         // Calling service
         beautifyQueryResultsService.enrichEntityResults(entityUriStr, fromSearchStr);
         beautifyQueryResultsService.enrichDstEntityResults(entityUriStr, fromSearchStr);

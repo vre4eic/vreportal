@@ -11,6 +11,7 @@ import forth.ics.isl.data.model.parser.RelatedModel;
 import forth.ics.isl.data.model.parser.Utils;
 import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -137,7 +138,8 @@ public class EntitiesSuggester {
             }
             if (!queries.isEmpty()) {
                 // execute the set of queries
-                RestClient client = new RestClient(endpoint, namespace, token);
+//                RestClient client = new RestClient(endpoint, namespace, token);
+                VirtuosoRestClient client = new VirtuosoRestClient(endpoint, token);
                 JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
                 int i = 0;
                 for (String relation : sugRelationRelEntities.keySet()) {

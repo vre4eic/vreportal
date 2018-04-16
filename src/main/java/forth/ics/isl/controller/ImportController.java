@@ -27,6 +27,7 @@ import forth.ics.isl.runnable.H2Manager;
 import forth.ics.isl.service.DBService;
 
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.sql.Connection;
 import java.util.Set;
 import javax.ws.rs.core.Response;
@@ -47,13 +48,13 @@ public class ImportController {
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
-    private RestClient restClient;
     private JsonNode currQueryResult;
 
     @PostConstruct
     public void init() throws IOException {
         currQueryResult = new ObjectNode(JsonNodeFactory.instance);
-        restClient = new RestClient(serviceUrl, namespace);
+//        restClient = new RestClient(serviceUrl, namespace);
+//        restClient = new VirtuosoRestClient(serviceUrl);
     }
 
     /*
@@ -175,7 +176,8 @@ public class ImportController {
 //
         String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
         String q2 = info.createLinkingInsertQuery(namedGraphIdStr); // Linking Update Query
-        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+//        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(serviceUrl, authorizationToken);
         Response resp = client.executeUpdatePOSTJSON(q1);
         //resp = client.executeUpdatePOSTJSON(q2);
 
@@ -238,6 +240,8 @@ public class ImportController {
         try {
             ///////
             Iterator<String> itr = request.getFileNames();
+//            RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
+            VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
             while (itr.hasNext()) {
                 String uploadedFile = itr.next();
                 MultipartFile multipartFile = request.getFile(uploadedFile);
@@ -246,7 +250,7 @@ public class ImportController {
                 byte[] bytes = multipartFile.getBytes();
 
                 String fileContent = new String(bytes);
-                Response importResponse = restClient.importFile(fileContent, contentTypeParam, namespace, namedGraphIdParam, authorizationToken);
+                Response importResponse = restClient.importFile(fileContent, contentTypeParam, namedGraphIdParam, authorizationToken);
                 int status = importResponse.getStatus();
                 importResponseJsonString = importResponse.readEntity(String.class);
                 if (status == 200) {
@@ -259,8 +263,7 @@ public class ImportController {
                     return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                 } //
             }
-            RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
-            Response resp = client.executeUpdatePOSTJSON(linkingUpdateQueryParam);
+            Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
             System.out.println("linking data with provdata ->> " + resp.getStatus());
             System.out.println("");
         } catch (Exception e) {

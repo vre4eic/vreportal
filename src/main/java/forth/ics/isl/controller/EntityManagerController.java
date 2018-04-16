@@ -22,14 +22,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import forth.ics.isl.data.model.parser.QueryDataModel;
 import forth.ics.isl.data.model.suggest.EntitiesSuggester;
 
 import forth.ics.isl.service.DBService;
 import static forth.ics.isl.service.QueryGenService.geoEntityQuery;
-import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,7 +48,8 @@ import org.json.simple.parser.ParseException;
 @Controller
 public class EntityManagerController {
 
-    private RestClient restClient;
+//    private RestClient restClient;
+    private VirtuosoRestClient restClient;
 
     @Value("${service.url}")
     private String serviceUrl;
@@ -124,8 +124,10 @@ public class EntityManagerController {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
             for (String graph : graphs) {
                 String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
-                RestClient client = new RestClient(endpoint, namespace, authorizationToken);
-                Response response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
+//                restClient = new RestClient(endpoint, namespace, authorizationToken);
+//                Response response = restClient.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
+                restClient = new VirtuosoRestClient(endpoint, authorizationToken);
+                Response response = restClient.executeSparqlQuery(query, 0, "application/json", authorizationToken);
                 if (response.getStatus() != 200) {
                     System.out.println(response.readEntity(String.class));
                     finalResult.put("remote_status", response.getStatus());
@@ -313,15 +315,16 @@ public class EntityManagerController {
 
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
 
-        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
-
+//        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
+        restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
         System.out.println("query:" + requestParams.get("query"));
 
         JSONObject responseJsonObject = new JSONObject();
         responseJsonObject.put("query", requestParams.get("query"));
 
         try {
-            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, timeout, "application/json", authorizationToken);
+//            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, timeout, "application/json", authorizationToken);
+            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), 0, "application/json", authorizationToken);
             System.out.println("serviceResponce.getStatus(): " + serviceResponce.getStatusInfo());
 
             // Setting Response status to POJO

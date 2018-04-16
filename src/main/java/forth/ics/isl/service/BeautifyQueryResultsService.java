@@ -6,6 +6,7 @@
 package forth.ics.isl.service;
 
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONArray;
@@ -34,10 +35,10 @@ public class BeautifyQueryResultsService {
         return instanceInfo;
     }
 
-    public BeautifyQueryResultsService(String authorizationToken, String endpoint, String namespace) {
+    public BeautifyQueryResultsService(String authorizationToken, String endpoint) {
         this.authorizationToken = authorizationToken;
         this.endpoint = endpoint;
-        this.namespace = namespace;
+//        this.namespace = namespace;
         this.instanceInfo = new JSONObject();
         this.instanceInfo.put("related_entity_types", new JSONArray());
     }
@@ -56,7 +57,8 @@ public class BeautifyQueryResultsService {
                 //                + "  optional { ?instance_uri cerif:has_description ?instance_description. }\n"
                 + "  filter (?instance_uri = <" + entityUri + ">).\n"
                 + "}";
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
@@ -102,7 +104,8 @@ public class BeautifyQueryResultsService {
                 //                + "   optional {?ent cerif:has_description ?ent_description. }\n"
                 + "  filter (?instance_uri = <" + entityUri + ">).\n"
                 + "} order by ?ent_type";
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
@@ -129,7 +132,8 @@ public class BeautifyQueryResultsService {
                 //                + "    optional {?ent cerif:has_description ?ent_description.} \n"
                 + "  filter (?instance_uri = <" + entityUri + ">).\n"
                 + "} order by ?ent_type";
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
@@ -194,7 +198,7 @@ public class BeautifyQueryResultsService {
 //        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Project.7602";
         String fromClause = "from <http://ekt-data>";
 
-        BeautifyQueryResultsService beauty = new BeautifyQueryResultsService(token, endpoint, namespace);
+        BeautifyQueryResultsService beauty = new BeautifyQueryResultsService(token, endpoint);
         beauty.enrichEntityResults(entityUri, fromClause);
         beauty.enrichDstEntityResults(entityUri, fromClause);
         beauty.enrichSrcEntityResults(entityUri, fromClause);

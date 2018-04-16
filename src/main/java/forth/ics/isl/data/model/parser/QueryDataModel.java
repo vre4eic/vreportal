@@ -45,6 +45,7 @@ public class QueryDataModel {
         this.relatedModels = new ArrayList<>();
         JSONArray related = (JSONArray) queryModel.get("relatedModels");
         boolean containsKeywordFilters = false;
+        boolean containsGeoFilters = false;
         for (int i = 0; i < related.size(); i++) {
             RelatedModel relModel = new RelatedModel((JSONObject) related.get(i), selectedGraphs);
             //I have not selected any related models
@@ -55,10 +56,13 @@ public class QueryDataModel {
             if (relModel.getKeywordSearchPattern() != null || relModel.containsKeywordSearch()) {
                 containsKeywordFilters = true;
             }
+            if (relModel.getGeoSearchPattern() != null || relModel.containsGeoSearch()) {
+                containsGeoFilters = true;
+            }
         }
         //check if I have related entities with both keyword and geofilters
         //if so, then use only the filter geosearch.
-        if (containsKeywordFilters) {
+        if (containsKeywordFilters || containsGeoFilters) {
             for (RelatedModel relModel : relatedModels) {
                 relModel.setGeoSearchPattern(relModel.getFilterGeoSearchPattern());
             }

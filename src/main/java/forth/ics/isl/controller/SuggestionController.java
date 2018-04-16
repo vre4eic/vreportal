@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import forth.ics.isl.data.model.suggest.EntitiesSuggester;
 import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -41,7 +42,8 @@ public class SuggestionController {
     @Value("${triplestore.namespace}")
     private String namespace;
     private JsonNode currQueryResult;
-    private RestClient restClient;
+//    private RestClient restClient;
+    private VirtuosoRestClient restClient;
 
     @PostConstruct
     public void init() throws IOException {

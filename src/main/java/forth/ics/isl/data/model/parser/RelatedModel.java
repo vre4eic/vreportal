@@ -44,6 +44,7 @@ public class RelatedModel {
 
     @Autowired
     private DBService dbService;
+    private boolean containsGeoSearch;
 
     public RelatedModel(JSONObject jsonModel, List<String> selectedGraphs) {
         this.selectedGraphs = selectedGraphs;
@@ -105,6 +106,7 @@ public class RelatedModel {
         this.endDate = (String) ((JSONObject) jsonModel.get("rangeOfDates")).get("until");
         ///
         if (jsonModel.get("boundingBox") != null) {
+            this.containsGeoSearch = true;
             this.geoSearchPattern = (String) ((JSONObject) jsonModel.get("selectedRelatedEntity")).get("geo_search");
             JSONObject boundingBox = (JSONObject) jsonModel.get("boundingBox");
             geoSearchPattern = geoSearchPattern.replace("@#$%NORTH%$#@", "" + boundingBox.get("north"));
@@ -445,6 +447,10 @@ public class RelatedModel {
 
     public void setContainsKeywordSearch() {
         this.containsKeywordSearch = true;
+    }
+
+    boolean containsGeoSearch() {
+        return containsGeoSearch;
     }
 
 }
