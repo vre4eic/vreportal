@@ -129,13 +129,30 @@
 		        	
 		        	<md-input-container>
 		        		<label for="organization">Organization</label>
-		        		<md-icon md-font-icon="mdi mdi-nature-people" style="font-size:25px;"></md-icon>
+		        		<md-icon md-font-icon="fa fa-building-o" style="font-size:25px;"></md-icon>
 		        		<input type="text" 
 		        			   name="organization" 
 		        			   id="organization" 
 		        			   ng-model="registration.organization" 
 		        			   required />
 		        		<div ng-messages="form.organization.$error">
+							<div ng-message="required">This is required</div>
+						</div>
+		      		</md-input-container>
+		        	       
+		        </div>
+		        
+		        <div layout="row">
+		        	
+		        	<md-input-container>
+		        		<label for="organization">Organization URL</label>
+		        		<md-icon md-font-icon="fa fa-sitemap" style="font-size:25px;"></md-icon>
+		        		<input type="text" 
+		        			   name="organizationURL" 
+		        			   id="organizationURL" 
+		        			   ng-model="registration.organizationURL" 
+		        			   required />
+		        		<div ng-messages="form.organizationURL.$error">
 							<div ng-message="required">This is required</div>
 						</div>
 		      		</md-input-container>

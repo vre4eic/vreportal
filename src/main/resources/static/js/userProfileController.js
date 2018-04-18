@@ -168,11 +168,11 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
 	// Updates the profile of user
 	$scope.updateUserProfile = function() {
 				
-		// Delete confirmPassword just in case
-		delete $scope.userProfile.confirmPassword;
-		
 		// Pre-processing
 		var tempUserProfile = angular.copy($scope.userProfile);
+		
+		// Delete confirmPassword just in case
+		delete tempUserProfile.confirmPassword;
 		
 		// Due to bug at the e-VRE NodeService,
 		// change parameter "userId" into "userid" (I to i)
@@ -190,6 +190,12 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
     		
 			if(response.status == '200') {
     			console.log("Profile response: " + response.data);
+    			
+    			// Delete confirmPassword just in case
+    			delete $scope.userProfile.confirmPassword;
+    			
+    			$scope.disableEditProfileMode();
+    			
     			$sessionStorage.userProfile = $scope.userProfile; // Store regular profile (before pre-processing) in session again
 			}
 			else if(response.status == '400') {

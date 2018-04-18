@@ -47,7 +47,7 @@
 						</th>
 						<th ng-repeat="(key,val) in item" 
 							class="ng-binding" 
-							ng-if="key != 'isChecked' && key != 'uri'"
+							ng-if="key != 'isChecked' && key != 'uri' && key != 'east' && key != 'west' && key != 'north' && key != 'south'"
 							style="vertical-align:middle; padding:0;">
 								{{key | uppercase}} 
 						</th>
@@ -104,7 +104,7 @@
 							 ng-model="rowModelListselectedRelatedEntityResultList"-->
 						<td ng-repeat="(key,val) in item" 
 							class="ng-binding" 
-							ng-if="key != 'isChecked' && key != 'uri'"
+							ng-if="key != 'isChecked' && key != 'uri' && key != 'east' && key != 'west' && key != 'north' && key != 'south'"
 							style="vertical-align:middle; padding:0;">
 							{{val.value}}
 						</td>

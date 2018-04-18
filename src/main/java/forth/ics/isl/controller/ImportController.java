@@ -159,7 +159,7 @@ public class ImportController {
             organizationUrlStr = requestParams.get("organizationURL").toString();
         }
         // Dummy hard coded organization URL (temporarily)
-        organizationUrlStr = "https://www.ics.forth.gr/";
+        //organizationUrlStr = "https://www.ics.forth.gr/";
         if (requestParams.get("namedGraphId") != null) {
             namedGraphIdStr = requestParams.get("namedGraphId").toString();
         }
