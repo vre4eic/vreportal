@@ -39,9 +39,7 @@ public class TargetModel {
         ///
         StringBuilder sb = new StringBuilder();
         JSONArray searchChips = (JSONArray) jsonModel.get("targetChips");
-        for (int i = 0; i < searchChips.size(); i++) {
-            sb.append((String) ((JSONObject) searchChips.get(i)).get("name") + " ");
-        }
+        sb.append(Utils.getChipsFilter(searchChips));
         sb.append((String) jsonModel.get("searchTargetKeywords"));
         this.targetEntitySearchText = sb.toString().trim();
         this.keywordSearchPattern = "";

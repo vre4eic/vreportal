@@ -188,11 +188,17 @@ public class EntityManagerController {
 //        String entity = (String) requestParams.get("entity");
         String fromClause = (String) requestParams.get("fromSearch");
         String searchClause = (String) requestParams.get("searchText");
+        JSONArray searchChips = new JSONArray();
+        for (LinkedHashMap chip : (ArrayList<LinkedHashMap>) requestParams.get("relatedChips")) {
+            searchChips.add(new JSONObject(chip));
+        }
         if (requestParams.get("query") != null) {
+            searchClause = Utils.getChipsFilter(searchChips).toString();
             String query = (String) requestParams.get("query");
             query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
             JSONObject responseJsonObject = new JSONObject();
             responseJsonObject.put("query", query);
+            System.out.println(query);
             return responseJsonObject;
         } else if (requestParams.get("geo_query") != null) {
             if (searchClause == null || searchClause.equals("")) {
@@ -210,6 +216,7 @@ public class EntityManagerController {
                 responseJsonObject.put("query", geoQuery);
                 return responseJsonObject;
             } else if (requestParams.get("text_geo_query") != null) {
+                searchClause = Utils.getChipsFilter(searchChips).toString();
                 String textGeoQuery = (String) requestParams.get("text_geo_query");
                 String northClause = "" + requestParams.get("north");
                 String southClause = "" + requestParams.get("south");

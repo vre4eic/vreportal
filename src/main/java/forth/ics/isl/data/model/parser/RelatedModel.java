@@ -89,9 +89,10 @@ public class RelatedModel {
         ///
         StringBuilder sb = new StringBuilder();
         JSONArray searchChips = (JSONArray) jsonModel.get("relatedChips");
-        for (int i = 0; i < searchChips.size(); i++) {
-            sb.append((String) ((JSONObject) searchChips.get(i)).get("name") + " ");
-        }
+        sb.append(Utils.getChipsFilter(searchChips));
+//        for (int i = 0; i < searchChips.size(); i++) {
+//            sb.append((String) ((JSONObject) searchChips.get(i)).get("name") + " ");
+//        }
         sb.append((String) jsonModel.get("relatedEntitySearchText"));
         this.relatedEntitySearchText = sb.toString().trim();
         this.keywordSearchPattern = null;
