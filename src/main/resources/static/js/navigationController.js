@@ -1684,7 +1684,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     		query: rowModel.selectedRelatedEntity.queryModel.query,
     		geospatial: rowModel.selectedRelatedEntity.geospatial,
     		searchText: querySearchText,
-    		fromSearch: $scope.queryFrom
+    		fromSearch: $scope.queryFrom,
+    		relatedChips: rowModel.relatedChips
     		//fromSearch: 'from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>'
     	}
     	
@@ -4154,6 +4155,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				text_geo_query: rowModel.selectedRelatedEntity.queryModel.text_geo_query,
 		    	geospatial: rowModel.selectedRelatedEntity.geospatial,
 	    		searchText: querySearchText,
+	    		relatedChips: rowModel.relatedChips,
 	    		fromSearch: $scope.queryFrom,
 	    		north : $scope.coordinatesRegion.north,
 	            south : $scope.coordinatesRegion.south,
