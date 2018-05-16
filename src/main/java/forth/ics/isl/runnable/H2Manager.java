@@ -206,11 +206,11 @@ public class H2Manager {
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct ?persName ?Service (?pers as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
-                + "?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
+                + "?pers a cerif:Person.  \n"
+                + "OPTIONAL {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.  \n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser cerif:has_acronym ?Service.\n"
-                + "?pers a cerif:Person.  \n"
+                + "?Ser cerif:has_acronym ?Service.}\n"
                 + "?pers rdfs:label ?persName. \n"
                 + "?persName bds:search \"@#$%TERM%$#@\".  \n"
                 + "?persName bds:relevance ?score. \n"
@@ -220,10 +220,10 @@ public class H2Manager {
                 false,
                 "distinct (?@#$%VAR%$#@Name as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Person>.\n"
-                + "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                + "OPTIONAL {?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.}\n"
                 //                + "?@#$%VAR%$#@ a cerif:Person.  \n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
@@ -1152,6 +1152,44 @@ public class H2Manager {
                 + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "loc"
         );
+        insertEntity("Service",
+                "http://eurocris.org/ontology/cerif#Service",
+                "thesaurus/persons-firstAndLastNames.json",
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
+                + "select distinct ?servName ?servUri ?servDescription (?serv as ?uri) @#$%FROM%$#@\n"
+                + "where {\n"
+                + "?serv a cerif:Service. \n"
+                + "?serv cerif:is_source_of ?sle. \n"
+                + "?sle cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
+                + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
+                + "OPTIONAL {?service_uri cerif:has_description ?servDescription .}\n"
+                + "#OPTIONAL {?service_uri cerif:has_keywords    ?servKeywords .}\n"
+                + "OPTIONAL {?service_uri cerif:has_name        ?servName .}\n"
+                + "?serv rdfs:label ?servLabel. \n"
+                + "?servLabel bif:contains \"@#$%TERM%$#@\". \n"
+                + "} ",
+                "",
+                "",
+                false,
+                "distinct ?@#$%VAR%$#@Name ?@#$%VAR%$#@Medium ?@#$%VAR%$#@Uri ?@#$%VAR%$#@Descr GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@Params (?@#$%VAR%$#@ as ?uri)",
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
+                + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WADL>.\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name>        ?@#$%VAR%$#@Name .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
+                + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
+                + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
+                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
+                + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
+                "",
+                "",
+                "serv"
+        );
     }
 
     private void insertEntitiesVirtuoso() throws SQLException {
@@ -1161,11 +1199,11 @@ public class H2Manager {
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct ?persName ?Service (?pers as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
-                + "?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
+                + "?pers a cerif:Person.  \n"
+                + "OPTIONAL {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.  \n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser cerif:has_acronym ?Service.\n"
-                + "?pers a cerif:Person.  \n"
+                + "?Ser cerif:has_acronym ?Service.\n}"
                 + "?pers rdfs:label ?persName. \n"
                 + "?persName bif:contains \"@#$%TERM%$#@\".  \n"
                 + "} \n",
@@ -1174,10 +1212,10 @@ public class H2Manager {
                 false,
                 "distinct (?@#$%VAR%$#@Name as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Person>.\n"
-                + "?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                + "OPTIONAL {?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
                 //                + "?@#$%VAR%$#@ a cerif:Person.  \n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
@@ -2263,10 +2301,11 @@ public class H2Manager {
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException, ParseException {
         H2Manager h2 = new H2Manager();
 //        h2.init();
+
         h2.deleteTable("entity");
         h2.createTableEntity();
-//        h2.insertEntitiesBlazegraph();
-        h2.insertEntitiesVirtuoso();
+        h2.insertEntitiesBlazegraph();
+//        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.deleteTable("RELATIONS_MATERIAL");
 //        h2.createTableRelation();
@@ -2274,7 +2313,6 @@ public class H2Manager {
 //        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
-
         String authorizationToken = "07956cf7-739e-415a-9769-efbf810e2d41";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";

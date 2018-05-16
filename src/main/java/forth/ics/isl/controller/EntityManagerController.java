@@ -198,7 +198,6 @@ public class EntityManagerController {
             query = query.replace("@#$%FROM%$#@", fromClause).replace("@#$%TERM%$#@", searchClause);
             JSONObject responseJsonObject = new JSONObject();
             responseJsonObject.put("query", query);
-            System.out.println(query);
             return responseJsonObject;
         } else if (requestParams.get("geo_query") != null) {
             if (searchClause == null || searchClause.equals("")) {

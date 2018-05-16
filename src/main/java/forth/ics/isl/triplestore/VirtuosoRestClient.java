@@ -157,49 +157,57 @@ public class VirtuosoRestClient {
     }
 
     public static void main(String[] args) throws IOException {
-        String query = "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://epos-data> from <http://envri-data>  where {\n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                + "?org <http://eurocris.org/ontology/cerif#has_name> ?orgName.\n"
-                + "?org <http://eurocris.org/ontology/cerif#has_acronym> ?orgAcronym.\n"
-                + "{\n"
-                + "?pers_0 <http://eurocris.org/ontology/cerif#Person-OrganisationUnit/is%20member%20of> ?org_1.\n"
-                + "} UNION {\n"
-                + "?pers_0 <http://eurocris.org/ontology/cerif#Person-Publication/is%20author%20of> ?pub_2.\n"
+        String query = "select ?service ?component ?base ?response ?status ?request_parameter ?style ?type from <http://epos-data-services>\n"
+                + "\n"
+                + "where {\n"
+                + "\n"
+                + "?service_uri a <http://www.cidoc-crm.org/cidoc-crm/Service> .\n"
+                + "?service_uri <http://www.w3.org/2000/01/rdf-schema#label> ?service .\n"
+                + "\n"
+                + "?component_uri <http://www.cidoc-crm.org/cidoc-crm/has_service> ?service_uri .\n"
+                + "?component_uri <http://www.w3.org/2000/01/rdf-schema#label> ?component . \n"
+                + "\n"
+                + "?component_uri <http://www.cidoc-crm.org/cidoc-crm/has_base> ?base_uri .\n"
+                + "?base_uri <http://www.w3.org/2000/01/rdf-schema#label> ?base .\n"
+                + "\n"
+                + "?service_uri <http://www.cidoc-crm.org/cidoc-crm/has_method> ?method_uri .\n"
+                + "?method_uri <http://www.w3.org/2000/01/rdf-schema#label> ?method .\n"
+                + "\n"
+                + "?method_uri <http://www.cidoc-crm.org/cidoc-crm/has_response> ?response_uri .\n"
+                + "?response_uri <http://www.w3.org/2000/01/rdf-schema#label> ?response .\n"
+                + "\n"
+                + "\n"
+                + "OPTIONAL{\n"
+                + "\n"
+                + "?response_uri <http://www.cidoc-crm.org/cidoc-crm/has_status> ?status_uri .\n"
+                + "?status_uri <http://www.w3.org/2000/01/rdf-schema#label> ?status.\n"
+                + "\n"
                 + "}\n"
-                + "} limit 10 offset 0";
+                + "\n"
+                + "OPTIONAL{\n"
+                + "\n"
+                + "?method_uri <http://www.cidoc-crm.org/cidoc-crm/has_request_parameter> ?parameter_uri .\n"
+                + "?parameter_uri <http://www.w3.org/2000/01/rdf-schema#label> ?request_parameter .\n"
+                + "\n"
+                + "?parameter_uri <http://www.cidoc-crm.org/cidoc-crm/has_style> ?style_uri .\n"
+                + "?style_uri <http://www.w3.org/2000/01/rdf-schema#label> ?style.\n"
+                + "\n"
+                + "?parameter_uri <http://www.cidoc-crm.org/cidoc-crm/has_type> ?type_uri .\n"
+                + "?type_uri <http://www.w3.org/2000/01/rdf-schema#label> ?type .\n"
+                + "\n"
+                + "}\n"
+                + "\n"
+                + "}";
 
         String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSJ9.3ORP6OmfHdl0Pq0osxy_YCdROwyMoq-cQJkcodBJ5UQ";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
-        endpoint = "http://139.91.183.48:8181/EVREMetadataServices";
+//        endpoint = "http://139.91.183.48:8181/EVREMetadataServices";
         VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
-//        String response = client.executeSparqlQuery(query, 0, "application/json", authorizationToken).readEntity(String.class);
+        
+        System.out.println(query);
+        
+        Response response = client.executeSparqlQuery(query, 0, "application/json", authorizationToken);
 
-        Response response = client.executeCountQueryPOST("PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?orgName as ?name) (?orgAcronym as ?acronym) ?Service (?org as ?uri) ?east ?west ?north ?south from <http://ekt-data> from <http://rcuk-data> from <http://fris-data> from <http://graph/1523359353742> from <http://epos-data> from <http://envri-data>  \n"
-                + "where {\n"
-                + "?org a cerif:OrganisationUnit.\n"
-                + "?org cerif:has_name ?orgName.\n"
-                + "?org rdfs:label ?orgLabel.\n"
-                + "OPTIONAL { \n"
-                + " ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
-                + "}\n"
-                + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
-                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
-                + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
-                + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
-                + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
-                + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "?orgLabel bif:contains \" europe\".\n"
-                + "}", "application/json");
         System.out.println(response.readEntity(String.class));
 //        String folder = "E:/RdfData/VREData/EKT RDF";
 //        Response importResponse = client.importFile(
