@@ -32,9 +32,11 @@ public class ConfigurationController {
     private String serviceUrl;
     @Value("${triplestore.namespace}")
     private String namespace;
+    @Value("${uri.prefix}")
+    private String uriPrefix;
 	
     /**
-     * This service retrieves configuration options (service.url and triplestore.namespace) from the property file
+     * This service retrieves configuration options (service.url, triplestore.namespace and uri.prefix) from the property file
      * and returns them
      */
     @RequestMapping(value = "/retrieve_service_model", method = RequestMethod.POST, produces = {"application/json"})
@@ -44,6 +46,7 @@ public class ConfigurationController {
         JSONObject serviceModelJsonObject = new JSONObject();
     	serviceModelJsonObject.put("url", serviceUrl);
     	serviceModelJsonObject.put("namespace", namespace);
+    	serviceModelJsonObject.put("uriPrefix", uriPrefix);
         return serviceModelJsonObject;
     }
 }

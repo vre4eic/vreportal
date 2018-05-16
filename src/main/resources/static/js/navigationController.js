@@ -2887,88 +2887,103 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		
 		console.log("itemUri clicked: " + itemUri);
 		
-    	// Parameters for the service to call
-		var params = {
-			fromSearch: $scope.queryFrom,
-			entityUri: itemUri
-		}
+		// Checking if this URI is an external link
 		
-		// Modal Options
-		var modalOptions = {
-			headerText: 'Loading Please Wait...',
-			bodyText: 'Retrieving Information Data for this entity...'
-		};
+		// If it is external link then open the link in a new tab
+		// uriPrefix is usually something like "http://139.91.183.70"
+		// and is used for determining whether the URI starts with this 
+		// denoting that in that case it is an internal URI that can be 
+		// resolved through the internal navigation UI of the final results
+		if(!itemUri.startsWith($scope.serviceModel.uriPrefix))
+			$window.open(itemUri, '_blank');
 		
-		// Start modal
-    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		// Otherwise use the internal resolver
+		else { //if(itemUri.startsWith("http://139.91.183.70"))
 		
-		// Calling Service to retrieve item's details
-		queryService.retrieveEntityInfo(params, $scope.credentials.token).then(function (response) {
-			if(response.status == '200') {
-				$scope.currSelectedResultItem = response.data;
-				//console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
-				modalInstance.close();
-				$mdSidenav('resultItemInfoSidenav').open();
-				
-				// Handling history
-				
-				// Case: Click from the results
-				if(rootUri) {
-					// Initializing history in case of clicking on a result item
-					$scope.resultItemNavHistory = [];
-					// Initializing previous item from the history of the selected result item
-					$scope.previousResultItemNavHistory = {};
-				}
-				
-				// Case: Click either from the results or from links inside the selected result
-				if(!backFromHistory) // Adding URI into history
-					$scope.resultItemNavHistory.push(
-						{
-							uri: itemUri, 
-							type: angular.copy($scope.currSelectedResultItem.instance_type)
-						}
-					);
-				
-				// Case: Click from the "Back to previous entity" button
-				else // Removing URI from history
-					$scope.resultItemNavHistory.splice(-1,$scope.resultItemNavHistory.length - 1);
-				// Case: Click only from links inside the selected result
-				if(!rootUri && $scope.resultItemNavHistory.length > 1) {
-					// Holding previous
-					$scope.previousResultItemNavHistory = {
-						uri: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri), 
-						type: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].type)
-					};
+	    	// Parameters for the service to call
+			var params = {
+				fromSearch: $scope.queryFrom,
+				entityUri: itemUri
+			}
+			
+			// Modal Options
+			var modalOptions = {
+				headerText: 'Loading Please Wait...',
+				bodyText: 'Retrieving Information Data for this entity...'
+			};
+		
+			// Start modal
+	    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+			
+			// Calling Service to retrieve item's details
+			queryService.retrieveEntityInfo(params, $scope.credentials.token).then(function (response) {
+				if(response.status == '200') {
+					$scope.currSelectedResultItem = response.data;
+					//console.log("currSelectedResultItem: " + angular.toJson($scope.currSelectedResultItem));
+					modalInstance.close();
+					$mdSidenav('resultItemInfoSidenav').open();
+					
+					// Handling history
+					
+					// Case: Click from the results
+					if(rootUri) {
+						// Initializing history in case of clicking on a result item
+						$scope.resultItemNavHistory = [];
+						// Initializing previous item from the history of the selected result item
+						$scope.previousResultItemNavHistory = {};
+					}
+					
+					// Case: Click either from the results or from links inside the selected result
+					if(!backFromHistory) // Adding URI into history
+						$scope.resultItemNavHistory.push(
+							{
+								uri: itemUri, 
+								type: angular.copy($scope.currSelectedResultItem.instance_type)
+							}
+						);
+					
+					// Case: Click from the "Back to previous entity" button
+					else // Removing URI from history
+						$scope.resultItemNavHistory.splice(-1,$scope.resultItemNavHistory.length - 1);
+					// Case: Click only from links inside the selected result
+					if(!rootUri && $scope.resultItemNavHistory.length > 1) {
+						// Holding previous
+						$scope.previousResultItemNavHistory = {
+							uri: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].uri), 
+							type: angular.copy($scope.resultItemNavHistory[$scope.resultItemNavHistory.length - 2].type)
+						};
+						
+					}
 					
 				}
-				
-			}
-			else if(response.status == '400') {
-				$log.info(response.status);
-				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
-			}
-			else if(response.status == '401') {
-				$log.info(response.status);
-				modalInstance.close();
-				$scope.showLogoutAlert();
-				authenticationService.clearCredentials();
-			}
-			else {
-				$log.info(response.status);
-				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
-				$scope.showErrorAlert('Error', $scope.message);
-				modalInstance.close();
-			}			
-		}, function (error) {
-			$scope.message = 'There was a network error. Try again later.';
-			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
-				data : error
-			}));
-		}).finally(function(){
-			console.log($scope.resultItemNavHistory);
-		});
+				else if(response.status == '400') {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+					modalInstance.close();
+				}
+				else if(response.status == '401') {
+					$log.info(response.status);
+					modalInstance.close();
+					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
+				}
+				else {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+					modalInstance.close();
+				}			
+			}, function (error) {
+				$scope.message = 'There was a network error. Try again later.';
+				alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+					data : error
+				}));
+			}).finally(function(){
+				console.log($scope.resultItemNavHistory);
+			});
+			
+		} // else close - //if(itemUri.startsWith("http://139.91.183.70"))
 			
 	}
 	
