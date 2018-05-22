@@ -2729,7 +2729,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         				format: "application/json",
         				query: queryResponse.data.query,// + ' limit 300', // final Search Query
         				itemsPerPage: $scope.itemsPerPage,
-        				userProfile: $scope.userProfile
+        				userProfile: $scope.userProfile // Used for VRE4EIC only (to store results into a temp namedgraph)
         		}
     			// Calling service to executing Query - Promise
 	    		//queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
