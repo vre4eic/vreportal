@@ -2728,7 +2728,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         		var params = {
         				format: "application/json",
         				query: queryResponse.data.query,// + ' limit 300', // final Search Query
-        				itemsPerPage: $scope.itemsPerPage
+        				itemsPerPage: $scope.itemsPerPage,
+        				userProfile: $scope.userProfile
         		}
     			// Calling service to executing Query - Promise
 	    		//queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
