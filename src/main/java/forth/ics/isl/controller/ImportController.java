@@ -255,7 +255,7 @@ public class ImportController {
                 importResponseJsonString = importResponse.readEntity(String.class);
                 if (status == 200) {
                     Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
-                    H2Manager.enrichMatRelationsTable(serviceUrl, namespace, authorizationToken, namedGraphIdParam, matRelationEntities);
+                    H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
                     // Executing linking update query (links these data with provenance metadata)
                 } else if (status == 500) {
                     importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";

@@ -8,6 +8,7 @@ package forth.ics.isl.runnable;
 import forth.ics.isl.service.DBService;
 import static forth.ics.isl.service.DBService.executeRelationsMatQueries;
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -1174,7 +1175,7 @@ public class H2Manager {
                 "distinct ?@#$%VAR%$#@Name ?@#$%VAR%$#@Medium ?@#$%VAR%$#@Uri ?@#$%VAR%$#@Descr GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
-                + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WADL>.\n"
+                + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
@@ -2274,6 +2275,60 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Equipment/\",encode_for_uri(?role) )) as ?pers_eq ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Equipment-Person/\",encode_for_uri(?role_opposite) )) as ?eq_pers ). \n"
                 + "}");
+
+        insertRelationMatUpdate("Person-Service", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_ser ?ser. \n"
+                + "  ?ser ?ser_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?ser a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "\n"
+                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Service/\",encode_for_uri(?role) )) as ?pers_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Person/\",encode_for_uri(?role_opposite) )) as ?ser_pers ). \n"
+                + "}");
+
+        insertRelationMatUpdate("OrganisationUnit-Service", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?org ?org_ser ?ser. \n"
+                + "  ?ser ?ser_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?ser a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "\n"
+                + "   ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Service/\",encode_for_uri(?role) )) as ?org_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?ser_org ). \n"
+                + "}");
+
+        insertRelationMatUpdate("Service-Service", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?ser1 ?ser1_ser2 ?ser2. \n"
+                + "  ?ser2 ?ser2_ser1 ?pers1. \n"
+                + "} WHERE { \n"
+                + "  ?ser1 a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "  ?ser2 a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "\n"
+                + "   ?ser1 <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser2 <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Service/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Service/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
+                + "}");
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -2302,9 +2357,9 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 
-        h2.deleteTable("entity");
-        h2.createTableEntity();
-        h2.insertEntitiesBlazegraph();
+//        h2.deleteTable("entity");
+//        h2.createTableEntity();
+//        h2.insertEntitiesBlazegraph();
 //        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.deleteTable("RELATIONS_MATERIAL");
@@ -2313,26 +2368,28 @@ public class H2Manager {
 //        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
 //        h2.terminate();
-        String authorizationToken = "07956cf7-739e-415a-9769-efbf810e2d41";
+        String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSJ9.3ORP6OmfHdl0Pq0osxy_YCdROwyMoq-cQJkcodBJ5UQ";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
-        String namespace = "vre4eic";
 //        String graphURI = "http://epos-data";
         /////
-//        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-//        DBService.setConnection(conn);
-//        DBService.setJdbcTemplateUsed(false);
+
+        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+        DBService.setConnection(conn);
+        DBService.setJdbcTemplateUsed(false);
+        String graphUri = "http://graph/1526393960123";
 //        List<String> uris = DBService.retrieveAllNamedgraphUris();
 //        for (String graphURI : uris) {
-//            Set<String> matRelationEntities = new HashSet<>();
-//            matRelationEntities.add("OrganisationUnit");
-//            matRelationEntities.add("Person");
+        Set<String> matRelationEntities = new HashSet<>();
+        matRelationEntities.add("OrganisationUnit");
+        matRelationEntities.add("Person");
 //            matRelationEntities.add("Equipment");
 //            matRelationEntities.add("Facility");
 //            matRelationEntities.add("Product");
 //            matRelationEntities.add("Location");
 //            matRelationEntities.add("Publication");
 //            matRelationEntities.add("Project");
-////            enrichMatRelationsTable(endpoint, namespace, authorizationToken, graphURI, matRelationEntities);
+        matRelationEntities.add("Service");
+        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
 
     }
@@ -2340,14 +2397,15 @@ public class H2Manager {
 //    this table contains information about the entities and the materialized relations which connect them 
 //    for each namedgraph. It helps in the performance when we select a target entity from the GUI and we want 
 //    its related entities along with the relations. 
-    public static void enrichMatRelationsTable(String endpoint, String namespace, String authorizationToken, String graphUri, Set<String> matRelEntityNames) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
+    public static void enrichMatRelationsTable(String endpoint, String authorizationToken, String graphUri, Set<String> matRelEntityNames) throws SQLException, UnsupportedEncodingException, ClassNotFoundException, IOException {
         if (matRelEntityNames.isEmpty()) {
             return;
         }
         JSONArray matRelEntities = DBService.retrieveAllEntities(false);
         Connection conn = DBService.initConnection();
         H2Manager h2 = new H2Manager(conn.createStatement(), conn);
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient virtClient = new VirtuosoRestClient(endpoint, authorizationToken);
         ////////
         for (int i = 0; i < matRelEntities.size(); i++) {
             JSONObject targetEntity = (JSONObject) matRelEntities.get(i);
@@ -2359,14 +2417,14 @@ public class H2Manager {
             }
             int cnt = 0;
             for (int j = 0; j < matRelEntities.size(); j++) {
-                if (j == i) {
-                    continue;
-                }
                 StringBuilder sparqlQuery = new StringBuilder();
                 JSONObject relatedEntity = (JSONObject) matRelEntities.get(j);
                 String relatedEntityURI = (String) relatedEntity.get("uri");
                 int relatedEntityID = (int) relatedEntity.get("id");
                 String relatedEntityName = (String) relatedEntity.get("name");
+//                if (j == i) {
+//                    continue;
+//                }
                 if (!matRelEntityNames.contains(relatedEntityName)) {
                     continue;
                 }
@@ -2374,10 +2432,11 @@ public class H2Manager {
                         append("?target_inst a <" + targetEntityURI + ">.\n").
                         append("?target_inst ?relation [a <" + relatedEntityURI + ">].\n").
                         append("}");
-                String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
+//                String response = client.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
+                String response = virtClient.executeSparqlQuery(sparqlQuery.toString(), "text/csv", 0).readEntity(String.class);
                 String[] data = response.split("\\n");
                 for (int k = 1; k < data.length; k++) {
-                    String relationUri = data[k];
+                    String relationUri = data[k].replaceAll("\\\"", "");
                     String relationName = URLDecoder.decode(relationUri, "UTF-8").substring(relationUri.lastIndexOf("/") + 1);
                     if (!h2.relationExists(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri)) {
                         h2.insertRelation(relationUri.trim(), relationName.trim(), targetEntityID, relatedEntityID, graphUri);
