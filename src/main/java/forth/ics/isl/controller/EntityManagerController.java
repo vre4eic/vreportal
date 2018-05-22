@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -323,10 +324,10 @@ public class EntityManagerController {
 
 //        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
         restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
-        System.out.println("query:" + requestParams.get("query"));
-
+        String query = (String) requestParams.get("query");
+        System.out.println("query:" + query);
         JSONObject responseJsonObject = new JSONObject();
-        responseJsonObject.put("query", requestParams.get("query"));
+        responseJsonObject.put("query", query);
 
         try {
 //            Response serviceResponce = restClient.executeSparqlQuery(requestParams.get("query").toString(), namespace, timeout, "application/json", authorizationToken);
@@ -339,6 +340,13 @@ public class EntityManagerController {
 
             // In case of OK status handle the response
             if (serviceResponce.getStatus() == 200) {
+
+                //custom code which creates a graph to store the service data w.r.t. the user profile 
+                //and the dynamic generated query
+                if (query.indexOf("http://eurocris.org/ontology/cerif#Service") > 0) {
+                    createUserGraph(requestParams, query);
+                }
+                ////////////////////
                 // Serializing in pojo
                 ObjectMapper mapper = new ObjectMapper();
                 // Holding JSON result in jsonNode globally (The whole results, which can be a lot)
@@ -376,6 +384,27 @@ public class EntityManagerController {
         }
 
         //return responseJsonObject;
+    }
+
+    private void createUserGraph(JSONObject requestParams, String query) throws ClientErrorException {
+        String userId = (String) ((LinkedHashMap) requestParams.get("userProfile")).get("userId");
+        String graph = "http://profile/" + userId;
+        int start = query.indexOf("where");
+        int end = query.lastIndexOf("}");
+        StringBuilder updateQuery = new StringBuilder();
+        updateQuery.append("insert into <" + graph + "> {\n")
+                .append("?serv a <http://eurocris.org/ontology/cerif#Service>.\n")
+                .append("?serv <http://eurocris.org/ontology/cerif#has_URI>         ?servUri .\n")
+                .append("?serv <http://eurocris.org/ontology/cerif#has_description> ?servDescr.\n")
+                .append("?serv <http://eurocris.org/ontology/cerif#has_keywords>    ?servKeywords .\n")
+                .append("?serv <http://eurocris.org/ontology/cerif#has_name>        ?servName .\n")
+                .append("?serv <http://eurocris.org/ontology/cerif#is_source_of> ?servmediumLE .\n")
+                .append("?servmediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?servMedium.\n")
+                .append("?servMedium a <http://eurocris.org/ontology/cerif#Medium>. \n")
+                .append("} ")
+                .append(query.substring(start, end + 1));
+        restClient.executeUpdatePOSTJSON("clear graph <" + graph + ">");
+        restClient.executeUpdatePOSTJSON(updateQuery.toString());
     }
 
     /**
