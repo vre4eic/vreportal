@@ -295,10 +295,11 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 	            			msg: 'File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.'
 	            		});
 	            		*/
-            				
+            			
+            			//.textContent('File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.')
         				$mdToast.show(
     						$mdToast.simple()
-    				        .textContent('File \"' + file.name + '\" was imported successfully in ' + JSON.parse(response.message).data.milliseconds + ' milliseconds.')
+    						.textContent('File \"' + file.name + '\" was imported successfully.')
     				        .position('top right')
     				        .parent(angular.element('#dialogContent'))
     				        .action('OK')
