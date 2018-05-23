@@ -1153,44 +1153,6 @@ public class H2Manager {
                 + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "loc"
         );
-        insertEntity("Service",
-                "http://eurocris.org/ontology/cerif#Service",
-                "thesaurus/persons-firstAndLastNames.json",
-                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?servName ?servUri ?servDescription (?serv as ?uri) @#$%FROM%$#@\n"
-                + "where {\n"
-                + "?serv a cerif:Service. \n"
-                + "?serv cerif:is_source_of ?sle. \n"
-                + "?sle cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
-                + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
-                + "OPTIONAL {?service_uri cerif:has_description ?servDescription .}\n"
-                + "#OPTIONAL {?service_uri cerif:has_keywords    ?servKeywords .}\n"
-                + "OPTIONAL {?service_uri cerif:has_name        ?servName .}\n"
-                + "?serv rdfs:label ?servLabel. \n"
-                + "?servLabel bif:contains \"@#$%TERM%$#@\". \n"
-                + "} ",
-                "",
-                "",
-                false,
-                "distinct ?@#$%VAR%$#@Name ?@#$%VAR%$#@Medium ?@#$%VAR%$#@Uri ?@#$%VAR%$#@Descr GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@Params (?@#$%VAR%$#@ as ?uri)",
-                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
-                + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name>        ?@#$%VAR%$#@Name .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
-                + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
-                + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
-                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
-                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
-                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
-                + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
-                "",
-                "",
-                "serv"
-        );
     }
 
     private void insertEntitiesVirtuoso() throws SQLException {
@@ -1928,6 +1890,44 @@ public class H2Manager {
                 + "FILTER(xsd:float(?@#$%VAR%$#@east) <= @#$%EAST%$#@ && xsd:float(?@#$%VAR%$#@west) >= @#$%WEST%$#@ && xsd:float(?@#$%VAR%$#@north) <= @#$%NORTH%$#@ && xsd:float(?@#$%VAR%$#@south) >= @#$%SOUTH%$#@)",
                 "loc"
         );
+        insertEntity("Service",
+                "http://eurocris.org/ontology/cerif#Service",
+                "thesaurus/persons-firstAndLastNames.json",
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
+                + "select distinct ?servName ?servUri ?servDescription (?serv as ?uri) @#$%FROM%$#@\n"
+                + "where {\n"
+                + "?serv a cerif:Service. \n"
+                + "?serv cerif:is_source_of ?sle. \n"
+                + "?sle cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
+                + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
+                + "OPTIONAL {?service_uri cerif:has_description ?servDescription .}\n"
+                + "#OPTIONAL {?service_uri cerif:has_keywords    ?servKeywords .}\n"
+                + "OPTIONAL {?service_uri cerif:has_name        ?servName .}\n"
+                + "?serv rdfs:label ?servLabel. \n"
+                + "?servLabel bif:contains \"@#$%TERM%$#@\". \n"
+                + "} ",
+                "",
+                "",
+                false,
+                "distinct ?@#$%VAR%$#@Name as ?service_name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
+                + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name>        ?@#$%VAR%$#@Name .}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
+                + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
+                + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
+                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
+                + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
+                "",
+                "",
+                "serv"
+        );
     }
 
     private void insertRelationsMatUpdates() throws SQLException {
@@ -2357,41 +2357,40 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 
-//        h2.deleteTable("entity");
-//        h2.createTableEntity();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
 //        h2.insertEntitiesBlazegraph();
-//        h2.insertEntitiesVirtuoso();
+        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.deleteTable("RELATIONS_MATERIAL");
 //        h2.createTableRelation();
 //        h2.createTableRelationsMatUpdates();
 //        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
-//        h2.terminate();
+        h2.terminate();
         String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSJ9.3ORP6OmfHdl0Pq0osxy_YCdROwyMoq-cQJkcodBJ5UQ";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
 //        String graphURI = "http://epos-data";
         /////
 
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        DBService.setJdbcTemplateUsed(false);
-        String graphUri = "http://graph/1526393960123";
+//        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+//        DBService.setConnection(conn);
+//        DBService.setJdbcTemplateUsed(false);
+//        String graphUri = "http://graph/1526393960123";
 //        List<String> uris = DBService.retrieveAllNamedgraphUris();
 //        for (String graphURI : uris) {
-        Set<String> matRelationEntities = new HashSet<>();
-        matRelationEntities.add("OrganisationUnit");
-        matRelationEntities.add("Person");
+//        Set<String> matRelationEntities = new HashSet<>();
+//        matRelationEntities.add("OrganisationUnit");
+//        matRelationEntities.add("Person");
 //            matRelationEntities.add("Equipment");
 //            matRelationEntities.add("Facility");
 //            matRelationEntities.add("Product");
 //            matRelationEntities.add("Location");
 //            matRelationEntities.add("Publication");
 //            matRelationEntities.add("Project");
-        matRelationEntities.add("Service");
-        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
+//        matRelationEntities.add("Service");
+//        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
-
     }
 
 //    this table contains information about the entities and the materialized relations which connect them 
