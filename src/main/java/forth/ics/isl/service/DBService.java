@@ -418,6 +418,39 @@ public class DBService {
         return null;
     }
 
+    public static Set<String> retrieveRelationNames(List<String> graphs, String targetEntityName, String relatedEntityName) {
+        JSONObject targetEntity = DBService.retrieveEntityFromName(targetEntityName);
+        JSONObject relatedEntity = DBService.retrieveEntityFromName(relatedEntityName);
+        try {
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
+            StringBuilder query = new StringBuilder("select * from relation where source_entity = " + targetEntity.get("id") + " "
+                    + "and destination_entity = " + relatedEntity.get("id") + " and (");
+            int cnt = 0;
+            for (String graph : graphs) {
+                query.append("graph = '" + graph + "'");
+                cnt++;
+                if (cnt < graphs.size()) {
+                    query.append(" or ");
+                }
+            }
+            query.append(")");
+            ResultSet relations = statement.executeQuery(query.toString());
+            Set<String> result = new HashSet();
+            while (relations.next()) {
+                String relationName = relations.getString("name");
+                result.add(relationName);
+            }
+            relations.close();
+            statement.close();
+            conn.close();
+            return result;
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
     public static JSONObject saveIntoFavorites(String username, String title, String description, String queryModel, String favoriteId) {
         JSONObject statusObject = new JSONObject();
         try {

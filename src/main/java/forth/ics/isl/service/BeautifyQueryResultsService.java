@@ -5,10 +5,13 @@
  */
 package forth.ics.isl.service;
 
+import forth.ics.isl.data.model.parser.Utils;
 import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -90,13 +93,15 @@ public class BeautifyQueryResultsService {
     public void enrichDstEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
-                + "select distinct  ?ent ?rel_classif ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
+                + "select distinct  ?ent ?role ?roleOpposite ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
                 + fromClause + " where \n"
                 + "{\n"
                 + "  ?instance_uri cerif:is_source_of ?x.\n"
                 + "  ?x rdfs:label ?xlabel; \n"
-                + "     cerif:has_classification [cerif:has_roleExpression ?rel_classif];\n"
+                + "     cerif:has_classification ?classif;\n"
                 + "     cerif:has_destination ?ent.\n"
+                + "  ?classif cerif:has_roleExpression ?role. \n"
+                + "  ?classif cerif:has_roleExpressionOpposite ?roleOpposite. \n"
                 + "  ?ent a ?ent_type.\n"
                 + "  ?ent rdfs:label ?ent_label.\n"
                 + "  optional {?ent cerif:has_name ?ent_name.} \n"
@@ -108,18 +113,20 @@ public class BeautifyQueryResultsService {
 //        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
-        manageQueryResults(resp);
+        manageQueryResults(resp, fromClause);
         ////
         if (instanceInfo.get("instance_type").equals("Service")) {
             query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                     + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
-                    + "select distinct  ?ent ?rel_classif ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
+                    + "select distinct  ?ent ?role ?roleOpposite ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
                     + fromClause + " where \n"
                     + "{\n"
                     + "  ?instance_uri cerif:is_source_of ?x.\n"
                     + "  ?x rdfs:label ?xlabel; \n"
-                    + "     cerif:has_classification [rdfs:label ?rel_classif];\n"
+                    + "     cerif:has_classification ?classif;\n"
                     + "     cerif:has_destination ?ent. \n"
+                    + "  ?classif rdfs:label ?role. \n"
+                    + "  ?classif rdfs:label ?roleOpposite. \n"
                     + "  ?ent a ?ent_type.\n"
                     + "  filter (?ent_type = <http://eurocris.org/ontology/cerif#Medium>). \n"
                     + "  ?ent rdfs:label ?ent_label.\n"
@@ -130,7 +137,7 @@ public class BeautifyQueryResultsService {
                     + "  filter (?instance_uri = <" + entityUri + ">).\n"
                     + "} order by ?ent_type";
             resp = client.executeSparqlQuery(query, "application/json", 0);
-            manageQueryResults(resp);
+            manageQueryResults(resp, fromClause);
         }
 
     }
@@ -138,13 +145,15 @@ public class BeautifyQueryResultsService {
     public void enrichSrcEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
-                + "select distinct ?ent ?rel_classif ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type \n"
+                + "select distinct ?ent ?role ?roleOpposite ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type \n"
                 + fromClause + " where \n"
                 + "{\n"
                 + "  ?ent cerif:is_source_of ?pfle. \n"
                 + "  ?pfle rdfs:label ?pflelabel; \n"
-                + "        cerif:has_classification [cerif:has_roleExpression ?rel_classif];\n"
+                + "        cerif:has_classification ?classif;\n"
                 + "        cerif:has_destination ?instance_uri.\n"
+                + "  ?classif cerif:has_roleExpression ?role. \n"
+                + "  ?classif cerif:has_roleExpressionOpposite ?roleOpposite. \n"
                 + "  ?ent rdfs:label ?ent_label.\n"
                 + "  ?ent a ?ent_type.\n"
                 + "  optional {?ent cerif:has_name ?ent_name.}         \n"
@@ -156,28 +165,40 @@ public class BeautifyQueryResultsService {
 //        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
-        manageQueryResults(resp);
+        manageQueryResults(resp, fromClause);
     }
 
-    private void manageQueryResults(Response resp) throws ParseException {
+    private void manageQueryResults(Response resp, String fromClause) throws ParseException {
+        List<String> graphs = Utils.getGraphsFromClause(fromClause);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
         JSONArray results = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
-        String entType = "";
+        String relatedEntityType = "";
         JSONObject entitiesOfType;
         HashSet<JSONObject> relEntitiesSet = null;
+        Set<String> potentialRelations = null;
+        String currentType = (String) instanceInfo.get("instance_type");
         for (int i = 0; i < results.size(); i++) {
             JSONObject row = (JSONObject) results.get(i);
             String type = getJSONObjectValue(row, "ent_type");
-            if (!entType.equals(type)) {
+            if (!relatedEntityType.equals(type)) {
+                potentialRelations = DBService.retrieveRelationNames(graphs, currentType, type.replace(CERIFPrefix, ""));
                 entitiesOfType = new JSONObject();
                 relEntitiesSet = new HashSet<>();
                 entitiesOfType.put("related_entity_type", getJSONObjectValue(row, "ent_type").replace(CERIFPrefix, ""));
                 entitiesOfType.put("related_entities_of_type", relEntitiesSet);
                 ((JSONArray) instanceInfo.get("related_entity_types")).add(entitiesOfType);
-                entType = type;
+                relatedEntityType = type;
             }
-            String relation = getJSONObjectValue(row, "rel_classif");
+
+            String role = getJSONObjectValue(row, "role");
+            String roleOpposite = getJSONObjectValue(row, "roleOpposite");
+            String relation;
+            if (potentialRelations.contains(role)) {
+                relation = role;
+            } else {
+                relation = roleOpposite;
+            }
             String entDstLabel = getJSONObjectValue(row, "ent_label");
             String entDstName = getJSONObjectValue(row, "ent_name");
             String entDstTitle = getJSONObjectValue(row, "ent_title");
