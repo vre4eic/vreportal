@@ -88,7 +88,8 @@ public class BeautifyQueryResultsService {
             }
             if (instanceExtUri != null) {
                 try {
-                    URI url = URI.create(instanceExtUri);
+                    URL url = new URL(instanceExtUri);
+                    url.toURI();
                     instanceInfo.put("instance_ext_uri", instanceExtUri);
                 } catch (Exception ex) {
                     ;
