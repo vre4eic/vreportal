@@ -6,9 +6,10 @@
 package forth.ics.isl.service;
 
 import forth.ics.isl.data.model.parser.Utils;
-import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,8 +54,8 @@ public class BeautifyQueryResultsService {
                 + "select distinct  ?instance_uri ?instance_label ?instance_name ?instance_title ?instance_acronym ?instance_type ?instance_ext_uri \n"
                 + fromClause + " where \n"
                 + "{\n"
-                + "  ?instance_uri rdfs:label ?instance_label .\n"
                 + "  ?instance_uri a ?instance_type. \n"
+                + "  optional { ?instance_uri rdfs:label ?instance_label .}\n"
                 + "  optional { ?instance_uri cerif:has_URI ?instance_ext_uri.}\n"
                 + "  optional { ?instance_uri cerif:has_name ?instance_name.}\n"
                 + "  optional { ?instance_uri cerif:has_title ?instance_title.}\n"
@@ -68,31 +69,38 @@ public class BeautifyQueryResultsService {
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
         JSONArray results = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
-        JSONObject row = (JSONObject) results.get(0);
-        String instanceUri = getJSONObjectValue(row, "instance_uri");
-        String instanceType = getJSONObjectValue(row, "instance_type");
-        String instanceLabel = getJSONObjectValue(row, "instance_label");
-        String instanceName = getJSONObjectValue(row, "instance_name");
-        String instanceTitle = getJSONObjectValue(row, "instance_title");
-        String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
-        String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
-        ////
-        instanceInfo.put("instance_uri", instanceUri);
-        if (instanceName != null) {
-            instanceInfo.put("instance_label", instanceName);
-        }
-        if (instanceTitle != null) {
-            instanceInfo.put("instance_label", instanceTitle);
-        }
-        if (instanceExtUri != null) {
-            instanceInfo.put("instance_ext_uri", instanceExtUri);
-        }
-        if (instanceName == null && instanceTitle == null) {
-            instanceInfo.put("instance_label", instanceLabel);
-        }
-        instanceInfo.put("instance_acronym", instanceAcronym);
-        instanceInfo.put("instance_type", instanceType.replace(CERIFPrefix, ""));
+        if (!results.isEmpty()) {
+            JSONObject row = (JSONObject) results.get(0);
+            String instanceUri = getJSONObjectValue(row, "instance_uri");
+            String instanceType = getJSONObjectValue(row, "instance_type");
+            String instanceLabel = getJSONObjectValue(row, "instance_label");
+            String instanceName = getJSONObjectValue(row, "instance_name");
+            String instanceTitle = getJSONObjectValue(row, "instance_title");
+            String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
+            String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
+            ////
+            instanceInfo.put("instance_uri", instanceUri);
+            if (instanceName != null) {
+                instanceInfo.put("instance_label", instanceName);
+            }
+            if (instanceTitle != null) {
+                instanceInfo.put("instance_label", instanceTitle);
+            }
+            if (instanceExtUri != null) {
+                try {
+                    URI url = URI.create(instanceExtUri);
+                    instanceInfo.put("instance_ext_uri", instanceExtUri);
+                } catch (Exception ex) {
+                    ;
+                }
 
+            }
+            if (instanceName == null && instanceTitle == null) {
+                instanceInfo.put("instance_label", instanceLabel);
+            }
+            instanceInfo.put("instance_acronym", instanceAcronym);
+            instanceInfo.put("instance_type", instanceType.replace(CERIFPrefix, ""));
+        }
     }
 
     public void enrichDstEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
