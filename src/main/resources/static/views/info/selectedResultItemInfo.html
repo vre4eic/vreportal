@@ -22,7 +22,7 @@
 					<div layout="row">
 						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
-						<span class="md-subhead">
+						<span class="md-subhead" ng-show="currSelectedResultItem.instance_ext_uri != null">
 							<a target="_blank" href="{{currSelectedResultItem.instance_ext_uri}}">&nbsp;({{currSelectedResultItem.instance_ext_uri}})</a>
 						</span>
 						
