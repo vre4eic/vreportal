@@ -22,6 +22,10 @@
 					<div layout="row">
 						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
+						<span class="md-subhead">
+							<a target="_blank" href="{{currSelectedResultItem.instance_ext_uri}}">&nbsp;({{currSelectedResultItem.instance_ext_uri}})</a>
+						</span>
+						
 					</div>
 				</md-card-title-text>
 			</md-card-title>
