@@ -463,8 +463,13 @@
 							</ul>
 						</div>
 						<md-divider></md-divider>
-						<div class="text-right" ng-class="activeRelatedSearchResultsStyle">
-							Number of Results: <b>{{finalResults.totalItems}}</b>
+						<div ng-show="!finalResultsMaxCountReached" class="text-right" ng-class="activeRelatedSearchResultsStyle">
+							Returned <b>{{finalResults.totalItems}}</b> Results
+							
+						</div>
+						<div ng-show="finalResultsMaxCountReached" class="text-right" ng-class="activeRelatedSearchResultsStyle">
+							Returned The First <b>{{finalResults.totalItems}}</b> Results
+							
 						</div>
 					</div>
 				</div>

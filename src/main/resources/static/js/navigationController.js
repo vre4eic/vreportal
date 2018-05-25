@@ -2711,6 +2711,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	};
 	
 	$scope.finalResults = {};
+	$scope.finalResultsMaxCountReached = false;
 	
 	function retrieveFinalResults(searchEntityModel) {
     	
@@ -2744,6 +2745,10 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 	    			else {
 	    				if(response.status == '200') {
 	    					$scope.finalResults = response.data;
+	    					$scope.finalResultsMaxCountReached = false; // Resetting initial value
+	    					// If the max limit of returned results has been reached
+	    					if($scope.finalResults.totalItems == $scope.serviceModel.maxResultCountLimit)
+	    						$scope.finalResultsMaxCountReached = true;
 	    				}
 	    				else if(response.status == '408') {
 	        				$log.info(response.status);
@@ -2806,6 +2811,152 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		});
     	// Construct query promise - End
 	};
+	
+	/*
+	$scope.finalCurrentPage = 1;
+	$scope.finalItemsPerPage = 30;
+	
+	// This method uses offset and limit to return the final results for the first page,
+	// however, the count service is very slow when dealing with hundred of thousands or millions of results.
+	// Thus the old method that retrieves them in the server and feeds the UI page by page was better
+	function retrieveFinalResults(searchEntityModel) {
+    	
+    	// Trying with promise - Start
+    	
+    	var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Search process undergoing...'
+		};
+    	var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+    	
+    	// Computing Query
+    	queryService.computeFinalSearchQuery(searchEntityModel, $scope.credentials.token).then(function (queryResponse) {
+    		if(queryResponse.status == '200') {
+    			
+    			var params = {
+        				format: "application/json",
+        				query: queryResponse.data.query
+        		}
+    			
+    			// Counting final results
+    			queryService.getEntityQueryResultsCount($scope.serviceModel, params, $scope.credentials.token)
+        		.then(function (queryCountResponse) {
+        			if(queryCountResponse.status == '200') {
+        				
+        				// Holding total number of results
+            			$scope.finalResultsCount = queryCountResponse.data.results.bindings[0].count.value;
+            			console.log('$scope.finalResultsCount: ' + $scope.finalResultsCount);
+    			
+		        		var params = {
+		        				format: "application/json",
+		        				query: queryResponse.data.query + ' limit ' + $scope.finalItemsPerPage.toString() + ' offset ' + ($scope.finalCurrentPage-1).toString()
+		        				//itemsPerPage: $scope.itemsPerPage,
+		        				//userProfile: $scope.userProfile // Used for VRE4EIC only (to store results into a temp namedgraph)
+		        		}
+        		
+		    			// Executing the query with offset and limit for the first page
+		        		queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
+			    		//queryService.getFinalQueryResults(params, $scope.credentials.token)
+			    		.then(function (response) {
+	        		
+			    			if(response.status == -1) {
+			    				$scope.message = 'There was a network error. Try again later.';
+			    				$scope.showErrorAlert('Error', $scope.message);
+			    			}
+		    			
+			    			else {
+			    				if(response.status == '200') {
+			    					$scope.finalResults = response.data;
+			    				}
+			    				else if(response.status == '408') {
+			        				$log.info(response.status);
+			        				$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+			        				$scope.showErrorAlert('Important', $scope.message);
+			        			}
+			    				else if(response.status == '400') {
+			        				$log.info(response.status);
+			        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+			        				$scope.showErrorAlert('Error', $scope.message);
+			        			}
+			        			else if(response.status == '401') {
+			        				$log.info(response.status);
+			        				$scope.showLogoutAlert();
+			        				authenticationService.clearCredentials();
+			        			}
+			        			else {
+			        				$log.info(response.status);
+			        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+			        				$scope.showErrorAlert('Error', $scope.message);
+			        			}
+		    			
+			    			} // else close
+		    			
+			    		}, function (error) {
+			    			$scope.message = 'There was a network error. Try again later.';
+			    			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+			    				data : error
+			    			}));
+			    		
+			    		}).finally(function() {
+			    			modalInstance.close();
+			        	});
+			        	// Executing the query with offset and limit for the first page - End
+        			}
+    		
+        			else if(queryCountResponse.status == '400') {
+        				$log.info(queryResponse.status);
+        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.showErrorAlert('Error', $scope.message);
+        				modalInstance.close();
+        			}
+        			else if(queryCountResponse.status == '401') {
+        				$log.info(queryResponse.status);
+        				modalInstance.close();
+        				$scope.showLogoutAlert();
+        				authenticationService.clearCredentials();
+        			}
+        			else {
+        				$log.info(queryCountResponse.status);
+        				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+        				$scope.showErrorAlert('Error', $scope.message);
+        				modalInstance.close();
+        			}
+            	}, function (error) {
+        			$scope.message = 'There was a network error. Try again later.';
+        			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+        				data : error
+        			}));
+        		});
+    			// Count query promise - End
+    		}
+			else if(queryResponse.status == '400') {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+			else if(queryResponse.status == '401') {
+				$log.info(queryResponse.status);
+				modalInstance.close();
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+			}
+			else {
+				$log.info(queryResponse.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				modalInstance.close();
+			}
+    	}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			modalInstance.close();
+		});
+    	// Construct query promise - End
+	};
+	*/
 	
 	// Put them into the configuration
 	$scope.currentPage = 1;

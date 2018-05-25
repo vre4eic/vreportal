@@ -34,7 +34,9 @@ public class ConfigurationController {
     private String namespace;
     @Value("${uri.prefix}")
     private String uriPrefix;
-	
+    @Value("${service.max.result.count}")
+    private String maxResultCountLimit;
+
     /**
      * This service retrieves configuration options (service.url, triplestore.namespace and uri.prefix) from the property file
      * and returns them 
@@ -47,6 +49,7 @@ public class ConfigurationController {
     	serviceModelJsonObject.put("url", serviceUrl);
     	serviceModelJsonObject.put("namespace", namespace);
     	serviceModelJsonObject.put("uriPrefix", uriPrefix);
+    	serviceModelJsonObject.put("maxResultCountLimit", maxResultCountLimit);
         return serviceModelJsonObject;
     }
 }
