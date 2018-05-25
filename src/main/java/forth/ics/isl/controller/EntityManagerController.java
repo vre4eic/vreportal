@@ -319,9 +319,7 @@ public class EntityManagerController {
     @RequestMapping(value = "/execute_final_query", method = RequestMethod.POST, produces = {"application/json"})
     public @ResponseBody
     ResponseEntity<?> executeFinalQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
-
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
-
 //        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
         restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
         String query = (String) requestParams.get("query");
@@ -386,7 +384,30 @@ public class EntityManagerController {
         //return responseJsonObject;
     }
 
-    private void createUserGraph(JSONObject requestParams, String query) throws ClientErrorException {
+    @RequestMapping(value = "/enrich_profile_graph", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    ResponseEntity<?> enrichProfileGraph(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
+        ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
+//        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
+        restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
+        String query = (String) requestParams.get("query");
+        System.out.println("query:" + query);
+        JSONObject responseJsonObject = new JSONObject();
+        responseJsonObject.put("query", query);
+
+        //custom code which creates a graph to store the service data w.r.t. the user profile 
+        //and the dynamic generated query
+        Response response;
+        if (query.indexOf("http://eurocris.org/ontology/cerif#Service") > 0) {
+            response = createUserGraph(requestParams, query);
+            return ResponseEntity.status(response.getStatus()).body(response.readEntity(String.class));
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body("");
+        }
+        ////////////////////
+    }
+
+    private Response createUserGraph(JSONObject requestParams, String query) throws ClientErrorException {
         String userId = (String) ((LinkedHashMap) requestParams.get("userProfile")).get("userId");
         String graph = "http://profile/" + userId;
         int start = query.indexOf("where");
@@ -404,7 +425,7 @@ public class EntityManagerController {
                 .append("} ")
                 .append(query.substring(start, end + 1));
         restClient.executeUpdatePOSTJSON("clear graph <" + graph + ">");
-        restClient.executeUpdatePOSTJSON(updateQuery.toString());
+        return restClient.executeUpdatePOSTJSON(updateQuery.toString());
     }
 
     /**
