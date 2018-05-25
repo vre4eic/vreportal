@@ -255,6 +255,10 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 			$state.go('userProfile', {});
 	}
 	
+	$scope.goToPrivacyPolicyView = function(ev) {
+		$state.go('privacyPolicy', {});
+	}
+	
 	// Ask confirmation before leaving query builder if you are there
 	function confirmLeavingFromQueryBuilder(ev, state) {
 		var confirm = $mdDialog.confirm()

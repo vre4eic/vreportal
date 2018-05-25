@@ -47,6 +47,12 @@
 									My Favorites
 								</md-button>
 				        	</md-menu-item>
+				        	<md-menu-item ng-hide="!hasRoleOfAdministrator && !hasRoleOfResearcher && !hasRoleOfController">
+								<md-button ng-click="goToPrivacyPolicyView($event)">
+									<md-icon md-font-icon="fa fa-handshake-o"></md-icon>
+									Privacy Policy
+								</md-button>
+				        	</md-menu-item>
 				        	<md-menu-divider></md-menu-divider>
 				        	<md-menu-item>
 				        		<md-button md-no-ink 
@@ -146,6 +152,7 @@
 		<script src="/js/navigationController.js"></script>
 		<script src="/js/favoritesController.js"></script>
 		<script src="/js/userProfileController.js"></script>
+		<script src="/js/privacyPolicyController.js"></script>
 		<script src="/js/securityController.js"></script>
 		<script src="/js/securityServices.js"></script>
 		<script src="/js/shareDataAmongControllersServices.js"></script>

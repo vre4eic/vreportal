@@ -93,6 +93,11 @@ app.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $htt
 			templateUrl: 'views/userProfile.html',
         	controller: 'userProfileCtrl'
 		})
+		.state('privacyPolicy', {
+			url: '/privacyPolicy',
+			templateUrl: 'views/privacyPolicy.html',
+        	controller: 'privacyPolicyCtrl'
+		})
 		.state('import', {
 			url: '/import',
 			templateUrl: 'views/import.html',
