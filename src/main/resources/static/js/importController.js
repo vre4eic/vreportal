@@ -378,6 +378,9 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
         			// Remove all files
         			$scope.resetDropzone();
         			
+        			// Calling materialization service
+        			materializeMetadata();
+        			
         			// Show errors
         			/*
         			angular.forEach($scope.importErrorAlerts, function(value, key) {
@@ -671,19 +674,67 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    // Materialization Service to be called after all uploads have been completed
+    function materializeMetadata() {
+    	
+    	console.log("Materialization Process started");
+    	
+		var materializationModel = {
+			linkingUpdateQuery: $scope.provenaceQuery,
+			namedGraphIdParam: $scope.selectedNamedGraph.id
+    	}
+    	
+	    importService.materializeNewData(angular.toJson(materializationModel), $scope.credentials.token)
+		.then(function (response) {
+		
+			if(response.status == '200') {
+				if(response.data.success == true) {
+					$mdToast.show(
+						$mdToast.simple()
+				        .textContent(response.data.message)
+				        .position('top right')
+				        .parent(angular.element('#dialogContent'))
+				        .hideDelay(3000)
+				    );
+					
+				}
+				else {
+					$scope.message = response.data.message;
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+			}
+			else if(response.status == '400') {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
+			}
+			else if(response.status == '401') {
+				$log.info(response.status);
+				$scope.showLogoutAlert();
+				authenticationService.clearCredentials();
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
+			}
+			else {
+				$log.info(response.status);
+				$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+				$scope.showErrorAlert('Error', $scope.message);
+				// Setting flag to indicate that the process has been stopped
+		    	$scope.processStarted = false;
+			}
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+			// Setting flag to indicate that the process has been stopped
+	    	$scope.processStarted = false;
+		});
+		
+	}
     
     
     $scope.reset = function() {

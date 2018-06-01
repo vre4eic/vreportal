@@ -269,25 +269,41 @@ public class ImportController {
 
         return new ResponseEntity<>(importResponseJsonString, HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/after_upload_process", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject afterUploadProc(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException, ClientErrorException, SQLException, ClassNotFoundException {
 
-    @RequestMapping(value = "/after_upload_process", method = RequestMethod.POST)
-    public ResponseEntity afterUploadProc(MultipartHttpServletRequest request) {
         String importResponseJsonString = null;
-        try {
-            System.out.println("after all uploads...");
-            String namedGraphIdParam = request.getParameter("namedGraphIdParam");
-            String authorizationToken = request.getParameter("authorizationParam");
-            String linkingUpdateQueryParam = request.getParameter("linkingUpdateQuery");
-            VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
-            Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
-            H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
-            Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
-            System.out.println("linking data with provdata ->> " + resp.getStatus());
-            System.out.println("");
-            return new ResponseEntity<>(importResponseJsonString, HttpStatus.OK);
-        } catch (Exception ex) {
-            return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
+        
+        System.out.println("after all uploads...");
+        
+        String namedGraphIdParam = null;
+        String linkingUpdateQueryParam = null;
+        
+        // Retrieving the label of the named graph
+        if (requestParams.get("namedGraphIdParam") != null) {
+        	namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
         }
+        
+        if (requestParams.get("linkingUpdateQueryParam") != null) {
+        	linkingUpdateQueryParam = requestParams.get("linkingUpdateQuery").toString();
+        }
+        
+        VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
+        Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
+        H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
+        Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
+        System.out.println("linking data with provdata ->> " + resp.getStatus());
+        System.out.println("");
+        
+        JSONObject responseJsonObject = new JSONObject();
+        // Dummy response (under development) always success
+        // Code must be written for case of failure 
+        responseJsonObject.put("success", true);
+        responseJsonObject.put("message", "Metadata materialization process was completed successfully!");
+            
+        return responseJsonObject;
     }
 
 }

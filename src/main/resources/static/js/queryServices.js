@@ -359,6 +359,23 @@ angular.module('app.mainServices', [])
                         //error code
                     });
 
+                },
+                materializeNewData: function (model, token) {
+
+                    return $http({
+                        'url': '/after_upload_process',
+                        'method': 'POST',
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Authorization': token
+                        },
+                        'data': model
+                    }).then(function (success) {
+                        return success;
+                    }, function (error) {
+                        //error code
+                    });
+
                 }
 
             }
