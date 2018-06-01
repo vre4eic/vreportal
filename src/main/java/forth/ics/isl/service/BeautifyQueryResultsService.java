@@ -251,13 +251,13 @@ public class BeautifyQueryResultsService {
         String namespace = "vre4eic";
         String token = "3d791107-6bb4-4e7b-9efd-38e1e33af05b";
         String entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Person.1908";
-//        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.OrgUnit.105201";
+        entityUri = "http://139.91.183.70:8090/vre4eic/EPOS.Organisation.www.forth.gr/";
 //        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Project.7602";
         String fromClause = "from <http://ekt-data>";
 
         BeautifyQueryResultsService beauty = new BeautifyQueryResultsService(token, endpoint);
-        beauty.enrichEntityResults(entityUri, fromClause);
-        beauty.enrichDstEntityResults(entityUri, fromClause);
+//        beauty.enrichEntityResults(entityUri, fromClause);
+//        beauty.enrichDstEntityResults(entityUri, fromClause);
         beauty.enrichSrcEntityResults(entityUri, fromClause);
         System.out.println(beauty.getInstanceInfo());
 

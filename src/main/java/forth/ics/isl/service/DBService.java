@@ -6,6 +6,7 @@
 package forth.ics.isl.service;
 
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -586,7 +587,8 @@ public class DBService {
 //    interesting entities for the GUI
     public static Set<String> executeRelationsMatQueries(String endpoint, String namespace, String authorizationToken, String graphUri) throws SQLException, ParseException, ClientErrorException, IOException {
         Set<String> matRelationsEntities = new HashSet<>();
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         JSONArray updates = DBService.retrieveAllRelationsMatUpdates();
         StringBuilder sb = new StringBuilder();
         sb.append(graphUri + "\n");
@@ -594,7 +596,8 @@ public class DBService {
             JSONObject obj = (JSONObject) updates.get(i);
             String update = ((String) obj.get("update")).replace("@#$%FROM%$#@", "<" + graphUri + ">");
             String relatedEntities = (String) obj.get("related_entities");
-            Response response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken);
+//            Response response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken);
+            Response response = client.executeUpdatePOSTJSON(update);
             int status = response.getStatus();
             String respString = response.readEntity(String.class);
             //the update query added new triples

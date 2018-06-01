@@ -29,7 +29,11 @@ import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -253,24 +257,37 @@ public class ImportController {
                 Response importResponse = restClient.importFile(fileContent, contentTypeParam, namedGraphIdParam, authorizationToken);
                 int status = importResponse.getStatus();
                 importResponseJsonString = importResponse.readEntity(String.class);
-                if (status == 200) {
-                    Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
-                    H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
-                    // Executing linking update query (links these data with provenance metadata)
-                } else if (status == 500) {
+                if (status == 500) {
                     importResponseJsonString = "There was an internal error. please check that you have selected the correct content-type.";
                     System.out.println("importResponseJsonString");
                     return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
                 } //
             }
-            Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
-            System.out.println("linking data with provdata ->> " + resp.getStatus());
-            System.out.println("");
         } catch (Exception e) {
             return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return new ResponseEntity<>(importResponseJsonString, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/after_upload_process", method = RequestMethod.POST)
+    public ResponseEntity afterUploadProc(MultipartHttpServletRequest request) {
+        String importResponseJsonString = null;
+        try {
+            System.out.println("after all uploads...");
+            String namedGraphIdParam = request.getParameter("namedGraphIdParam");
+            String authorizationToken = request.getParameter("authorizationParam");
+            String linkingUpdateQueryParam = request.getParameter("linkingUpdateQuery");
+            VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
+            Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
+            H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
+            Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
+            System.out.println("linking data with provdata ->> " + resp.getStatus());
+            System.out.println("");
+            return new ResponseEntity<>(importResponseJsonString, HttpStatus.OK);
+        } catch (Exception ex) {
+            return new ResponseEntity<>(importResponseJsonString, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
