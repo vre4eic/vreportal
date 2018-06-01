@@ -6,6 +6,7 @@
 package forth.ics.isl.service;
 
 import forth.ics.isl.triplestore.RestClient;
+import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -129,7 +130,8 @@ public class ProvInfoGeneratorService {
                 + "filter (lcase(?term) = lcase(\"" + term + "\")).\n"
                 + "}";
         System.out.println(query);
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));
@@ -143,7 +145,8 @@ public class ProvInfoGeneratorService {
                 + "  ?classif <" + CERIFPrefix + "has_roleExpression> \"" + roleExpr + "\".\n"
                 + "}";
         System.out.println(query);
-        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         JSONParser parser = new JSONParser();
         JSONObject result = (JSONObject) parser.parse(resp.readEntity(String.class));

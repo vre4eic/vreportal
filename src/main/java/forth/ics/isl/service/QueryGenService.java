@@ -57,7 +57,8 @@ public class QueryGenService {
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
             String query = geoEntityQuery((String) entityJSON.get("uri"), from);
-            RestClient client = new RestClient(endpoint, namespace, authorizationToken);
+//            VirtuosoRestClient client = new RestClient(endpoint, namespace, authorizationToken);
+            RestClient client = new RestClient(endpoint, authorizationToken);
             Response response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
             JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
             JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
