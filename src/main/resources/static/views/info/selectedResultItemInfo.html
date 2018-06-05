@@ -17,16 +17,22 @@
 	      		</md-button>
 			</div>
 			<md-card-title>
-				<md-card-title-text>
+				<md-card-title-text style="width:475px; word-wrap: break-word;">
 					<span class="md-headline">{{currSelectedResultItem.instance_label}}</span>
+					<span ng-if="currSelectedResultItem.instance_acronym != null" class="md-headline">{{currSelectedResultItem.instance_acronym}}</span>
+					<span ng-if="currSelectedResultItem.instance_params != null" class="md-headline">{{currSelectedResultItem.instance_params}}</span>
 					<div layout="row">
 						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_ext_uri != null">
 							<a target="_blank" href="{{currSelectedResultItem.instance_ext_uri}}">&nbsp;({{currSelectedResultItem.instance_ext_uri}})</a>
 						</span>
-						
 					</div>
+					<span ng-if="currSelectedResultItem.instance_description != null" 
+						  class="md-subhead" 
+						  style="font-style: italic; text-align:justify;">
+						{{currSelectedResultItem.instance_description}}
+					</span>
 				</md-card-title-text>
 			</md-card-title>
 			
