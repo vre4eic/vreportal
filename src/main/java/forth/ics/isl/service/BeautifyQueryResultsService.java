@@ -51,13 +51,23 @@ public class BeautifyQueryResultsService {
     public void enrichEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
-                + "select distinct  ?instance_uri ?instance_label ?instance_name ?instance_title ?instance_acronym ?instance_type ?instance_ext_uri \n"
+                + "select distinct  ?instance_uri "
+                + "?instance_label "
+                + "?instance_name "
+                + "?instance_descr "
+                + "GROUP_CONCAT(?instance_keyw ; separator=\", \") as ?instance_params "
+                + "?instance_title "
+                + "?instance_acronym "
+                + "?instance_type "
+                + "?instance_ext_uri \n"
                 + fromClause + " where \n"
                 + "{\n"
                 + "  ?instance_uri a ?instance_type. \n"
                 + "  optional { ?instance_uri rdfs:label ?instance_label .}\n"
                 + "  optional { ?instance_uri cerif:has_URI ?instance_ext_uri.}\n"
                 + "  optional { ?instance_uri cerif:has_name ?instance_name.}\n"
+                + "  optional { ?instance_uri cerif:has_description ?instance_descr.}\n"
+                + "  optional { ?instance_uri cerif:has_keywords ?instance_keyw.}\n"
                 + "  optional { ?instance_uri cerif:has_title ?instance_title.}\n"
                 + "  optional { ?instance_uri cerif:has_acronym ?instance_acronym.}\n"
                 //                + "  optional { ?instance_uri cerif:has_description ?instance_description. }\n"
@@ -74,17 +84,26 @@ public class BeautifyQueryResultsService {
             String instanceUri = getJSONObjectValue(row, "instance_uri");
             String instanceType = getJSONObjectValue(row, "instance_type");
             String instanceLabel = getJSONObjectValue(row, "instance_label");
+            String instanceDescr = getJSONObjectValue(row, "instance_descr");
+            String instanceParams = getJSONObjectValue(row, "instance_params");
             String instanceName = getJSONObjectValue(row, "instance_name");
             String instanceTitle = getJSONObjectValue(row, "instance_title");
             String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
             String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
+
             ////
             instanceInfo.put("instance_uri", instanceUri);
             if (instanceName != null) {
                 instanceInfo.put("instance_label", instanceName);
             }
             if (instanceTitle != null) {
-                instanceInfo.put("instance_label", instanceTitle);
+                instanceInfo.put("instance_title", instanceTitle);
+            }
+            if (instanceDescr != null) {
+                instanceInfo.put("instance_description", instanceTitle);
+            }
+            if (instanceParams != null) {
+                instanceInfo.put("instance_params", instanceTitle);
             }
             if (instanceExtUri != null) {
                 try {

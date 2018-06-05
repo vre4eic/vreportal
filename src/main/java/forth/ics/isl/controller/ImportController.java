@@ -282,7 +282,7 @@ public class ImportController {
             if (requestParams.get("namedGraphIdParam") != null) {
                 namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
             }
-            if (requestParams.get("linkingUpdateQueryParam") != null) {
+            if (requestParams.get("linkingUpdateQuery") != null) {
                 linkingUpdateQueryParam = requestParams.get("linkingUpdateQuery").toString();
             }
             VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);

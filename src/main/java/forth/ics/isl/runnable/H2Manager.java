@@ -1604,9 +1604,9 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 false,
-                "distinct ?@#$%VAR%$#@Νame GROUP_CONCAT(?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?@#$%VAR%$#@Acronym ?@#$%VAR%$#@Descr ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?dataset_name GROUP_CONCAT(?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?@#$%VAR%$#@Acronym as ?acronym ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Dataset>.\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.}\n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keyw.} \n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description.} \n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
@@ -2227,7 +2227,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?service_name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?webservice_name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#WebService>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
@@ -2262,7 +2262,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?service_name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?workflow_name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Workflow>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
@@ -2282,6 +2282,32 @@ public class H2Manager {
     }
 
     private void insertRelationsMatUpdates() throws SQLException {
+        insertRelationMatUpdate("searchable_text_dataset", "insert into @#$%FROM%$#@ {\n"
+                + "?uri <http://searchable_text> ?text.\n"
+                + "} where \n"
+                + "{\n"
+                + "select distinct (?serv as ?uri) concat(?servName,\" \", ?descr, \" \", GROUP_CONCAT(?servKeywords ; separator=\", \")) as ?text from @#$%FROM%$#@  where {\n"
+                + "?serv a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_description> ?servDescription .}\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_keywords>    ?servKeywords .}\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_name>        ?servName .}\n"
+                + "BIND(if(bound(?servDescription),?servDescription,\"-\") as ?descr).\n"
+                + "}\n"
+                + "}");
+
+        insertRelationMatUpdate("searchable_text_webservice", "insert into @#$%FROM%$#@ {\n"
+                + "?uri <http://searchable_text> ?text.\n"
+                + "} where \n"
+                + "{\n"
+                + "select distinct (?serv as ?uri) concat(?servName,\" \", ?descr, \" \", GROUP_CONCAT(?servKeywords ; separator=\", \")) as ?text from @#$%FROM%$#@  where {\n"
+                + "?serv a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_description> ?servDescription .}\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_keywords>    ?servKeywords .}\n"
+                + "OPTIONAL {?serv <http://eurocris.org/ontology/cerif#has_name>        ?servName .}\n"
+                + "BIND(if(bound(?servDescription),?servDescription,\"-\") as ?descr).\n"
+                + "}\n"
+                + "}");
+
         insertRelationMatUpdate("has_source",
                 "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
@@ -2680,6 +2706,132 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Service/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Service/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
                 + "}");
+        ///
+        insertRelationMatUpdate("Person-WebService", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_ser ?ser. \n"
+                + "  ?ser ?ser_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?ser a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "\n"
+                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-WebService/\",encode_for_uri(?role) )) as ?pers_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-Person/\",encode_for_uri(?role_opposite) )) as ?ser_pers ). \n"
+                + "}");
+
+        insertRelationMatUpdate("OrganisationUnit-WebService", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?org ?org_ser ?ser. \n"
+                + "  ?ser ?ser_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?ser a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "\n"
+                + "   ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-WebService/\",encode_for_uri(?role) )) as ?org_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?ser_org ). \n"
+                + "}");
+
+        insertRelationMatUpdate("WebService-WebService", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?ser1 ?ser1_ser2 ?ser2. \n"
+                + "  ?ser2 ?ser2_ser1 ?pers1. \n"
+                + "} WHERE { \n"
+                + "  ?ser1 a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "  ?ser2 a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "\n"
+                + "   ?ser1 <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser2 <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-WebService/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-WebService/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
+                + "}");
+
+        insertRelationMatUpdate("Person-Dataset", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_data ?data. \n"
+                + "  ?data ?data_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?data a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "\n"
+                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?data <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Dataset/\",encode_for_uri(?role) )) as ?pers_data ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-Person/\",encode_for_uri(?role_opposite) )) as ?data_pers ). \n"
+                + "}");
+
+        insertRelationMatUpdate("OrganisationUnit-Dataset", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?org ?org_ser ?data. \n"
+                + "  ?data ?ser_org ?org. \n"
+                + "} WHERE { \n"
+                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+                + "  ?data a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "\n"
+                + "   ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?data <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Dataset/\",encode_for_uri(?role) )) as ?org_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?ser_org ). \n"
+                + "}");
+
+        insertRelationMatUpdate("Dataset-Dataset", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?data1 ?ser1_ser2 ?data2. \n"
+                + "  ?data2 ?ser2_ser1 ?data1. \n"
+                + "} WHERE { \n"
+                + "  ?data1 a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "  ?data2 a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "\n"
+                + "   ?data1 <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?data2 <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-Dataset/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-Dataset/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
+                + "}");
+
+        insertRelationMatUpdate("Dataset-WebService", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?data ?ser1_ser2 ?serv. \n"
+                + "  ?serv ?ser2_ser1 ?data. \n"
+                + "} WHERE { \n"
+                + "  ?data a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "  ?serv a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "\n"
+                + "   ?data <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?serv <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-WebService/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-Dataset/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
+                + "}");
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -2708,15 +2860,15 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 //
-//        h2.deleteTable("entity");
-//        h2.createTableEntity();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
 //        h2.insertEntitiesBlazegraph();
-//        h2.insertEntitiesVirtuoso();
+        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
-//        h2.deleteTable("RELATIONS_MATERIAL");
+        h2.deleteTable("RELATIONS_MATERIAL");
 //        h2.createTableRelation();
-//        h2.createTableRelationsMatUpdates();
-//        h2.insertRelationsMatUpdates();
+        h2.createTableRelationsMatUpdates();
+        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
         h2.terminate();
         /////////////////        
@@ -2725,26 +2877,25 @@ public class H2Manager {
         String graphUri = "http://graph/1527854913164";
         /////
 
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-        DBService.setConnection(conn);
-        DBService.setJdbcTemplateUsed(false);
-//        String graphUri = "http://graph/1526393960123";
-//        List<String> uris = DBService.retrieveAllNamedgraphUris();
-//        for (String graphURI : uris) {
-        Set<String> matRelationEntities = new HashSet<>();
-        matRelationEntities.add("Organisation");
-        matRelationEntities.add("Person");
-        matRelationEntities.add("Equipment");
-        matRelationEntities.add("Facility");
-        matRelationEntities.add("Product");
-//            matRelationEntities.add("Location");
-//            matRelationEntities.add("Publication");
-//            matRelationEntities.add("Project");
-        matRelationEntities.add("Service");
-
-        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
-
-        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
+//        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+//        DBService.setConnection(conn);
+//        DBService.setJdbcTemplateUsed(false);
+////        String graphUri = "http://graph/1526393960123";
+////        List<String> uris = DBService.retrieveAllNamedgraphUris();
+////        for (String graphURI : uris) {
+//        Set<String> matRelationEntities = new HashSet<>();
+//        matRelationEntities.add("Organisation");
+//        matRelationEntities.add("Person");
+//        matRelationEntities.add("Equipment");
+//        matRelationEntities.add("Facility");
+//        matRelationEntities.add("Product");
+////            matRelationEntities.add("Location");
+////            matRelationEntities.add("Publication");
+////            matRelationEntities.add("Project");
+//        matRelationEntities.add("Service");
+//        
+//        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
+//        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
     }
 
