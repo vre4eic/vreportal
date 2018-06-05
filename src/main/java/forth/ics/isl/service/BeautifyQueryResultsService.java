@@ -90,20 +90,19 @@ public class BeautifyQueryResultsService {
             String instanceTitle = getJSONObjectValue(row, "instance_title");
             String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
             String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
-
             ////
             instanceInfo.put("instance_uri", instanceUri);
             if (instanceName != null) {
-                instanceInfo.put("instance_label", instanceName);
+                instanceInfo.put("instance_name", instanceName);
             }
             if (instanceTitle != null) {
                 instanceInfo.put("instance_title", instanceTitle);
             }
             if (instanceDescr != null) {
-                instanceInfo.put("instance_description", instanceTitle);
+                instanceInfo.put("instance_description", instanceDescr);
             }
             if (instanceParams != null) {
-                instanceInfo.put("instance_params", instanceTitle);
+                instanceInfo.put("instance_params", instanceParams);
             }
             if (instanceExtUri != null) {
                 try {
@@ -113,7 +112,6 @@ public class BeautifyQueryResultsService {
                 } catch (Exception ex) {
                     ;
                 }
-
             }
             if (instanceName == null && instanceTitle == null) {
                 instanceInfo.put("instance_label", instanceLabel);
