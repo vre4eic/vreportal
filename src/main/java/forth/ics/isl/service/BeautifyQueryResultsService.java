@@ -104,6 +104,9 @@ public class BeautifyQueryResultsService {
             if (instanceParams != null) {
                 instanceInfo.put("instance_params", instanceParams);
             }
+            if (instanceAcronym != null) {
+                instanceInfo.put("instance_acronym", instanceAcronym);
+            }
             if (instanceExtUri != null) {
                 try {
                     URL url = new URL(instanceExtUri);
@@ -116,7 +119,6 @@ public class BeautifyQueryResultsService {
             if (instanceName == null && instanceTitle == null) {
                 instanceInfo.put("instance_label", instanceLabel);
             }
-            instanceInfo.put("instance_acronym", instanceAcronym);
             instanceInfo.put("instance_type", instanceType.replace(CERIFPrefix, ""));
         }
     }
