@@ -18,9 +18,17 @@
 			</div>
 			<md-card-title>
 				<md-card-title-text style="width:475px; word-wrap: break-word;">
-					<span class="md-headline">{{currSelectedResultItem.instance_label}}</span>
-					<span ng-if="currSelectedResultItem.instance_acronym != null" class="md-headline">{{currSelectedResultItem.instance_acronym}}</span>
-					<span ng-if="currSelectedResultItem.instance_params != null" class="md-headline">{{currSelectedResultItem.instance_params}}</span>
+					<span ng-if="currSelectedResultItem.instance_name != null" class="md-headline">
+						<a target="_blank" href="{{currSelectedResultItem.instance_uri}}">{{currSelectedResultItem.instance_name}}</a>
+					</span>
+					<span ng-if="currSelectedResultItem.instance_title != null" class="md-headline">
+						<a target="_blank" href="{{currSelectedResultItem.instance_uri}}">{{currSelectedResultItem.instance_title}}</a>
+					</span>
+					<span ng-if="currSelectedResultItem.instance_label != null" class="md-headline">
+						<a target="_blank" href="{{currSelectedResultItem.instance_uri}}">{{currSelectedResultItem.instance_label}}</a>
+					</span>
+					<span ng-if="currSelectedResultItem.instance_acronym != null" class="md-subhead">{{currSelectedResultItem.instance_acronym}}</span>
+					<span ng-if="currSelectedResultItem.instance_params != null" class="md-subhead">{{currSelectedResultItem.instance_params}}</span>
 					<div layout="row">
 						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
