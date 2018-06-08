@@ -599,6 +599,9 @@ public class DBService {
             JSONObject obj = (JSONObject) updates.get(i);
             String update = ((String) obj.get("update")).replace("@#$%FROM%$#@", "<" + graphUri + ">");
             String relatedEntities = (String) obj.get("related_entities");
+            ///
+            relatedEntities = relatedEntities.replaceAll("OrganisationUnit", "Organisation");
+            ///
 //            Response response = client.executeUpdatePOSTJSON(update, namespace, authorizationToken);
             Response response = client.executeUpdatePOSTJSON(update);
             int status = response.getStatus();

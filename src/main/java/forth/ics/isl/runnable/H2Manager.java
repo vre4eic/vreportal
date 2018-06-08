@@ -1181,9 +1181,8 @@ public class H2Manager {
                 + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
                 //                + "?@#$%VAR%$#@ a cerif:Person.  \n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
-                //                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
-                //                + 
-                "?@#$%VAR%$#@Name bif:contains \"@#$%TERM%$#@\".",
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
+                + "?@#$%VAR%$#@Name bif:contains \"@#$%TERM%$#@\".",
                 "",
                 "",
                 "pers"
@@ -1342,7 +1341,7 @@ public class H2Manager {
                 + "}\n"
                 //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
-                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label.\n"
+                + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.}"
                 + "bind (if(bound(?@#$%VAR%$#@Acronym), ?@#$%VAR%$#@Acronym, \"-\") as ?acronym).\n",
                 //                "OPTIONAL {?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label}. \n"
@@ -1637,8 +1636,9 @@ public class H2Manager {
                 //                + "}\n"
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n",
                 ,
-                "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
-                + "?@#$%VAR%$#@Text bif:contains \"@#$%TERM%$#@\".",
+                //                "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
+                //                + 
+                "?@#$%VAR%$#@Text bif:contains \"@#$%TERM%$#@\".",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
                 + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@GBB.\n"
                 + "?@#$%VAR%$#@GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
@@ -1757,12 +1757,12 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
+                "distinct ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
                 //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
                 + "?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Equipment>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keyw.} \n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keywords.} \n"
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description.} \n"
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
@@ -1770,7 +1770,9 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n" //                + "Optional {\n"
+                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Name),?@#$%VAR%$#@Name,\"-\") as ?name).\n" //                + "Optional {\n"
                 //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
                 //                + "?FLE3 <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.Responsible>.\n"
                 //                + "optional {\n"
@@ -1902,12 +1904,12 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
+                "distinct ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
                 //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
                 + "?Service (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Facility>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keyw.} \n"
+                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keywords.} \n"
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description.} \n"
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
@@ -1915,7 +1917,9 @@ public class H2Manager {
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n" //                + "Optional {\n"
+                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Name),?@#$%VAR%$#@Name,\"-\") as ?name).\n" //                + "Optional {\n"
                 //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
                 //                + "?FLE3 <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.Responsible>.\n"
                 //                + "optional {\n"
@@ -2209,7 +2213,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
                 + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
@@ -2221,6 +2225,7 @@ public class H2Manager {
                 + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
                 + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
                 + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
@@ -2246,7 +2251,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#WebService>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
@@ -2256,7 +2261,8 @@ public class H2Manager {
                 + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
                 + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
-                + "BIND(if(bound(?@#$%VAR%$#@Medium),?@#$%VAR%$#@Medium,\"-\") as ?wadl_file)."
+                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Medium),?@#$%VAR%$#@Medium,\"-\") as ?wadl_file).\n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n",
                 "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n"
                 + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
@@ -2282,7 +2288,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keywords ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Workflow>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
@@ -2292,6 +2298,7 @@ public class H2Manager {
                 + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
                 + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
                 + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
@@ -2978,12 +2985,12 @@ public class H2Manager {
 ////        String graphUri = "http://graph/1526393960123";
 ////        List<String> uris = DBService.retrieveAllNamedgraphUris();
 ////        for (String graphURI : uris) {
-//        Set<String> matRelationEntities = new HashSet<>();
-//        matRelationEntities.add("Organisation");
+        Set<String> matRelationEntities = new HashSet<>();
+        matRelationEntities.add("Organisation");
 //        matRelationEntities.add("Person");
-//        matRelationEntities.add("Equipment");
-//        matRelationEntities.add("Facility");
-//        matRelationEntities.add("WebService");
+        matRelationEntities.add("Equipment");
+        matRelationEntities.add("Facility");
+        matRelationEntities.add("WebService");
 //        matRelationEntities.add("Product");
 ////            matRelationEntities.add("Location");
 ////            matRelationEntities.add("Publication");

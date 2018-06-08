@@ -126,7 +126,7 @@ public class QueryDataModel {
             query.append("\n");
         }
         query.append("}");
-        Set<String> queryLines = new LinkedHashSet<>(Arrays.asList(query.toString().split("/\n")));
+        Set<String> queryLines = new LinkedHashSet<>(Arrays.asList(query.toString().split("\\\n")));
         query.setLength(0);
         for (String line : queryLines) {
             query.append(line + "\n");

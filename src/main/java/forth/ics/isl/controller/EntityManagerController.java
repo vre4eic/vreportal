@@ -123,28 +123,56 @@ public class EntityManagerController {
 
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
-            for (String graph : graphs) {
-                String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
+            if (entityJSON.get("geo_search") == null || entityJSON.get("geo_search").equals("")) {
+                resultEntitiesJSON.add(entityJSON);
+            } else {
+//                for (String graph : graphs) {
+//                    String geoQuery = (String) ((JSONObject) entityJSON.get("queryModel")).get("geo_query");
+//                    geoQuery = geoQuery.replace("@#$%FROM%$#@", "from <" + graph + ">");
+//                    geoQuery = geoQuery.replace("@#$%EAST%$#@", "180");
+//                    geoQuery = geoQuery.replace("@#$%WEST%$#@", "-180");
+//                    geoQuery = geoQuery.replace("@#$%NORTH%$#@", "90");
+//                    geoQuery = geoQuery.replace("@#$%SOUTH%$#@", "-90");
+//                    restClient = new VirtuosoRestClient(endpoint, authorizationToken);
+//                    Response response = restClient.executeSparqlQuery(geoQuery + " limit 1", 0, "application/json", authorizationToken);
+//                    if (response.getStatus() != 200) {
+//                        System.out.println(response.readEntity(String.class));
+//                        finalResult.put("remote_status", response.getStatus());
+//                        return finalResult;
+//                    }
+//                    JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
+//                    JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
+//                    if (bindings.size() == 1) {
+//                        entityJSON.put("geospatial", true);
+//                        resultEntitiesJSON.add(entityJSON);
+//                        break;
+//                    } else {
+//                        continue;
+//                    }
+//                }
+                for (String graph : graphs) {
+                    String query = geoEntityQuery((String) entityJSON.get("uri"), "from <" + graph + ">");
 //                restClient = new RestClient(endpoint, namespace, authorizationToken);
 //                Response response = restClient.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
-                restClient = new VirtuosoRestClient(endpoint, authorizationToken);
-                Response response = restClient.executeSparqlQuery(query, 0, "application/json", authorizationToken);
-                if (response.getStatus() != 200) {
-                    System.out.println(response.readEntity(String.class));
-                    finalResult.put("remote_status", response.getStatus());
-                    return finalResult;
-                }
-                JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
-                JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
-                if (bindings.size() == 1) {
-                    JSONObject row = (JSONObject) bindings.get(0);
-                    if (row.containsKey("FLE2")) {
-                        entityJSON.put("geospatial", true);
+                    restClient = new VirtuosoRestClient(endpoint, authorizationToken);
+                    Response response = restClient.executeSparqlQuery(query, 0, "application/json", authorizationToken);
+                    if (response.getStatus() != 200) {
+                        System.out.println(response.readEntity(String.class));
+                        finalResult.put("remote_status", response.getStatus());
+                        return finalResult;
                     }
-                    resultEntitiesJSON.add(entityJSON);
-                    break;
-                } else {
-                    continue;
+                    JSONObject result = (JSONObject) parser.parse(response.readEntity(String.class));
+                    JSONArray bindings = (JSONArray) ((JSONObject) result.get("results")).get("bindings");
+                    if (bindings.size() == 1) {
+//                        JSONObject row = (JSONObject) bindings.get(0);
+//                        if (row.containsKey("FLE2")) {
+                        entityJSON.put("geospatial", true);
+//                        }
+                        resultEntitiesJSON.add(entityJSON);
+                        break;
+                    } else {
+                        continue;
+                    }
                 }
             }
         }

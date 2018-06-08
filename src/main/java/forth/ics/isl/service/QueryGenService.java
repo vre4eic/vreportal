@@ -25,20 +25,36 @@ import org.json.simple.parser.ParseException;
 public class QueryGenService {
 
     public static String geoEntityQuery(String entityUri, String graphsClause) {
-        String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT ?object ?FLE2 \n"
-                + graphsClause + " \n"
-                + "WHERE {\n"
-                + "?object a <" + entityUri + ">.\n"
-                + "OPTIONAL {\n "
-                + "?object cerif:is_source_of ?FLE1.\n"
-                + "?FLE1 cerif:has_destination ?PA.\n"
-                + "?PA cerif:is_source_of ?FLE2.\n"
-                + "?FLE2 cerif:has_destination [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>]."
+//        String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
+//                + "SELECT ?object ?FLE2 \n"
+//                + graphsClause + " \n"
+//                + "WHERE {\n"
+//                + "?object a <" + entityUri + ">.\n"
+//                + "OPTIONAL {\n "
+//                + "?object cerif:is_source_of ?FLE1.\n"
+//                + "?FLE1 cerif:has_destination ?PA.\n"
+//                + "?PA cerif:is_source_of ?FLE2.\n"
+//                + "?FLE2 cerif:has_destination [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>]."
+//                + "}\n"
+//                + "OPTIONAL {\n"
+//                + "  ?FLE2 cerif:has_destination ?object.\n"
+//                + "} } limit 1";
+
+        String query = "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
+                + "select ?object " + graphsClause + " \n"
+                + "where {\n"
+                + "?object a <" + entityUri + ">. \n"
+                + "{\n"
+                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>].\n"
+                + "} UNION {\n"
+                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>].\n"
                 + "}\n"
-                + "OPTIONAL {\n"
-                + "  ?FLE2 cerif:has_destination ?object.\n"
-                + "} } limit 1";
+                + "} limit 1";
+
         return query;
     }
 
