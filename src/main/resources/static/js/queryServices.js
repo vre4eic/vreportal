@@ -48,6 +48,7 @@ angular.module('app.mainServices', [])
                         'url': serviceModel.url + '/query/virtuoso',
                         'method': 'POST',
                         'headers': {
+                            'Access-Control-Allow-Origin': '*',
                             'Content-Type': 'application/json',
                             'Authorization': token
                         },
@@ -194,7 +195,7 @@ angular.module('app.mainServices', [])
                     }, function (error) {
                         return error;
                     });
-        },
+                },
                 checkAuthorization: function (token) {
                     return $http({
                         'url': '/checkAuthorization',

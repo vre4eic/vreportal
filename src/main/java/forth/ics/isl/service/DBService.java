@@ -108,6 +108,9 @@ public class DBService {
         try {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
+            if (entity.equals("OrganisationUnit")) {
+                entity = "Organisation";
+            }
             ResultSet entities = statement.executeQuery("select * from entity where name = '" + entity + "'");
             while (entities.next()) {
                 entityJSON.put("id", entities.getInt("id"));

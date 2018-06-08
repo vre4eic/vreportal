@@ -338,10 +338,9 @@ public class EntityManagerController {
 
             // In case of OK status handle the response
             if (serviceResponce.getStatus() == 200) {
-
                 //custom code which creates a graph to store the service data w.r.t. the user profile 
                 //and the dynamic generated query
-                if (query.indexOf("http://eurocris.org/ontology/cerif#Service") > 0) {
+                if (query.indexOf("http://eurocris.org/ontology/cerif#WebService") > 0) {
                     createUserGraph(requestParams, query);
                 }
                 ////////////////////
@@ -398,7 +397,7 @@ public class EntityManagerController {
         //custom code which creates a graph to store the service data w.r.t. the user profile 
         //and the dynamic generated query
         Response response;
-        if (query.indexOf("http://eurocris.org/ontology/cerif#Service") > 0) {
+        if (query.indexOf("http://eurocris.org/ontology/cerif#WebService") > 0) {
             response = createUserGraph(requestParams, query);
             return ResponseEntity.status(response.getStatus()).body(response.readEntity(String.class));
         } else {
@@ -410,20 +409,23 @@ public class EntityManagerController {
     private Response createUserGraph(JSONObject requestParams, String query) throws ClientErrorException {
         String userId = (String) ((LinkedHashMap) requestParams.get("userProfile")).get("userId");
         String graph = "http://profile/" + userId;
+//        int start = query.indexOf("from");  //consider selected namedgraphs
         int start = query.indexOf("where");
         int end = query.lastIndexOf("}");
         StringBuilder updateQuery = new StringBuilder();
         updateQuery.append("insert into <" + graph + "> {\n")
-                .append("?serv a <http://eurocris.org/ontology/cerif#Service>.\n")
-                .append("?serv <http://eurocris.org/ontology/cerif#has_URI>         ?servUri .\n")
-                .append("?serv <http://eurocris.org/ontology/cerif#has_description> ?servDescr.\n")
-                .append("?serv <http://eurocris.org/ontology/cerif#has_keywords>    ?servKeywords .\n")
-                .append("?serv <http://eurocris.org/ontology/cerif#has_name>        ?servName .\n")
-                .append("?serv <http://eurocris.org/ontology/cerif#is_source_of> ?servmediumLE .\n")
-                .append("?servmediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?servMedium.\n")
-                .append("?servMedium a <http://eurocris.org/ontology/cerif#Medium>. \n")
-                .append("} ")
-                .append(query.substring(start, end + 1));
+                .append("?webserv a <http://eurocris.org/ontology/cerif#WebService>.\n")
+                .append("?webserv <http://eurocris.org/ontology/cerif#has_URI>         ?webservUri .\n")
+                .append("?webserv <http://eurocris.org/ontology/cerif#has_description> ?webservDescr.\n")
+                .append("?webserv <http://eurocris.org/ontology/cerif#has_keywords>    ?webservKeywords .\n")
+                .append("?webserv <http://eurocris.org/ontology/cerif#has_name>        ?webservName .\n")
+                .append("?webserv <http://eurocris.org/ontology/cerif#is_source_of> ?webservmediumLE .\n")
+                .append("?webservmediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?webservMedium.\n")
+                .append("?webservMedium a <http://eurocris.org/ontology/cerif#Medium>. \n")
+                .append("?webserv <http://searchable_text> ?webservLabel. \n")
+                .append("} where {\n")
+                .append("select distinct ?webserv ?webservUri ?webservDescr ?webservKeywords ?webservName ?webservmediumLE ?webservMedium ?webservLabel ")
+                .append(query.substring(start, end + 1) + "\n }");
         restClient.executeUpdatePOSTJSON("clear graph <" + graph + ">");
         return restClient.executeUpdatePOSTJSON(updateQuery.toString());
     }

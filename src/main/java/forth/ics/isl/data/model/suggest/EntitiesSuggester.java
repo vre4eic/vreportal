@@ -141,8 +141,14 @@ public class EntitiesSuggester {
 //                RestClient client = new RestClient(endpoint, namespace, token);
                 VirtuosoRestClient client = new VirtuosoRestClient(endpoint, token);
                 JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
+                System.out.println(results.toString());
                 int i = 0;
                 for (String relation : sugRelationRelEntities.keySet()) {
+                    String relEntityUri = sugRelationRelEntities.get(relation);
+                    JSONObject relEntity = entitiesMap.get(relEntityUri);
+                    if (relEntity == null) {
+                        continue;
+                    }
                     JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
                     JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
                     if (!res.isEmpty()) {

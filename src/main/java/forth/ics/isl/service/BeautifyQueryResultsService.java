@@ -148,30 +148,30 @@ public class BeautifyQueryResultsService {
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         manageQueryResults(resp, fromClause);
         ////
-        if (instanceInfo.get("instance_type").equals("Service")) {
-            query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
-                    + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
-                    + "select distinct  ?ent ?role ?roleOpposite ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
-                    + fromClause + " where \n"
-                    + "{\n"
-                    + "  ?instance_uri cerif:is_source_of ?x.\n"
-                    + "  ?x rdfs:label ?xlabel; \n"
-                    + "     cerif:has_classification ?classif;\n"
-                    + "     cerif:has_destination ?ent. \n"
-                    + "  ?classif rdfs:label ?role. \n"
-                    + "  ?classif rdfs:label ?roleOpposite. \n"
-                    + "  ?ent a ?ent_type.\n"
-                    + "  filter (?ent_type = <http://eurocris.org/ontology/cerif#Medium>). \n"
-                    + "  ?ent rdfs:label ?ent_label.\n"
-                    + "  optional {?ent cerif:has_name ?ent_name.} \n"
-                    + "  optional {?ent cerif:has_title ?ent_title.} \n"
-                    + "  optional {?ent cerif:has_acronym ?ent_acronym.} \n"
-                    //                + "   optional {?ent cerif:has_description ?ent_description. }\n"
-                    + "  filter (?instance_uri = <" + entityUri + ">).\n"
-                    + "} order by ?ent_type";
-            resp = client.executeSparqlQuery(query, "application/json", 0);
-            manageQueryResults(resp, fromClause);
-        }
+//        if (((String) instanceInfo.get("instance_type")).contains("Service")) {
+//            query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
+//                    + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
+//                    + "select distinct  ?ent ?role ?roleOpposite ?ent_label ?ent_name ?ent_title ?ent_acronym ?ent_type\n"
+//                    + fromClause + " where \n"
+//                    + "{\n"
+//                    + "  ?instance_uri cerif:is_source_of ?x.\n"
+//                    + "  ?x rdfs:label ?xlabel; \n"
+//                    + "     cerif:has_classification ?classif;\n"
+//                    + "     cerif:has_destination ?ent. \n"
+//                    + "  ?classif cerif:has_roleExpression ?role. \n"
+//                    + "  ?classif cerif:has_roleExpression ?roleOpposite. \n"
+//                    + "  ?ent a ?ent_type.\n"
+//                    + "  filter (?ent_type = <http://eurocris.org/ontology/cerif#Medium>). \n"
+//                    + "  ?ent rdfs:label ?ent_label.\n"
+//                    + "  optional {?ent cerif:has_name ?ent_name.} \n"
+//                    + "  optional {?ent cerif:has_title ?ent_title.} \n"
+//                    + "  optional {?ent cerif:has_acronym ?ent_acronym.} \n"
+//                    //                + "   optional {?ent cerif:has_description ?ent_description. }\n"
+//                    + "  filter (?instance_uri = <" + entityUri + ">).\n"
+//                    + "} order by ?ent_type";
+//            resp = client.executeSparqlQuery(query, "application/json", 0);
+//            manageQueryResults(resp, fromClause);
+//        }
 
     }
 
@@ -232,6 +232,10 @@ public class BeautifyQueryResultsService {
             } else {
                 relation = roleOpposite;
             }
+            if (relatedEntityType.contains("Medium")) {
+                relation = role;
+            }
+
             String entDstLabel = getJSONObjectValue(row, "ent_label");
             String entDstName = getJSONObjectValue(row, "ent_name");
             String entDstTitle = getJSONObjectValue(row, "ent_title");
