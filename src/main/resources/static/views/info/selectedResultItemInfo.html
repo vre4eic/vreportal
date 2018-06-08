@@ -27,18 +27,27 @@
 					<span ng-if="currSelectedResultItem.instance_label != null" class="md-headline">
 						<a target="_blank" href="{{currSelectedResultItem.instance_uri}}">{{currSelectedResultItem.instance_label}}</a>
 					</span>
-					<span ng-if="currSelectedResultItem.instance_acronym != null" class="md-subhead">{{currSelectedResultItem.instance_acronym}}</span>
-					<span ng-if="currSelectedResultItem.instance_params != null" class="md-subhead">{{currSelectedResultItem.instance_params}}</span>
+					<span ng-if="currSelectedResultItem.instance_acronym != null" 
+						  class="md-subhead"
+						  style="font-weight:bold;">
+						{{currSelectedResultItem.instance_acronym}}
+					</span>
 					<div layout="row">
-						<span class="md-subhead">{{currSelectedResultItem.instance_type}}</span>
+						<span class="md-subhead"
+							  style="font-weight:bold;">
+							{{currSelectedResultItem.instance_type}}
+						</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_acronym != null">&nbsp;- {{currSelectedResultItem.instance_acronym}}</span>
 						<span class="md-subhead" ng-show="currSelectedResultItem.instance_ext_uri != null">
 							<a target="_blank" href="{{currSelectedResultItem.instance_ext_uri}}">&nbsp;({{currSelectedResultItem.instance_ext_uri}})</a>
 						</span>
 					</div>
+					<span ng-if="currSelectedResultItem.instance_params != null" class="md-subhead"><b>Keywords:</b> {{currSelectedResultItem.instance_params}}</span>
 					<span ng-if="currSelectedResultItem.instance_description != null" 
 						  class="md-subhead" 
 						  style="font-style: italic; text-align:justify;">
+						  <b>Description:</b>
+						  <br/>
 						{{currSelectedResultItem.instance_description}}
 					</span>
 				</md-card-title-text>

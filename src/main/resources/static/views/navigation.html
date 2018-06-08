@@ -425,10 +425,22 @@
 						<table class="table table-striped table-condensed table-hover scrollTable">
 							<thead>
 								<tr ng-repeat="item in finalResults.results.bindings|limitTo:1" class="ng-scope">
+									
+									<!-- Show Name first -->
+									<th ng-if="item.title != null" 
+										class="ng-binding" 
+										style="vertical-align:middle; padding:0px 5px;;">
+											{{'title' | uppercase}} 
+									</th>
+									<th ng-if="item.name != null" 
+										class="ng-binding" 
+										style="vertical-align:middle; padding:0px 5px;;">
+											{{'name' | uppercase}} 
+									</th>
 									<th ng-repeat="(key,val) in item" 
 										class="ng-binding" 
-										ng-if="key != 'isChecked' && key != 'uri'"
-										style="vertical-align:middle; padding:0;">
+										ng-if="key != 'isChecked' && key != 'uri' && key != 'title' && key != 'name'"
+										style="vertical-align:middle; padding:0px 5px;;">
 											{{key | uppercase}} 
 									</th>
 								</tr>
@@ -438,10 +450,21 @@
 							<tr ng-repeat="item in finalResults.results.bindings" 
 								class="ng-scope"
 								ng-click="handleSelectedResultItem(item.uri.value, true, false);">
+								<!-- Show Name first -->
+								<td ng-if="item.title != null"  
+									class="ng-binding" 
+									style="vertical-align:middle; padding:0px 5px;;">
+									{{item.title.value}}
+								</td>
+								<td ng-if="item.name != null"  
+									class="ng-binding" 
+									style="vertical-align:middle; padding:0px 5px;">
+									{{item.name.value}}
+								</td>
 								<td ng-repeat="(key,val) in item" 
 									class="ng-binding" 
-									ng-if="key != 'isChecked' && key != 'uri'"
-									style="vertical-align:middle; padding:0;">
+									ng-if="key != 'isChecked' && key != 'uri' && key != 'title' && key != 'name'"
+									style="vertical-align:middle; padding:0px 5px;;">
 									{{val.value}}
 								</td>
 							</tr>

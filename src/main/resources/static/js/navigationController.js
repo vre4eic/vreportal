@@ -3017,7 +3017,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
     	],
     	selectedViewStyle: {
     		name: 'side Navigation', 
-    		value: 'results-sidenav-style'
+    		value: 'results-sticky-style'
     	}
     }
     
@@ -3948,9 +3948,68 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 				source: new ol.source.Vector({
 					features: $scope.pointFeatures
 				}),
-				style: iconStylePinkUnselected
+				style: iconStylePinkUnselected 
 			});
-	    	  
+	    	
+			
+			// Using Clustering ########################################### - Starts
+			// Works however there will be conflict with selecting instantly few pins in region
+			// and needs work to retain previous functionality
+			
+			// I also have to put in comment the:
+			// 1. uncomment from index.html the lines:
+			//    <link rel="stylesheet" href="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.css" />
+			//    <script type="text/javascript" src="https://cdn.rawgit.com/Viglino/ol-ext/master/dist/ol-ext.min.js"></script>
+			// 2. pointVectorLayer = new ol.layer.Vector({ ... })
+			// 3. $scope.map.addLayer(pointVectorLayer);
+			/*
+			var getStyle = function(feature) {
+
+			    var length = feature.get('features').length;
+			    return [
+			        new ol.style.Style({
+
+			            image: new ol.style.Circle({
+			                radius: Math.min(
+			                    Math.max(length * 0.8, 10), 15 
+			                ),
+			                fill: new ol.style.Fill({
+			                    color: [0, 204, 0, 0.6]
+			                })
+			            }),
+			            text: new ol.style.Text({
+			                text: length.toString(),
+			                fill: new ol.style.Fill({
+			                    color: 'black'
+			                })
+			            }),
+			            stroke: new ol.style.Stroke({
+			                color: [0, 51, 0, 1],
+			                width: 1
+			            }),
+			            font: '26px "Helvetica Neue", Arial'
+			        })
+			    ];
+			};
+			
+			var clusterSource = new ol.source.Cluster({
+			    distance: 100,
+			    source: new ol.source.Vector({
+			        features: $scope.pointFeatures 
+			    })
+			});
+			
+			// Animated cluster layer
+			var clusterLayer = new ol.layer.AnimatedCluster({
+			    source: clusterSource,
+			    // Use a style function for cluster symbolisation
+			    style: getStyle
+			});
+			
+			$scope.map.addLayer(clusterLayer);
+			*/
+			// Using Clustering ########################################### - ENDS
+			
 			$scope.map.addLayer(pointVectorLayer);	// Adding Layer with all the points
 			
 			// Adding pop-up
