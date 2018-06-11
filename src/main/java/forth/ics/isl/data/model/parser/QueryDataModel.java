@@ -125,12 +125,12 @@ public class QueryDataModel {
         } else {
             query.append("\n");
         }
-        query.append("}");
         Set<String> queryLines = new LinkedHashSet<>(Arrays.asList(query.toString().split("\\\n")));
         query.setLength(0);
         for (String line : queryLines) {
             query.append(line + "\n");
         }
+        query.append("}");
         return query.toString().trim().replaceAll("(?m)^\\s", "");
     }
 
