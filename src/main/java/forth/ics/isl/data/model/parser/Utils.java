@@ -65,7 +65,7 @@ public class Utils {
             StringBuilder chipStr = new StringBuilder();
             for (int j = 0; j < chipArr.length; j++) {
                 String chipWord = chipArr[j];
-                chipStr.append(chipWord);
+                chipStr.append(removePuncuations(chipWord));
                 if (j < chipArr.length - 1) {
                     chipStr.append(" and ");
                 }
@@ -76,5 +76,15 @@ public class Utils {
             }
         }
         return sb;
+    }
+
+    public static String removePuncuations(String s) {
+        int i;
+        for (i = s.length() - 1; i >= 0; i--) {
+            if (Character.isLetterOrDigit(s.charAt(i))) {
+                break;
+            }
+        }
+        return s.substring(0, i + 1);
     }
 }

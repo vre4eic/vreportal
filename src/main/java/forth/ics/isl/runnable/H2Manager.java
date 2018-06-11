@@ -1265,7 +1265,7 @@ public class H2Manager {
                 + "where {\n"
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
-                + "?org <http://searchable_text> ?orgLabel.\n"
+                + "?org <http://searchable_text> ?orgLabel. ?orgLabel bif:contains \"@#$%TERM%$#@\".\n "
                 + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -1280,7 +1280,6 @@ public class H2Manager {
                 + "?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
-                + "?orgLabel bif:contains \"@#$%TERM%$#@\".\n"
                 + "} \n",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
                 + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
@@ -1310,7 +1309,7 @@ public class H2Manager {
                 + "where {\n"
                 + "?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
                 + "?org cerif:has_name ?orgName.\n"
-                + "?org <http://searchable_text> ?orgLabel.\n"
+                + "?org <http://searchable_text> ?orgLabel. ?orgLabel bif:contains \"@#$%TERM%$#@\".\n "
                 + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
                 + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
                 + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
@@ -1327,7 +1326,6 @@ public class H2Manager {
                 + "?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
-                + "?orgLabel bif:contains \"@#$%TERM%$#@\".\n"
                 + "} \n",
                 false,
                 "distinct GROUP_CONCAT(distinct ?@#$%VAR%$#@Name ; separator=\", \") as ?name ?acronym ?Service (?@#$%VAR%$#@ as ?uri)",
