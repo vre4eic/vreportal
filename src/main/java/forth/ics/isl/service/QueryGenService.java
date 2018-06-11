@@ -52,6 +52,8 @@ public class QueryGenService {
                 + "} UNION {\n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>].\n"
+                + "} UNION {\n"
+                + "?object a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>\n"
                 + "}\n"
                 + "} limit 1";
 

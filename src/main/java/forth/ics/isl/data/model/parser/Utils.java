@@ -64,8 +64,8 @@ public class Utils {
             String[] chipArr = ((String) ((JSONObject) searchChips.get(i)).get("name")).split(" ");
             StringBuilder chipStr = new StringBuilder();
             for (int j = 0; j < chipArr.length; j++) {
-                String chipWord = chipArr[j];
-                chipStr.append(removePuncuations(chipWord));
+                String chipWord = removePuncuations(chipArr[j]);
+                chipStr.append(chipWord);
                 if (j < chipArr.length - 1) {
                     chipStr.append(" and ");
                 }

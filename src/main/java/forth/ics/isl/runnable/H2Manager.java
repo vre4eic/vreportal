@@ -2089,40 +2089,41 @@ public class H2Manager {
         insertEntity("Location",
                 "http://eurocris.org/ontology/cerif#GeographicBoundingBox",
                 "",
-                "SELECT DISTINCT ?address ?Service (?addr as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ WHERE {\n"
-                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
-                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
-                + "?addr rdfs:label ?address.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
-                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
+                "SELECT DISTINCT (?loc as ?uri) ?location ?east ?west ?north ?south  @#$%FROM%$#@ WHERE {\n"
+                //                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
+                //                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
+                //                + "?addr rdfs:label ?address.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                //                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
                 + "?loc a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "##\n"
-                + "?address bif:contains \"@#$%TERM%$#@\".\n"
+                + "?loc rdfs:label ?location. ?location bif:contains \"@#$%TERM%$#@\".\n"
                 + "##\n"
                 + "} ",
-                "SELECT DISTINCT ?address ?Service (?loc as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
-                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
-                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
-                + "?addr rdfs:label ?address.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
-                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
+                "SELECT DISTINCT (?loc as ?uri) ?location ?east ?west ?north ?south  @#$%FROM%$#@ WHERE {\n"
+                //                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
+                //                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
+
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                //                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
                 + "?loc a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
+                + "?loc rdfs:label ?location. \n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
@@ -2130,53 +2131,52 @@ public class H2Manager {
                 + "##\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@). \n"
                 + "}",
-                "SELECT DISTINCT ?address ?Service (?loc as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ WHERE {\n"
-                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
-                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
-                + "?addr rdfs:label ?address.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
-                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
+                "SELECT DISTINCT (?loc as ?uri) ?location ?east ?west ?north ?south  @#$%FROM%$#@ WHERE {\n"
+                //                + "?addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
+                //                + "?addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
+                //                + "?addr rdfs:label ?address.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
+                //                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?loc.\n"
                 + "?loc a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
                 + "?loc <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "##\n"
-                + "?address bif:contains \"@#$%TERM%$#@\".\n"
+                + "?loc rdfs:label ?location. ?address bif:contains \"@#$%TERM%$#@\".\n"
                 + "##\n"
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@). \n"
                 ///
-                + "} ORDER BY desc(?score)",
+                + "}",
                 false,
                 "distinct (?@#$%VAR%$#@address as ?address) ?@#$%VAR%$#@east ?@#$%VAR%$#@west ?@#$%VAR%$#@north ?@#$%VAR%$#@south ?Service (?@#$%VAR%$#@ as ?uri)",
                 ///
-                "?@#$%VAR%$#@addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
-                + "?@#$%VAR%$#@addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
-                + "?@#$%VAR%$#@addr rdfs:label ?@#$%VAR%$#@Name.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
-                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
-                + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
-                + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@.\n"
-                + "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
+                //                "?@#$%VAR%$#@addr a <http://eurocris.org/ontology/cerif#PostalAddress>.\n"
+                //                + "?@#$%VAR%$#@addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?entity].\n"
+                //                + "?@#$%VAR%$#@addr rdfs:label ?@#$%VAR%$#@Name.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?entity <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE1.\n"
+                //                + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@PA.\n"
+                //                + "?@#$%VAR%$#@PA <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@FLE2.\n"
+                //                + "?@#$%VAR%$#@FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@.\n"
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?@#$%VAR%$#@north.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?@#$%VAR%$#@south.",
                 ///
-                "?@#$%VAR%$#@addr a <http://eurocris.org/ontology/cerif#PostalAddress>. \n"
-                + "?@#$%VAR%$#@addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?@#$%TARGET%$#@].\n"
-                + "?@#$%VAR%$#@addr rdfs:label ?@#$%VAR%$#@Name.\n"
-                + "?@#$%VAR%$#@Name bif:contains \"@#$%TERM%$#@\".",
+                //                "?@#$%VAR%$#@addr a <http://eurocris.org/ontology/cerif#PostalAddress>. \n"
+                //                + "?@#$%VAR%$#@addr <http://eurocris.org/ontology/cerif#is_destination_of> [<http://eurocris.org/ontology/cerif#has_source> ?@#$%TARGET%$#@].\n"
+                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Location. ?@#$%VAR%$#@?@#$%VAR%$#@Location bif:contains \"@#$%TERM%$#@\". \n",
                 ///
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?@#$%VAR%$#@east.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?@#$%VAR%$#@west.\n"
@@ -2555,9 +2555,9 @@ public class H2Manager {
                 + "  ?obj ?locProp ?GBB.\n"
                 + "} WHERE {\n"
                 + "  ?obj a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
-                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
@@ -2570,9 +2570,9 @@ public class H2Manager {
                 + "  ?obj ?locProp ?GBB.\n"
                 + "} WHERE {\n"
                 + "  ?obj a <http://eurocris.org/ontology/cerif#Product>.\n"
-                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
@@ -2580,14 +2580,29 @@ public class H2Manager {
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Product-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
                 + "}");
+        insertRelationMatUpdate("Dataset-Location", "WITH @#$%FROM%$#@\n"
+                + "INSERT {\n"
+                + "  ?obj ?locProp ?GBB.\n"
+                + "} WHERE {\n"
+                + "  ?obj a <http://eurocris.org/ontology/cerif#Dataset>.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_northBoundaryLatitude> ?north.\n"
+                + "  ?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Dataset-Location/\",encode_for_uri(\"located at\"))) as ?locProp ).\n"
+                + "}");
         insertRelationMatUpdate("Equipment-Location", "WITH @#$%FROM%$#@\n"
                 + "INSERT {\n"
                 + "  ?obj ?locProp ?GBB.\n"
                 + "} WHERE {\n"
                 + "  ?obj a <http://eurocris.org/ontology/cerif#Equipment>.\n"
-                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
@@ -2600,9 +2615,9 @@ public class H2Manager {
                 + "  ?obj ?locProp ?GBB.\n"
                 + "} WHERE {\n"
                 + "  ?obj a <http://eurocris.org/ontology/cerif#Facility>.\n"
-                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
-                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
-                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                + "  ?obj <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
+                //                + "  ?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
+                //                + "  ?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "  ?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
                 + "  ?GBB <http://eurocris.org/ontology/cerif#has_westBoundaryLongitude> ?west.\n"
@@ -2972,26 +2987,22 @@ public class H2Manager {
         String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSJ9.3ORP6OmfHdl0Pq0osxy_YCdROwyMoq-cQJkcodBJ5UQ";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String graphUri = "http://graph/1528292347014";
-        graphUri = "http://graph/1528446132351";
+        graphUri = "http://graph/1528451273706";
         /////
 
-//        Connection conn = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
-//        DBService.setConnection(conn);
-//        DBService.setJdbcTemplateUsed(false);
-////        String graphUri = "http://graph/1526393960123";
 ////        List<String> uris = DBService.retrieveAllNamedgraphUris();
 ////        for (String graphURI : uris) {
         Set<String> matRelationEntities = new HashSet<>();
         matRelationEntities.add("Organisation");
-//        matRelationEntities.add("Person");
+        matRelationEntities.add("Person");
         matRelationEntities.add("Equipment");
         matRelationEntities.add("Facility");
         matRelationEntities.add("WebService");
-//        matRelationEntities.add("Product");
-////            matRelationEntities.add("Location");
+        matRelationEntities.add("Product");
+        matRelationEntities.add("Location");
 ////            matRelationEntities.add("Publication");
 ////            matRelationEntities.add("Project");
-//        matRelationEntities.add("Dataset");
+        matRelationEntities.add("Dataset");
 //        
 //        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
 //        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);

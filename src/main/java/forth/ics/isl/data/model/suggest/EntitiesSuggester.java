@@ -134,6 +134,7 @@ public class EntitiesSuggester {
                 if (query != null) {
                     query = query.replace("distinct", "") + " limit 1";
                     queries.add(query);
+                    System.out.println(query);
                 }
             }
             if (!queries.isEmpty()) {
