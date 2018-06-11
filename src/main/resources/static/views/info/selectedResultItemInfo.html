@@ -42,7 +42,7 @@
 							<a target="_blank" href="{{currSelectedResultItem.instance_ext_uri}}">&nbsp;({{currSelectedResultItem.instance_ext_uri}})</a>
 						</span>
 					</div>
-					<span ng-if="currSelectedResultItem.instance_params != null" class="md-subhead"><b>Keywords:</b> {{currSelectedResultItem.instance_params}}</span>
+					<span ng-if="currSelectedResultItem.instance_params != null && currSelectedResultItem.instance_params != ''" class="md-subhead"><b>Keywords:</b> {{currSelectedResultItem.instance_params}}</span>
 					<span ng-if="currSelectedResultItem.instance_description != null" 
 						  class="md-subhead" 
 						  style="font-style: italic; text-align:justify;">
