@@ -54,6 +54,7 @@ public class BeautifyQueryResultsService {
                 + "select distinct  ?instance_uri "
                 + "?instance_label "
                 + "?instance_name "
+                + "?instance_abstract "
                 + "?instance_descr "
                 + "GROUP_CONCAT(?instance_keyw ; separator=\", \") as ?instance_params "
                 + "?instance_title "
@@ -66,6 +67,7 @@ public class BeautifyQueryResultsService {
                 + "  optional { ?instance_uri rdfs:label ?instance_label .}\n"
                 + "  optional { ?instance_uri cerif:has_URI ?instance_ext_uri.}\n"
                 + "  optional { ?instance_uri cerif:has_name ?instance_name.}\n"
+                + "  optional { ?instance_uri cerif:has_abstract ?instance_abstract.}\n"
                 + "  optional { ?instance_uri cerif:has_description ?instance_descr.}\n"
                 + "  optional { ?instance_uri cerif:has_keywords ?instance_keyw.}\n"
                 + "  optional { ?instance_uri cerif:has_title ?instance_title.}\n"
@@ -87,6 +89,7 @@ public class BeautifyQueryResultsService {
             String instanceDescr = getJSONObjectValue(row, "instance_descr");
             String instanceParams = getJSONObjectValue(row, "instance_params");
             String instanceName = getJSONObjectValue(row, "instance_name");
+            String instanceAbstract = getJSONObjectValue(row, "instance_abstract");
             String instanceTitle = getJSONObjectValue(row, "instance_title");
             String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
             String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
@@ -94,6 +97,9 @@ public class BeautifyQueryResultsService {
             instanceInfo.put("instance_uri", instanceUri);
             if (instanceName != null) {
                 instanceInfo.put("instance_name", instanceName);
+            }
+            if (instanceAbstract != null) {
+                instanceInfo.put("instance_abstract", instanceAbstract);
             }
             if (instanceTitle != null) {
                 instanceInfo.put("instance_title", instanceTitle);

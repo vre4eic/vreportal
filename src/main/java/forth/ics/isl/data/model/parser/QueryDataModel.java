@@ -67,7 +67,6 @@ public class QueryDataModel {
                 relModel.setGeoSearchPattern(relModel.getFilterGeoSearchPattern());
             }
         }
-
     }
 
     public TargetModel getTargetModel() {
@@ -181,7 +180,5 @@ public class QueryDataModel {
 //        query.append(rel1.getKeywordSearchPattern(relVar) + "\n");
 //        System.out.println(query);
     }
-
-    
 
 }
