@@ -61,16 +61,19 @@ public class Utils {
     public static StringBuilder getChipsFilter(JSONArray searchChips) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < searchChips.size(); i++) {
-            String[] chipArr = ((String) ((JSONObject) searchChips.get(i)).get("name")).split(" ");
-            StringBuilder chipStr = new StringBuilder();
-            for (int j = 0; j < chipArr.length; j++) {
-                String chipWord = removePuncuations(chipArr[j]);
-                chipStr.append(chipWord);
-                if (j < chipArr.length - 1) {
-                    chipStr.append(" and ");
-                }
-            }
-            sb.append(chipStr);
+//            String[] chipArr = ((String) ((JSONObject) searchChips.get(i)).get("name")).split(" ");
+//            StringBuilder chipStr = new StringBuilder();
+//            for (int j = 0; j < chipArr.length; j++) {
+//                String chipWord = removePuncuations(chipArr[j]);
+//                chipStr.append(chipWord);
+//                if (j < chipArr.length - 1) {
+////                    chipStr.append(" and ");
+//                }
+//            }
+//            sb.append("'"+chipName+"'");
+
+            String chipName = removePuncuations((String) ((JSONObject) searchChips.get(i)).get("name"));
+            sb.append("'" + chipName + "'");
             if (i < searchChips.size() - 1) {
                 sb.append(" or ");
             }
