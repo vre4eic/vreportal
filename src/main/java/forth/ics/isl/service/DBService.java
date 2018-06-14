@@ -273,7 +273,7 @@ public class DBService {
             Connection conn = initConnection();
             Statement statement = conn.createStatement();
             ResultSet result = statement.executeQuery("select uri, name from relation");
-            int cnt=0;
+            int cnt = 0;
             while (result.next()) {
                 relations.put(result.getString("uri"), result.getString("name"));
                 cnt++;

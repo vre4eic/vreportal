@@ -437,8 +437,8 @@ public class EntityManagerController {
     private Response createUserGraph(JSONObject requestParams, String query) throws ClientErrorException {
         String userId = (String) ((LinkedHashMap) requestParams.get("userProfile")).get("userId");
         String graph = "http://profile/" + userId;
-//        int start = query.indexOf("from");  //consider selected namedgraphs
-        int start = query.indexOf("where");
+        int start = query.indexOf("from");  //consider selected namedgraphs
+//        int start = query.indexOf("where");
         int end = query.lastIndexOf("}");
         StringBuilder updateQuery = new StringBuilder();
         updateQuery.append("insert into <" + graph + "> {\n")
