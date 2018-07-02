@@ -346,7 +346,7 @@ public class RelatedModel {
         return true;
     }
 
-    public String createSPARQLBlock(String targetEntity, int relCnt) {
+    public String createSPARQLBlock(String targetEntity, String relCnt) {
         StringBuilder block = new StringBuilder();
         String relVar = getRelatedVarName() + "_" + relCnt;
         block.append("?" + targetEntity + " <" + getRelationUri() + "> ?" + relVar + ".\n");
@@ -373,9 +373,11 @@ public class RelatedModel {
         ////
         List<String> relEntitiesBlocks = new ArrayList<>();
         if (relatedModels != null && !relatedModels.isEmpty()) {
+            int newCnt = 0;
             for (RelatedModel relModel : relatedModels) {
-                String curBlock = relModel.createSPARQLBlock(relVar, ++relCnt);
+                String curBlock = relModel.createSPARQLBlock(relVar, relCnt + "_" + newCnt);
                 relEntitiesBlocks.add(curBlock);
+                newCnt++;
             }
             if (relatedModels.size() == 1) {
                 block.append(relEntitiesBlocks.get(0));

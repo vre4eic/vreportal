@@ -94,7 +94,7 @@ public class QueryDataModel {
         for (RelatedModel relModel : relatedModels) {
             if (!relModel.isNullRelatedModel()) {
 //            query.append(relModel.createSPARQLBlock(targetVar, relCnt));
-                relEntitiesBlocks.add(relModel.createSPARQLBlock(targetVar, relCnt));
+                relEntitiesBlocks.add(relModel.createSPARQLBlock(targetVar, "" + relCnt));
                 relCnt++;
             }
         }

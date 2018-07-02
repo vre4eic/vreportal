@@ -2974,7 +2974,7 @@ public class H2Manager {
 //        matRelationEntities.add("Dataset");
         matRelationEntities.add("Software");
 //        
-//        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
+        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
 //        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
     }

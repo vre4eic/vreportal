@@ -4,15 +4,8 @@ import org.springframework.context.annotation.ScopedProxyMode;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -20,25 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import forth.ics.isl.data.model.EndPointDataPage;
-import forth.ics.isl.data.model.EndPointForm;
-import forth.ics.isl.data.model.InputAdvancedRequest;
-import forth.ics.isl.data.model.InputGeoRequest;
-import forth.ics.isl.data.model.InputTagRequest;
-import forth.ics.isl.data.model.NgTag;
 import forth.ics.isl.data.model.parser.QueryDataModel;
 import forth.ics.isl.service.BeautifyQueryResultsService;
-import forth.ics.isl.service.DBService;
 import forth.ics.isl.triplestore.RestClient;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
