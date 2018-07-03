@@ -209,7 +209,23 @@ angular.module('app.securityServices', [])
 				alert("err: " + err);
 			});
 
-		}
+		},
+		
+		getPortalState: function () {
+
+            return $http({
+                'url': '/retrieve_portal_state',
+                'method': 'POST',
+                'headers': {
+                    'Content-Type': 'application/json'
+                }
+            }).then(function (success) {
+                return success;
+            }, function (error) {
+                //error code
+            });
+
+        }
         
 	}
 });

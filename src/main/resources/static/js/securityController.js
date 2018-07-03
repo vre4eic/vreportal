@@ -279,10 +279,17 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 		
 } ]);
 
-app.controller("registrationCtrl", ['$scope', 'authenticationService', '$timeout', '$state', 
-                             function($scope, authenticationService, $timeout, $state) {
+app.controller("registrationCtrl", ['$scope', 'authenticationService', 'modalService', '$timeout', '$state', 
+                             function($scope, authenticationService, modalService, $timeout, $state) {
 	
 	$scope.headingTitle = "Registration Form";
+	
+	var modalDefaults = {
+		backdrop: true,
+		keyboard: true,
+		modalFade: true,
+		templateUrl: '/views/loadingModal.html'
+	};
 	
 	$scope.roles = [
         {label: "Researcher", value: "RESEARCHER"},
@@ -295,12 +302,77 @@ app.controller("registrationCtrl", ['$scope', 'authenticationService', '$timeout
 	
 	// Alert (danger, warning, success)
 	$scope.alerts = [];
-	/*
-	$scope.register = function() {
-		alert("dsdsd");
+
+	// Regarding user's roles and whether they should be editable
+	
+	$scope.portalPolicy = {};
+	
+	// Calling service to retrieve the portal's state (public or private)
+	// For "public" state, user's role editinf should be disabled
+	function retrieveState() {
+		
+		var modalOptions = {
+			headerText: 'Loading Please Wait...',
+			bodyText: 'Retrieving data...'
+		};
+		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
+		
+		authenticationService.getPortalState()
+		.then(function (response) {
+			
+			if(response.status == -1) {
+				$scope.message = 'There was a network error. Try again later.';
+				$scope.showErrorAlert('Error', $scope.message);
+			}
+			
+			else {
+				if(response.status == '200') {
+					$scope.portalPolicy = response.data;
+				}
+				else if(response.status == '408') {
+					$log.info(response.status);
+					$scope.message = 'It seems that it takes a lot of time to complete this task! Please redifine your query and try again.';
+					$scope.showErrorAlert('Important', $scope.message);
+				}
+				else if(response.status == '400') {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+				else if(response.status == '401') {
+					$log.info(response.status);
+					$scope.showLogoutAlert();
+					authenticationService.clearCredentials();
+				}
+				else {
+					$log.info(response.status);
+					$scope.message = 'There was a network error. Try again later and if the same error occures again please contact the administrator.';
+					$scope.showErrorAlert('Error', $scope.message);
+				}
+			
+			} // else close
+			
+		}, function (error) {
+			$scope.message = 'There was a network error. Try again later.';
+			alert("failure message: " + $scope.message + "\n" + JSON.stringify({
+				data : error
+			}));
+		}).finally(function() {
+			$timeout(function(){
+				modalInstance.close();
+			});//, 500);
+		});
 	}
-	*/
+	
+	// Call Method to retrieve portal's state
+	retrieveState();
+	
 	$scope.register = function() {
+		
+		// Before applying registration, check for portal's state
+		// If it is public then add userRole "Researcher"
+		if($scope.portalPolicy == "public")
+			$scope.registration.role = "RESEARCHER";
 		
 		// Register
 		authenticationService.register($scope.registration)

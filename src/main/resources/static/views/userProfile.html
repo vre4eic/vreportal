@@ -202,8 +202,8 @@
 						            		   name="confirmPassword" 
 						            		   id="confirmPassword" 
 						            		   ng-model="userProfile.confirmPassword" 
-						            		   required 
-						            		   compare-to="userProfile.password"/>
+						            		   compare-to="userProfile.password"
+						            		   required/>
 					
 						            	<div ng-messages="form.confirmPassword.$error" multiple>
 											<div ng-message="required">This is required</div>
@@ -293,8 +293,8 @@
 						      		</md-input-container>
 						        	       
 						        </div>
-						        
-						        <div layout="row">
+
+						        <div layout="row" ng-if="portalPolicy.portalState == 'private'">
 						        	<md-input-container>
 						        		<label>User Role</label>
 						        		<md-icon md-font-icon="mdi mdi-security" style="font-size:25px;"></md-icon>
@@ -317,9 +317,14 @@
 						</md-card-title-media>
 											
 						<md-card-actions layout="row" layout-align="start center">
-							<md-button type="submit" ng-disabled="form.$invalid" class="md-raised md-primary">
+							<md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">
 			            		Update Profile
 			            	</md-button>
+			            	
+			            	<span style="color: rgb(221,44,0); font-style: italic;" 
+			            		  ng-show="userProfile.password==null || userProfile.confirmPassword==null">
+			            		(Don't forget to fill your existing password or a new one to replace the old)
+			            	</span>
 			            	
 			            	<span flex></span>
 			            	

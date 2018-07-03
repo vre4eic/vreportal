@@ -36,6 +36,8 @@ public class ConfigurationController {
     private String uriPrefix;
     @Value("${service.max.result.count}")
     private String maxResultCountLimit;
+    @Value("${portal.state}")
+    private String portalState;
 
     /**
      * This service retrieves configuration options (service.url, triplestore.namespace and uri.prefix) from the property file
@@ -51,5 +53,19 @@ public class ConfigurationController {
     	serviceModelJsonObject.put("uriPrefix", uriPrefix);
     	serviceModelJsonObject.put("maxResultCountLimit", maxResultCountLimit);
         return serviceModelJsonObject;
+    }
+    
+    /**
+     * This service retrieves the configuration option "portal.state" from the property file
+     * and returns it's value (the value can either be "public" or "private"). If the value 
+     * is "public" then the user role editing will be disabled.
+     */
+    @RequestMapping(value = "/retrieve_portal_state", method = RequestMethod.POST, produces = {"application/json"})
+    public @ResponseBody
+    JSONObject retrievePortalStateOption() throws IOException {
+        System.out.println("Works");
+        JSONObject portaStateJsonObject = new JSONObject();
+        portaStateJsonObject.put("portalState", portalState);
+        return portaStateJsonObject;
     }
 }

@@ -2733,7 +2733,6 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
         				userProfile: $scope.userProfile // Used for VRE4EIC only (to store results into a temp namedgraph)
         		}
     			// Calling service to executing Query - Promise
-	    		//queryService.getEntityQueryResults($scope.serviceModel, params, $scope.credentials.token)
 	    		queryService.getFinalQueryResults(params, $scope.credentials.token)
 	    		.then(function (response) {
 	        		
