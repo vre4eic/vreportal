@@ -3,10 +3,10 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$mdToast', '$http', '$log', '$mdDialog', '$mdToast', 
+app.controller("userManagementCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$mdToast', '$http', '$log', '$mdDialog', '$mdToast', 
                                   function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $mdToast, $http, $log, $mdDialog, $mdToast) {
 	
-	$scope.headingTitle = "My Profile";
+	$scope.headingTitle = "User Management";
 	
 	// Calling service to get the user's credentials (token, userId)
 	function initCredentials() {
@@ -17,6 +17,8 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
 	}
 	
 	initCredentials();
+	
+	$scope.currUserProfile = authenticationService.getUserProfile();
 	
 	function checkAuthorization() {
 		
@@ -92,42 +94,28 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
         {label: "Demo", value: "DEMO"}
     ];
 	
-	// Flag determining whether this is a view or edit mode
-	$scope.editMode = false;
+	// Array to hold all users
+	$scope.allUserProfiles = [];
 	
-	// Called to enable edit mode
-	$scope.enableEditProfileMode = function() {
-		$scope.editMode = true;
-	}
-	
-	// Called to disable edit mode (used as cancel)
-	$scope.disableEditProfileMode = function() {
-		$scope.editMode = false;
-	}
-	
-	$scope.userProfile = {};
-
-	// Retrieving current user's profile
-	function retrieveUserProfile(username) {
-		
-		var model = {username: username};
-				
+	// Retrieving the list of user
+	function retrieveAllUsers() {
+						
 		var modalOptions = {
 			headerText: 'Loading Please Wait...',
 			bodyText: 'Retrieving data...'
 		};
 		var modalInstance = modalService.showModal(modalDefaults, modalOptions);
 		
-		authenticationService.retrieveUserProfile($scope.credentials.token, username)
-        .then(function (profileResponse) {
+		authenticationService.retrieveAllUserProfiles($scope.credentials.token)
+        .then(function (response) {
     		
-			if(profileResponse.status == '200') {
-				if (profileResponse.data.name !== null) {
-    				console.log("profileResponse", profileResponse.data);
-    				$sessionStorage.userProfile = profileResponse.data; // Store in session again
-    				$scope.userProfile = profileResponse.data; // Store in scope for using it now
+			if(response.status == '200') {
+				if (response.data.length > 0) {
+    				console.log("response", response.data);
+    				$scope.allUserProfiles = response.data
+    				
     	        } else {
-    	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.data.message + "! Cannot retrieve user's profile. "});	        	            
+    	        	$scope.alerts.push({type: 'danger-funky', msg: profileResponse.data.message + "! There are no users available!"});	        	            
     	        }
 				
 			}
@@ -163,17 +151,20 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
 	}
 	
 	// Get user's profile from session
-	retrieveUserProfile($sessionStorage.userProfile.userId);
+	retrieveAllUsers();
 	
+	// Selecting the model to load
+	$scope.setSelectedUserProfile = function() {
+        $scope.selectedUserProfile = this.item; // this.item is from the ng-repeat in html
+        $scope.selectedUserProfileBackup = this.item; // to be used at cancel
+        console.log("selectedUserProfile", $scope.selectedUserProfile);
+    };
 	
-	// Updates the profile of user
+	// Updates the profile of the selected user
 	$scope.updateUserProfile = function() {
 				
 		// Pre-processing
-		var tempUserProfile = angular.copy($scope.userProfile);
-		
-		// Delete confirmPassword just in case
-		delete tempUserProfile.confirmPassword;
+		var tempUserProfile = angular.copy($scope.selectedUserProfile);
 		
 		// Due to bug at the e-VRE NodeService,
 		// change parameter "userId" into "userid" (I to i)
@@ -191,13 +182,7 @@ app.controller("userProfileCtrl", ['$state', '$scope', '$timeout', '$parse', '$s
     		
 			if(response.status == '200') {
     			console.log("Profile response: " + response.data);
-    			
-    			// Delete confirmPassword just in case
-    			delete $scope.userProfile.confirmPassword;
-    			
-    			$scope.disableEditProfileMode();
-    			
-    			$sessionStorage.userProfile = $scope.userProfile; // Store regular profile (before pre-processing) in session again
+    			// Prompt success message
 			}
 			else if(response.status == '400') {
 				$log.info(response.status);

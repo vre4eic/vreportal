@@ -93,6 +93,11 @@ app.config(function($stateProvider, $urlRouterProvider, $mdThemingProvider, $htt
 			templateUrl: 'views/userProfile.html',
         	controller: 'userProfileCtrl'
 		})
+		.state('userManagement', {
+			url: '/userManagement',
+			templateUrl: 'views/userManagement.html',
+        	controller: 'userManagementCtrl'
+		})
 		.state('privacyPolicy', {
 			url: '/privacyPolicy',
 			templateUrl: 'views/privacyPolicy.html',

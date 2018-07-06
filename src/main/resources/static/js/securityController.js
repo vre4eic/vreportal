@@ -246,6 +246,16 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 			$state.go('favorites', {});
 	}
 	
+	// Navigates to user management section
+	$scope.goToUserManagement = function(ev) {
+		// Checks if there is any query currently under construction
+		// and prompts message or just navigate to the new page
+		if(homeStateConfirmService.isQueryUnderConstruction())
+			confirmLeavingFromQueryBuilder(ev, 'userManagement');
+		else
+			$state.go('userManagement', {});
+	}
+	
 	$scope.goToUserProfileView = function(ev) {
 		// Checks if there is any query currently under construction
 		// and prompts message or just navigate to the new page

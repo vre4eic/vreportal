@@ -153,6 +153,24 @@ angular.module('app.securityServices', [])
 			});
         },
         
+        retrieveAllUserProfiles: function (token) {
+        	return $http({
+				'url' : 'http://v4e-lab.isti.cnr.it:8080/NodeService/user/getprofiles',
+				'method' : 'Get',
+				
+				'headers' : {
+					'Content-Type' : 'application/json'
+				},
+				'params' : {
+					'token' : token
+				}
+			}).then(function (response) {
+				return response;
+			},function (error) {
+				alert("err: " + err);
+			});
+        },
+        
         // Get it from session
         isAuthenticated: function () {
         	return $sessionStorage.authenticated;
