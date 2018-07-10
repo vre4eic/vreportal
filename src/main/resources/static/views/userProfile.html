@@ -310,13 +310,21 @@
 											<div ng-message="required">This is required</div>
 										</div>
 						      		</md-input-container>
-						        </div>	        
+						        </div>
+						        
+						        <div layout="row" ng-if="portalPolicy.portalState == 'public'" style="color:rgb(255,64,129);">
+						        	To request for an "Operator" user role (allowing users to import data), please contact with Vangelis Kritsotakis at&nbsp; 
+						        	<img align="top" src="images/mail-vkrits.png" style="width:134px;">
+					        	</div>
 					        	
+					        	<div>
+					        		<md-divider></md-divider>
+					        	</div>
 					        </div>
 					        
 						</md-card-title-media>
 											
-						<md-card-actions layout="row" layout-align="start center">
+						<md-card-actions layout="row" layout-align="start center" style="padding:15px;">
 							<md-button type="submit" class="md-raised md-primary" ng-disabled="form.$invalid">
 			            		Update Profile
 			            	</md-button>

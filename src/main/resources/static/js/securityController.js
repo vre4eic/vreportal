@@ -379,9 +379,9 @@ app.controller("registrationCtrl", ['$scope', 'authenticationService', 'modalSer
 	
 	$scope.register = function() {
 		
-		// Before applying registration, check for portal's state
-		// If it is public then add userRole "Researcher"
-		if($scope.portalPolicy == "public")
+		// Before applying registration, check there is any role selected 
+		// and if there is not then autoselect researcher
+		if($scope.registration.role == null)
 			$scope.registration.role = "RESEARCHER";
 		
 		// Register

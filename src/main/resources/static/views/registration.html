@@ -180,7 +180,12 @@
 	        	<div class="form-actions">
 	            	<md-button type="submit" ng-disabled="form.$invalid" class="md-raised md-primary">Register</md-button>
 	        	</div>
-	        
+	        	
+	        	<div ng-if="portalPolicy.portalState == 'public'" style="color:rgb(255,64,129);">
+		        	To request for an "Operator" user role (allowing users to import data), please contact with Vangelis Kritsotakis at 
+		        	<img align="top" src="images/mail-vkrits.png">
+	        	</div>
+	        	
 	        </div>
         	
         	<!--

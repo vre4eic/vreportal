@@ -5,7 +5,7 @@
 	
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-icon md-font-icon="fa fa-star" style="padding-right:10px; font-size:36px;"/>
+					<md-icon md-font-icon="fa fa-users" style="padding-right:10px; font-size:36px;"/>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 			        <md-button ng-click="toggleInfo()" class="md-icon-button" aria-label="Show Help">
 			            <md-icon md-font-icon="fa fa-question-circle" style="font-size:28px;">
@@ -101,7 +101,7 @@
 						            <span class="md-headline" 
 						            	  style="color: rgb(255,64,129);"
 						            	  ng-show="selectedUserProfile == null">
-						            	Please select some user to display information about him/her here
+						            	Please select any user to display and edit his/her respective information
 						            </span>
 						        </md-card-title-text>
 							</md-card-title>
@@ -211,7 +211,7 @@
 							        	       
 							        </div>
 		
-							        <div layout="row" ng-if="portalPolicy.portalState == 'private'">
+							        <div layout="row">
 							        	<md-input-container>
 							        		<label>User Role</label>
 							        		<md-icon md-font-icon="mdi mdi-security" style="font-size:25px;"></md-icon>

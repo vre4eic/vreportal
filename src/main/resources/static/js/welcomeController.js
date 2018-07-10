@@ -108,7 +108,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"import",
-	 	   disabled: !$scope.hasRoleOfAdministrator, 
+	 	   disabled: !($scope.hasRoleOfAdministrator || $scope.hasRoleOfOperator), 
 	 	   view:""
 	    }, { 
 	 	   index:"2", 
