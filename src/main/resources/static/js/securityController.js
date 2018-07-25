@@ -206,7 +206,7 @@ app.controller("beforeLoginCtrl", ['$scope', 'authenticationService', 'homeState
 			
 		$scope.hasRoleOfAdministrator = $scope.hasRole('ADMIN');
 		$scope.hasRoleOfResearcher = $scope.hasRole('RESEARCHER');
-		$scope.hasRoleOfController = $scope.hasRole('OPERATOR');
+		$scope.hasRoleOfOperator = $scope.hasRole('OPERATOR');
 		$scope.hasRoleOfController = $scope.hasRole('CONTROLLER');
 	}
 	

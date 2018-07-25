@@ -41,7 +41,7 @@
 									My Profile
 								</md-button>
 							</md-menu-item>
-							<md-menu-item ng-hide="!hasRoleOfAdministrator && !hasRoleOfResearcher && !hasRoleOfController">
+							<md-menu-item ng-hide="!hasRoleOfAdministrator && !hasRoleOfResearcher && !hasRoleOfOperator">
 								<md-button ng-click="goToFavoritesView($event)">
 									<md-icon md-font-icon="fa fa-star"></md-icon>
 									My Favorites
@@ -53,7 +53,7 @@
 									User Management
 								</md-button>
 				        	</md-menu-item>
-				        	<md-menu-item ng-hide="!hasRoleOfAdministrator && !hasRoleOfResearcher && !hasRoleOfController">
+				        	<md-menu-item>
 								<md-button ng-click="goToPrivacyPolicyView($event)">
 									<md-icon md-font-icon="fa fa-handshake-o"></md-icon>
 									Privacy Policy

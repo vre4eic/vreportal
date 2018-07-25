@@ -85,7 +85,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 		
 	$scope.hasRoleOfAdministrator = $scope.hasRole('ADMIN');
 	$scope.hasRoleOfResearcher = $scope.hasRole('RESEARCHER');
-	$scope.hasRoleOfController = $scope.hasRole('OPERATOR');
+	$scope.hasRoleOfOperator = $scope.hasRole('OPERATOR');
 	$scope.hasRoleOfController = $scope.hasRole('CONTROLLER');
 	
 	$scope.cards = [{ 
@@ -119,7 +119,7 @@ app.controller("welcomeCtrl", ['$state', '$scope', '$sessionStorage', 'authentic
 	 	   actionButtonLabel:"Continue",
 	 	   href:"",
 	 	   state:"favorites",
-	 	   disabled: !$scope.hasRoleOfAdministrator && !$scope.hasRoleOfResearcher && !$scope.hasRoleOfController, 
+	 	   disabled: !$scope.hasRoleOfAdministrator && !$scope.hasRoleOfResearcher && !$scope.hasRoleOfOperator, 
 	 	   view:""
 	    }
 	];
