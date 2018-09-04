@@ -405,14 +405,26 @@ public class RelatedModel {
             String concStr = targetEntity + "_" + relVar;
             block.append("?" + targetEntity + " <http://eurocris.org/ontology/cerif#is_source_of> ?" + concStr + ".\n");
             block.append("?" + relVar + " <http://eurocris.org/ontology/cerif#is_destination_of> ?" + concStr + ".\n");
-            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?" + concStr + "_start_date.\n");
-            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?" + concStr + "_end_date.\n");
             if (fromDate != null) {
-                block.append("filter (xsd:dateTime(?" + concStr + "_start_date) >= xsd:dateTime('" + fromDate + "T00:00:00')).\n");
+                block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?" + concStr + "_start_date.\n");
+                block.append("filter (xsd:dateTime('" + fromDate + "T00:00:00') >= xsd:dateTime(?" + concStr + "_start_date)).\n");
+                block.append("OPTIONAL { ?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?" + concStr + "_end_date.\n").
+                        append("filter (xsd:dateTime('" + fromDate + "T00:00:00') <= xsd:dateTime(?" + concStr + "_end_date)). }\n");
             }
             if (endDate != null) {
-                block.append("filter (xsd:dateTime(?" + concStr + "_end_date) <= xsd:dateTime('" + endDate + "T00:00:00')).\n");
+                block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?" + concStr + "_end_date.\n").
+                        append("filter (xsd:dateTime('" + endDate + "T00:00:00') <= xsd:dateTime(?" + concStr + "_end_date)).\n");
+                block.append("OPTIONAL { ?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?" + concStr + "_start_date.\n").
+                        append("filter (xsd:dateTime('" + endDate + "T00:00:00') >= xsd:dateTime(?" + concStr + "_start_date)). }\n");
             }
+//            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_startDate> ?" + concStr + "_start_date.\n");
+//            block.append("?" + concStr + " <http://eurocris.org/ontology/cerif#has_endDate> ?" + concStr + "_end_date.\n");
+//            if (fromDate != null) {
+            //block.append("filter (xsd:dateTime(?" + concStr + "_start_date) >= xsd:dateTime('" + fromDate + "T00:00:00')).\n");
+//            }
+//            if (endDate != null) {
+            //block.append("filter (xsd:dateTime(?" + concStr + "_end_date) <= xsd:dateTime('" + endDate + "T00:00:00')).\n");
+//            }
         }
     }
 

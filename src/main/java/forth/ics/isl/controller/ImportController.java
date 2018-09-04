@@ -176,7 +176,7 @@ public class ImportController {
         System.out.println("namedGraphIdStr: " + namedGraphIdStr);
         //////
         ProvInfoGeneratorService info = new ProvInfoGeneratorService(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
-                serviceUrl, namespace, authorizationToken);
+                serviceUrl, authorizationToken);
 //
         String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
         String q2 = info.createLinkingInsertQuery(namedGraphIdStr); // Linking Update Query

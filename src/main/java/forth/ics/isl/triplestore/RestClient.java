@@ -41,7 +41,7 @@ public class RestClient {
 
     public RestClient(String serviceUrl, String namespace, String authorizationToken) throws IOException {
         // Be put in comments due to conflicts with log4j when creating the fat jar
-    	Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
         for (String log : loggers) {
             Logger logger = (Logger) LoggerFactory.getLogger(log);
             logger.setLevel(Level.INFO);
@@ -145,13 +145,14 @@ public class RestClient {
                 header("Authorization", authorizationToken).post(Entity.json(json.toJSONString()));
     }
 
-    public Response executeUpdatePOSTJSON(String update, String namespace, String token) throws ClientErrorException {
+    public Response executeUpdatePOSTJSON(String update, String token) throws ClientErrorException {
         Client client = ClientBuilder.newClient();
         JSONObject json = new JSONObject();
         json.put("query", update);
-        WebTarget webTarget = client.target(serviceUrl + "/update/namespace/" + namespace);
+        WebTarget webTarget = client.target(serviceUrl + "/update/virtuoso");
         return webTarget.request(MediaType.APPLICATION_JSON).
                 header("Authorization", token).post(Entity.json(json.toJSONString()));
+
     }
 
     public Response executeUpdatePOSTJSON(String updateQuery) throws ClientErrorException {

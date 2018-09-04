@@ -5,7 +5,6 @@
  */
 package forth.ics.isl.service;
 
-import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -16,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections.ListUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -41,12 +39,11 @@ public class ProvInfoGeneratorService {
     private String eAddressUri;
     private String authorizationToken;
     private String endpoint;
-    private String namespace;
     private String importedByUUID;
     private final String personUri;
     private final String orgUnitUri;
 
-    public ProvInfoGeneratorService(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String namespace, String authorizationToken) throws UnsupportedEncodingException {
+    public ProvInfoGeneratorService(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String authorizationToken) throws UnsupportedEncodingException {
         this.personName = personName;
         this.emailString = emailString;
         this.roleString = roleString;
@@ -54,7 +51,6 @@ public class ProvInfoGeneratorService {
         this.orgUrl = orgUrl;
         this.authorizationToken = authorizationToken;
         this.endpoint = endpoint;
-        this.namespace = namespace;
         this.personUri = VREPrefix + "Person." + URLEncoder.encode(emailString, "UTF-8");
         this.orgUnitUri = VREPrefix + "OrgUnit." + URLEncoder.encode(orgUrl, "UTF-8");
         this.eAddressUri = VREPrefix + "EAddress." + URLEncoder.encode(emailString, "UTF-8");
@@ -199,13 +195,13 @@ public class ProvInfoGeneratorService {
         String orgUrl = "https://www.ics.forth.gr/";
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "rous";
-        String token = "05d7e21c-0fab-453f-857c-d4282fcd4d50";
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSIsInVzZXJJZCI6ImNlc2FyZSJ9.nU12Aeitg1cpNZPhG67di6PxONfVv4HU-IYPylNGiYw";
         ProvInfoGeneratorService info = new ProvInfoGeneratorService(personName, emailString, role, orgName, orgUrl,
-                endpoint, namespace, token);
+                endpoint, token);
 
 //        System.out.println(info.orgTriples());
 //        System.out.println(info.personTriples());
-//        System.out.println(info.generateTriples());
+        System.out.println(info.generateTriples());
 //        RestClient client = new RestClient(endpoint, namespace, token);
 //        Response resp = client.executeUpdatePOSTJSON(query.toString(), "rous", token);
 //        System.out.println(resp.readEntity(String.class));

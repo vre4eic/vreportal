@@ -6,8 +6,6 @@
 package forth.ics.isl.runnable;
 
 import forth.ics.isl.service.DBService;
-import static forth.ics.isl.service.DBService.executeRelationsMatQueries;
-import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -2174,32 +2171,32 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Workflow",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?name ?servUri ?servDescription (?serv as ?uri) @#$%FROM%$#@\n"
+                + "select distinct ?name ?wflowUri ?wflowDescription (?serv as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?serv a cerif:Workflow. \n"
-                + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
-                + "OPTIONAL {?service_uri cerif:has_description ?servDescription .}\n"
-                + "#OPTIONAL {?service_uri cerif:has_keywords    ?servKeywords .}\n"
-                + "OPTIONAL {?service_uri cerif:has_name        ?name .}\n"
-                + "?serv rdfs:label ?servLabel. \n"
-                + "?servLabel bif:contains \"@#$%TERM%$#@\". \n"
+                + "OPTIONAL {?serv cerif:has_URI         ?wflowUri .}\n"
+                + "OPTIONAL {?serv cerif:has_description ?wflowDescription .}\n"
+                + "#OPTIONAL {?serv cerif:has_keywords    ?wflowKeywords .}\n"
+                + "OPTIONAL {?serv cerif:has_name        ?name .}\n"
+                + "?serv <http://searchable_text> ?wflowLabel. \n"
+                + "?wflowLabel bif:contains \"@#$%TERM%$#@\". \n"
                 + "} ",
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Workflow>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
+                + "#OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name>        ?@#$%VAR%$#@Name .}\n"
-                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
-                + "?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
-                + "?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
+                + "#OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
+                + "#?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
+                + "#?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
-                + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
-                + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n",
-                "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Label. \n"
+                + "#BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
+                + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n",
+                "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n"
                 + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
                 "",
                 "",
@@ -2914,6 +2911,60 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Facility-WebService/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#WebService-Facility/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
                 + "}");
+        ////
+        insertRelationMatUpdate("Person-Workflow", "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?pers ?pers_ser ?ser. \n"
+                + "  ?ser ?ser_pers ?pers. \n"
+                + "} WHERE { \n"
+                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+                + "  ?ser a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+                + "\n"
+                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Workflow/\",encode_for_uri(?role) )) as ?pers_ser ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-Person/\",encode_for_uri(?role_opposite) )) as ?ser_pers ). \n"
+                + "}");
+
+//        insertRelationMatUpdate("OrganisationUnit-Workflow", "WITH @#$%FROM%$#@ \n"
+//                + "INSERT { \n"
+//                + "  ?org ?org_ser ?ser. \n"
+//                + "  ?ser ?ser_org ?org. \n"
+//                + "} WHERE { \n"
+//                + "  ?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
+//                + "  ?ser a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+//                + "\n"
+//                + "   ?org <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+//                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+//                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+//                + "\n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#OrganisationUnit-Workflow/\",encode_for_uri(?role) )) as ?org_ser ). \n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-OrganisationUnit/\",encode_for_uri(?role_opposite) )) as ?ser_org ). \n"
+//                + "}");
+//
+//        insertRelationMatUpdate("Service-Workflow", "WITH @#$%FROM%$#@ \n"
+//                + "INSERT { \n"
+//                + "  ?ser1 ?ser1_ser2 ?ser2. \n"
+//                + "  ?ser2 ?ser2_ser1 ?pers1. \n"
+//                + "} WHERE { \n"
+//                + "  ?ser1 a <http://eurocris.org/ontology/cerif#Service>.\n"
+//                + "  ?ser2 a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+//                + "\n"
+//                + "   ?ser1 <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+//                + "   ?ser2 <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+//                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+//                + "\n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Workflow/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-Service/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
+//                + "}");
     }
 
     private void insertNamedgraphCategories() throws SQLException {
@@ -2951,31 +3002,87 @@ public class H2Manager {
 
 //        h2.deleteTable("RELATIONS_MATERIAL");
 //        h2.createTableRelationsMatUpdates();
+//        h2.insertEntity("Workflow",
+//                "http://eurocris.org/ontology/cerif#Workflow",
+//                "thesaurus/persons-firstAndLastNames.json",
+//                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
+//                + "select distinct ?name ?wflowUri ?wflowDescription (?serv as ?uri) @#$%FROM%$#@\n"
+//                + "where {\n"
+//                + "?serv a cerif:Workflow. \n"
+//                + "OPTIONAL {?serv cerif:has_URI         ?wflowUri .}\n"
+//                + "OPTIONAL {?serv cerif:has_description ?wflowDescription .}\n"
+//                + "#OPTIONAL {?serv cerif:has_keywords    ?wflowKeywords .}\n"
+//                + "OPTIONAL {?serv cerif:has_name        ?name .}\n"
+//                + "?serv <http://searchable_text> ?wflowLabel. \n"
+//                + "?wflowLabel bif:contains \"@#$%TERM%$#@\". \n"
+//                + "} ",
+//                "",
+//                "",
+//                false,
+//                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description (?@#$%VAR%$#@ as ?uri)",
+//                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+//                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
+//                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
+//                + "#OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
+//                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name>        ?@#$%VAR%$#@Name .}\n"
+//                + "#OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@mediumLE .\n"
+//                + "#?@#$%VAR%$#@mediumLE  <http://eurocris.org/ontology/cerif#has_destination> ?@#$%VAR%$#@Medium.\n"
+//                + "#?@#$%VAR%$#@Medium a <http://eurocris.org/ontology/cerif#Medium>. }\n"
+//                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
+//                + "#BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
+//                + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n",
+//                "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n"
+//                + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",
+//                "",
+//                "",
+//                "workfl"
+//        );
+//
+//        h2.insertRelationMatUpdate("Person-Workflow", "WITH @#$%FROM%$#@ \n"
+//                + "INSERT { \n"
+//                + "  ?pers ?pers_ser ?ser. \n"
+//                + "  ?ser ?ser_pers ?pers. \n"
+//                + "} WHERE { \n"
+//                + "  ?pers a <http://eurocris.org/ontology/cerif#Person>.\n"
+//                + "  ?ser a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+//                + "\n"
+//                + "   ?pers <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+//                + "   ?ser <http://eurocris.org/ontology/cerif#is_destination_of> ?pou. \n"
+//                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+//                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+//                + "\n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Workflow/\",encode_for_uri(?role) )) as ?pers_ser ). \n"
+//                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-Person/\",encode_for_uri(?role_opposite) )) as ?ser_pers ). \n"
+//                + "}");
 //        h2.insertRelationsMatUpdates();
 //        h2.createTableUserFavorites();
+//        h2.insertNamedGraph("http://vre/workflows", "Workflows", "", 2);
         h2.terminate();
         /////////////////        
-        String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSJ9.3ORP6OmfHdl0Pq0osxy_YCdROwyMoq-cQJkcodBJ5UQ";
-        String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
+        String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSIsInVzZXJJZCI6Im1hdGgifQ.JK2TzOSTAX9M-90mBOBgN_AGoashunSXnhaLTPwJZnA";
+        String endpoint = "http://139.91.183.97:8181/EVREMetadataServices-2.0-SNAPSHOT";
         String graphUri = "http://graph/1528816969658";
+        graphUri = "http://vre/workflows";
         /////
 ////        List<String> uris = DBService.retrieveAllNamedgraphUris();
 ////        for (String graphURI : uris) {
         Set<String> matRelationEntities = new HashSet<>();
-        matRelationEntities.add("Organisation");
         matRelationEntities.add("Person");
+        matRelationEntities.add("Workflow");
+//        matRelationEntities.add("Organisation");
 //        matRelationEntities.add("Equipment");
 //        matRelationEntities.add("Facility");
-        matRelationEntities.add("WebService");
+//        matRelationEntities.add("WebService");
 //        matRelationEntities.add("Product");
 //        matRelationEntities.add("Location");
-////            matRelationEntities.add("Publication");
-////            matRelationEntities.add("Project");
+//        matRelationEntities.add("Publication");
+//        matRelationEntities.add("Project");
 //        matRelationEntities.add("Dataset");
-        matRelationEntities.add("Software");
+//        matRelationEntities.add("Software");
 //        
         DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
-//        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
+        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
     }
 
