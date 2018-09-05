@@ -88,14 +88,14 @@ public class ProvInfoGeneratorService {
         String roleClassifUri = findClassifFromTerm(roleString);
         triples.add("<" + roleUUID + "> <" + VREPrefix + "has_classification> <" + roleClassifUri + ">. \n");
         /////
-        importedByUUID = "urn:uuid:" + UUID.randomUUID().toString();
-        triples.add("<" + importedByUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
-        triples.add("<" + importedByUUID + "> rdfs:label \"is imported by\". \n");
-        String importClassifUri = findClassifFromRoleExpr("is imported by");
-        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_classification> <" + importClassifUri + ">. \n");
-        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_destination> <" + personUri + ">. \n");
-        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_endDate> \"" + curDate + "\". \n");
-        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_startDate> \"" + curDate + "\". \n");
+//        importedByUUID = "urn:uuid:" + UUID.randomUUID().toString();
+//        triples.add("<" + importedByUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
+//        triples.add("<" + importedByUUID + "> rdfs:label \"is imported by\". \n");
+//        String importClassifUri = findClassifFromRoleExpr("is imported by");
+//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_classification> <" + importClassifUri + ">. \n");
+//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_destination> <" + personUri + ">. \n");
+//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_endDate> \"" + curDate + "\". \n");
+//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_startDate> \"" + curDate + "\". \n");
         /////
         String hasElAddressUUID = "urn:uuid:" + UUID.randomUUID().toString();
         triples.add("<" + hasElAddressUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");

@@ -2,7 +2,6 @@ package forth.ics.isl.controller;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 
 import javax.annotation.PostConstruct;
 
@@ -26,14 +25,9 @@ import forth.ics.isl.service.ProvInfoGeneratorService;
 import forth.ics.isl.runnable.H2Manager;
 import forth.ics.isl.service.DBService;
 
-import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -145,6 +139,7 @@ public class ImportController {
         String organizationNameStr = null;
         String organizationUrlStr = null;
         String namedGraphIdStr = null;
+        String namedGraphLabelParam = null;
 
         // Retrieving user's ID (username)
         if (requestParams.get("name") != null) {
@@ -167,6 +162,11 @@ public class ImportController {
         if (requestParams.get("namedGraphId") != null) {
             namedGraphIdStr = requestParams.get("namedGraphId").toString();
         }
+        
+        if (requestParams.get("namedGraphLabelParam") != null) {
+            namedGraphLabelParam = requestParams.get("namedGraphLabelParam").toString();
+        }
+        
 
         System.out.println("nameStr: " + nameStr);
         System.out.println("emailStr: " + emailStr);
@@ -174,15 +174,16 @@ public class ImportController {
         System.out.println("organizationNameStr: " + organizationNameStr);
         System.out.println("organizationUrlStr: " + organizationUrlStr);
         System.out.println("namedGraphIdStr: " + namedGraphIdStr);
+        System.out.println("namedGraphLabelStr: " + namedGraphLabelParam);
         //////
         ProvInfoGeneratorService info = new ProvInfoGeneratorService(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
                 serviceUrl, authorizationToken);
 //
-        String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
+//        String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
         String q2 = info.createLinkingInsertQuery(namedGraphIdStr); // Linking Update Query
 //        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
-        VirtuosoRestClient client = new VirtuosoRestClient(serviceUrl, authorizationToken);
-        Response resp = client.executeUpdatePOSTJSON(q1);
+//        VirtuosoRestClient client = new VirtuosoRestClient(serviceUrl, authorizationToken);
+//        Response resp = client.executeUpdatePOSTJSON(q1);
         //resp = client.executeUpdatePOSTJSON(q2);
 
         JSONObject responseJsonObject = new JSONObject();
@@ -288,6 +289,7 @@ public class ImportController {
             VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
             Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
             H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
+//            DBService.executeBelongsInQueries(serviceUrl, authorizationToken, namedGraphIdParam, namedGraphLabelParam);
             Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
             System.out.println("linking data with provdata ->> " + resp.getStatus());
             responseJsonObject.put("success", true);

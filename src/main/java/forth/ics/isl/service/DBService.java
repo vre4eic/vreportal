@@ -55,6 +55,7 @@ public class DBService {
     @Autowired
     private static JdbcTemplate jdbcTemplate;
     private static DataSource dataSource;
+    private static final String inGraphProp = "http://in_graph";
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -586,6 +587,31 @@ public class DBService {
             statusObject.put("dbStatus", "fail");
         }
         return statusObject;
+    }
+
+//    for each considered entity stored in the H2 database, we execute a query to 
+//    link its corresponging instance with the namedgraph it belongs
+    public static int executeBelongsInQueries(String endpoint, String authorizationToken, String graphUri) throws Exception {
+        VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
+        JSONArray entities = DBService.retrieveAllEntities(true);
+        int status = 200;
+        for (int i = 0; i < entities.size(); i++) {
+            JSONObject entity = (JSONObject) entities.get(i);
+            String entityURI = (String) entity.get("uri");
+            String query = "with <" + graphUri + ">\n"
+                    + "insert{\n"
+                    + "?uri <" + inGraphProp + "> <" + graphUri + ">.\n"
+                    + "} where {\n"
+                    + "?uri a <" + entityURI + ">.\n"
+                    + "}";
+            Response response = client.executeUpdatePOSTJSON(query);
+            status = response.getStatus();
+            if (status != 200) {
+                return status;
+            }
+        }
+        return status;
+
     }
 
 //    executes the SPARQL update queries stored in table RELATIONS_MATERIAL 

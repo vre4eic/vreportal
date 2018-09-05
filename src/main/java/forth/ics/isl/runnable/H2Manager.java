@@ -1157,25 +1157,27 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Person",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?persName as ?name ?Service (?pers as ?uri) @#$%FROM%$#@\n"
+                + "select distinct ?persName as ?name ?collection (?pers as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?pers a cerif:Person.  \n"
-                + "OPTIONAL {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.  \n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser cerif:has_acronym ?Service.\n}"
+                + "?pers <http://in_graph> ?collection. \n"
+                //                + "OPTIONAL {?pers <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.  \n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.  \n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
+                //                + "?Ser cerif:has_acronym ?Service.\n}"
                 + "?pers rdfs:label ?persName. \n"
                 + "?persName bif:contains \"@#$%TERM%$#@\".  \n"
                 + "} \n",
                 "",
                 "",
                 false,
-                "distinct (?@#$%VAR%$#@Name as ?name) ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct (?@#$%VAR%$#@Name as ?name) ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Person>.\n"
-                + "OPTIONAL {?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
+                + "?pers <http://in_graph> ?collection. \n"
+                //                + "OPTIONAL {?@#$%VAR%$#@  <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.  \n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
                 //                + "?@#$%VAR%$#@ a cerif:Person.  \n"
                 + "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n",
                 "?@#$%VAR%$#@ rdfs:label ?@#$%VAR%$#@Name. \n"
@@ -1188,12 +1190,13 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Project",
                 "thesaurus/project-acronyms.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?projectTitle as ?title) ?projectAcronym ?Service (?proj as ?uri) @#$%FROM%$#@ \n"
+                + "select distinct (?projectTitle as ?title) ?projectAcronym ?collection (?proj as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
-                + "?proj <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?proj <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?proj <http://in_graph> ?collection. \n"
                 + "?proj a cerif:Project.\n"
                 + "?proj cerif:has_title ?projectTitle.\n"
                 + "OPTIONAL {?proj cerif:has_URI ?projURI.}\n"
@@ -1205,12 +1208,13 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?Service (?@#$%VAR%$#@ as ?uri)",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
-                //                + "?@#$%VAR%$#@ a cerif:Project.\n"
+                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Name as ?name) (?@#$%VAR%$#@Acronym as ?acronym) ?collection (?@#$%VAR%$#@ as ?uri)",
+                //                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                "?@#$%VAR%$#@ a cerif:Project.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI> ?@#$%VAR%$#@URI.}\n"
                 + "BIND(if(bound(?@#$%VAR%$#@URI),?@#$%VAR%$#@URI,?@#$%VAR%$#@) as ?@#$%VAR%$#@).\n"
@@ -1226,13 +1230,15 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Publication",
                 "thesaurus/publications-titles.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?Service (?pub as ?uri) @#$%FROM%$#@ \n"
+                + "select distinct (?pubTitle as ?title) (?pubDate as ?publication_date) ?collection (?pub as ?uri) @#$%FROM%$#@ \n"
                 + "where {\n"
-                + "?pub <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?pub <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+
                 + "?pub a <http://eurocris.org/ontology/cerif#Publication>.\n"
+                + "?pub <http://in_graph> ?collection. \n"
                 + "?pub <http://eurocris.org/ontology/cerif#has_title> ?pubTitle.\n"
                 + "?pub <http://eurocris.org/ontology/cerif#has_publicationDate> ?pubDate.\n"
                 + "?pubTitle bif:contains \"@#$%TERM%$#@\".\n"
@@ -1240,15 +1246,16 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Date as ?publication_date) ?Service (?@#$%VAR%$#@ as ?uri)",
-                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                "distinct (?@#$%VAR%$#@Title as ?title) (?@#$%VAR%$#@Date as ?publication_date) ?collection (?@#$%VAR%$#@ as ?uri)",
+                //                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 //                + "?@#$%VAR%$#@ a cerif:Publication.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_publicationDate> ?@#$%VAR%$#@Date.\n",
                 "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_title> ?@#$%VAR%$#@Title.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "?@#$%VAR%$#@Title bif:contains \"@#$%TERM%$#@\".",
                 "",
                 "",
@@ -1258,9 +1265,10 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#OrganisationUnit",
                 "thesaurus/organizationUnits-acronyms.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?collection (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org a cerif:OrganisationUnit.\n"
+                + "?org <http://in_graph> ?collection. \n"
                 + "?org cerif:has_name ?orgName.\n"
                 + "?org <http://searchable_text> ?orgLabel. ?orgLabel bif:contains \"@#$%TERM%$#@\".\n "
                 + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
@@ -1279,16 +1287,17 @@ public class H2Manager {
                 + "?GBB <http://eurocris.org/ontology/cerif#has_southBoundaryLatitude> ?south.\n"
                 + "} \n",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
-                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?collection (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org a cerif:OrganisationUnit.\n"
                 + "?org cerif:has_name ?orgName.\n"
-                + "OPTIONAL { \n"
-                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
-                + "}\n"
+                + "?org <http://in_graph> ?collection. \n"
+                //                + "OPTIONAL { \n"
+                //                + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "}\n"
                 + "OPTIONAL {?org cerif:has_acronym ?orgAcronym. }\n"
                 + "bind (if(bound(?orgAcronym), ?orgAcronym, \"-\") as ?acronym).\n"
                 + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
@@ -1302,16 +1311,17 @@ public class H2Manager {
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "}",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
-                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?Service (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "select distinct GROUP_CONCAT(distinct ?orgName ; separator=\", \") as ?name ?acronym ?collection (?org as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "where {\n"
                 + "?org a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
                 + "?org cerif:has_name ?orgName.\n"
                 + "?org <http://searchable_text> ?orgLabel. ?orgLabel bif:contains \"@#$%TERM%$#@\".\n "
-                + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
-                + "}\n"
+                + "?org <http://in_graph> ?collection. \n"
+                //                + "OPTIONAL { \n ?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "}\n"
                 + "OPTIONAL {?org cerif:has_acronym ?orgAcronym.}\n"
                 + "bind (if(bound(?orgAcronym), ?orgAcronym, \"-\") as ?acronym).\n"
                 + "?org <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
@@ -1325,14 +1335,14 @@ public class H2Manager {
                 + "FILTER(xsd:float(?east) <= @#$%EAST%$#@ && xsd:float(?west) >= @#$%WEST%$#@ && xsd:float(?north) <= @#$%NORTH%$#@ && xsd:float(?south) >= @#$%SOUTH%$#@)\n"
                 + "} \n",
                 false,
-                "distinct GROUP_CONCAT(distinct ?@#$%VAR%$#@Name ; separator=\", \") as ?name ?acronym ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct GROUP_CONCAT(distinct ?@#$%VAR%$#@Name ; separator=\", \") as ?name ?acronym ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#OrganisationUnit>.\n"
-                + "OPTIONAL {"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
-                //                + "?@#$%VAR%$#@ a cerif:OrganisationUnit.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
+                //                + "OPTIONAL {"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service. }\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.\n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
@@ -1367,15 +1377,16 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Product",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
+                + "SELECT DISTINCT ?name  ?Responsible ?collection (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Product.\n"
                 + "?object cerif:has_name ?name.\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -1398,15 +1409,16 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} \n",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
+                + "SELECT DISTINCT ?name  ?Responsible ?collection (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Product.\n"
                 + "?object cerif:has_name ?name.\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -1429,15 +1441,16 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "}",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name ?Responsible ?Service (?object as ?uri) ?east ?west ?north ?south \n"
+                + "SELECT DISTINCT ?name ?Responsible ?collection (?object as ?uri) ?east ?west ?north ?south \n"
                 + "@#$%FROM%$#@\n"
                 + "WHERE {\n"
                 + "?object a cerif:Product.\n"
                 + "?object cerif:has_name ?name.\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE1.\n"
                 + "?FLE1 <http://eurocris.org/ontology/cerif#has_destination> ?PA.\n"
                 + "?PA <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
@@ -1462,13 +1475,14 @@ public class H2Manager {
                 + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} \n",
                 false,
-                "distinct ?@#$%VAR%$#@Νame  ?Responsible ?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Νame  ?Responsible ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Product>.\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Νame.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
                 + "Optional {\n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
                 + "?FLE3 <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.Responsible>.\n"
@@ -1507,17 +1521,18 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Dataset",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?datasetKeyw ; separator=\", \") as ?dataset_Params ?Service (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?datasetKeyw ; separator=\", \") as ?dataset_Params ?collection (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Dataset.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?datasetKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1540,17 +1555,18 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?datasetKeyw ; separator=\", \") as ?dataset_Params ?Service (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?datasetKeyw ; separator=\", \") as ?dataset_Params ?collection (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Dataset.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.} \n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?datasetKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1578,10 +1594,11 @@ public class H2Manager {
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?datasetKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1604,9 +1621,7 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params "
-                //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
-                + "?Service (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Dataset>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keyw.} \n"
@@ -1614,10 +1629,10 @@ public class H2Manager {
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n" //                + "Optional {\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n" //                  "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n" //                + "Optional {\n"
                 //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
                 //                + "?FLE3 <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.Responsible>.\n"
                 //                + "optional {\n"
@@ -1653,17 +1668,18 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Equipment",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?Service (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?collection (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Equipment.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?equipKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1686,17 +1702,18 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?Service (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?collection (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Equipment.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.} \n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?equipKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1717,17 +1734,18 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?Service (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?equipKeyw ; separator=\", \") as ?equipment_keywords ?collection (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Equipment.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?equipKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1752,7 +1770,7 @@ public class H2Manager {
                 false,
                 "distinct ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
                 //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
-                + "?Service (?@#$%VAR%$#@ as ?uri)",
+                + "?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Equipment>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keywords.} \n"
@@ -1760,10 +1778,11 @@ public class H2Manager {
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Name),?@#$%VAR%$#@Name,\"-\") as ?name).\n" //                + "Optional {\n"
                 //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
@@ -1800,17 +1819,18 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Facility",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?Service (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?collection (?object as ?uri) ?east ?west ?north ?south @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Facility.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?facilKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1833,17 +1853,18 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?Service (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?collection (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Facility.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.} \n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?facilKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1864,17 +1885,18 @@ public class H2Manager {
                 //                + "bind(coalesce(?nameOU, ?nameOUorP) as ?Responsible).\n"
                 + "} ",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name  GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?Service (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name  GROUP_CONCAT(distinct ?facilKeyw ; separator=\", \") as ?facility_keywords ?collection (?object as ?uri) ?east ?west ?north ?south  @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Facility.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?facilKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLE2.\n"
                 + "?FLE2 <http://eurocris.org/ontology/cerif#has_destination> ?GBB.\n"
                 + "?GBB <http://eurocris.org/ontology/cerif#has_eastBoundaryLongitude> ?east.\n"
@@ -1899,7 +1921,7 @@ public class H2Manager {
                 false,
                 "distinct ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
                 //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
-                + "?Service (?@#$%VAR%$#@ as ?uri)",
+                + "?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Facility>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keywords.} \n"
@@ -1907,10 +1929,11 @@ public class H2Manager {
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Name),?@#$%VAR%$#@Name,\"-\") as ?name).\n" //                + "Optional {\n"
                 //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_destination_of> ?FLE3.\n"
@@ -1947,17 +1970,18 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Software",
                 "",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?softKeyw ; separator=\", \") as ?software_keywords ?Service (?object as ?uri) @#$%FROM%$#@ \n"
+                + "SELECT DISTINCT ?name GROUP_CONCAT(distinct ?softKeyw ; separator=\", \") as ?software_keywords ?collection (?object as ?uri) @#$%FROM%$#@ \n"
                 + "WHERE {\n"
                 + "?object a cerif:Software.\n"
                 + "OPTIONAL {?object cerif:has_name ?name.}\n"
                 + "OPTIONAL {?object <http://eurocris.org/ontology/cerif#has_keywords> ?softKeyw.} \n"
                 //                + "OPTIONAL {?object cerif:has_description ?description.}\n"
                 //                + "OPTIONAL {?object cerif:has_acronym ?acronym.}\n"
-                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser cerif:has_acronym ?Service.\n"
+                //                + "?object <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser cerif:has_acronym ?Service.\n"
+                + "?object <http://in_graph> ?collection. \n"
                 + "?object <http://searchable_text> ?text. \n"
                 + "?text bif:contains \"@#$%TERM%$#@\".\n"
                 + "} ",
@@ -1966,7 +1990,7 @@ public class H2Manager {
                 false,
                 "distinct ?name GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?keywords "
                 //                        + "?@#$%VAR%$#@Acronym as ?acronym ?Responsible "
-                + "?Service (?@#$%VAR%$#@ as ?uri)",
+                + "?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Software>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_name> ?@#$%VAR%$#@Name.}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords> ?@#$%VAR%$#@Keywords.} \n"
@@ -1974,10 +1998,11 @@ public class H2Manager {
                 //                + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_acronym> ?@#$%VAR%$#@Acronym.} \n"
                 //                + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr). \n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
-                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
-                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
-                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                //                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?FLES.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_destination> ?Ser.\n"
+                //                + "?FLES <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n"
+                //                + "?Ser <http://eurocris.org/ontology/cerif#has_acronym> ?Service.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Name),?@#$%VAR%$#@Name,\"-\") as ?name).\n",
                 "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Text.\n"
@@ -2094,9 +2119,10 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Service",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?servName as ?name ?servUri ?servDescription (?serv as ?uri) @#$%FROM%$#@\n"
+                + "select distinct ?servName as ?name ?servUri ?servDescription ?collection (?serv as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?serv a cerif:Service. \n"
+                + "?serv <http://in_graph> ?collection. \n"
                 //                + "?serv cerif:is_source_of ?sle. \n"
                 //                + "?sle cerif:has_classification <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
                 + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
@@ -2109,8 +2135,9 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Medium as ?wadl_file ?@#$%VAR%$#@Uri as ?service_uri ?@#$%VAR%$#@Descr as ?description GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Service>.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#is_source_of> ?@#$%VAR%$#@sle.\n"
                 + "?@#$%VAR%$#@sle <http://eurocris.org/ontology/cerif#has_classification> <http://139.91.183.70:8090/vre4eic/Classification.WebService>.\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
@@ -2134,9 +2161,10 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#WebService",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?servName as ?name ?servUri GROUP_CONCAT(distinct ?servKeywords ; separator=\", \") as ?params (?serv as ?uri) @#$%FROM%$#@\n"
+                + "select distinct ?servName as ?name ?servUri GROUP_CONCAT(distinct ?servKeywords ; separator=\", \") as ?params ?collection (?serv as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?serv a cerif:WebService. \n"
+                + "?serv <http://in_graph> ?collection. \n"
                 + "OPTIONAL {?service_uri cerif:has_URI         ?servUri .}\n"
                 //                + "OPTIONAL {?service_uri cerif:has_description ?servDescription .}\n"
                 + "#OPTIONAL {?service_uri cerif:has_keywords    ?servKeywords .}\n"
@@ -2147,8 +2175,9 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#WebService>.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
@@ -2171,9 +2200,10 @@ public class H2Manager {
                 "http://eurocris.org/ontology/cerif#Workflow",
                 "thesaurus/persons-firstAndLastNames.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
-                + "select distinct ?name ?wflowUri ?wflowDescription (?serv as ?uri) @#$%FROM%$#@\n"
+                + "select distinct ?name ?wflowUri ?wflowDescription ?collection (?serv as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
                 + "?serv a cerif:Workflow. \n"
+                + "?serv <http://in_graph> ?collection. \n"
                 + "OPTIONAL {?serv cerif:has_URI         ?wflowUri .}\n"
                 + "OPTIONAL {?serv cerif:has_description ?wflowDescription .}\n"
                 + "#OPTIONAL {?serv cerif:has_keywords    ?wflowKeywords .}\n"
@@ -2184,8 +2214,9 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Uri as ?workflow_uri ?@#$%VAR%$#@Descr as ?description ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Workflow>.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_description> ?@#$%VAR%$#@Description .}\n"
                 + "#OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_keywords>    ?@#$%VAR%$#@Keywords .}\n"
@@ -2993,10 +3024,10 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 //
-//        h2.deleteTable("entity");
-//        h2.createTableEntity();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
 //        h2.insertEntitiesBlazegraph();
-//        h2.insertEntitiesVirtuoso();
+        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.createTableRelation();
 
@@ -3067,9 +3098,9 @@ public class H2Manager {
         /////
 ////        List<String> uris = DBService.retrieveAllNamedgraphUris();
 ////        for (String graphURI : uris) {
-        Set<String> matRelationEntities = new HashSet<>();
-        matRelationEntities.add("Person");
-        matRelationEntities.add("Workflow");
+//        Set<String> matRelationEntities = new HashSet<>();
+//        matRelationEntities.add("Person");
+//        matRelationEntities.add("Workflow");
 //        matRelationEntities.add("Organisation");
 //        matRelationEntities.add("Equipment");
 //        matRelationEntities.add("Facility");
@@ -3081,8 +3112,8 @@ public class H2Manager {
 //        matRelationEntities.add("Dataset");
 //        matRelationEntities.add("Software");
 //        
-        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
-        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
+//        DBService.executeRelationsMatQueries(endpoint, "", authorizationToken, graphUri);
+//        enrichMatRelationsTable(endpoint, authorizationToken, graphUri, matRelationEntities);
 //        }
     }
 
