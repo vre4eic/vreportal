@@ -599,6 +599,7 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	
     	var userProfileDataModel = angular.copy($scope.userProfile);
     	userProfileDataModel.namedGraphId = angular.copy($scope.selectedNamedGraph.id);
+    	userProfileDataModel.namedGraphLabel = angular.copy($scope.selectedNamedGraph.label);
     	
     	importService.insertUserProfileMetadataInfo(angular.toJson(userProfileDataModel), $scope.credentials.token)
 		.then(function (response) {
@@ -681,7 +682,8 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
     	
 		var materializationModel = {
 			linkingUpdateQuery: $scope.provenaceQuery,
-			namedGraphIdParam: $scope.selectedNamedGraph.id
+			namedGraphIdParam: $scope.selectedNamedGraph.id,
+			namedGraphLabel = $scope.selectedNamedGraph.label
     	}
     	
 	    importService.materializeNewData(angular.toJson(materializationModel), $scope.credentials.token)
