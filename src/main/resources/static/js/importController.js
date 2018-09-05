@@ -683,7 +683,7 @@ app.controller("importCtrl", [ '$scope', '$sessionStorage', 'queryService', 'imp
 		var materializationModel = {
 			linkingUpdateQuery: $scope.provenaceQuery,
 			namedGraphIdParam: $scope.selectedNamedGraph.id,
-			namedGraphLabel = $scope.selectedNamedGraph.label
+			namedGraphLabel: $scope.selectedNamedGraph.label
     	}
     	
 	    importService.materializeNewData(angular.toJson(materializationModel), $scope.credentials.token)
