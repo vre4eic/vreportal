@@ -1,9 +1,11 @@
 <div class="justified">
-<p> An import service was invoked to validate the imported files before storing them to the VRE system.</p>
-<p> At this version the user can upload one metadata file each time, which is then stored in the connected triple
-    store through the respective web-service. The file is imported through the <b>Metadata Manager</b> component and 
-    as soon as it is imported, it becomes directly available for querying using the parent demo. 
-<p>
-In the future we plan to perform the necessary integration with the <b>AAAI component</b> for regulating this operation 
-according to the adapted Role Based Access Control (RBAC) mechanism.</p>
+	<p> From this view, users can import RDF files into the triple-store, the data of which become instantly available.</p>
+	<p> Multiple files are easily imported by dragging them in to the respective area of this UI and then selecting one of the 
+		available collections, under which the meta-data will be classified. Creating a new collection (instead of using the 
+		existing ones) can be done by typing the new collection's name (without selecting any of the available ones) and 
+		proceeding with the import task. The system will create it before hte import process begins and store data under that 
+		new collection.</p>
+	<p> Please note that while importing data, the system uses information from user's profile to bind the new emerged data for 
+		provenance reasons.
+	<p>
 </div>

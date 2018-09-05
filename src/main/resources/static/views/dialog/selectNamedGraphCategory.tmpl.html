@@ -2,13 +2,13 @@
 	<md-dialog-content id="dialogContent">
 		<div style="padding-left:30px;" class="row">
 			
-			<h4 class="md-flex">Please select some category, under which the new named graph will be classified</h4>
+			<h4 class="md-flex">Please select some category, under which the new collection will be classified</h4>
 					
 			<div>
-				<md-select placeholder="Select named-graph's category" 
+				<md-select placeholder="Select collection's category" 
 						   ng-model="selectedCategory" 
 						   md-on-open="initCategories();" 
-						   aria-label="Select Named Graph Category">
+						   aria-label="Select collection's Category">
 					<md-option ng-repeat="category in categories" ng-value="category">{{category.value}}</md-option>
 		        </md-select>
 			</div>

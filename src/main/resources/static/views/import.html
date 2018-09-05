@@ -99,13 +99,13 @@
 							 md-items="item in querySearch(searchText)"
 							 md-item-text="item.label"
 							 md-min-length="0"
-							 placeholder="Named Graph"
+							 placeholder="Collection"
 							 style="padding-right:5px; width:500px;">
 		        <md-item-template>
 		          <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.label}}</span>
 		        </md-item-template>
 				<md-not-found>
-	          		Since namegraph "{{searchText}}" doesn't exist, a new one will be created.
+	          		Since the collection "{{searchText}}" doesn't exist, a new one will be created.
 	        	</md-not-found>
       		</md-autocomplete>
         
