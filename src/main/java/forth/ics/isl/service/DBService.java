@@ -247,6 +247,24 @@ public class DBService {
         return uris;
     }
 
+    public static Map<String, String> retrieveAllNamedgraphUrisLabels() {
+        Map<String, String> graphs = new HashMap<>();
+        try {
+            Connection conn = initConnection();
+            Statement statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("select uri, name from namedgraph");
+            while (result.next()) {
+                graphs.put(result.getString("uri"), result.getString("name"));
+            }
+            result.close();
+            statement.close();
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(DBService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return graphs;
+    }
+
     public static JSONArray retrieveAllRelationsMatUpdates() {
         JSONArray queries = new JSONArray();
         try {
@@ -591,26 +609,27 @@ public class DBService {
 
 //    for each considered entity stored in the H2 database, we execute a query to 
 //    link its corresponging instance with the namedgraph it belongs
-    public static int executeBelongsInQueries(String endpoint, String authorizationToken, String graphUri) throws Exception {
+    public static List<String> executeBelongsInQueries(String endpoint, String authorizationToken, String graphUri, String graphLabel) throws Exception {
         VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         JSONArray entities = DBService.retrieveAllEntities(true);
-        int status = 200;
+        List<String> entityUris = new ArrayList<>();
         for (int i = 0; i < entities.size(); i++) {
             JSONObject entity = (JSONObject) entities.get(i);
             String entityURI = (String) entity.get("uri");
             String query = "with <" + graphUri + ">\n"
                     + "insert{\n"
-                    + "?uri <" + inGraphProp + "> <" + graphUri + ">.\n"
+                    + "?uri <" + inGraphProp + "> \"" + graphLabel + "\".\n"
                     + "} where {\n"
                     + "?uri a <" + entityURI + ">.\n"
                     + "}";
+            entityUris.add(entityURI);
             Response response = client.executeUpdatePOSTJSON(query);
-            status = response.getStatus();
+            int status = response.getStatus();
             if (status != 200) {
-                return status;
+                return null;
             }
         }
-        return status;
+        return entityUris;
 
     }
 

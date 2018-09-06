@@ -42,8 +42,10 @@ public class ProvInfoGeneratorService {
     private String importedByUUID;
     private final String personUri;
     private final String orgUnitUri;
+    private final String namedGraphId;
+    private final String namedGraphLabel;
 
-    public ProvInfoGeneratorService(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String authorizationToken) throws UnsupportedEncodingException {
+    public ProvInfoGeneratorService(String personName, String emailString, String roleString, String orgName, String orgUrl, String endpoint, String authorizationToken, String namedGraphIdStr, String namedGraphLabelParam) throws UnsupportedEncodingException {
         this.personName = personName;
         this.emailString = emailString;
         this.roleString = roleString;
@@ -51,51 +53,60 @@ public class ProvInfoGeneratorService {
         this.orgUrl = orgUrl;
         this.authorizationToken = authorizationToken;
         this.endpoint = endpoint;
+        emailString = emailString.replace("@", "A");
         this.personUri = VREPrefix + "Person." + URLEncoder.encode(emailString, "UTF-8");
         this.orgUnitUri = VREPrefix + "OrgUnit." + URLEncoder.encode(orgUrl, "UTF-8");
         this.eAddressUri = VREPrefix + "EAddress." + URLEncoder.encode(emailString, "UTF-8");
+        this.namedGraphId = namedGraphIdStr;
+        this.namedGraphLabel = namedGraphLabelParam;
     }
 
     public List<String> personTriples() {
         List<String> triples = new ArrayList<>();
         triples.add("<" + personUri + "> a <" + CERIFPrefix + "Person>. \n");
-        triples.add("<" + personUri + "> <" + CERIFPrefix + "has_name> \"" + personName + "\". \n");
-        triples.add("<" + personUri + "> rdfs:label \"" + personName + "\". \n");
+        triples.add("<" + personUri + "> <" + CERIFPrefix + "has_name> \"" + personName + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + personUri + "> rdfs:label \"" + personName + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + personUri + "> <http://in_graph> \"" + namedGraphLabel + "\". \n");
         triples.add("<" + eAddressUri + "> a <" + CERIFPrefix + "ElectronicAddress>. \n");
-        triples.add("<" + eAddressUri + "> rdfs:label \"" + emailString + "\". \n");
-        triples.add("<" + eAddressUri + "> <" + CERIFPrefix + "has_URI> \"" + emailString + "\". \n");
+        triples.add("<" + eAddressUri + "> rdfs:label \"" + emailString + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + eAddressUri + "> <" + CERIFPrefix + "has_URI> \"" + emailString + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + eAddressUri + "> <http://in_graph> \"" + namedGraphLabel + "\". \n");
         return triples;
     }
 
     public List<String> orgTriples() {
         List<String> triples = new ArrayList<>();
         triples.add("<" + orgUnitUri + "> a <" + CERIFPrefix + "OrganisationUnit>. \n");
-        triples.add("<" + orgUnitUri + "> <" + CERIFPrefix + "has_name> \"" + orgUnitName + "\". \n");
-        triples.add("<" + orgUnitUri + "> rdfs:label \"" + orgUnitName + "\". \n");
-        triples.add("<" + orgUnitUri + "> <" + CERIFPrefix + "has_URI> \"" + orgUnitUri + "\". \n");
+        triples.add("<" + orgUnitUri + "> <http://in_graph> \"" + namedGraphLabel + "\". \n");
+        triples.add("<" + orgUnitUri + "> <" + CERIFPrefix + "has_name> \"" + orgUnitName + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + orgUnitUri + "> rdfs:label \"" + orgUnitName + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        triples.add("<" + orgUnitUri + "> <" + CERIFPrefix + "has_URI> \"" + orgUnitUri + "\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
         return triples;
     }
 
     public List<String> generateTriples() throws IOException, ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        String curDate = format.format(new Date()) + "T00:00:00";
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+        String curDate = format.format(new Date());
         List<String> triples = new ArrayList<>();
         /////       
         String roleUUID = "urn:uuid:" + UUID.randomUUID().toString();
         triples.add("<" + roleUUID + "> a <" + CERIFPrefix + "SimpleLinkEntity>. \n");
-        triples.add("<" + roleUUID + "> rdfs:label \"has role\". \n");
+        triples.add("<" + roleUUID + "> rdfs:label \"has role\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
         triples.add("<" + roleUUID + "> <" + CERIFPrefix + "has_source> <" + personUri + ">. \n");
+        triples.add("<" + personUri + "> <" + CERIFPrefix + "is_source_of> <" + roleUUID + "> . \n");
         String roleClassifUri = findClassifFromTerm(roleString);
         triples.add("<" + roleUUID + "> <" + VREPrefix + "has_classification> <" + roleClassifUri + ">. \n");
         /////
-//        importedByUUID = "urn:uuid:" + UUID.randomUUID().toString();
-//        triples.add("<" + importedByUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
-//        triples.add("<" + importedByUUID + "> rdfs:label \"is imported by\". \n");
-//        String importClassifUri = findClassifFromRoleExpr("is imported by");
-//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_classification> <" + importClassifUri + ">. \n");
+        importedByUUID = "urn:uuid:" + UUID.randomUUID().toString();
+        triples.add("<" + importedByUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
+        triples.add("<" + importedByUUID + "> rdfs:label \"imported\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
+        String importClassifUri = findClassifFromRoleExpr("imported");
+        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_classification> <" + importClassifUri + ">. \n");
+        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_source> <" + personUri + ">. \n");
+        triples.add("<" + personUri + "> <" + CERIFPrefix + "is_source_of> <" + importedByUUID + ">. \n");
 //        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_destination> <" + personUri + ">. \n");
-//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_endDate> \"" + curDate + "\". \n");
-//        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_startDate> \"" + curDate + "\". \n");
+        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_endDate> \"" + curDate + "\". \n");
+        triples.add("<" + importedByUUID + "> <" + CERIFPrefix + "has_startDate> \"" + curDate + "\". \n");
         /////
         String hasElAddressUUID = "urn:uuid:" + UUID.randomUUID().toString();
         triples.add("<" + hasElAddressUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
@@ -103,12 +114,13 @@ public class ProvInfoGeneratorService {
         String emailClassifUri = findClassifFromTerm("Email");
         triples.add("<" + hasElAddressUUID + "> <" + CERIFPrefix + "has_classification> <" + emailClassifUri + ">. \n");
         triples.add("<" + hasElAddressUUID + "> <" + CERIFPrefix + "has_destination> <" + eAddressUri + ">. \n");
-        triples.add("<" + hasElAddressUUID + "> <" + CERIFPrefix + "has_source> <" + personUri + ">. \n");
         triples.add("<" + eAddressUri + "> <" + CERIFPrefix + "is_destination_of> <" + hasElAddressUUID + ">. \n");
+        triples.add("<" + hasElAddressUUID + "> <" + CERIFPrefix + "has_source> <" + personUri + ">. \n");
+        triples.add("<" + personUri + "> <" + CERIFPrefix + "is_source_of> <" + hasElAddressUUID + ">. \n");
         //////
         String persOrgUnitUUID = "urn:uuid:" + UUID.randomUUID().toString();
         triples.add("<" + persOrgUnitUUID + "> a <" + CERIFPrefix + "FullLinkEntity>. \n");
-        triples.add("<" + persOrgUnitUUID + "> rdfs:label \"is member of\". \n");
+        triples.add("<" + persOrgUnitUUID + "> rdfs:label \"is member of\"^^<http://www.w3.org/2001/XMLSchema#string>. \n");
         String memberOfClassifUri = findClassifFromRoleExpr("is member of");
         triples.add("<" + persOrgUnitUUID + "> <" + CERIFPrefix + "has_classification> <" + memberOfClassifUri + ">. \n");
         triples.add("<" + persOrgUnitUUID + "> <" + CERIFPrefix + "has_destination> <" + orgUnitUri + ">. \n");
@@ -151,12 +163,12 @@ public class ProvInfoGeneratorService {
         return uri;
     }
 
-    public String createProvTriplesInsertQuery(String dstGraph) throws IOException, ParseException {
+    public String createProvTriplesInsertQuery() throws IOException, ParseException {
         List<String> triples = orgTriples();
         triples.addAll(personTriples());
         triples.addAll(generateTriples());
         StringBuilder query = new StringBuilder();
-        query.append("insert data {graph <" + dstGraph + "> {\n");
+        query.append("insert data {graph <" + namedGraphId + "> {\n");
         for (String triple : triples) {
             query.append(triple);
         }
@@ -174,15 +186,14 @@ public class ProvInfoGeneratorService {
         return query.toString();
     }
 
-    public String createLinkingInsertQuery(String dstGraph) {
+    public String createLinkingInsertQuery() {
         StringBuilder query = new StringBuilder();
-        query.append("with <" + dstGraph + "> \n")
+        query.append("with <" + namedGraphId + "> \n")
                 .append("insert {\n")
-                .append("?prov_service <" + CERIFPrefix + "is_source_of> <" + importedByUUID + ">. \n")
+                .append("?uri <" + CERIFPrefix + "is_destination_of> <" + importedByUUID + ">. \n")
+                .append("<" + importedByUUID + "> <" + CERIFPrefix + "has_destination> ?uri. \n")
                 .append("} where {\n ")
-                .append("?s <" + CERIFPrefix + "is_source_of> ?FLE1.\n")
-                .append("?FLE1 <" + CERIFPrefix + "has_classification> <http://139.91.183.70:8090/vre4eic/Classification.provenance>.\n")
-                .append("?FLE1 <" + CERIFPrefix + "has_destination> ?ProvService.\n")
+                .append("?uri a <@#$%ENTITY%$#@>. \n")
                 .append("}");
         return query.toString();
     }
@@ -196,12 +207,12 @@ public class ProvInfoGeneratorService {
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "rous";
         String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSIsInVzZXJJZCI6ImNlc2FyZSJ9.nU12Aeitg1cpNZPhG67di6PxONfVv4HU-IYPylNGiYw";
-        ProvInfoGeneratorService info = new ProvInfoGeneratorService(personName, emailString, role, orgName, orgUrl,
-                endpoint, token);
+//        ProvInfoGeneratorService info = new ProvInfoGeneratorService(personName, emailString, role, orgName, orgUrl,
+//                endpoint, token);
 
 //        System.out.println(info.orgTriples());
 //        System.out.println(info.personTriples());
-        System.out.println(info.generateTriples());
+//        System.out.println(info.generateTriples());
 //        RestClient client = new RestClient(endpoint, namespace, token);
 //        Response resp = client.executeUpdatePOSTJSON(query.toString(), "rous", token);
 //        System.out.println(resp.readEntity(String.class));

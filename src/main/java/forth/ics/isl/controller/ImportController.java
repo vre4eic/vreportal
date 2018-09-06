@@ -24,9 +24,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import forth.ics.isl.service.ProvInfoGeneratorService;
 import forth.ics.isl.runnable.H2Manager;
 import forth.ics.isl.service.DBService;
+import forth.ics.isl.triplestore.RestClient;
 
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.sql.Connection;
+import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.json.simple.JSONObject;
@@ -47,6 +49,8 @@ public class ImportController {
     @Value("${triplestore.namespace}")
     private String namespace;
     private JsonNode currQueryResult;
+    private String linkingUpdateQuery = null;
+    private String provUpdateQuery = null;
 
     @PostConstruct
     public void init() throws IOException {
@@ -162,11 +166,10 @@ public class ImportController {
         if (requestParams.get("namedGraphId") != null) {
             namedGraphIdStr = requestParams.get("namedGraphId").toString();
         }
-        
-        if (requestParams.get("namedGraphLabelParam") != null) {
-            namedGraphLabelParam = requestParams.get("namedGraphLabelParam").toString();
+
+        if (requestParams.get("namedGraphLabel") != null) {
+            namedGraphLabelParam = requestParams.get("namedGraphLabel").toString();
         }
-        
 
         System.out.println("nameStr: " + nameStr);
         System.out.println("emailStr: " + emailStr);
@@ -177,10 +180,10 @@ public class ImportController {
         System.out.println("namedGraphLabelStr: " + namedGraphLabelParam);
         //////
         ProvInfoGeneratorService info = new ProvInfoGeneratorService(nameStr, emailStr, roleStr, organizationNameStr, organizationUrlStr,
-                serviceUrl, authorizationToken);
+                serviceUrl, authorizationToken, namedGraphIdStr, namedGraphLabelParam);
 //
-//        String q1 = info.createProvTriplesInsertQuery(namedGraphIdStr);
-        String q2 = info.createLinkingInsertQuery(namedGraphIdStr); // Linking Update Query
+        provUpdateQuery = info.createProvTriplesInsertQuery();
+        linkingUpdateQuery = info.createLinkingInsertQuery(); // Linking Update Query
 //        RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
 //        VirtuosoRestClient client = new VirtuosoRestClient(serviceUrl, authorizationToken);
 //        Response resp = client.executeUpdatePOSTJSON(q1);
@@ -190,7 +193,7 @@ public class ImportController {
         // Dummy response (under development) always success
         responseJsonObject.put("success", true);
         responseJsonObject.put("message", "User Profile metadata inserted successfully!");
-        responseJsonObject.put("linkingUpdateQuery", q2);
+        responseJsonObject.put("linkingUpdateQuery", linkingUpdateQuery);
 
         // Below is the respective code for creating new namedgraph 
         // (left here for guideline for the new code)
@@ -278,27 +281,51 @@ public class ImportController {
         try {
             System.out.println("after all uploads...");
             String namedGraphIdParam = null;
-            String linkingUpdateQueryParam = null;
+            String namedGraphLabel = null;
             // Retrieving the label of the named graph
             if (requestParams.get("namedGraphIdParam") != null) {
                 namedGraphIdParam = requestParams.get("namedGraphIdParam").toString();
             }
-            if (requestParams.get("linkingUpdateQuery") != null) {
-                linkingUpdateQueryParam = requestParams.get("linkingUpdateQuery").toString();
+            if (requestParams.get("namedGraphLabel") != null) {
+                namedGraphLabel = requestParams.get("namedGraphLabel").toString();
             }
             VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
+            List<String> entityUris = DBService.executeBelongsInQueries(serviceUrl, authorizationToken, namedGraphIdParam, namedGraphLabel);
+            int status = 200;
+            Response resp;
+            for (String uri : entityUris) {
+                resp = restClient.executeUpdatePOSTJSON(linkingUpdateQuery.replace("@#$%ENTITY%$#@", uri));
+                status = resp.getStatus();
+                if (status != 200) {
+                    break;
+                }
+            }
+            if (status == 200) {
+                System.out.println("linking data with provdata ->> " + status);
+            } else {
+                responseJsonObject.put("success", false);
+                responseJsonObject.put("message", "Metadata materialization process failed");
+                return responseJsonObject;
+            }
+            resp = restClient.executeUpdatePOSTJSON(provUpdateQuery);
+            status = resp.getStatus();
+            if (status == 200) {
+                System.out.println("inserting user profile metadata ->> " + status);
+            } else {
+                responseJsonObject.put("success", false);
+                responseJsonObject.put("message", "Metadata materialization process failed");
+                return responseJsonObject;
+            }
+            ////
             Set<String> matRelationEntities = DBService.executeRelationsMatQueries(serviceUrl, namespace, authorizationToken, namedGraphIdParam);
             H2Manager.enrichMatRelationsTable(serviceUrl, authorizationToken, namedGraphIdParam, matRelationEntities);
-//            DBService.executeBelongsInQueries(serviceUrl, authorizationToken, namedGraphIdParam, namedGraphLabelParam);
-            Response resp = restClient.executeUpdatePOSTJSON(linkingUpdateQueryParam);
-            System.out.println("linking data with provdata ->> " + resp.getStatus());
             responseJsonObject.put("success", true);
             responseJsonObject.put("message", "Metadata materialization process was completed successfully!");
+            System.out.println("Metadata materialization process was completed successfully!");
         } catch (Exception ex) {
             responseJsonObject.put("success", false);
             responseJsonObject.put("message", ex.getMessage());
         }
         return responseJsonObject;
     }
-
 }
