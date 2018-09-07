@@ -1357,13 +1357,16 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						rowModel.relatedEntityRelationTuples = angular.toJson(response.data);
 					
 						for(var i=0; i<response.data.length; i++) {
-							//Check for duplicates in the list of related entities
+							// Check for duplicates in the list of related entities
 							// Pure compare
 							if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained)
 								rowModel.relatedEntities.push(response.data[i].related_entity);
-							//relations
+							
 							rowModel.relations.push(response.data[i].relation);
 							rowModel.relations[i].relatedEntity = response.data[i].related_entity;
+							// Check if the relation is duplicated and mark it as duplicated
+							if(containedInListManyTimesBasedOnFieldPathOfDepth2(response.data[i].relation, response.data, 'name', 'relation', 'name').index.length >1)
+								rowModel.relations[i].duplicate = true;
 							//$log.info('value: ' + value);
 						}
 						
@@ -2152,6 +2155,29 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		    if(item[fieldPath] === list[i][fieldPath]) {
 		    	containedElement.contained = true;
 		    	containedElement.index = i;
+		    }
+		}
+    	    		
+    	return containedElement;
+    }
+	
+	// Determines if an item is contained into a list
+	function containedInListManyTimesBasedOnFieldPathOfDepth2(item, list, itemFieldPath, listFieldPathLevel0, listFieldPathLevel1) {
+		
+		var containedElement = {'contained': false, 'index': []};
+		
+		var listFieldPathArray = [];
+		/*
+		for(var i=0; i<listFieldPath.split(".").length; i++) {
+			listFieldPathArray.push(listFieldPath.split(".")[i])
+		}
+		*/
+		for(var i=0; i<list.length; i++) {
+						
+		    //if(item[itemFieldPath] === list[i][listFieldPath]) {
+		    if(item[itemFieldPath] === list[i][listFieldPathLevel0][listFieldPathLevel1]) {
+		    	containedElement.contained = true;
+		    	containedElement.index.push(i);
 		    }
 		}
     	    		

@@ -197,7 +197,7 @@
 									   ng-change="loadRelatedEntitiesByRelation(parent.rowModel, rowModel);"
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" ><!-- track by $index -->
-									{{relation.name}}
+									{{relation.name}} <span ng-show="relation.duplicate"> - {{relation.relatedEntity.name}}</span>
 								</md-option>
 							</md-select>
 							<div ng-messages="searchForm['relationInput_' + rowModel.id].$error">
