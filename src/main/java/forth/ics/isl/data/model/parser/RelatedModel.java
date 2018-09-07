@@ -28,7 +28,7 @@ public class RelatedModel {
     private String relationName, relationUri;
     private String relatedName, relatedUri, relatedVarName;
     //this hashmap is used to keep for each entity the potential relations/related entities 
-    private HashMap<String, String> sugRelationsRelatedEntities;
+    private HashMap<String, List<String>> sugRelationsRelatedEntities;
     private String relatedEntitySearchText;
     private List<String> selectedUris;
     private FilterExp filterExp;
@@ -139,16 +139,18 @@ public class RelatedModel {
         }
     }
 
-    public HashMap<String, String> findRelationsRelatedEntities(String relatedEntityName) {
-        HashMap<String, String> result = new HashMap<>();
+    public HashMap<String, List<String>> findRelationsRelatedEntities(String fromEntityName) {
+        HashMap<String, List<String>> result = new HashMap<>();
         JSONArray entities = DBService.retrieveAllEntities(false);
-        JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, relatedEntityName, Utils.jsonArrayToList(entities));
+        JSONArray relationsEntities = DBService.retrieveRelationsEntities(selectedGraphs, fromEntityName, Utils.jsonArrayToList(entities));
         for (int i = 0; i < relationsEntities.size(); i++) {
             JSONObject obj = (JSONObject) relationsEntities.get(i);
-            result.put(
-                    (String) ((JSONObject) obj.get("relation")).get("uri"),
-                    (String) ((JSONObject) obj.get("related_entity")).get("uri")
-            );
+            String key = (String) ((JSONObject) obj.get("relation")).get("uri");
+            String value = (String) ((JSONObject) obj.get("related_entity")).get("uri");
+            if (!result.containsKey(key)) {
+                result.put(key, new ArrayList<>());
+            }
+            result.get(key).add(value);
         }
         return result;
     }
@@ -241,7 +243,7 @@ public class RelatedModel {
         return relatedVarName;
     }
 
-    public HashMap<String, String> getSugRelationsRelatedEntities() {
+    public HashMap<String, List<String>> getSugRelationsRelatedEntities() {
         return sugRelationsRelatedEntities;
     }
 

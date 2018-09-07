@@ -98,7 +98,7 @@ public class EntitiesSuggester {
         RelatedModel row = getRowModel();
         RelatedModel testingRelModel = findNullRelatedModel(relModels, null);
         testingRelModel.setSelectedGraphs(this.model.getSelectedGraphs());
-        HashMap<String, String> sugRelationRelEntities;
+        HashMap<String, List<String>> sugRelationRelEntities;
         if (row != null) {
             sugRelationRelEntities = row.getSugRelationsRelatedEntities();
         } else {
@@ -106,35 +106,38 @@ public class EntitiesSuggester {
         }
         if (testingRelModel.getFilterExp() == FilterExp.OR) {
             for (String relation : sugRelationRelEntities.keySet()) {
-                String relatedEntityUri = sugRelationRelEntities.get(relation);
-                JSONObject obj = new JSONObject();
-                JSONObject relEntity = entitiesMap.get(relatedEntityUri);
-                if (relEntity == null) {
-                    continue;
+                for (String relatedEntityUri : sugRelationRelEntities.get(relation)) {
+                    JSONObject obj = new JSONObject();
+                    JSONObject relEntity = entitiesMap.get(relatedEntityUri);
+                    if (relEntity == null) {
+                        continue;
+                    }
+                    obj.put("related_entity", relEntity);
+                    JSONObject relJSON = new JSONObject();
+                    relJSON.put("uri", relation);
+                    relJSON.put("name", relations.get(relation));
+                    obj.put("relation", relJSON);
+                    result.add(obj);
                 }
-                obj.put("related_entity", relEntity);
-                JSONObject relJSON = new JSONObject();
-                relJSON.put("uri", relation);
-                relJSON.put("name", relations.get(relation));
-                obj.put("relation", relJSON);
-                result.add(obj);
             }
         } else {
             for (String relation : sugRelationRelEntities.keySet()) {
-                String relEntityUri = sugRelationRelEntities.get(relation);
-                JSONObject relEntity = entitiesMap.get(relEntityUri);
-                if (relEntity == null) {
-                    continue;
-                }
-                testingRelModel.setRelatedVarName((String) relEntity.get("var_name"));
-                testingRelModel.setRelatedUri(relEntityUri);
-                testingRelModel.setRelationUri(relation);
-                testingRelModel.setRelationName(relations.get(relation));
-                String query = model.toSPARQL();
-                if (query != null) {
-                    query = query.replace("distinct", "") + " limit 1";
-                    queries.add(query);
-                    System.out.println(query);
+//                String relEntityUri = sugRelationRelEntities.get(relation);
+                for (String relEntityUri : sugRelationRelEntities.get(relation)) {
+                    JSONObject relEntity = entitiesMap.get(relEntityUri);
+                    if (relEntity == null) {
+                        continue;
+                    }
+                    testingRelModel.setRelatedVarName((String) relEntity.get("var_name"));
+                    testingRelModel.setRelatedUri(relEntityUri);
+                    testingRelModel.setRelationUri(relation);
+                    testingRelModel.setRelationName(relations.get(relation));
+                    String query = model.toSPARQL();
+                    if (query != null) {
+                        query = query.replace("distinct", "") + " limit 1";
+                        queries.add(query);
+                        System.out.println(query);
+                    }
                 }
             }
             if (!queries.isEmpty()) {
@@ -142,29 +145,30 @@ public class EntitiesSuggester {
 //                RestClient client = new RestClient(endpoint, namespace, token);
                 VirtuosoRestClient client = new VirtuosoRestClient(endpoint, token);
                 JSONArray results = (JSONArray) new JSONParser().parse(client.executeBatchSparqlQueryPOST(queries, "application/json").readEntity(String.class));
-                System.out.println(results.toString());
+//                System.out.println(results.toString());
                 int i = 0;
                 for (String relation : sugRelationRelEntities.keySet()) {
-                    String relEntityUri = sugRelationRelEntities.get(relation);
-                    JSONObject relEntity = entitiesMap.get(relEntityUri);
-                    if (relEntity == null) {
-                        continue;
+                    for (String relEntityUri : sugRelationRelEntities.get(relation)) {
+                        JSONObject relEntity = entitiesMap.get(relEntityUri);
+                        if (relEntity == null) {
+                            continue;
+                        }
+                        JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
+                        JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
+                        if (!res.isEmpty()) {
+//                            String relatedEntityUri = sugRelationRelEntities.get(relation);
+                            JSONObject obj = new JSONObject();
+                            JSONObject relatedEntity = entitiesMap.get(relEntityUri);
+                            obj.put("related_entity", relatedEntity);
+                            JSONObject relJSON = new JSONObject();
+                            relJSON.put("uri", relation);
+                            relJSON.put("name", relations.get(relation));
+                            obj.put("relation", relJSON);
+                            result.add(obj);
+                            System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
+                        }
+                        i++;
                     }
-                    JSONObject qRes = (JSONObject) new JSONParser().parse((String) results.get(i));
-                    JSONArray res = (JSONArray) ((JSONObject) qRes.get("results")).get("bindings");
-                    if (!res.isEmpty()) {
-                        String relatedEntityUri = sugRelationRelEntities.get(relation);
-                        JSONObject obj = new JSONObject();
-                        JSONObject relatedEntity = entitiesMap.get(relatedEntityUri);
-                        obj.put("related_entity", relatedEntity);
-                        JSONObject relJSON = new JSONObject();
-                        relJSON.put("uri", relation);
-                        relJSON.put("name", relations.get(relation));
-                        obj.put("relation", relJSON);
-                        result.add(obj);
-                        System.out.println(relation + " -> " + sugRelationRelEntities.get(relation));
-                    }
-                    i++;
                 }
             }
         }
