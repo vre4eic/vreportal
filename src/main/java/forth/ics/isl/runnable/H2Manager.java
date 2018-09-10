@@ -2238,6 +2238,15 @@ public class H2Manager {
     }
 
     private void insertRelationsMatUpdates() throws SQLException {
+        insertRelationMatUpdate("insert_classifications", "insert into @#$%FROM%$#@ {\n"
+                + "?s ?p ?o.\n"
+                + "} where \n"
+                + "{\n"
+                + "select * from <http://vre/classifications>  where {\n"
+                + "?s ?p ?o.\n"
+                + "}\n"
+                + "}");
+        
         insertRelationMatUpdate("searchable_text_organisation", "insert into @#$%FROM%$#@ {\n"
                 + "?uri <http://searchable_text> ?text.\n"
                 + "} where \n"
@@ -3832,7 +3841,7 @@ public class H2Manager {
 
         h2.deleteTable("RELATIONS_MATERIAL");
         h2.createTableRelationsMatUpdates();
-        h2.insertRelationsMatUpdatesNew();
+        h2.insertRelationsMatUpdates();
 //        h2.insertEntity("Workflow",
 //                "http://eurocris.org/ontology/cerif#Workflow",
 //                "thesaurus/persons-firstAndLastNames.json",
