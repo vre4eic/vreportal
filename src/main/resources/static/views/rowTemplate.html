@@ -174,10 +174,9 @@
 				 		padding:5px 5px; 
 				 		border:1px solid #ccc;
 				 		border-radius: 5px;"
-				 class="animate-show animate-hide" 
-				 ng-class="rowModel.activeRowModelStyle">
+				 class="animate-show animate-hide">
 			
-				<div layout="column" style="max-width:260px;min-width:230px;">
+				<div layout="column" style="max-width:260px;min-width:230px;" ng-class="rowModel.activeRelationModelStyle">
 				
 					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
@@ -192,12 +191,13 @@
 							<md-select ng-model="rowModel.selectedRelation" 
 									   ng-model-options="{trackBy: '$value.uri'}"
 									   name="relationInput_{{rowModel.id}}"
-									   ng-disabled="rowModel.activeRowModelStyle == 'disabled-style'" 
+									   ng-disabled="rowModel.activeRelationModelStyle == 'disabled-style'" 
 									   ng-required = "rowModel.activeRowModelStyle == 'enabled-style'" 
 									   ng-change="loadRelatedEntitiesByRelation(parent.rowModel, rowModel);"
 									   md-no-asterisk="false">
 								<md-option ng-repeat="relation in rowModel.relations" ng-value="relation" ><!-- track by $index -->
-									{{relation.name}} <span ng-show="relation.duplicate"> - {{relation.relatedEntity.name}}</span>
+									{{relation.name}} 
+									<!-- <span ng-show="relation.duplicate"> - {{relation.relatedEntity.name}}</span> -->
 								</md-option>
 							</md-select>
 							<div ng-messages="searchForm['relationInput_' + rowModel.id].$error">
@@ -241,7 +241,7 @@
 	      					
 	      		</div>
 	      					
-				<div layout="column" style="width:270px;">
+				<div layout="column" style="width:270px;" ng-class="rowModel.activeRowModelStyle">
 					
 					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
@@ -422,7 +422,8 @@
 				<!-- Related entity's search results -->
 				<div layout="column" 
 					 ng-show="rowModel.shownEntitySearchResults" 
-					 class="searchResultsRelatedEntityInit transformWidth">
+					 class="searchResultsRelatedEntityInit transformWidth"
+					 ng-class="rowModel.activeRowModelStyle">
 					
 					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
@@ -463,7 +464,8 @@
 				<!-- Region Set -->
 				<div layout="column" 
 					 ng-show="rowModel.boundingBox && !rowModel.shownEntitySearchResults" 
-					 class="searchResultsRelatedEntityInit transformWidth">
+					 class="searchResultsRelatedEntityInit transformWidth"
+					 ng-class="rowModel.activeRowModelStyle">
 					
 					<md-toolbar class="md-primary narrow-toolbar">
 						<div class="md-toolbar-tools" layout-align="start center">
@@ -493,7 +495,7 @@
 					</div>
 				</div>
 				
-				<div style="z-index:2" ng-show="!($first && $last) || parent.rowModel!=null">
+				<div style="z-index:2" ng-show="!($first && $last) || parent.rowModel!=null" ng-class="rowModel.activeRowModelStyle">
 					<md-button aria-label="Remove Filter" 
 							   class="md-icon-button"
 							   ng-click="removeRowModel(outerIndex, parent.rowModel)"

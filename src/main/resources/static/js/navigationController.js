@@ -3,8 +3,8 @@
  * 
  * @author Vangelis Kritsotakis
  */
-app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', 'homeStateConfirmService', '$mdSidenav', '$window', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', 
-                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, homeStateConfirmService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q) {
+app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', 'homeStateConfirmService', '$mdSidenav', '$window', 'ivhTreeviewMgr', '$http', '$log', '$mdDialog', '$mdToast', '$q', '$filter', 
+                                  function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, homeStateConfirmService, $mdSidenav, $window, ivhTreeviewMgr, $http, $log, $mdDialog, $mdToast, $q, $filter) {
 	
 	$scope.headingTitle = "Metadata Search";
 	$scope.favoriteTitle = '';
@@ -528,7 +528,8 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 		relatedEntitySearchText: '',
 		rowModelList: [],
 		activeRelatedSearchResultsStyle: 'disabled-style', //'enabled-style'
-		activeRowModelStyle: 'disabled-style'
+		activeRowModelStyle: 'disabled-style',
+		activeRelationModelStyle: 'disabled-style' // The style was decided to be distinguished between relation and all the rest (related entity, selected instances, selected region)
 	}
 	
 	$scope.thesaurus = {};
@@ -1306,6 +1307,9 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 					rowModel.backupRelatedChips = angular.copy(rowModel.relatedChips);
 				}
 				
+				// Enabling style for the relation drop down list
+				rowModel.activeRelationModelStyle = 'enabled-style';
+				
 			} // Close - else (selection from related entity
 			
 		} // If close - (selectedEntity not null)
@@ -1357,18 +1361,21 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 						rowModel.relatedEntityRelationTuples = angular.toJson(response.data);
 					
 						for(var i=0; i<response.data.length; i++) {
-							// Check for duplicates in the list of related entities
+							// Check for duplicates (URI based) in the list of related entities
 							// Pure compare
 							if (!containedInList(response.data[i].related_entity, rowModel.relatedEntities, false).contained)
 								rowModel.relatedEntities.push(response.data[i].related_entity);
 							
 							rowModel.relations.push(response.data[i].relation);
 							rowModel.relations[i].relatedEntity = response.data[i].related_entity;
-							// Check if the relation is duplicated and mark it as duplicated
-							if(containedInListManyTimesBasedOnFieldPathOfDepth2(response.data[i].relation, response.data, 'name', 'relation', 'name').index.length >1)
-								rowModel.relations[i].duplicate = true;
+							// Check if the relation's label is duplicated and mark it as duplicated
+							//if(containedInListManyTimesBasedOnFieldPathOfDepth2(response.data[i].relation, response.data, 'name', 'relation', 'name').index.length >1)
+							//	rowModel.relations[i].duplicate = true;
 							//$log.info('value: ' + value);
 						}
+						
+						// Sort them by label
+						rowModel.relations = $filter('orderBy')(rowModel.relations, 'name');
 						
 						// Display msg
 						$mdToast.show(
@@ -1482,6 +1489,7 @@ app.controller("navigationCtrl", ['$state', '$scope', '$timeout', '$parse', '$se
 							if(rowModel.relations[i].uri == rowModel.selectedRelation.uri) {
 								rowModel.selectedRelation = rowModel.relations[i];
 								found = true;
+								//break;
 							}
 						}
 						if(found == false) {
