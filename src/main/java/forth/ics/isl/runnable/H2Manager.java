@@ -2238,7 +2238,7 @@ public class H2Manager {
 
         insertEntity("Classification",
                 "http://eurocris.org/ontology/cerif#Classification",
-                "thesaurus/persons-firstAndLastNames.json",
+                "thesaurus/classification_terms.json",
                 "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
                 + "select distinct ?name ?collection (?c as ?uri) @#$%FROM%$#@\n"
                 + "where {\n"
