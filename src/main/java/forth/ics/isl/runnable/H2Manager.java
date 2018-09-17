@@ -15,8 +15,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -2235,6 +2235,31 @@ public class H2Manager {
                 "",
                 "workfl"
         );
+
+        insertEntity("Classification",
+                "http://eurocris.org/ontology/cerif#Classification",
+                "thesaurus/persons-firstAndLastNames.json",
+                "PREFIX cerif:<http://eurocris.org/ontology/cerif#>\n"
+                + "select distinct ?name ?collection (?c as ?uri) @#$%FROM%$#@\n"
+                + "where {\n"
+                + "?c a cerif:Classification. \n"
+                + "?c <http://eurocris.org/ontology/cerif#has_term> ?name . \n"
+                + "?c <http://in_graph> ?collection.\n"
+                + "?name bif:contains \"@#$%TERM%$#@\". \n"
+                + "} ",
+                "",
+                "",
+                false,
+                "distinct ?@#$%VAR%$#@Name as ?name ?@#$%VAR%$#@Uri as ?classif_uri ?collection (?@#$%VAR%$#@ as ?uri)",
+                "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#Classification>.\n"
+                + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
+                + "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_term> ?@#$%VAR%$#@Name. \n",
+                "?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_term> ?@#$%VAR%$#@Name .\n"
+                + "?@#$%VAR%$#@Name bif:contains \"@#$%TERM%$#@\".",
+                "",
+                "",
+                "classif"
+        );
     }
 
     private void insertRelationsMatUpdates() throws SQLException {
@@ -2246,7 +2271,7 @@ public class H2Manager {
                 + "?s ?p ?o.\n"
                 + "}\n"
                 + "}");
-        
+
         insertRelationMatUpdate("searchable_text_organisation", "insert into @#$%FROM%$#@ {\n"
                 + "?uri <http://searchable_text> ?text.\n"
                 + "} where \n"
@@ -2989,6 +3014,19 @@ public class H2Manager {
                 + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-Person/\",encode_for_uri(?role_opposite) )) as ?ser_pers ). \n"
                 + "}");
 
+        insertRelationMatUpdate("Person-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Person", "Person"));
+        insertRelationMatUpdate("OrganisationUnit-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#OrganisationUnit", "OrganisationUnit"));
+        insertRelationMatUpdate("Project-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Project", "Project"));
+        insertRelationMatUpdate("Publication-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Publication", "Publication"));
+        insertRelationMatUpdate("Product-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Product", "Product"));
+        insertRelationMatUpdate("Dataset-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Dataset", "Dataset"));
+        insertRelationMatUpdate("Equipment-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Equipment", "Equipment"));
+        insertRelationMatUpdate("Facility-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Facility", "Facility"));
+        insertRelationMatUpdate("Software-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Software", "Software"));
+        insertRelationMatUpdate("Service-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Service", "Service"));
+        insertRelationMatUpdate("WebService-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#WebService", "WebService"));
+        insertRelationMatUpdate("Workflow-Classification", insertEntityClassficationMaterial("http://eurocris.org/ontology/cerif#Workflow", "Workflow"));
+
 //        insertRelationMatUpdate("OrganisationUnit-Workflow", "WITH @#$%FROM%$#@ \n"
 //                + "INSERT { \n"
 //                + "  ?org ?org_ser ?ser. \n"
@@ -3024,6 +3062,26 @@ public class H2Manager {
 //                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Service-Workflow/\",encode_for_uri(?role) )) as ?ser1_ser2 ). \n"
 //                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Workflow-Service/\",encode_for_uri(?role_opposite) )) as ?ser2_ser1 ). \n"
 //                + "}");
+    }
+
+    private String insertEntityClassficationMaterial(String entityUri, String entity) {
+        return "WITH @#$%FROM%$#@ \n"
+                + "INSERT { \n"
+                + "  ?ent ?ent_class ?classif. \n"
+                + "  ?classif ?class_ent ?ent. \n"
+                + "} WHERE { \n"
+                + "  ?ent a <" + entityUri + ">.\n"
+                + "  ?classif a <http://eurocris.org/ontology/cerif#Classification>.\n"
+                + "\n"
+                + "   ?ent <http://eurocris.org/ontology/cerif#is_source_of> ?pou.\n"
+                + "   ?pou a <http://eurocris.org/ontology/cerif#SimpleLinkEntity>.\n"
+                + "   ?pou <http://eurocris.org/ontology/cerif#has_classification> ?classif. \n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpression> ?role.\n"
+                + "   ?classif <http://eurocris.org/ontology/cerif#has_roleExpressionOpposite> ?role_opposite.\n"
+                + "\n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#" + entity + "-Classification/\",encode_for_uri(?role) )) as ?ent_class ). \n"
+                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Classification-" + entity + "/\",encode_for_uri(?role_opposite) )) as ?class_ent ). \n"
+                + "}";
     }
 
     private void insertRelationsMatUpdatesNew() throws SQLException {
@@ -3832,10 +3890,10 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 //
-//        h2.deleteTable("entity");
-//        h2.createTableEntity();
+        h2.deleteTable("entity");
+        h2.createTableEntity();
 //        h2.insertEntitiesBlazegraph();
-//        h2.insertEntitiesVirtuoso();
+        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.createTableRelation();
 
@@ -3904,6 +3962,7 @@ public class H2Manager {
         String endpoint = "http://139.91.183.97:8181/EVREMetadataServices-2.0-SNAPSHOT";
         String graphUri = "http://graph/1536156823420";
 //        graphUri = "http://vre/workflows";
+        graphUri = "http://fris-data/dev";
         /////
 ////        List<String> uris = DBService.retrieveAllNamedgraphUris();
 ////        for (String graphURI : uris) {
@@ -3918,6 +3977,7 @@ public class H2Manager {
 //        matRelationEntities.add("Location");
 //        matRelationEntities.add("Publication");
 //        matRelationEntities.add("Project");
+//        matRelationEntities.add("Publication");
 //        matRelationEntities.add("Dataset");
 //        matRelationEntities.add("Software");
 //        

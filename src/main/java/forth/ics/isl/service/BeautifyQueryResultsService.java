@@ -26,20 +26,20 @@ import org.json.simple.parser.ParseException;
  */
 //@Repository
 public class BeautifyQueryResultsService {
-
+    
     private static final String VREPrefix = "http://139.91.183.70:8090/vre4eic/";
     private static final String CERIFPrefix = "http://eurocris.org/ontology/cerif#";
     ///////
     private String authorizationToken;
     private String endpoint;
     private String namespace;
-
+    
     private JSONObject instanceInfo;
-
+    
     public JSONObject getInstanceRelations() {
         return instanceInfo;
     }
-
+    
     public BeautifyQueryResultsService(String authorizationToken, String endpoint) {
         this.authorizationToken = authorizationToken;
         this.endpoint = endpoint;
@@ -47,7 +47,7 @@ public class BeautifyQueryResultsService {
         this.instanceInfo = new JSONObject();
         this.instanceInfo.put("related_entity_types", new JSONArray());
     }
-
+    
     public void enrichEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
@@ -61,6 +61,7 @@ public class BeautifyQueryResultsService {
                 + "?instance_acronym "
                 + "?instance_type "
                 + "?instance_ext_uri \n"
+                + "?instance_classif "
                 + fromClause + " where \n"
                 + "{\n"
                 + "  ?instance_uri a ?instance_type. \n"
@@ -73,8 +74,11 @@ public class BeautifyQueryResultsService {
                 + "  optional { ?instance_uri cerif:has_title ?instance_title.}\n"
                 + "  optional { ?instance_uri cerif:has_acronym ?instance_acronym.}\n"
                 //                + "  optional { ?instance_uri cerif:has_description ?instance_description. }\n"
+                + "  ?instance_uri <http://eurocris.org/ontology/cerif#is_source_of> ?pou. \n"
+                + "  ?pou a <http://eurocris.org/ontology/cerif#SimpleLinkEntity>. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> [<http://eurocris.org/ontology/cerif#has_term> ?instance_classif]. \n"
                 + "  filter (?instance_uri = <" + entityUri + ">).\n"
-                + "}";
+                + "} limit 1";
 //        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
         VirtuosoRestClient client = new VirtuosoRestClient(endpoint, authorizationToken);
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
@@ -93,6 +97,7 @@ public class BeautifyQueryResultsService {
             String instanceTitle = getJSONObjectValue(row, "instance_title");
             String instanceAcronym = getJSONObjectValue(row, "instance_acronym");
             String instanceExtUri = getJSONObjectValue(row, "instance_ext_uri");
+            String instanceClassif = getJSONObjectValue(row, "instance_classif");
             ////
             instanceInfo.put("instance_uri", instanceUri);
             if (instanceName != null) {
@@ -113,6 +118,9 @@ public class BeautifyQueryResultsService {
             if (instanceAcronym != null) {
                 instanceInfo.put("instance_acronym", instanceAcronym);
             }
+            if (instanceClassif != null) {
+                instanceInfo.put("instance_classification", instanceClassif);
+            }
             if (instanceExtUri != null) {
                 try {
                     URL url = new URL(instanceExtUri);
@@ -128,7 +136,7 @@ public class BeautifyQueryResultsService {
             instanceInfo.put("instance_type", instanceType.replace(CERIFPrefix, ""));
         }
     }
-
+    
     public void enrichDstEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
@@ -180,7 +188,7 @@ public class BeautifyQueryResultsService {
 //        }
 
     }
-
+    
     public void enrichSrcEntityResults(String entityUri, String fromClause) throws IOException, ParseException {
         String query = "prefix cerif: <http://eurocris.org/ontology/cerif#>\n"
                 + "prefix vre4eic: <http://139.91.183.70:8090/vre4eic/>\n"
@@ -206,7 +214,7 @@ public class BeautifyQueryResultsService {
         Response resp = client.executeSparqlQuery(query, "application/json", 0);
         manageQueryResults(resp, fromClause);
     }
-
+    
     private void manageQueryResults(Response resp, String fromClause) throws ParseException {
         List<String> graphs = Utils.getGraphsFromClause(fromClause);
         JSONParser parser = new JSONParser();
@@ -229,11 +237,11 @@ public class BeautifyQueryResultsService {
                 ((JSONArray) instanceInfo.get("related_entity_types")).add(entitiesOfType);
                 relatedEntityType = type;
             }
-
+            
             String role = getJSONObjectValue(row, "role");
             String roleOpposite = getJSONObjectValue(row, "roleOpposite");
             String relation;
-            if (potentialRelations.contains(role)) {
+            if (potentialRelations.contains(role) || type.equals("http://eurocris.org/ontology/cerif#PostalAddress")) {
                 relation = role;
             } else {
                 relation = roleOpposite;
@@ -241,7 +249,7 @@ public class BeautifyQueryResultsService {
             if (relatedEntityType.contains("Medium")) {
                 relation = role;
             }
-
+            
             String entDstLabel = getJSONObjectValue(row, "ent_label");
             String entDstName = getJSONObjectValue(row, "ent_name");
             String entDstTitle = getJSONObjectValue(row, "ent_title");
@@ -265,17 +273,17 @@ public class BeautifyQueryResultsService {
             relEntitiesSet.add(relEntity);
         }
     }
-
+    
     private String getJSONObjectValue(JSONObject obj, String key) {
         return obj.get(key) == null ? null : (String) ((JSONObject) obj.get(key)).get("value");
     }
-
+    
     public JSONObject getInstanceInfo() {
         return instanceInfo;
     }
-
+    
     public static void main(String[] args) throws Exception {
-
+        
         String endpoint = "http://139.91.183.97:8080/EVREMetadataServices-1.0-SNAPSHOT";
         String namespace = "vre4eic";
         String token = "3d791107-6bb4-4e7b-9efd-38e1e33af05b";
@@ -283,13 +291,13 @@ public class BeautifyQueryResultsService {
         entityUri = "http://139.91.183.70:8090/vre4eic/EPOS.Organisation.www.forth.gr/";
 //        entityUri = "http://139.91.183.70:8090/vre4eic/EKT.Project.7602";
         String fromClause = "from <http://ekt-data>";
-
+        
         BeautifyQueryResultsService beauty = new BeautifyQueryResultsService(token, endpoint);
 //        beauty.enrichEntityResults(entityUri, fromClause);
 //        beauty.enrichDstEntityResults(entityUri, fromClause);
         beauty.enrichSrcEntityResults(entityUri, fromClause);
         System.out.println(beauty.getInstanceInfo());
-
+        
     }
-
+    
 }
