@@ -33,7 +33,7 @@ public class H2Manager {
 
     public H2Manager() throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
-        connection = DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+        connection = DriverManager.getConnection("jdbc:h2:~/evredev", "sa", "");
         statement = connection.createStatement();
 //        st.executeUpdate(
     }
@@ -157,7 +157,7 @@ public class H2Manager {
         return statement.executeUpdate("CREATE TABLE relation ( \n"
                 + "id int NOT NULL AUTO_INCREMENT, \n"
                 + "uri clob, \n"
-                + "name varchar(100), \n"
+                + "name clob, \n"
                 + "source_entity int, \n"
                 + "destination_entity int, \n"
                 + "graph varchar(30),"

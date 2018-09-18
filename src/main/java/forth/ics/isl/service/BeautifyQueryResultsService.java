@@ -74,9 +74,9 @@ public class BeautifyQueryResultsService {
                 + "  optional { ?instance_uri cerif:has_title ?instance_title.}\n"
                 + "  optional { ?instance_uri cerif:has_acronym ?instance_acronym.}\n"
                 //                + "  optional { ?instance_uri cerif:has_description ?instance_description. }\n"
-                + "  ?instance_uri <http://eurocris.org/ontology/cerif#is_source_of> ?pou. \n"
+                + "  optional { ?instance_uri <http://eurocris.org/ontology/cerif#is_source_of> ?pou. \n"
                 + "  ?pou a <http://eurocris.org/ontology/cerif#SimpleLinkEntity>. \n"
-                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> [<http://eurocris.org/ontology/cerif#has_term> ?instance_classif]. \n"
+                + "  ?pou <http://eurocris.org/ontology/cerif#has_classification> [<http://eurocris.org/ontology/cerif#has_term> ?instance_classif]. } \n"
                 + "  filter (?instance_uri = <" + entityUri + ">).\n"
                 + "} limit 1";
 //        RestClient client = new RestClient(endpoint, namespace, authorizationToken);
