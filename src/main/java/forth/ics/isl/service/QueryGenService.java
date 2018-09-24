@@ -24,22 +24,7 @@ import org.json.simple.parser.ParseException;
  */
 public class QueryGenService {
 
-    public static String geoEntityQuery(String entityUri, String graphsClause) {
-//        String query = "PREFIX cerif: <http://eurocris.org/ontology/cerif#>\n"
-//                + "SELECT ?object ?FLE2 \n"
-//                + graphsClause + " \n"
-//                + "WHERE {\n"
-//                + "?object a <" + entityUri + ">.\n"
-//                + "OPTIONAL {\n "
-//                + "?object cerif:is_source_of ?FLE1.\n"
-//                + "?FLE1 cerif:has_destination ?PA.\n"
-//                + "?PA cerif:is_source_of ?FLE2.\n"
-//                + "?FLE2 cerif:has_destination [a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>]."
-//                + "}\n"
-//                + "OPTIONAL {\n"
-//                + "  ?FLE2 cerif:has_destination ?object.\n"
-//                + "} } limit 1";
-
+    public static String GeoEntityQuery(String entityUri, String graphsClause) {
         String query = "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
                 + "select ?object " + graphsClause + " \n"
                 + "where {\n"
@@ -56,7 +41,15 @@ public class QueryGenService {
                 + "?object a <http://eurocris.org/ontology/cerif#GeographicBoundingBox>\n"
                 + "}\n"
                 + "} limit 1";
+        return query;
+    }
 
+    public static String EntityQuery(String entityUri, String graphsClause) {
+        String query = "PREFIX cerif:<http://eurocris.org/ontology/cerif#> \n"
+                + "select ?object " + graphsClause + " \n"
+                + "where {\n"
+                + "?object a <" + entityUri + ">. \n"
+                + "} limit 1";
         return query;
     }
 
@@ -74,7 +67,7 @@ public class QueryGenService {
         JSONParser parser = new JSONParser();
         for (int i = 0; i < initEntitiesJSON.size(); i++) {
             JSONObject entityJSON = (JSONObject) initEntitiesJSON.get(i);
-            String query = geoEntityQuery((String) entityJSON.get("uri"), from);
+            String query = GeoEntityQuery((String) entityJSON.get("uri"), from);
 //            VirtuosoRestClient client = new RestClient(endpoint, namespace, authorizationToken);
             RestClient client = new RestClient(endpoint, authorizationToken);
             Response response = client.executeSparqlQuery(query, namespace, 0, "application/json", authorizationToken);
