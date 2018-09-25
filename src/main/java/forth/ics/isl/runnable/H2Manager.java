@@ -2177,7 +2177,7 @@ public class H2Manager {
                 "",
                 "",
                 false,
-                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?@#$%VAR%$#@Uri as ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?collection (?@#$%VAR%$#@ as ?uri)",
+                "distinct ?@#$%VAR%$#@Name as ?name ?wadl_file ?webservice_uri GROUP_CONCAT(distinct ?@#$%VAR%$#@Keyw ; separator=\", \") as ?@#$%VAR%$#@_Params ?collection (?@#$%VAR%$#@ as ?uri)",
                 "?@#$%VAR%$#@ a <http://eurocris.org/ontology/cerif#WebService>.\n"
                 + "?@#$%VAR%$#@ <http://in_graph> ?collection. \n"
                 + "OPTIONAL {?@#$%VAR%$#@ <http://eurocris.org/ontology/cerif#has_URI>         ?@#$%VAR%$#@Uri .}\n"
@@ -2190,6 +2190,7 @@ public class H2Manager {
                 + "BIND(if(bound(?@#$%VAR%$#@Description),?@#$%VAR%$#@Description,\"-\") as ?@#$%VAR%$#@Descr).\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Keywords),?@#$%VAR%$#@Keywords,\"-\") as ?@#$%VAR%$#@Keyw).\n"
                 + "BIND(if(bound(?@#$%VAR%$#@Medium),?@#$%VAR%$#@Medium,\"-\") as ?wadl_file).\n"
+                + "BIND(if(bound(?@#$%VAR%$#@Uri),?@#$%VAR%$#@Uri,\"-\") as ?webservice_uri).\n"
                 + "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n",
                 "?@#$%VAR%$#@ <http://searchable_text> ?@#$%VAR%$#@Label. \n"
                 + "?@#$%VAR%$#@Label bif:contains \"@#$%TERM%$#@\".",

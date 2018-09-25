@@ -335,7 +335,7 @@ public class EntityManagerController {
 //        restClient = new RestClient(serviceUrl, namespace, authorizationToken);
         restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
         String query = (String) requestParams.get("query");
-        System.out.println("query:" + query);
+//        System.out.println("query:" + query);
         JSONObject responseJsonObject = new JSONObject();
         responseJsonObject.put("query", query);
 
