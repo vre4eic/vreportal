@@ -76,7 +76,6 @@ public class QueryController {
         beautifyQueryResultsService = new BeautifyQueryResultsService(authorizationToken, serviceUrl);
         // Calling service
         beautifyQueryResultsService.enrichEntityResults(entityUriStr, fromSearchStr);
-        beautifyQueryResultsService.enrichEntityClassifications(entityUriStr, fromSearchStr);
         beautifyQueryResultsService.enrichDstEntityResults(entityUriStr, fromSearchStr);
         beautifyQueryResultsService.enrichSrcEntityResults(entityUriStr, fromSearchStr);
         JSONObject responseJsonObject = new JSONObject(); // JSON Object to hold response
