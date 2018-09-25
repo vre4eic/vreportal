@@ -1,7 +1,7 @@
 package forth.ics.isl.triplestore;
 
-//import ch.qos.logback.classic.Level;
-//import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -41,14 +41,12 @@ public class RestClient {
 
     public RestClient(String serviceUrl, String namespace, String authorizationToken) throws IOException {
         // Be put in comments due to conflicts with log4j when creating the fat jar
-        /*
-    	Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
         for (String log : loggers) {
             Logger logger = (Logger) LoggerFactory.getLogger(log);
             logger.setLevel(Level.INFO);
             logger.setAdditive(false);
         }
-        */
         ///
         this.serviceUrl = serviceUrl;
         this.namespace = namespace;

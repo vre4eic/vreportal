@@ -6,6 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.4.1.RELEASE</version>
+        <!-- <version>1.5.16.RELEASE</version> -->
     </parent>
 	
     <groupId>forth.ics.isl</groupId>
@@ -28,7 +29,7 @@
                 before ctreating the big fat jar
                 -->
                 <!--
-        <exclusion>
+        		<exclusion>
                     <groupId>ch.qos.logback</groupId>
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
@@ -49,7 +50,13 @@
             <artifactId>json</artifactId>
             <version>20160810</version>
         </dependency>
-
+		<!--
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+			<version>9.0.12</version>
+		</dependency>
+		-->
         <!-- WebJars -->
         <dependency>
             <groupId>org.webjars</groupId>
