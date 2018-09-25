@@ -128,6 +128,7 @@ public class EntityManagerController {
             JSONParser parser = new JSONParser();
             String query = EntityQuery((String) entityJSON.get("uri"), from.toString());
             restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
+//            System.out.println(query);
             Response response = restClient.executeSparqlQuery(query, 0, "application/json", authorizationToken);
             if (response.getStatus() != 200) {
                 System.out.println(response.readEntity(String.class));
