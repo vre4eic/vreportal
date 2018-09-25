@@ -84,11 +84,30 @@
 					    
 					    <md-list>
 					    
-							<md-list-item ng-repeat="itemProperty in item.related_entities_of_type" 
+							<md-list-item ng-show="itemProperty.related_entity_uri != null"
+										  ng-repeat="itemProperty in item.related_entities_of_type" 
 										  class="md-3-line" 
 										  ng-click="handleSelectedResultItem(itemProperty.related_entity_uri, false, false)">
 								<div class="md-list-item-text" layout="column" flex>
 									<h3 style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.relation }}</h3>
+									<h4 ng-show="itemProperty != null" 
+										style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.term }}</h4>
+									<h4 style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.related_entity_label }}</h4>
+									<p style="white-space:normal; text-align:justify; color:#106CC8;" 
+									   ng-show="itemProperty.related_entity_acronym != null">
+										{{ itemProperty.related_entity_acronym }}
+									</p>
+								</div>
+								<md-divider ></md-divider>
+							</md-list-item>
+							
+							<md-list-item ng-show="itemProperty.related_entity_uri == null"
+										  ng-repeat="itemProperty in item.related_entities_of_type" 
+										  class="md-3-line">
+								<div class="md-list-item-text" layout="column" flex>
+									<h3 style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.relation }}</h3>
+									<h4 ng-show="itemProperty != null" 
+										style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.term }}</h4>
 									<h4 style="white-space:normal; text-align:justify; color:#106CC8;">{{ itemProperty.related_entity_label }}</h4>
 									<p style="white-space:normal; text-align:justify; color:#106CC8;" 
 									   ng-show="itemProperty.related_entity_acronym != null">
