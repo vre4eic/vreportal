@@ -150,6 +150,11 @@ public class BeautifyQueryResultsService {
                 instanceInfo.put("instance_title", instanceTitle);
             }
             if (instanceDescr != null) {
+                //quick and dirty solution for the workflows local path)
+                if (instanceType.endsWith("Workflow") && instanceExtUri != null) {
+                    instanceDescr += " (local path: " + instanceExtUri + ")";
+                }
+                ////
                 instanceInfo.put("instance_description", instanceDescr);
             }
             if (instanceParams != null) {
