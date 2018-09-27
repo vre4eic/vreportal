@@ -5,7 +5,8 @@
 	
 			<md-toolbar class="md-primary">
 				<div class="md-toolbar-tools">
-					<md-icon md-font-icon="fa fa-handshake-o" style="padding-right:10px; font-size:36px;"/>
+					<!--<md-icon md-font-icon="fa fa-handshake-o" style="padding-right:10px; font-size:36px;"/>-->
+					<md-icon md-font-icon="fa fa-exclamation-triangle" style="padding-right:10px; font-size:36px;"/>
 					<h2 class="md-flex" flex>{{headingTitle}}</h2>
 				</div>
 			</md-toolbar>
@@ -13,74 +14,21 @@
 			<md-card>
        			<md-card-title>
          				<md-card-title-text>
-			            <span class="md-headline">Who we are</span>
+			            <span class="md-headline">Disclaimer</span>
 			        </md-card-title-text>
 				</md-card-title>
 						
 				<md-card-title-media style="text-align: justify; margin-left:50px; margin-right:50px;">
-			        <div layout="column">
-				    	VRE4EIC project is a European project aiming in addressing key data and software challenges 
-				    	in supporting multidisciplinary data driven sciences. These include:
-				    	<ul>
-				    		<li>
-				    			Understanding complex user requirements across domains by closely involving committed user communities;
-				    		</li>
-				    		<li>
-				    			Improving the quality of VRE user experience by providing user centred, secure, privacy compliant, 
-				    			sustainable environments for accessing data, composing workflows and tracking data publications;
-				    		</li>
-				    		<li>
-				    			Increasing VRE usage in multidisciplinary research domains by abstracting and reusing building blocks 
-				    			and workflows from existing VRE initiatives;
-				    		</li>
-				    		<li>
-				    			Improving the interoperability of heterogeneous discovery, contextual and detailed metadata across all 
-				    			layers of the VRE; and
-				    		</li>
-				    		<li>
-				    			Promoting the exploitation of VRE4EIC solutions to different research communities and commercially.
-				    		</li>
-				    	</ul>  	        
-			        </div>
+			        <p>
+			        	VRE4EIC provides access to assets of other organisations through metadata supplied 
+			        	by them in the interests of open science and under the policies and conditions of 
+			        	those organisations. By using the VRE4EIC portal the user consents to those conditions 
+			        	for the benefit of access and use.  The VRE4EIC project does not accept any liability 
+			        	in respect of loss, damage, injury or any other occurrence arising from the reliance 
+			        	on advice, information, data or related records provided.
+			        </p>
 				</md-card-title-media>
 						
-				<md-card-title>
-         				<md-card-title-text>
-			            <span class="md-headline">What personal data we collect and why we collect it</span>
-			        </md-card-title-text>
-				</md-card-title>
-				
-				<md-card-title-media style="text-align: justify; margin-left:50px; margin-right:50px;">
-			        <div layout="column">
-				    	 We collect only personal data from registered users, such as email, first and last name, company name, and 
-				    	 company URL. This data is collected in order to create provenance information for metadata imported by users and is is not shared with anyone.
-					</div>
-				</md-card-title-media>
-				
-				<md-card-title>
-         				<md-card-title-text>
-			            <span class="md-headline">Who we share your data with</span>
-			        </md-card-title-text>
-				</md-card-title>
-				
-				<md-card-title-media style="text-align: justify; margin-left:50px; margin-right:50px;">
-			        <div layout="column">
-				    	 We don't share this information with anyone.
-					</div>
-				</md-card-title-media>
-				
-				<md-card-title>
-         				<md-card-title-text>
-			            <span class="md-headline">How long we retain your data</span>
-			        </md-card-title-text>
-				</md-card-title>
-				
-				<md-card-title-media style="text-align: justify; margin-left:50px; margin-right:50px;">
-			        <div layout="column">
-				    	 The personal information provided through the registration form is stored in a database. All users can see, edit, or delete their personal information at any time (except they cannot change their username).
-					</div>
-				</md-card-title-media>
-				
 				<md-card-actions layout="row" layout-align="start center" style="margin:16px;">
 				<!--
 					<md-button class="md-raised md-primary" ng-click="acceptPrivacyPolicy();">

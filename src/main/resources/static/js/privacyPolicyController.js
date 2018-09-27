@@ -6,7 +6,7 @@
 app.controller("privacyPolicyCtrl", ['$state', '$scope', '$timeout', '$parse', '$sessionStorage', 'authenticationService', 'modalService', 'queryService', '$mdSidenav', '$mdToast', '$http', '$log', '$mdDialog', '$mdToast', 
                                   function($state, $scope, $timeout, $parse, $sessionStorage, authenticationService, modalService, queryService, $mdSidenav, $mdToast, $http, $log, $mdDialog, $mdToast) {
 	
-	$scope.headingTitle = "Privacy Policy";
+	$scope.headingTitle = "Disclaimer";
 	
 	// Calling service to get the user's credentials (token, userId)
 	function initCredentials() {
