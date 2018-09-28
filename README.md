@@ -33,13 +33,9 @@ As an initial and minimal configuration, please edit the values at the propertie
 Since this is a maven web application, it can easily be deployed by first creating the big fat JAR and then executing it. The application includes an embedded Jetty server container and thus requires nothing more. Finally, the portal uses an external H2 lightweight relational SQL database for managing portal’s and users’ configuration options.
 Steps:
 
-1. Create the H2 database by executing the java file by running the java command:
-java H2Manager.java
-2. The JAR can be created by running the maven command 
-mvn package
-3.	The JAR is executed by running the Java command
-java -jar <Name_Of_The_JAR.jar 
-The port to be used can also be defined by adding the parameter “server.port”
-For example:
-java -jar vreportal-0.0.1-SNAPSHOT.jar --server.port=8099
+1. Create the H2 database by executing the java file by running the java command: <br/>>> java H2Manager.java
+2. The JAR can be created by running the maven command: <br/>>> mvn package
+3. The JAR is executed by running the Java command: <br/>>> java -jar <Name_Of_The_JAR.jar<br/> 
+The port to be used can also be defined by using the argument “server.port”
+For example:<br/>java -jar vreportal-0.0.1-SNAPSHOT.jar --server.port=8099
 
