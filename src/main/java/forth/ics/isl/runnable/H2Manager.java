@@ -6,6 +6,7 @@
 package forth.ics.isl.runnable;
 
 import forth.ics.isl.service.DBService;
+import forth.ics.isl.service.PropertiesService;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -32,10 +34,15 @@ public class H2Manager {
     static Connection connection;
 
     public H2Manager() throws ClassNotFoundException, SQLException {
+        String dbUrl, username, password;
+        Properties h2Props = PropertiesService.getApplicationProperties();
+        dbUrl = h2Props.getProperty("H2Manager.datasource.url");
+        username = h2Props.getProperty("spring.datasource.username");
+        password = h2Props.getProperty("spring.datasource.password");
+        ///
         Class.forName("org.h2.Driver");
-        connection = DriverManager.getConnection("jdbc:h2:~/evredev", "sa", "");
+        connection = DriverManager.getConnection(dbUrl, username, password);
         statement = connection.createStatement();
-//        st.executeUpdate(
     }
 
     public H2Manager(Statement statement, Connection connection) {
@@ -57,7 +64,7 @@ public class H2Manager {
         createTableRelation();
         createTableRelationsMatUpdates();
         createTableUserFavorites();
-        insertEntitiesBlazegraph();
+        insertEntitiesVirtuoso();
         insertNamedgraphCategories();
         insertNamedgraphs();
         insertRelationsMatUpdates();
@@ -3891,16 +3898,16 @@ public class H2Manager {
         H2Manager h2 = new H2Manager();
 //        h2.init();
 //
-        h2.deleteTable("entity");
-        h2.createTableEntity();
+//        h2.deleteTable("entity");
+//        h2.createTableEntity();
 //        h2.insertEntitiesBlazegraph();
-        h2.insertEntitiesVirtuoso();
+//        h2.insertEntitiesVirtuoso();
 //        h2.deleteTable("RELATION");
 //        h2.createTableRelation();
 
-        h2.deleteTable("RELATIONS_MATERIAL");
-        h2.createTableRelationsMatUpdates();
-        h2.insertRelationsMatUpdates();
+//        h2.deleteTable("RELATIONS_MATERIAL");
+//        h2.createTableRelationsMatUpdates();
+//        h2.insertRelationsMatUpdates();
 //        h2.insertEntity("Workflow",
 //                "http://eurocris.org/ontology/cerif#Workflow",
 //                "thesaurus/persons-firstAndLastNames.json",
@@ -3954,9 +3961,10 @@ public class H2Manager {
 //                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Person/\",encode_for_uri(?role) )) as ?pers_pers1 ). \n"
 //                + "  Bind( IRI(concat(\"http://eurocris.org/ontology/cerif#Person-Person/\",encode_for_uri(?role_opposite) )) as ?pers_pers2). \n"
 //                + "}");
-
 //        h2.createTableUserFavorites();
 //        h2.insertNamedGraph("http://vre/workflows", "Workflows", "", 2);
+//        System.out.println(DBService.retrieveAllEntityNames());
+
         h2.terminate();
         /////////////////        
         String authorizationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJOb2RlU2VydmljZSIsInVzZXJJZCI6Im1hdGgifQ.JK2TzOSTAX9M-90mBOBgN_AGoashunSXnhaLTPwJZnA";

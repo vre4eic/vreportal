@@ -5,7 +5,6 @@
  */
 package forth.ics.isl.service;
 
-import forth.ics.isl.triplestore.RestClient;
 import forth.ics.isl.triplestore.VirtuosoRestClient;
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,8 +34,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -93,7 +91,12 @@ public class DBService {
         {
             return DataSourceUtils.getConnection(jdbcTemplate.getDataSource());
         } else {
-            return DriverManager.getConnection("jdbc:h2:~/evre", "sa", "");
+            String dbUrl, username, password;
+            Properties h2Props = PropertiesService.getApplicationProperties();
+            dbUrl = h2Props.getProperty("H2Manager.datasource.url");
+            username = h2Props.getProperty("spring.datasource.username");
+            password = h2Props.getProperty("spring.datasource.password");
+            return DriverManager.getConnection(dbUrl, username, password);
         }
     }
 
