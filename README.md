@@ -35,7 +35,7 @@ Steps:
 
 1. Create the H2 database by executing the java file by running the java command: <br/>>> java H2Manager.java
 2. The JAR can be created by running the maven command: <br/>>> mvn package
-3. The JAR is executed by running the Java command: <br/>>> java -jar <Name_Of_The_JAR.jar<br/> 
+3. The JAR is executed by running the Java command: <br/>>> java -jar <Name_Of_The_JAR.jar><br/> 
 The port to be used can also be defined by using the argument “server.port”
 For example:<br/>java -jar vreportal-0.0.1-SNAPSHOT.jar --server.port=8099
 
