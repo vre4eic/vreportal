@@ -1,3 +1,4 @@
+<img src="https://github.com/vre4eic/vreportal/blob/master/src/main/resources/static/images/AQub.2Qubes.v2.png" width="48">
 
 # VRE4EIC Portal - AQuB
 This is a platform that facilitates the exploration, discovery and management of semantic metadata. It incorporates a multitude of features on top of an intuitive and user friendly environment, in order for both novice and expert users to execute complex queries. The platform is agnostic to the underlying conceptual model, yet it can be configured to take advantage of the main concepts designed.
