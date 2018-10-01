@@ -3896,7 +3896,7 @@ public class H2Manager {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, UnsupportedEncodingException, IOException, ParseException, Exception {
         H2Manager h2 = new H2Manager();
-//        h2.init();
+        h2.init();
 //
 //        h2.deleteTable("entity");
 //        h2.createTableEntity();
