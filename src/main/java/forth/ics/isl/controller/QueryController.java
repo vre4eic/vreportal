@@ -45,7 +45,7 @@ public class QueryController {
     public void init() throws IOException, SQLException {
     }
 
-    @RequestMapping(value = "/final_search_query", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/final_search_query", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject searchEntityQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody String queryModel) throws IOException {
         QueryDataModel model = new QueryDataModel(queryModel);
@@ -54,7 +54,7 @@ public class QueryController {
         return responseJsonObject;
     }
 
-    @RequestMapping(value = "/retrieve_entity_info", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/retrieve_entity_info", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject retrieveEntityInfo(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 

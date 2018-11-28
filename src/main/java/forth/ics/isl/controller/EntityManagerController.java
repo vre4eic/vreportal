@@ -104,7 +104,7 @@ public class EntityManagerController {
      * database and for each entity it is examined if it has geospatial nature
      * in the considered namedgraphs (provided in the fromSearch parameter).
      */
-    @RequestMapping(value = "/get_entities", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/get_entities", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject loadEntitiesDataForPagePOST(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         System.out.println("Works");
@@ -171,7 +171,7 @@ public class EntityManagerController {
      * This service retrieves all the namedgraphs which are stored within the H2
      * database.
      */
-    @RequestMapping(value = "/get_all_namedgraphs", method = RequestMethod.GET, produces = {"application/json"})
+    @RequestMapping(value = "/get_all_namedgraphs", method = RequestMethod.GET, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONArray loadNGraphsDataForPage(@RequestParam Map<String, String> requestParams) {//, Model model) {
         System.out.println("Works");
@@ -189,7 +189,7 @@ public class EntityManagerController {
      * @return An EndPointDataPage object that holds the items of the passed
      * page.
      */
-    @RequestMapping(value = "/related_entity_query", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/related_entity_query", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject searchEntityQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
         System.out.println("running executequery_json...");
@@ -267,7 +267,7 @@ public class EntityManagerController {
      * relation and the corresponding related entity w.r.t. the target entity.
      * @throws IOException
      */
-    @RequestMapping(value = "/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 //        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
@@ -297,7 +297,7 @@ public class EntityManagerController {
      * @return
      * @throws IOException
      */
-    @RequestMapping(value = "/get_relations", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/get_relations", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
 //        System.out.println("targetEntity:" + requestParams.get("targetEntity"));
@@ -328,7 +328,7 @@ public class EntityManagerController {
      * @return
      * @throws ParseException
      */
-    @RequestMapping(value = "/execute_final_query", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/execute_final_query", method = RequestMethod.POST, produces = {"application/json; charset=utf-8"})
     public @ResponseBody
     ResponseEntity<?> executeFinalQuery(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
@@ -395,7 +395,7 @@ public class EntityManagerController {
         //return responseJsonObject;
     }
 
-    @RequestMapping(value = "/enrich_profile_graph", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/enrich_profile_graph", method = RequestMethod.POST, produces = {"application/json; charset=utf-8"})
     public @ResponseBody
     ResponseEntity<?> enrichProfileGraph(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
         ResponseEntity responseEntity = new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
@@ -453,7 +453,7 @@ public class EntityManagerController {
      * @return
      * @throws ParseException
      */
-    @RequestMapping(value = "/get_final_query_results_per_page", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/get_final_query_results_per_page", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject getFinalQueryResultsPerPage(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 

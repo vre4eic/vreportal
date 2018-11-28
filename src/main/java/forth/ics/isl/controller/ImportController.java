@@ -62,7 +62,7 @@ public class ImportController {
     /*
      * Saving meta-data information for the file to be uploaded in the database
      */
-    @RequestMapping(value = "/createGraphMetadata", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/createGraphMetadata", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject importData(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 
@@ -131,7 +131,7 @@ public class ImportController {
     /*
      * Saving meta-data information for the file to be uploaded in the database
      */
-    @RequestMapping(value = "/insertUserProfileMetadata", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/insertUserProfileMetadata", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject insertUserProfileMetadata(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException {
 
@@ -247,6 +247,7 @@ public class ImportController {
         /////
         try {
             ///////
+            request.setCharacterEncoding("UTF-8");
             Iterator<String> itr = request.getFileNames();
 //            RestClient client = new RestClient(serviceUrl, namespace, authorizationToken);
             VirtuosoRestClient restClient = new VirtuosoRestClient(serviceUrl, authorizationToken);
@@ -274,7 +275,7 @@ public class ImportController {
         return new ResponseEntity<>(importResponseJsonString, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/after_upload_process", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/after_upload_process", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONObject afterUploadProc(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) {
         JSONObject responseJsonObject = new JSONObject();

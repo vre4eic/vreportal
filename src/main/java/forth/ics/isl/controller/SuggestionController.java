@@ -50,7 +50,7 @@ public class SuggestionController {
         // before controller
     }
 
-    @RequestMapping(value = "/dynamic/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/dynamic/get_relations_related_entities", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONArray populateRelationsEntities(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException, ParseException, SQLException {
         EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
@@ -66,7 +66,7 @@ public class SuggestionController {
         return result;
     }
 
-    @RequestMapping(value = "/dynamic/get_relations", method = RequestMethod.POST, produces = {"application/json"})
+    @RequestMapping(value = "/dynamic/get_relations", method = RequestMethod.POST, produces = {"application/json;charset=utf-8"})
     public @ResponseBody
     JSONArray populateRelations(@RequestHeader(value = "Authorization") String authorizationToken, @RequestBody JSONObject requestParams) throws IOException {
         EntitiesSuggester suggester = new EntitiesSuggester((String) requestParams.get("model"), namespace, serviceUrl, authorizationToken);
