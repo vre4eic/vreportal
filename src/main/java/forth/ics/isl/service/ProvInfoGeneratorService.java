@@ -55,7 +55,12 @@ public class ProvInfoGeneratorService {
         this.endpoint = endpoint;
         emailString = emailString.replace("@", "A");
         this.personUri = VREPrefix + "Person." + URLEncoder.encode(emailString, "UTF-8");
-        this.orgUnitUri = VREPrefix + "OrgUnit." + URLEncoder.encode(orgUrl, "UTF-8");
+        int start = orgUrl.indexOf("//");
+        if (start > 0) {
+            this.orgUnitUri = VREPrefix + "Organisation." + orgUrl.substring(start + 2);
+        } else {
+            this.orgUnitUri = VREPrefix + "Organisation." + orgUrl;
+        }
         this.eAddressUri = VREPrefix + "EAddress." + URLEncoder.encode(emailString, "UTF-8");
         this.namedGraphId = namedGraphIdStr;
         this.namedGraphLabel = namedGraphLabelParam;
